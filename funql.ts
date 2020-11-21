@@ -147,6 +147,17 @@ export interface RState {
 export const states = db.collection<State>("States");
 `;
 
+const dbContent = `
+import { MongoClient } from "https://deno.land/x/mongo@v1.0.0/mod.ts";
+
+const client = new MongoClient();
+client.connectWithUri("mongodb://localhost:27017");
+
+const db = client.database("lwob");
+
+export default db;
+`;
+
 const createProject = async (init: string | boolean) => {
   init === true ? (init = "funql") : (init = init);
   await ensureDir(`./${init}`);
@@ -157,6 +168,8 @@ const createProject = async (init: string | boolean) => {
   await Deno.writeTextFile(`./${init}/.vscode/settings.json`, vscodeSetting);
 
   await ensureDir(`./${init}/src`);
+  await Deno.writeTextFile(`./${init}/src/db.ts`, dbContent);
+
   await ensureDir(`./${init}/src/utils`);
   await ensureDir(`./${init}/utils`);
 
