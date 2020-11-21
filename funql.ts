@@ -28,7 +28,6 @@ for await (const req of s) {
       default:
         break;
     }
-    // req.respond({ body: "Hello World\n" });
   } catch (error) {
     req.respond({
       body: error.message || "nothing ...",
