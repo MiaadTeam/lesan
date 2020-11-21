@@ -13,5 +13,5 @@
 - after that just run this line:
 
 ```shell
-deno install --allow-read --allow-write --unstable https://raw.githubusercontent.com/hemedani/funql/main/funql.ts
+deno install -qAf --allow-read --allow-write --unstable https://raw.githubusercontent.com/hemedani/funql/main/funql.ts
 ```

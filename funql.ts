@@ -158,6 +158,62 @@ const db = client.database("lwob");
 export default db;
 `;
 
+const checkWantsContent = `
+import type { ServerRequest } from "https://deno.land/std@0.77.0/http/server.ts";
+import { throwError } from "./throwErr.ts";
+import FastestValidator from "https://cdn.pika.dev/fastest-validator@^1.8.0";
+
+const v = new FastestValidator();
+const check = v.compile({
+  wants: {
+    type: "object",
+    props: {
+      model: { type: "string", enum: ["User", "City"] },
+      do: { type: "string" },
+    },
+  },
+});
+
+export interface body {
+  wants: {
+    model: "User" | "City";
+    do: "create" | "get";
+  };
+}
+
+export const whatWants = async (req: ServerRequest) => {
+  if (req.headers.get("content-type") !== "application/json")
+    throwError("your req body is incorrect");
+
+  const decoder = new TextDecoder();
+  const body = await Deno.readAll(req.body);
+  const decodedBody = decoder.decode(body);
+  const parsedBody: body = JSON.parse(decodedBody);
+
+  const checkBody = (body: body) => {
+    const isRight = check(body);
+    return isRight === true
+      ? isRight
+      : throwError(\`\${isRight[0].message} but get \${isRight[0].actual}\`);
+  };
+
+  return req.method === "POST" && req.url === "/funql" && checkBody(parsedBody)
+    ? parsedBody.wants
+    : throwError("do not provide wants on body");
+};
+`;
+
+const throwErrContent = `
+export const throwError = (msg?: string) => {
+  throw new Error(msg);
+};
+`;
+
+const utilsIndexContent = `
+export * from "./checkWants.ts";
+export * from "./throwErr.ts";
+`;
+
 const createProject = async (init: string | boolean) => {
   init === true ? (init = "funql") : (init = init);
   await ensureDir(`./${init}`);
@@ -170,7 +226,14 @@ const createProject = async (init: string | boolean) => {
   await ensureDir(`./${init}/src`);
   await Deno.writeTextFile(`./${init}/src/db.ts`, dbContent);
 
-  await ensureDir(`./${init}/src/utils`);
+  await ensureDir(`./${init}/src/utils/checkWants.ts`);
+  await Deno.writeTextFile(
+    `./${init}/src/utils/checkWants.ts`,
+    checkWantsContent
+  );
+  await Deno.writeTextFile(`./${init}/src/utils/throwErr.ts`, throwErrContent);
+  await Deno.writeTextFile(`./${init}/src/utils/index.ts`, utilsIndexContent);
+
   await ensureDir(`./${init}/utils`);
 
   await ensureDir(`./${init}/schemas`);
