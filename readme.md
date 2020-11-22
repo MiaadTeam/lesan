@@ -14,7 +14,7 @@
 - after that just run this line:
 
 ```shell
-deno install -qAf --allow-read --allow-write  --unstable https://deno.land/x/denon@0.0.2/funql.ts
+deno install -qAf --allow-read --allow-write  --unstable https://deno.land/x/funql@0.0.2/funql.ts
 ```
 
 ## How to use it
