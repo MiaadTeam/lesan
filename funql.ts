@@ -1,5 +1,7 @@
 import { parse } from "https://deno.land/std/flags/mod.ts";
 import { ensureDir } from "https://deno.land/std/fs/mod.ts";
+import { createStateSchema } from "./schemas/state.ts";
+import { createUserSchema } from "./schemas/user.ts";
 
 const args = parse(Deno.args);
 
@@ -14,7 +16,7 @@ const vscodeSetting = `
 
 const indexContent = `
 import { serve } from "https://deno.land/std/http/server.ts";
-import { whatWants } from "./src/utils/index.ts";
+import { whatWants } from "./src/index.ts";
 
 const s = serve({ port: 8000 });
 console.log("http://localhost:8000/");
@@ -60,93 +62,6 @@ const scriptJsonContent = `
   }
 }
 `;
-
-const userSchemaContent = `
-import db from "../db.ts";
-import type { City, RCity } from "./City.ts";
-import type { RState, State } from "./State.ts";
-import type { Country, RCountry } from "./Country.ts";
-import { ObjectId } from "https://deno.land/x/mongo@v0.12.1/ts/types.ts";
-
-export enum Gender {
-  Male = "Male",
-  Female = "Female",
-}
-
-export enum Level {
-  Normal = "Normal",
-  Editor = "Editor",
-  Admin = "Admin",
-  Ghost = "Ghost",
-}
-
-export interface User {
-  _id: ObjectId;
-  name: string;
-  family: string;
-  phone: number;
-  gender: Gender;
-  birthDate: Date;
-  postalCode: string;
-  address: {
-    country: Country;
-    state: State;
-    city: City;
-    text: string;
-  };
-  level: Level[];
-  email?: string;
-  password?: string;
-  isActive?: boolean;
-}
-
-export interface RUser {
-  _id: 0 | 1;
-  name?: 0 | 1;
-  family?: 0 | 1;
-  phone?: 0 | 1;
-  gender?: 0 | 1;
-  birthDate?: 0 | 1;
-  postalCode?: 0 | 1;
-  address?: {
-    country?: RCountry;
-    state?: RState;
-    city?: RCity;
-    text?: 0 | 1;
-  };
-  level?: 0 | 1;
-  email?: 0 | 1;
-  password?: 0 | 1;
-  isActive?: 0 | 1;
-}
-
-export const users = db.collection<User>("Users");
-`;
-
-const stateSchemaContent = `
-import { ObjectId } from "https://deno.land/x/mongo@v0.12.1/ts/types.ts";
-import db from "../db.ts";
-import { RCity } from "./City.ts";
-import type { Country, RCountry } from "./Country.ts";
-
-export interface State {
-  _id: ObjectId;
-  name: string;
-  enName: string;
-  country: Country;
-}
-
-export interface RState {
-  _id?: 0 | 1;
-  name?: 0 | 1;
-  enName?: 0 | 1;
-  cities?: RCity;
-  country?: RCountry;
-}
-
-export const states = db.collection<State>("States");
-`;
-
 const dbContent = `
 import { MongoClient } from "https://deno.land/x/mongo@v1.0.0/mod.ts";
 
@@ -214,17 +129,22 @@ export * from "./checkWants.ts";
 export * from "./throwErr.ts";
 `;
 
+const srcIndex = `
+export * from "./Utils/index.ts";
+`;
+
 const createProject = async (init: string | boolean) => {
   init === true ? (init = "funql") : (init = init);
   await ensureDir(`./${init}`);
   await Deno.writeTextFile(`./${init}/index.ts`, indexContent);
   await Deno.writeTextFile(`./${init}/scripts.json`, scriptJsonContent);
+  await Deno.writeTextFile(`./${init}/db.ts`, dbContent);
 
   await ensureDir(`./${init}/.vscode`);
   await Deno.writeTextFile(`./${init}/.vscode/settings.json`, vscodeSetting);
 
   await ensureDir(`./${init}/src`);
-  await Deno.writeTextFile(`./${init}/src/db.ts`, dbContent);
+  await Deno.writeTextFile(`./${init}/.index.ts`, srcIndex);
 
   await ensureDir(`./${init}/src/utils`);
   await Deno.writeTextFile(
@@ -236,9 +156,8 @@ const createProject = async (init: string | boolean) => {
 
   await ensureDir(`./${init}/utils`);
 
-  await ensureDir(`./${init}/schemas`);
-  await Deno.writeTextFile(`./${init}/schemas/user.ts`, userSchemaContent);
-  await Deno.writeTextFile(`./${init}/schemas/state.ts`, stateSchemaContent);
+  await createUserSchema(init as string);
+  await createStateSchema(init as string);
 };
 
 args.init
