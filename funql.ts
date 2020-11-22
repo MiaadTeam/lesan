@@ -226,7 +226,7 @@ const createProject = async (init: string | boolean) => {
   await ensureDir(`./${init}/src`);
   await Deno.writeTextFile(`./${init}/src/db.ts`, dbContent);
 
-  await ensureDir(`./${init}/src/utils/checkWants.ts`);
+  await ensureDir(`./${init}/src/utils`);
   await Deno.writeTextFile(
     `./${init}/src/utils/checkWants.ts`,
     checkWantsContent
