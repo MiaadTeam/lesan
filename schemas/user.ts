@@ -1,11 +1,17 @@
 import { ensureDir } from "https://deno.land/std@0.78.0/fs/ensure_dir.ts";
 
 export const userSchemaContent = `
-import db from "../db.ts";
-import type { City, RCity } from "./City.ts";
-import type { RState, State } from "./State.ts";
-import type { Country, RCountry } from "./Country.ts";
-import { ObjectId } from "https://deno.land/x/mongo@v0.12.1/ts/types.ts";
+import db from "../../db.ts";
+import type { City, RCity } from "./city.ts";
+import type { RState, State } from "./state.ts";
+import type { Country, RCountry } from "./country.ts";
+import { Bson } from "https://deno.land/x/mongo@v0.20.0/deps.ts";
+import {
+  citySelectable,
+  countrySelectable,
+  fieldType,
+  stateSelectable,
+} from "./index.ts";
 
 export enum Gender {
   Male = "Male",
@@ -20,7 +26,7 @@ export enum Level {
 }
 
 export interface User {
-  _id: ObjectId;
+  _id: Bson.ObjectID;
   name: string;
   family: string;
   phone: number;
@@ -58,6 +64,55 @@ export interface RUser {
   password?: 0 | 1;
   isActive?: 0 | 1;
 }
+
+export const userSelectable = (depth: number = 4) => {
+  depth--;
+  const returnObj = {
+    _id: fieldType,
+    name: fieldType,
+    family: fieldType,
+    phone: fieldType,
+    gender: fieldType,
+    birthDate: fieldType,
+    postalCode: fieldType,
+    address: {
+      type: "object",
+      optional: true,
+      props: {
+        text: fieldType,
+      },
+    },
+    level: fieldType,
+    email: fieldType,
+    isActive: fieldType,
+  };
+  return depth > 0
+    ? {
+        ...returnObj,
+        address: {
+          ...returnObj.address,
+          props: {
+            ...returnObj.address.props,
+            country: {
+              type: "object",
+              optional: true,
+              props: countrySelectable(depth),
+            },
+            state: {
+              type: "object",
+              optional: true,
+              props: stateSelectable(depth),
+            },
+            city: {
+              type: "object",
+              optional: true,
+              props: citySelectable(depth),
+            },
+          },
+        },
+      }
+    : returnObj;
+};
 
 export const users = db.collection<User>("Users");
 `;
