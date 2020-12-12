@@ -1,13 +1,14 @@
 import { ensureDir } from "https://deno.land/std@0.78.0/fs/ensure_dir.ts";
 
 export const stateSchemaContent = `
-import { ObjectId } from "https://deno.land/x/mongo@v0.12.1/ts/types.ts";
-import db from "../db.ts";
-import { RCity } from "./City.ts";
-import type { Country, RCountry } from "./Country.ts";
+import db from "../../db.ts";
+import { RCity } from "./city.ts";
+import { Country, RCountry } from "./country.ts";
+import { citySelectable, countrySelectable, fieldType } from "./index.ts";
+import { Bson } from "https://deno.land/x/mongo@v0.20.0/deps.ts";
 
 export interface State {
-  _id: ObjectId;
+  _id: Bson.ObjectID;
   name: string;
   enName: string;
   country: Country;
@@ -21,7 +22,32 @@ export interface RState {
   country?: RCountry;
 }
 
+export const stateSelectable: any = (depth: number = 4) => {
+  depth--;
+  const returnObj = {
+    _id: fieldType,
+    name: fieldType,
+    enName: fieldType,
+  };
+  return depth > 0
+    ? {
+        ...returnObj,
+        cities: {
+          type: "object",
+          optional: true,
+          props: citySelectable(depth),
+        },
+        country: {
+          type: "object",
+          optional: true,
+          props: countrySelectable(depth),
+        },
+      }
+    : returnObj;
+};
+
 export const states = db.collection<State>("States");
+
 `;
 
 export const createStateSchema = async (init: string) => {
