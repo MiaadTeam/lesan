@@ -1,7 +1,5 @@
-import { ensureDir } from "https://deno.land/std@0.78.0/fs/ensure_dir.ts";
-
-export const stateSchemaContent = `
-import db from "../../db.ts";
+const content = `
+import { db } from "../../config/index.ts";
 import { RCity } from "./city.ts";
 import { Country, RCountry } from "./country.ts";
 import { citySelectable, countrySelectable, fieldType } from "./index.ts";
@@ -47,10 +45,8 @@ export const stateSelectable: any = (depth: number = 4) => {
 };
 
 export const states = db.collection<State>("States");
-
 `;
 
 export const createStateSchema = async (init: string) => {
-  await ensureDir(`./${init}/schemas`);
-  await Deno.writeTextFile(`./${init}/schemas/state.ts`, stateSchemaContent);
+  await Deno.writeTextFile(`${init}/state.ts`, content);
 };

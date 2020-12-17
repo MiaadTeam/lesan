@@ -1,7 +1,5 @@
-import { ensureDir } from "https://deno.land/std@0.78.0/fs/ensure_dir.ts";
-
-export const userSchemaContent = `
-import db from "../../db.ts";
+const content = `
+import { db } from "../../config/index.ts";
 import type { City, RCity } from "./city.ts";
 import type { RState, State } from "./state.ts";
 import type { Country, RCountry } from "./country.ts";
@@ -118,6 +116,5 @@ export const users = db.collection<User>("Users");
 `;
 
 export const createUserSchema = async (init: string) => {
-  await ensureDir(`./${init}/schemas`);
-  await Deno.writeTextFile(`./${init}/schemas/user.ts`, userSchemaContent);
+  await Deno.writeTextFile(`${init}/user.ts`, content);
 };
