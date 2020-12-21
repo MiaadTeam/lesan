@@ -19,8 +19,47 @@ deno install -qAf --allow-read --allow-write  --unstable https://deno.land/x/fun
 
 ## How to use it
 
+### for know just enter this command
+
 ```
-    coming soon
+    funql --init [blog]
+```
+
+`blog` is name of the project and for sake of simplicity we create the blog project by `funql` because `funql` is just a concept with sets of rules
+`blog project` uses [mongoDB](http) and [redis](http). So please install them, we recommend using [denon](http) for running project so after install `denon` just run :
+
+```
+denon start
+```
+
+on the root of project.
+After downloading dependencies you will see this log `http://localhost:8000/` on the console.
+Now send this http request to retrieve data:
+
+```
+POST http://localhost:8000/funql HTTP/1.1
+content-type: application/json
+
+{
+    "wants": {
+        "model": "Country",
+        "doit": "adding"
+    },
+    "details": {
+        "set": {
+            "name": "iran",
+            "enName": "iran"
+        },
+        "get": {
+            "_id": 0,
+            "name": 0,
+            "cities": {
+                "_id": 1,
+                "name": 1
+            }
+        }
+    }
+}
 ```
 
 ## Todo
