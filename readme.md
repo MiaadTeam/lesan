@@ -2,7 +2,7 @@
 
 ## What is FUNQL ?
 
-### funql is just a Native Graphql 
+### funql is just a Native Graphql
 
 - If you hate `gql` and prefer to handle backend tasks with standard and robust methods.
 - If you experience difficulties in using graphql in your projects due to its inherent complexities namely, time-consuming typesafety.
@@ -19,9 +19,53 @@
 1. You must send standard `JSON`'s `HTTP POST` request to `http://localhost:${PORT}/funql`
 2. Your request should have `wants` object in it. `wants` object should have 2 properties : `model` and `doit`. `model` is one of your MongoDB schemas and `doit` is one of your methods you write for that schema.
 3. Your request should have `details` object in it, `details` object should have 2 properties: `set` and `get`.
+
 - `set` is a group of proprieties you try to send in a request like properties you need for creating a schema or properties you need to sort or filter on getting documents from schema.
 - `get` is an object to specify which fields client wants to retrieve.
-4. The structure of folders is quite important in a `funql` project
+
+4. The structure of folders is quite important in a `funql` project  
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Folder structure example in `deno` server:
+
+- project `a blog example`
+  - config `should have`
+    - utils `maybe`
+      - someUtils.ts `maybe`
+      - index.ts `should have`
+    - db.ts `maybe`
+    - redis.ts `maybe`
+    - index.ts `should have`
+  - src `should have`
+    - utils `maybe`
+      - populateMany.ts `maybe`
+      - throwErr.ts `maybe`
+      - index.ts `should have`
+    - functions `should have`
+      - user `should have if we have an user schema`
+        - funcs `should have if we have common fns`
+          - getUsers.ts `maybe`
+          - ... `maybe`
+          - index.ts `index`
+        - adding.ts `maybe`
+        - login.ts `maybe`
+        - singing.ts `maybe`
+        - getting.ts `maybe`
+        - ... `maybe`
+        - index.ts `should have`
+      - ... `maybe`
+      - index.ts `should have`
+    - schemas `should have`
+      - utils `maybe`
+        - someUtils.ts `maybe`
+        - someOtherUtils.ts `maybe`
+        - index.ts `should have`
+      - user.ts `maybe`
+      - post.ts `maybe`
+      - category.ts `maybe`
+      - ... `maybe`
+      - index.ts `should have`
+    - index.ts `should have`
+  - index.ts `should have`
+  - script.json `should have if use denon`
 
 ## Features
 
@@ -29,7 +73,7 @@
 - It uses the best design elements of REST API's.
 - It removes all unnecessary extra code, validation, repetitive procedures.
 - `funql` fully implements `functional programming` characteristics. Everything is comprised of small functions
-- `funql` is fundamentally based on `fs(function schema)` architecture. 
+- `funql` is fundamentally based on `fs(function schema)` architecture.
 
 ## How to Install
 
