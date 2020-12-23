@@ -51,7 +51,7 @@
         - getting.ts `maybe`
         - ... `maybe`
         - index.ts `should have`
-      - ... `maybe`
+      - ... `other models fns`
       - index.ts `should have`
     - schemas `should have`
       - utils `maybe`
