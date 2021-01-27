@@ -11,12 +11,16 @@ interface Props {
 const ButtonStyle = styled.button`
   background-color: ${(props) => (props.bgColor ? props.bgColor : "gray")};
   color: ${(props) => (props.color ? props.color : "white")};
-  border: 0.02rem solid gray;
+  box-shadow: 1px 3px 4px 1px rgba(0, 0, 0, 0.26);
   border-radius: 0.5rem;
+  border: none;
   width: ${(props) => props.width};
   height: ${(props) => props.height};
   margin: ${(props) => props.margin};
   font-size: ${(props) => props.fontSize};
+  &:hover {
+    transform: scale(1.01);
+  }
 `;
 
 export const Button: React.FC<Props> = ({
