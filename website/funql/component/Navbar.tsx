@@ -26,22 +26,20 @@ const UlList = styled.ul`
   justify-content: space-around;
 `;
 const List = styled.li`
+  color: #696969;
   cursor: pointer;
-  flex: 1;
   margin: 0 2rem;
   font-weight: ${(props) => (props.selected ? "bold" : "normal")};
   font-size: ${(props) => props.selected && "1.1rem"};
   &:hover {
-    font-weight: bold;
+    color: #000000;
   }
 `;
 export const Navbar: React.FC<Props> = ({ list }) => {
   const { asPath } = useRouter();
   return (
     <ContainerNavbar>
-      <Link href="/">
-        {/* <h1 style={{ margin: 0, height: "" }}>my log</h1>
-         */}
+      <Link href="">
         <Logo size="5rem" />
       </Link>
       <UlList>
