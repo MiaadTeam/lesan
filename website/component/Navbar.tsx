@@ -39,8 +39,10 @@ export const Navbar: React.FC<Props> = ({ list }) => {
   const { asPath } = useRouter();
   return (
     <ContainerNavbar>
-      <Link href="">
-        <Logo size="5rem" />
+      <Link href="/">
+        <a href="">
+          <Logo size="5rem" />
+        </a>
       </Link>
       <UlList>
         {list.map((value, index) => (
