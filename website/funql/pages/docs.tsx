@@ -7,8 +7,7 @@ import { SideBar } from "../component/SideBar";
 import { getDocs, getFileNames } from "../lib/doclib";
 
 export const Container = styled.div`
-  height: 100%;
-  padding: 2.5rem 0;
+  height: calc(100vh - 4rem);
   display: flex;
   flex-direction: column;
   align-items: center;
