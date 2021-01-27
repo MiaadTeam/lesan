@@ -1,8 +1,5 @@
-import styled from "styled-components";
-import { GetStaticPaths, GetStaticProps } from "next";
-import ReactMarkdown from "react-markdown";
-import gfm from "remark-gfm";
 import "github-markdown-css";
+import styled from "styled-components";
 
 export const Container = styled.div`
   height: 100%;

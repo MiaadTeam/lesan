@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { Button } from "../component/Button";
-import { Logo } from "../component/Logo";
 import { Container } from "./docs";
 interface Props {
   allPostsData: string;
@@ -61,11 +60,3 @@ const Home: React.FC<Props> = ({ allPostsData }) => {
   );
 };
 export default Home;
-// export const getStaticProps: GetStaticProps = async () => {
-//   const allPostsData = ListPost();
-//   return {
-//     props: {
-//       allPostsData,
-//     },
-//   };
-// };
