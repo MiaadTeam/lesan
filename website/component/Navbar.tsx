@@ -35,12 +35,15 @@ const List = styled.li`
     color: #000000;
   }
 `;
+const StyledImage = styled(Image)`
+  cursor: pointer;
+`;
 export const Navbar: React.FC<Props> = ({ list }) => {
   const { asPath } = useRouter();
   return (
     <ContainerNavbar>
       <Link href="/">
-        <a href="">
+        <a>
           <Logo size="5rem" />
         </a>
       </Link>
@@ -69,7 +72,11 @@ export const Navbar: React.FC<Props> = ({ list }) => {
       >
         Learn
       </Button>
-      <Image width={50} alt="me" height={50} src="/github.png" />
+      <Link href="https://github.com/hemedani/funql">
+        <a target="_blank">
+          <StyledImage width={50} alt="me" height={50} src="/github.png" />
+        </a>
+      </Link>
     </ContainerNavbar>
   );
 };
