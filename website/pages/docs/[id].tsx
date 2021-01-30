@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import styled from "styled-components";
 import { SideBar } from "../../component/SideBar";
-import { getAllPostIds, getDocs, getFileNames } from "../../lib/doclib";
+import { getAllPostFilesName, getDocs, getFileNames } from "../../lib/doclib";
 const Container = styled.div`
   width: 100%;
   height: 100%;
@@ -35,7 +35,7 @@ export const Post = ({ postData, allPostsData }): JSX.Element => {
 export default Post;
 
 export const getStaticPaths: GetStaticPaths = async ({}) => {
-  const paths = getAllPostIds();
+  const paths = getAllPostFilesName();
   return {
     paths,
     fallback: false,
