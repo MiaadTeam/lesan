@@ -1,8 +1,10 @@
+import { GetStaticProps } from "next";
 import styled from "styled-components";
 import { Button } from "../component/Button";
+import { getDocs } from "../lib/doclib";
 import { Container } from "./docs";
 interface Props {
-  allPostsData: string;
+  postData: any;
 }
 const BodyHome = styled.div`
   display: flex;
@@ -25,17 +27,12 @@ const Text = styled.h3`
   margin: 1.5rem 0;
   text-align: center;
 `;
-const Home: React.FC<Props> = ({ allPostsData }) => {
+const Home: React.FC<Props> = ({ postData }) => {
   return (
     <Container>
       <BodyHome>
-        <Header>This is our slogan</Header>
-        <Text>
-          Next.js gives you the best developer experience with all the features
-          you need for production: hybrid static & server rendering, TypeScript
-          support, smart bundling, route pre-fetching, and more. No config
-          needed.
-        </Text>
+        <Header>{postData.title}</Header>
+        <Text>{postData.contentHtml}</Text>
         <Box>
           <Button
             bgColor="#0070f3"
@@ -60,3 +57,13 @@ const Home: React.FC<Props> = ({ allPostsData }) => {
   );
 };
 export default Home;
+
+export const getStaticProps: GetStaticProps = async ({}) => {
+  const postData = await getDocs("firstpage", "/mdfile/");
+
+  return {
+    props: {
+      postData,
+    },
+  };
+};
