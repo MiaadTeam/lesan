@@ -9,6 +9,7 @@ interface Props {
   fontSize?: string;
 }
 const ButtonStyle = styled.button`
+  cursor: pointer;
   background-color: ${(props) => (props.bgColor ? props.bgColor : "gray")};
   color: ${(props) => (props.color ? props.color : "white")};
   box-shadow: 1px 3px 4px 1px rgba(0, 0, 0, 0.26);
