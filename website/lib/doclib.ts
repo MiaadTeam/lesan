@@ -3,31 +3,42 @@
 import fs from "fs";
 import matter from "gray-matter";
 import path from "path";
-
+/**
+ * postsDirectory is path file for read and process.swd() which gives
+ * us the directory where Next.js is being executed.
+ */
 const postsDirectory = path.join(process.cwd(), "./mdfile/navbar/docs");
-
+/**
+ *
+ * @returns Sort fileName by date and return json format
+ * @example
+ * {
+ * date:"2020-03-01",
+ * title:"example"
+ * }
+ */
 export function getFileNames() {
-  console.log(process.cwd(), "process.cwd()");
-  const postIds = fs.readdirSync(postsDirectory);
+  const fileNamePost = fs.readdirSync(postsDirectory);
 
-  const allPostsData = postIds
+  const allPostsData = fileNamePost
     .map((id) => {
-      const filename = "mod.md";
-      const fullPath = path.join(postsDirectory, id, filename);
+      const fullPath = path.join(postsDirectory, id, "mod.md");
 
       if (!fs.existsSync(fullPath)) {
         return;
       }
 
       const fileContents = fs.readFileSync(fullPath, "utf8");
-      const mydata = matter(fileContents);
+      const fileContent = matter(fileContents);
       return {
         id,
-        ...(mydata.data as { date: string; title: string }),
+        ...(fileContent.data as { date: string; title: string }),
       };
     })
     .filter((post) => post);
-
+  /**
+   * sort by date
+   */
   return allPostsData.sort((a, b) => {
     if (a.date > b.date) {
       return 1;
@@ -37,12 +48,10 @@ export function getFileNames() {
   });
 }
 
-export function ListPost() {
-  const postIds = fs.readdirSync(postsDirectory);
-
-  return postIds;
-}
-export function getAllPostIds() {
+/**
+ * @returns file name post for dynamic path
+ */
+export function getAllPostFilesName() {
   let paths: { params: { id: string } }[] = [];
 
   const postIds = fs.readdirSync(postsDirectory);
@@ -52,52 +61,30 @@ export function getAllPostIds() {
   }
   return paths;
 }
-export async function getDate() {
-  const postIds = fs.readdirSync(path.join(process.cwd(), "./mdfile/navbar"));
+/**
+ *
+ * @param fileName The first input string file name
+ * @param pathFile is optional if it exists, we will use it
+ *
+ * @returns json content of markdown file with date, title and contentHtml
+ */
 
-  const allPostsData = postIds
-    .map((id) => {
-      const fullPath = path.join(postsDirectory, id, "mod.md");
-
-      if (!fs.existsSync(fullPath)) {
-        return;
-      }
-
-      const fileContents = fs.readFileSync(fullPath, "utf8");
-
-      const mydata = matter(fileContents);
-      return {
-        id,
-        ...(mydata.data as { date: string; title: string }),
-      };
-    })
-    .filter((post) => post);
-
-  return allPostsData.sort((a, b) => {
-    if (a.date > b.date) {
-      return 1;
-    } else {
-      return -1;
-    }
-  });
-}
-export async function getDocs(id: string) {
-  const fullPath = path.join(postsDirectory, id, "mod.md");
+export async function getDocs(fileName: string, pathFile?: string) {
+  const fullPath = pathFile
+    ? path.join(process.cwd() + pathFile, fileName, "mod.md")
+    : path.join(postsDirectory, fileName, "mod.md");
   const fileContents = fs.readFileSync(fullPath, "utf8");
-
-  // Use gray-matter to parse the post metadata section
+  /**
+   *  Use gray-matter to parse the post metadata section
+   */
   const matterResult = matter(fileContents);
 
-  // Use remark to convert markdown into HTML string
-  // let processedContent = new showdown.Converter()
-  //   text      = '# hello, markdown!',
-  //   html      = processedContent.makeHtml(matterResult.content);
-
   const contentHtml = matterResult.content.toString();
-  // console.log(contentHtml);
-  // Combine the data with the id and contentHtml
+  /**
+   * Combine the data with the id and contentHtml
+   */
   return {
-    id,
+    fileName,
     contentHtml,
     ...(matterResult.data as { date: string; title: string }),
   };
