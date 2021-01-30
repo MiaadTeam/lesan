@@ -45,7 +45,7 @@ const Docs: React.FC<Props> = ({ allPostsData, postData }) => {
 
 export default Docs;
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({}) => {
   const allPostsData = getFileNames();
   const postData = await getDocs("Install");
 
