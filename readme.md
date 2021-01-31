@@ -1,4 +1,4 @@
-# `funql` is Simply a new way to create web servers
+# `FUNQL` is Simply a new way to create web servers
 
 ## What is FUNQL ?
 
@@ -8,9 +8,8 @@
 - If you experience difficulties in using graphql in your projects due to its inherent complexities namely, time-consuming typesafety.
 - Despite the simplicity of REST APIs, you are likely to get caught in the process of life-cycles and middlewares, etc.
 - If you hate the secrets under the hood of libraries or frameworks.
-- If you love MongoDB and want to use its potential capabilities.
-
-### funql Is For You
+- If you love MongoDB and want to use its potential capabilities.  
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **funql Is For You**
 
 ## Funql Basics
 
@@ -44,7 +43,7 @@
         - funcs `should have if we have common fns`
           - getUsers.ts `maybe`
           - ... `maybe`
-          - index.ts `index`
+          - index.ts `should have`
         - adding.ts `maybe`
         - login.ts `maybe`
         - singing.ts `maybe`
@@ -66,6 +65,16 @@
     - index.ts `should have`
   - index.ts `should have`
   - script.json `should have if use denon`
+
+## Basic rules
+
+### schemas
+
+every schema should have 4 seprate things :
+
+1. an inteface to describe and hint
+
+### functions
 
 ## Features
 
@@ -131,8 +140,9 @@ content-type: application/json
 
 ## Todo
 
-| Language |            Process             |      Description |
-| :------- | :----------------------------: | ---------------: |
-| Deno     | 🔵⚪️⚪️⚪️⚪️⚪️⚪️⚪️⚪️⚪️  |    just starting |
-| NodeJS   | ⚪️⚪️⚪️⚪️⚪️⚪️⚪️⚪️⚪️⚪️ | nothing for know |
-| Rust     | ⚪️⚪️⚪️⚪️⚪️⚪️⚪️⚪️⚪️⚪️ | nothing for know |
+| Language |                 Process                 |      Description |
+| :------- | :-------------------------------------: | ---------------: |
+| Deno     |   🔵 🔵 🔵 🔵 ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️   |    just starting |
+| NodeJS   | ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ | nothing for know |
+| Golang   | ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ | nothing for know |
+| Rust     | ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ | nothing for know |
