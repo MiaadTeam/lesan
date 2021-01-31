@@ -12,10 +12,10 @@ deploy:
   provider: pages # Informs Travis this is a deployment to GitHub Pages
   skip_cleanup: true # Prevents Travis from resetting the working directory made during the build
   github_token: 6f155d8bcac62116bad352e6aeb1acd50d48b0ab # GitHub access token to use when pushing to the gh-pages branch
-  local_dir: out # Directory to push to the gh-pages branch
+  # local_dir: out # Directory to push to the gh-pages branch
+  local_dir: website/out
   on:
     # Only deploy when the build is on master or main branch - two common default branch names
     # If you're using a different branch name, add it here
     all_branches: true
     condition: $TRAVIS_BRANCH =~ ^(master|main)$
-local_dir: ./website
