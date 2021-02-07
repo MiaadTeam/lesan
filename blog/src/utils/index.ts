@@ -1,3 +1,4 @@
+import { createMakePagination } from './makePagination.ts';
 import { ensureDir } from "https://deno.land/std@0.78.0/fs/ensure_dir.ts";
 import { createCheckWantsContent } from "./checkWants.ts";
 import { createPopulateMany } from "./populateMany.ts";
@@ -22,6 +23,8 @@ export const createUtilsIndex = async (init: string) => {
   await createPopulateMany(init);
   await createRegCode(init);
   await createThrowError(init);
+
+  await createMakePagination(init);
 
   await Deno.writeTextFile(`${init}/index.ts`, content);
 };
