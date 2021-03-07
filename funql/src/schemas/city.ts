@@ -1,4 +1,3 @@
-
 import { db } from "../../config/index.ts";
 import { RState, State, stateSelectable } from "./state.ts";
 import { Country, countrySelectable, RCountry } from "./country.ts";

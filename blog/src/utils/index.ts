@@ -17,7 +17,6 @@ export * from "./makeProjections.ts";
 export const createUtilsIndex = async (init: string) => {
   init = `${init}/utils`;
   await ensureDir(init);
-
   await createCheckWantsContent(init);
   await createMakeProjections(init);
   await createPopulateMany(init);

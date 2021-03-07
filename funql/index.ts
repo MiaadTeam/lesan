@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std/http/server.ts";
 import {
   CountryDoit,
@@ -7,11 +6,29 @@ import {
   usrFns,
 } from "./src/functions/index.ts";
 import { parsBody } from "./src/utils/index.ts";
-
+import { Project } from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
 const s = serve({ port: 8000 });
 console.log("http://localhost:8000/");
 
 type model = "User" | "State" | "City" | "Category" | "Country";
+
+// use ts-morph
+const project = new Project();
+
+//add souce file to path
+project.addSourceFilesAtPaths("../**/*.ts");
+
+// get source file schema city
+const sourceFile = project.getSourceFileOrThrow("city.ts");
+
+// get FullText from source file
+const fullText = sourceFile?.getFullText(); //it work
+// get functions
+const functions = sourceFile.getFunctions();
+//get interfacess
+const interfaces = sourceFile?.getInterfaces();
+//get interface
+const city = sourceFile?.getInterface("City");
 
 for await (const req of s) {
   try {
