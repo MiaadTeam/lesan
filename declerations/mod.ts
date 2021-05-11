@@ -5,17 +5,6 @@ import { constructFVSchema, convetFvObToTsOb, obToStr } from "./utils/mod.ts";
 //code start from here--------------------------------------------------------------------------------------------------
 
 export const getDeclerations = async () => {
-  console.log("                      ");
-  console.log("++++++++++++++++++++++");
-  console.log("                      ");
-  console.group("inside getDeclerations => : ");
-  console.log("                      ");
-  console.log("                      ");
-  console.groupEnd();
-  console.log("                      ");
-  console.log("----------------------");
-  console.log("                      ");
-
   const project = new Project({
     resolutionHost: (moduleResolutionHost, getCompilerOptions) => {
       return {
@@ -28,7 +17,7 @@ export const getDeclerations = async () => {
               moduleName,
               containingFile,
               compilerOptions,
-              moduleResolutionHost,
+              moduleResolutionHost
             );
             resolvedModules.push(result.resolvedModule!);
           }
@@ -63,27 +52,22 @@ export const getDeclerations = async () => {
     undefined,
     {
       overwrite: true,
-    },
+    }
   );
 
-  const fastestValidatorObject = await constructFVSchema(
-    sourceFile,
-  );
-  const object = convetFvObToTsOb(
-    fastestValidatorObject,
-    {},
-  );
+  const fastestValidatorObject = await constructFVSchema(sourceFile);
+  const object = convetFvObToTsOb(fastestValidatorObject, {});
 
   //store fastest validator object
   await Deno.writeTextFile(
     `${__dirname}/declerations/fastestValidatorSchema.json`,
-    JSON.stringify(fastestValidatorObject, null, 2),
+    JSON.stringify(fastestValidatorObject, null, 2)
   );
 
   //store regular object
   await Deno.writeTextFile(
     `${__dirname}/declerations/schema.json`,
-    JSON.stringify(object, null, 2),
+    JSON.stringify(object, null, 2)
   );
 
   const int = newSourceFile.addInterface({ name: "Funql" });

@@ -9,7 +9,7 @@ import { constructFVDoits } from "./constructFVDoits.ts";
 export async function constructFVModels(sourceFile: SourceFile) {
   //get object iterator in mod.ts
   const objectIterator = sourceFile.getFirstDescendantByKindOrThrow(
-    SyntaxKind.ElementAccessExpression,
+    SyntaxKind.ElementAccessExpression
   );
   //get object section
   const listOfFns = objectIterator
@@ -23,17 +23,15 @@ export async function constructFVModels(sourceFile: SourceFile) {
     res.name = listOfFn.name;
     (res.doits = await constructFVDoits(
       getImpSourceFile(sourceFile, listOfFn.functionName!),
-      listOfFn.functionName!,
-    )), results.push(res);
+      listOfFn.functionName!
+    )),
+      results.push(res);
   }
-  return results.reduce(
-    (pre: any, curr) => {
-      pre["props"]["doits"]["props"][curr.name!] = {
-        type: "object",
-        props: curr.doits,
-      };
-      return pre;
-    },
-    { type: "object", props: { doits: { type: "object", props: {} } } },
-  );
+  return results.reduce((pre, curr) => {
+    pre[curr.name] = {
+      type: "object",
+      props: { doits: { type: "object", props: curr.doits } },
+    };
+    return pre;
+  }, {});
 }

@@ -8,10 +8,10 @@ import { constructFVDetails } from "./constructFVDetails.ts";
 
 export async function constructFVDoits(
   sourceFile: SourceFile,
-  _modelName: string,
+  _modelName: string
 ) {
   const objectIterator = sourceFile?.getFirstDescendantByKind(
-    SyntaxKind.ElementAccessExpression,
+    SyntaxKind.ElementAccessExpression
   );
 
   const listOfFns = objectIterator
@@ -24,13 +24,16 @@ export async function constructFVDoits(
     results.push({
       name: fn.name,
       details: await constructFVDetails(
-        getImpSourceFile(sourceFile, fn.functionName!),
+        getImpSourceFile(sourceFile, fn.functionName!)
       ),
     });
   }
 
   return results.reduce((pre: any, curr) => {
-    pre[curr.name!] = { type: "object", props: curr.details };
+    pre[curr.name!] = {
+      type: "object",
+      props: { details: { type: "object", props: curr.details } },
+    };
     return pre;
   }, {});
 }

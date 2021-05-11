@@ -7,7 +7,7 @@ export async function constructFVSchema(sourceFile: SourceFile) {
   return {
     schema: {
       type: "object",
-      props: { models },
+      props: { models: { type: "object", props: models } },
     },
   };
 }
