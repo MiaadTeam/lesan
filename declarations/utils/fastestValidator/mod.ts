@@ -1,5 +1,5 @@
 export * from "./obToStr.ts";
-export * from "./converFvObToTsOb.ts";
+export * from "./convertFvObToTsOb.ts";
 export * from "./fvTypesConvertor.ts";
 export * from "./constructFVDoits.ts";
 export * from "./constructFVModels.ts";

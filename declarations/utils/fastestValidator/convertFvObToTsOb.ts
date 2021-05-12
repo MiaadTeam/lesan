@@ -6,9 +6,9 @@ import { fvTypesConvertor } from "./fvTypesConvertor.ts";
  * @param schema schema of fastest validator
  * @param createdObject regular object
  */
-export const convetFvObToTsOb = (
+export const convertFvObToTsOb = (
   schema: Record<string, any>,
-  createdObject: Record<string, any>,
+  createdObject: Record<string, any>
 ) => {
   for (const key in schema) {
     const optional = schema[key]["optional"] === true ? "?" : undefined;

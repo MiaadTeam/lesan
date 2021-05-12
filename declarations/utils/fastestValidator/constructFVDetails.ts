@@ -5,7 +5,7 @@ export async function constructFVDetails(sourceFile: SourceFile) {
   try {
     console.log(typePath);
     const imp = await import(`file:///${typePath}`);
-    return imp["schema"] ? imp["schema"]["details"] : {};
+    return imp["schema"] ? imp["schema"]["details"]["props"] : {};
   } catch (_error) {
     console.log("                      ");
     console.log("++++++++++++++++++++++");

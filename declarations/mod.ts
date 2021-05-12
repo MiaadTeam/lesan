@@ -1,10 +1,8 @@
 import { Project, ts } from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
 import { ensureDir } from "https://deno.land/std/fs/mod.ts";
-import { constructFVSchema, convetFvObToTsOb, obToStr } from "./utils/mod.ts";
+import { obToStr, convertFvObToTsOb, constructFVSchema } from "./utils/mod.ts";
 
-//code start from here--------------------------------------------------------------------------------------------------
-
-export const getDeclerations = async () => {
+export const getDeclarations = async () => {
   const project = new Project({
     resolutionHost: (moduleResolutionHost, getCompilerOptions) => {
       return {
@@ -41,14 +39,14 @@ export const getDeclerations = async () => {
 
   const __dirname = ".";
 
-  await ensureDir("declerations");
+  await ensureDir("declarations");
 
   project.addSourceFilesAtPaths(`${__dirname}/**/*.ts`);
 
   const sourceFile = project.getSourceFileOrThrow(`${__dirname}/mod.ts`);
 
   const newSourceFile = project.createSourceFile(
-    `${__dirname}/declerations/schema.ts`,
+    `${__dirname}/declarations/schema.ts`,
     undefined,
     {
       overwrite: true,
@@ -56,17 +54,17 @@ export const getDeclerations = async () => {
   );
 
   const fastestValidatorObject = await constructFVSchema(sourceFile);
-  const object = convetFvObToTsOb(fastestValidatorObject, {});
+  const object = convertFvObToTsOb(fastestValidatorObject, {});
 
   //store fastest validator object
   await Deno.writeTextFile(
-    `${__dirname}/declerations/fastestValidatorSchema.json`,
+    `${__dirname}/declarations/fastestValidatorSchema.json`,
     JSON.stringify(fastestValidatorObject, null, 2)
   );
 
   //store regular object
   await Deno.writeTextFile(
-    `${__dirname}/declerations/schema.json`,
+    `${__dirname}/declarations/schema.json`,
     JSON.stringify(object, null, 2)
   );
 

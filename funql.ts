@@ -1,7 +1,7 @@
 import { parse } from "https://deno.land/std/flags/mod.ts";
 import { ensureDir } from "https://deno.land/std/fs/mod.ts";
 import { createBlog } from "./blog/index.ts";
-import { getDeclerations } from "./declerations/mod.ts";
+import { getDeclarations } from "./declarations/mod.ts";
 
 const args = parse(Deno.args);
 
@@ -11,7 +11,6 @@ const createProject = async (init: string | boolean) => {
   await createBlog(`./${init}`);
 };
 
-args.init &&
-  await createProject(args.init);
+args.init && (await createProject(args.init));
 
-args.dec && await getDeclerations();
+args.dec && (await getDeclarations());

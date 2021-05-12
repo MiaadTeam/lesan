@@ -1,4 +1,4 @@
-import { convetFvObToTsOb } from "./converFvObToTsOb.ts";
+import { convertFvObToTsOb } from "./convertFvObToTsOb.ts";
 import { obToStr } from "./obToStr.ts";
 
 /**
@@ -32,22 +32,19 @@ export function fvTypesConvertor(schemaValue: any): any {
       break;
     //handle object field
     case "object":
-      result = convetFvObToTsOb(
-        schemaValue["props"],
-        {},
-      );
+      result = convertFvObToTsOb(schemaValue["props"], {});
       break;
     //handle enum field
     case "enum":
-      result = (schemaValue["values"] as Array<any>).join(" | ");
+      result = (schemaValue["values"] as Array<any>)
+        .map((val) => `'${val}'`)
+        .join(" | ");
+
       break;
     //handle array field
     case "array":
       if (schemaValue["items"]["type"] === "object") {
-        result = convetFvObToTsOb(
-          schemaValue["items"]["props"],
-          {},
-        );
+        result = convertFvObToTsOb(schemaValue["items"]["props"], {});
         postfixes.push("[]");
       } else if (schemaValue["items"]["type"]) {
         result = fvTypesConvertor(schemaValue["items"]);
