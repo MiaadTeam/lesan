@@ -13,4 +13,4 @@ const createProject = async (init: string | boolean) => {
 
 args.init && (await createProject(args.init));
 
-args.dec && (await getDeclarations());
+args.declaration && (await getDeclarations());

@@ -68,7 +68,7 @@ export const getDeclarations = async () => {
     JSON.stringify(object, null, 2)
   );
 
-  const int = newSourceFile.addInterface({ name: "Funql" });
+  const int = newSourceFile.addInterface({ name: "Funql", isExported: true });
   //await Deno.writeTextFile("schema.ts", );
   int.addProperty({ name: "schema", type: obToStr(object["schema"]) });
   await newSourceFile.save();
