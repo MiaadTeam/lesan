@@ -1,4 +1,4 @@
-import { SourceFile, log } from "../../deps.ts";
+import { SourceFile, log } from "../../../deps.ts";
 
 export async function constructFVDetails(sourceFile: SourceFile) {
   log.info(

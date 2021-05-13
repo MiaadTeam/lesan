@@ -1,5 +1,3 @@
-import { log } from "../../deps.ts";
-
 export function jsonObToTsType(obj: object): string {
   convertWrongTupleToArray(obj);
   const text = JSON.stringify(obj, null, 2);

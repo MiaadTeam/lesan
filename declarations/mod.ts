@@ -1,6 +1,5 @@
-import "./config/mod.ts";
-import { Project, ts, log } from "./deps.ts";
-import { ensureDir } from "./deps.ts";
+import { Project, ts, log } from "../deps.ts";
+import { ensureDir } from "../deps.ts";
 import {
   jsonObToTsType,
   convertFvObToTsOb,

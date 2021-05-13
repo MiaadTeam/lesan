@@ -1,5 +1,5 @@
 import { convertFvObToTsOb } from "./convertFvObToTsOb.ts";
-import { fv, log } from "../../deps.ts";
+import { fv, log } from "../../../deps.ts";
 
 /**
  * @function

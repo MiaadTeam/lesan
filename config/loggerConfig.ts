@@ -1,5 +1,4 @@
-import { log } from "../deps.ts";
-import { rgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
+import { log, rgb24 } from "../deps.ts";
 
 export {};
 

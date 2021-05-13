@@ -1,4 +1,4 @@
-import { SourceFile } from "../../deps.ts";
+import { SourceFile } from "../../../deps.ts";
 
 /**
  * @function
