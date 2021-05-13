@@ -1,4 +1,4 @@
-import { SourceFile } from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
+import { SourceFile } from "../../deps.ts";
 import { constructFVModels } from "./constructFVModels.ts";
 
 export async function constructFVSchema(sourceFile: SourceFile) {

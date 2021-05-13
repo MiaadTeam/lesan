@@ -1,4 +1,4 @@
-import { SourceFile } from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
+import { SourceFile } from "../../deps.ts";
 
 /**
  * @function
@@ -8,13 +8,13 @@ import { SourceFile } from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
  */
 export const getImpSourceFile = (
   sourceFile: SourceFile,
-  name: string,
+  name: string
 ): SourceFile => {
   const importDeclaration = sourceFile.getImportDeclaration((i) =>
     i
-        .getImportClauseOrThrow()
-        .getChildren()
-        .find((importKey) => importKey.getText().match(name))
+      .getImportClauseOrThrow()
+      .getChildren()
+      .find((importKey) => importKey.getText().match(name))
       ? true
       : false
   );

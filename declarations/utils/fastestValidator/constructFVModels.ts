@@ -1,7 +1,4 @@
-import {
-  SourceFile,
-  SyntaxKind,
-} from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
+import { SourceFile, SyntaxKind } from "../../deps.ts";
 import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
 import { constructFVDoits } from "./constructFVDoits.ts";
@@ -17,6 +14,7 @@ export async function constructFVModels(sourceFile: SourceFile) {
     .getChildSyntaxListOrThrow();
   //using sync perspective instead of async
   //thanks to deno :(
+  //deno has problem in dynamic importing 2 or more files simultaneously
   const results = [];
   for (const listOfFn of exObIterator(listOfFns)) {
     const res: any = {};

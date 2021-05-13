@@ -1,11 +1,14 @@
-import {
-  SourceFile,
-  SyntaxKind,
-} from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
+import { SourceFile, SyntaxKind } from "../../deps.ts";
 import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
 import { constructFVDetails } from "./constructFVDetails.ts";
 
+/**
+ * @function
+ * construct doits from mod.ts files
+ * @param sourceFile
+ * @param _modelName
+ */
 export async function constructFVDoits(
   sourceFile: SourceFile,
   _modelName: string
@@ -19,7 +22,10 @@ export async function constructFVDoits(
     ?.getChildSyntaxList();
 
   const results = [];
-  //we should
+
+  //using sync perspective instead of async
+  //thanks to deno :(
+  //deno has problem in dynamic importing 2 or more files simultaneously
   for (const fn of exObIterator(listOfFns!)) {
     results.push({
       name: fn.name,
@@ -29,6 +35,7 @@ export async function constructFVDoits(
     });
   }
 
+  //convert array to object
   return results.reduce((pre: any, curr) => {
     pre[curr.name!] = {
       type: "object",

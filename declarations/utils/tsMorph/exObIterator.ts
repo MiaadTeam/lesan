@@ -1,4 +1,4 @@
-import { Node, SyntaxKind } from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
+import { Node, SyntaxKind } from "../../deps.ts";
 
 /**
  * @function
@@ -16,7 +16,7 @@ export const exObIterator = (listOfFns: Node) => {
     .map((fn) => {
       //find name of fn
       const fnNameWithBracket = fn?.getFirstChildByKind(
-        SyntaxKind.ComputedPropertyName,
+        SyntaxKind.ComputedPropertyName
       );
       //get key of object iterator
       const name = fnNameWithBracket

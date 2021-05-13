@@ -1,8 +1,15 @@
-import { Project, ts } from "https://deno.land/x/ts_morph@10.0.1/mod.ts";
-import { ensureDir } from "https://deno.land/std/fs/mod.ts";
-import { obToStr, convertFvObToTsOb, constructFVSchema } from "./utils/mod.ts";
+import "./config/mod.ts";
+import { Project, ts, log } from "./deps.ts";
+import { ensureDir } from "./deps.ts";
+import {
+  jsonObToTsType,
+  convertFvObToTsOb,
+  constructFVSchema,
+} from "./utils/mod.ts";
+import { rgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
 
-export const getDeclarations = async () => {
+export const getDeclarations = async (dirPath?: string) => {
+  log.info("Generating of declarations is started");
   const project = new Project({
     resolutionHost: (moduleResolutionHost, getCompilerOptions) => {
       return {
@@ -35,9 +42,8 @@ export const getDeclarations = async () => {
       }
     },
   });
-  // const __dirname = new URL(".", import.meta.url).pathname;
 
-  const __dirname = ".";
+  const __dirname = dirPath || ".";
 
   await ensureDir("declarations");
 
@@ -68,8 +74,30 @@ export const getDeclarations = async () => {
     JSON.stringify(object, null, 2)
   );
 
-  const int = newSourceFile.addInterface({ name: "Funql", isExported: true });
-  //await Deno.writeTextFile("schema.ts", );
-  int.addProperty({ name: "schema", type: obToStr(object["schema"]) });
+  //construct new interface
+  const funQLInterface = newSourceFile.addInterface({
+    name: "FunQL",
+    isExported: true,
+  });
+  //add types to interface
+  funQLInterface.addProperty({
+    name: "schema",
+    type: jsonObToTsType(object["schema"]),
+  });
+  //format new interface
+  newSourceFile.formatText({ indentSize: 1 });
+  //save new interface
   await newSourceFile.save();
+  log.info(`creating of declaration files was successful
+  ${rgb24(
+    `
+    -------------------------------------------------------------
+    | Fastest validator schema:  ${__dirname}/declarations/fastestValidatorSchema.json
+    | Json schema:  ${__dirname}/declarations/schema.json
+    | Ts interface:   ${__dirname}/declarations/schema.ts
+    -------------------------------------------------------------
+    `,
+    0xd257ff
+  )}
+  `);
 };

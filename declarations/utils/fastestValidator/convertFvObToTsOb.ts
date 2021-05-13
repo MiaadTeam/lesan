@@ -11,7 +11,11 @@ export const convertFvObToTsOb = (
   createdObject: Record<string, any>
 ) => {
   for (const key in schema) {
-    const optional = schema[key]["optional"] === true ? "?" : undefined;
+    //check for optional sign
+    const optional =
+      schema[key]["optional"] === true || schema[key]["nullable"] === true
+        ? "?"
+        : null;
 
     const type = fvTypesConvertor(schema[key]);
     createdObject[optional ? key + optional : key] = type;

@@ -1,4 +1,4 @@
-export * from "./obToStr.ts";
+export * from "./jsonObToTsType.ts";
 export * from "./convertFvObToTsOb.ts";
 export * from "./fvTypesConvertor.ts";
 export * from "./constructFVDoits.ts";

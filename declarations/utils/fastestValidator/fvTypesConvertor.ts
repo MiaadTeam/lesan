@@ -1,5 +1,5 @@
 import { convertFvObToTsOb } from "./convertFvObToTsOb.ts";
-import { obToStr } from "./obToStr.ts";
+import { fv, log } from "../../deps.ts";
 
 /**
  * @function
@@ -7,63 +7,79 @@ import { obToStr } from "./obToStr.ts";
  * @param schemaValue section 2 of fastest validator schema object
  */
 export function fvTypesConvertor(schemaValue: any): any {
-  //define variable
-  let result;
-  const postfixes: string[] = [];
-  //selection
+  //it is shorthand type
+  if (typeof schemaValue === "string") {
+    schemaValue = fv.parseShortHand(schemaValue);
+  }
   switch (schemaValue["type"]) {
     case "string" ||
       "url" ||
-      "date" ||
       "email" ||
       "currency" ||
       "mac" ||
-      "uuid":
-      result = "string";
-      break;
-    case "number":
-      result = "number";
-      break;
+      "uuid" ||
+      "luhn" ||
+      "objectID":
+      return "string";
+    case "number" || "date":
+      return "number";
     case "boolean":
-      result = "boolean";
-      break;
+      return "boolean";
     case "equal":
-      result = schemaValue["value"];
-      break;
+      return convertLiteralValue(schemaValue["value"]);
     //handle object field
     case "object":
-      result = convertFvObToTsOb(schemaValue["props"], {});
-      break;
+      return convertFvObToTsOb(schemaValue["props"], {});
     //handle enum field
     case "enum":
-      result = (schemaValue["values"] as Array<any>)
-        .map((val) => `'${val}'`)
+      return (schemaValue["values"] as Array<any>)
+        .map((val) => convertLiteralValue(val))
         .join(" | ");
 
-      break;
     //handle array field
     case "array":
-      if (schemaValue["items"]["type"] === "object") {
-        result = convertFvObToTsOb(schemaValue["items"]["props"], {});
-        postfixes.push("[]");
-      } else if (schemaValue["items"]["type"]) {
-        result = fvTypesConvertor(schemaValue["items"]);
-        postfixes.push("[]");
-      } else {
-        result = schemaValue["items"];
-        postfixes.push("[]");
+      //convert result to array
+      return Array(findItemsType(schemaValue["items"]));
+
+    case "tuple":
+      //tuple items should be array
+      if (!Array.isArray(schemaValue["items"])) {
+        log.warning("tuple items should be array");
+        return "any";
       }
-      break;
+      return (schemaValue["items"] as Array<any>).map((item: any) =>
+        findItemsType(item)
+      );
 
     default:
-      // result = "any";
-      break;
+      return "any";
   }
-
-  //handle postfixes for example []
-  if (postfixes.length > 0) {
-    return obToStr(result).concat(postfixes.join());
-  }
-
-  return result;
 }
+/**
+ * @function
+ * for converting reason we should surrounding string literal to ' in order to save it in convert json to type
+ * @param val : value of literal
+ *
+ */
+const convertLiteralValue = (val: any) => {
+  return typeof val === "string" ? `'${val}'` : val;
+};
+
+/**
+ * @function
+ * find type of items in array or tuple in fastest validator schema
+ * @param items items field in fastest validator schema
+ */
+const findItemsType = (items: any) => {
+  if (items["type"] === "object") {
+    return convertFvObToTsOb(items["props"], {});
+  } else if (items["type"]) {
+    return fvTypesConvertor(["items"]);
+    //amy be shorthand version
+  } else if (typeof items === "string") {
+    return fvTypesConvertor(items);
+  } else {
+    log.warning("some of items in array or tuple is not valid");
+    return "any";
+  }
+};
