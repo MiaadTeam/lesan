@@ -20,7 +20,6 @@ const createProject = async (init: string | boolean) => {
   await ensureDir(`./${init}`);
   await createBlog(`./${init}`);
 };
-log.info(args._);
 
 args.init && (await createProject(args.init));
 args.declaration && (await getDeclarations());
