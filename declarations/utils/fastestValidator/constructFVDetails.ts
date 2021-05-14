@@ -7,11 +7,11 @@ export async function constructFVDetails(sourceFile: SourceFile) {
   const typePath = sourceFile.getFilePath().replace(".fn.", ".type.");
   try {
     const imp = await import(`file:///${typePath}`);
-    return imp["schema"] ? imp["schema"]["details"]["props"] : {};
+
+    return imp["schema"]["details"]["props"];
   } catch (error) {
-    log.error(`error in importing file from specified path
-    ${error}
-    `);
+    log.warning(`can not find schema variable or details object in the imported file, assume this is any
+    ${error}`);
 
     return {};
   }

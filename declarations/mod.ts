@@ -42,7 +42,7 @@ export const getDeclarations = async (dirPath?: string) => {
     },
   });
 
-  const __dirname = dirPath || ".";
+  const __dirname = dirPath || Deno.cwd();
 
   await ensureDir("declarations");
 
