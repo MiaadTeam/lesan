@@ -17,7 +17,7 @@ export function addFunQLInterfaceToSourceFile(
 ) {
   //checks interface name is duplicate or not and also is Date or not
   if (
-    //ignore date type
+    //ignore date type or similar
     isInternalType(myInterface.getName()) ||
     //when interface was inserted to source file
     myInterface.getName().startsWith("FunQl")
@@ -32,6 +32,7 @@ export function addFunQLInterfaceToSourceFile(
   const createdInterface = createdSourceFile.addInterface({
     name: myInterface.getName(),
     isExported: true,
+    docs: myInterface.getJsDocs().map((doc) => doc.getStructure()),
   });
 
   //finds all props that include in body of interface or specified with inheritance

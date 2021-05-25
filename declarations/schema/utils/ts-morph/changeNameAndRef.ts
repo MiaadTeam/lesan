@@ -2,6 +2,7 @@ import {
   InterfaceDeclaration,
   EnumDeclaration,
   TypeAliasDeclaration,
+  log,
 } from "../../../../deps.ts";
 
 /**
@@ -12,14 +13,23 @@ import {
 export function changeNameAndItsRefs(
   node: InterfaceDeclaration | EnumDeclaration | TypeAliasDeclaration
 ) {
-  //we use split for remove some postfixes for example authority.embedded.ts
-  const fileName = node
-    .getSourceFile()
-    .getBaseNameWithoutExtension()
-    .split(".")[0];
-  //generate new name
-  const newName = `FunQl_${node.getName()}_${fileName}`;
+  try {
+    //we use split for remove some postfixes for example authority.embedded.ts
+    const fileName = node
+      .getSourceFile()
+      .getBaseNameWithoutExtension()
+      .split(".")[0];
+    //generate new name
+    const newName = `FunQl_${node.getName()}_${fileName}`;
 
-  //rename node and its refs
-  node.rename(newName, { renameInStrings: true, usePrefixAndSuffixText: true });
+    //rename node and its refs
+    node.rename(newName, {
+      renameInStrings: true,
+      usePrefixAndSuffixText: true,
+    });
+  } catch (error) {
+    log.warning(
+      `we have some problem in renaming declaration: ${node.getName()}. please check declaration and file name again  `
+    );
+  }
 }

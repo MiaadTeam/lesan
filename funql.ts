@@ -6,6 +6,7 @@ import "./config/mod.ts";
 import { upgrade } from "./cli/mod.ts";
 import { log } from "./deps.ts";
 import { getSchemaDeclarations } from "./declarations/schema/mod.ts";
+import { generateDeclarations } from "./declarations/mod.ts";
 
 export interface CommandArgs {
   init?: boolean | string;
@@ -23,7 +24,6 @@ const createProject = async (init: string | boolean) => {
 };
 
 args.init && (await createProject(args.init));
-args.declaration && (await getRequestDeclarations());
-args.declaration && (await getSchemaDeclarations());
+args.declaration && (await generateDeclarations(true, true));
 
 args.upgrade && (await upgrade(args.upgrade));

@@ -1,5 +1,4 @@
-import { Project, log } from "../../deps.ts";
-import { ensureDir } from "../../deps.ts";
+import { Project, log, emptyDir } from "../../deps.ts";
 import {
   jsonObToTsType,
   convertFvObToTsOb,
@@ -16,7 +15,7 @@ export const getRequestDeclarations = async (dirPath?: string) => {
 
   const __dirname = dirPath || Deno.cwd();
 
-  await ensureDir("declarations/request");
+  await emptyDir("declarations/request");
 
   project.addSourceFilesAtPaths(`${__dirname}/**/*.ts`);
 
