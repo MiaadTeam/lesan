@@ -1,4 +1,4 @@
-import { Project, ts, log } from "../../deps.ts";
+import { Project, log } from "../../deps.ts";
 import { ensureDir } from "../../deps.ts";
 import {
   jsonObToTsType,
@@ -6,45 +6,16 @@ import {
   constructFVSchema,
 } from "./utils/mod.ts";
 import { rgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
+import { denoResolutionHost } from "../utils/mod.ts";
 
 export const getRequestDeclarations = async (dirPath?: string) => {
-  log.info("Generating of declarations is started");
+  log.info("Generating of declarations of request is started");
   const project = new Project({
-    resolutionHost: (moduleResolutionHost, getCompilerOptions) => {
-      return {
-        resolveModuleNames: (moduleNames, containingFile) => {
-          const compilerOptions = getCompilerOptions();
-          const resolvedModules: ts.ResolvedModule[] = [];
-
-          for (const moduleName of moduleNames.map(removeTsExtension)) {
-            const result = ts.resolveModuleName(
-              moduleName,
-              containingFile,
-              compilerOptions,
-              moduleResolutionHost
-            );
-            resolvedModules.push(result.resolvedModule!);
-          }
-
-          return resolvedModules;
-        },
-      };
-
-      function removeTsExtension(moduleName: string) {
-        if (
-          moduleName.slice(-3).toLowerCase() === ".ts" &&
-          !moduleName.startsWith("http")
-        ) {
-          return moduleName.slice(0, -3);
-        }
-        return moduleName;
-      }
-    },
+    resolutionHost: denoResolutionHost,
   });
 
   const __dirname = dirPath || Deno.cwd();
 
-  await ensureDir("declarations");
   await ensureDir("declarations/request");
 
   project.addSourceFilesAtPaths(`${__dirname}/**/*.ts`);
@@ -88,13 +59,13 @@ export const getRequestDeclarations = async (dirPath?: string) => {
   newSourceFile.formatText({ indentSize: 1 });
   //save new interface
   await newSourceFile.save();
-  log.info(`creating of declaration files was successful
+  log.info(`creating of declaration files for request was successful
   ${rgb24(
     `
     -------------------------------------------------------------
-    | Fastest validator schema:  file:///${__dirname}/declarations/request/fastestValidatorSchema.json
-    | Json schema:  file:///${__dirname}/declarations/request/schema.json
-    | Ts interface:   file:///${__dirname}/declarations/request/schema.ts
+    | Fastest validator schema:  file://${__dirname}/declarations/request/fastestValidatorSchema.json
+    | Json schema:  file://${__dirname}/declarations/request/schema.json
+    | Ts interface:   file://${__dirname}/declarations/request/schema.ts
     -------------------------------------------------------------
     `,
     0xd257ff
