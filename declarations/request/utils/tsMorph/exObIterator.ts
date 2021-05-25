@@ -1,4 +1,4 @@
-import { Node, SyntaxKind } from "../../../deps.ts";
+import { Node, SyntaxKind } from "../../../../deps.ts";
 
 /**
  * @function

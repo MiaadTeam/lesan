@@ -1,4 +1,4 @@
-import { SourceFile, SyntaxKind } from "../../../deps.ts";
+import { SourceFile, SyntaxKind } from "../../../../deps.ts";
 import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
 import { constructFVDoits } from "./constructFVDoits.ts";

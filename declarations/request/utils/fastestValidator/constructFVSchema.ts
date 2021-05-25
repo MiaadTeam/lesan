@@ -1,4 +1,4 @@
-import { SourceFile } from "../../../deps.ts";
+import { SourceFile } from "../../../../deps.ts";
 import { constructFVModels } from "./constructFVModels.ts";
 
 export async function constructFVSchema(sourceFile: SourceFile) {

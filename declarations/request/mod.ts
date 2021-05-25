@@ -1,5 +1,5 @@
-import { Project, ts, log } from "../deps.ts";
-import { ensureDir } from "../deps.ts";
+import { Project, ts, log } from "../../deps.ts";
+import { ensureDir } from "../../deps.ts";
 import {
   jsonObToTsType,
   convertFvObToTsOb,
@@ -7,7 +7,7 @@ import {
 } from "./utils/mod.ts";
 import { rgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
 
-export const getDeclarations = async (dirPath?: string) => {
+export const getRequestDeclarations = async (dirPath?: string) => {
   log.info("Generating of declarations is started");
   const project = new Project({
     resolutionHost: (moduleResolutionHost, getCompilerOptions) => {
@@ -45,13 +45,14 @@ export const getDeclarations = async (dirPath?: string) => {
   const __dirname = dirPath || Deno.cwd();
 
   await ensureDir("declarations");
+  await ensureDir("declarations/request");
 
   project.addSourceFilesAtPaths(`${__dirname}/**/*.ts`);
 
   const sourceFile = project.getSourceFileOrThrow(`${__dirname}/mod.ts`);
 
   const newSourceFile = project.createSourceFile(
-    `${__dirname}/declarations/schema.ts`,
+    `${__dirname}/declarations/request/schema.ts`,
     undefined,
     {
       overwrite: true,
@@ -63,13 +64,13 @@ export const getDeclarations = async (dirPath?: string) => {
 
   //store fastest validator object
   await Deno.writeTextFile(
-    `${__dirname}/declarations/fastestValidatorSchema.json`,
+    `${__dirname}/declarations/request/fastestValidatorSchema.json`,
     JSON.stringify(fastestValidatorObject, null, 2)
   );
 
   //store regular object
   await Deno.writeTextFile(
-    `${__dirname}/declarations/schema.json`,
+    `${__dirname}/declarations/request/schema.json`,
     JSON.stringify(object, null, 2)
   );
 
@@ -91,9 +92,9 @@ export const getDeclarations = async (dirPath?: string) => {
   ${rgb24(
     `
     -------------------------------------------------------------
-    | Fastest validator schema:  ${__dirname}/declarations/fastestValidatorSchema.json
-    | Json schema:  ${__dirname}/declarations/schema.json
-    | Ts interface:   ${__dirname}/declarations/schema.ts
+    | Fastest validator schema:  file:///${__dirname}/declarations/request/fastestValidatorSchema.json
+    | Json schema:  file:///${__dirname}/declarations/request/schema.json
+    | Ts interface:   file:///${__dirname}/declarations/request/schema.ts
     -------------------------------------------------------------
     `,
     0xd257ff
