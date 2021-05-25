@@ -5,6 +5,6 @@ export const generateDeclarations = async (
   generateSchema: boolean,
   generateRequest: boolean
 ) => {
-  //generateRequest && (await getRequestDeclarations());
+  generateRequest && (await getRequestDeclarations());
   generateSchema && (await getSchemaDeclarations());
 };
