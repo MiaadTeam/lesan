@@ -1,18 +1,19 @@
 import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
 import { constructFVDetails } from "./constructFVDetails.ts";
-import { SourceFile, SyntaxKind } from "../../../../deps.ts";
+import { SourceFile, SyntaxKind, log } from "../../../../deps.ts";
 
 /**
  * @function
  * construct doits from mod.ts files
  * @param sourceFile
- * @param _modelName
+ * @param modelName
  */
 export async function constructFVDoits(
   sourceFile: SourceFile,
-  _modelName: string
+  modelName: string
 ) {
+  log.info(`in construction of doits for model: ${modelName}`);
   const objectIterator = sourceFile?.getFirstDescendantByKind(
     SyntaxKind.ElementAccessExpression
   );

@@ -21,7 +21,7 @@ export async function constructFVModels(sourceFile: SourceFile) {
     res.name = listOfFn.name;
     (res.doits = await constructFVDoits(
       getImpSourceFile(sourceFile, listOfFn.functionName!),
-      listOfFn.functionName!
+      listOfFn.name!
     )),
       results.push(res);
   }

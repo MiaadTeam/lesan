@@ -53,7 +53,7 @@ export const getSchemaDeclarations = async (dirPath?: string) => {
     ${rgb24(
       `
      -------------------------------------------------------------
-     |  schema:  file://${__dirname}/declarations/schema/schema.ts
+     |  Ts interface:  file://${__dirname}/declarations/schema/schema.ts
      -------------------------------------------------------------
      `,
       0xadfc03

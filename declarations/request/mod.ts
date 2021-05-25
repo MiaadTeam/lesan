@@ -67,7 +67,7 @@ export const getRequestDeclarations = async (dirPath?: string) => {
     | Ts interface:   file://${__dirname}/declarations/request/schema.ts
     -------------------------------------------------------------
     `,
-    0xd257ff
+    0x0fffc3
   )}
   `);
 };

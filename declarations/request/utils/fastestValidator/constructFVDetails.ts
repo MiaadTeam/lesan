@@ -2,7 +2,10 @@ import { SourceFile, log } from "../../../../deps.ts";
 
 export async function constructFVDetails(sourceFile: SourceFile) {
   log.info(
-    sourceFile.getFilePath().split("functions")[1].replace(".fn.ts", "")
+    `in construction of details: ${sourceFile
+      .getFilePath()
+      .split("functions")[1]
+      .replace(".fn.ts", "")}`
   );
   const typePath = sourceFile.getFilePath().replace(".fn.", ".type.");
   try {
