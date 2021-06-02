@@ -1,0 +1,25 @@
+{
+  "name": "funql",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@types/react": "^17.0.0",
+    "axios": "^0.21.1",
+    "fastest-validator": "^1.11.0",
+    "fs": "^0.0.1-security",
+    "next": "^10.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-hook-form": "^7.5.3",
+    "react-select": "^4.3.1",
+    "styled-components": "^5.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.1.3"
+  }
+}
