@@ -13,27 +13,23 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
     <>
       {values.props && values.type === "object" ? (
         <>
-          {
-            <>
-              <p
-                style={{
-                  display: "flex",
-                  marginLeft: index + "rem",
-                  minWidth: "4rem",
-                }}
-              >
-                {value}
-              </p>
-              <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>
-                {"{"}
-              </p>
-            </>
-          }
+          <p
+            style={{
+              display: "flex",
+              marginLeft: index + "rem",
+              minWidth: "4rem",
+            }}
+          >
+            {value}
+          </p>
+          <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>{"{"}</p>
+
           {Object.keys(values.props).map((val, ind) => {
             return (
               <Show
+                key={ke + " " + value + ind}
                 register={register}
-                ke={ke}
+                ke={ke + (value === "" ? "" : " ") + value}
                 index={index + 1}
                 value={val}
                 values={values.props[val]}

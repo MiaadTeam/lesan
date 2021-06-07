@@ -6,29 +6,41 @@ import Setting from "./component/Seteting";
 import Show from "./component/Show";
 import { customStyles } from "./styles/reactSelectStyle";
 import { Container, Details, Left, Models, Right } from "./styles/styled";
-
+import _ from "lodash";
 interface Props {}
+interface SelectOptions {
+  value: string;
+  label: string;
+}
 const App: React.FC<Props> = () => {
-  const [models, setModels]: any = useState(null);
-  const [stateDoits, setStateDoits]: any = useState(null);
-  const [fileChange, setFileChange] = useState("");
-  const [message, setMessage] = useState("");
-  const [port, setPort] = useState("");
-  let dataModel: any;
-  let optionModels: any = [];
-  let optionDoits: any = [];
+  const [models, setModels] = useState<SelectOptions | null>(null); //this state is for react-select models management
+  const [doits, setDoits] = useState<SelectOptions | null>(null); //this state is for react-select doits management
+  const [fileChange, setFileChange] = useState<string>(""); //this state is for read file when user input the schema file
+  const [result, setResult] = useState<string>(""); //this state is for displaying the request result
+  const [port, setPort] = useState<string>(""); //this state is for specifying the port to request server
+
+  //this variable for set json schema
+  let dataSchema: any;
+
+  //this variables for options react-select
+  let optionModels: SelectOptions[] = [];
+  let optionDoits: SelectOptions[] = [];
+
+  //this condition for check user input file json
+  // convert value text file to json then set options for react-select
   if (fileChange) {
-    dataModel = JSON.parse(fileChange).schema.props.models.props;
-    Object.keys(dataModel).map((key) =>
+    dataSchema = JSON.parse(fileChange).schema.props.models.props;
+    Object.keys(dataSchema).map((key: string) =>
       optionModels.push({ value: key, label: key })
     );
 
     models !== null &&
-      Object.keys(dataModel[models.value].props.doits.props).map((key) => {
+      Object.keys(dataSchema[models.value].props.doits.props).map((key) => {
         return optionDoits.push({ value: key, label: key });
       });
   }
 
+  //when change models cleanup register input react-hook-form
   useEffect(() => {
     return () => {
       Object.keys(watch()).map((key) => unregister(key));
@@ -42,59 +54,63 @@ const App: React.FC<Props> = () => {
     unregister,
     formState: { errors },
   } = useForm({
-    resolver: async (data) => {
+    //use resolver for validation values but now not working validation and will be developed in the future
+    resolver: async (data: any) => {
       return {
         values: data,
         errors: {},
       };
     },
   });
-
+  let dataCustom: any = {};
+  const makeNestedObjWithArrayItemsAsKeys = (arr: any, first: any) => {
+    const reducer = (acc: any, item: any) => {
+      return { [item]: acc };
+    };
+    return arr.reduceRight(reducer, first);
+  };
+  //when user click play button call this function
   const onSubmit = (data: any) => {
-    let first = "";
-    let dataCustom: any = {};
-    Object.keys(data).map((key: string) => {
-      first = key.split(" ")[0];
-      let second = key.split(" ")[1];
-      if (second[second.length - 1] === "?") {
-        second = second.substring(0, second.length - 1);
-      }
-      if (!Object.keys(dataCustom).includes(first)) {
-        dataCustom[first] = {};
-        dataCustom[first][second] = data[key];
+    Object.keys(data).map((key: any) => {
+      if (data[key] === "") {
+        delete data[key];
       } else {
-        dataCustom[first][second] = data[key];
+        const arr: [] = key.split(" ");
+        _.defaultsDeep(
+          dataCustom,
+          makeNestedObjWithArrayItemsAsKeys(arr, data[key])
+        );
       }
     });
-
+    console.log(dataCustom, data);
     const link = port
       ? `http://127.0.0.1:${port}/funql`
       : `http://127.0.0.1:6005/funql`;
-
     axios
       .post(link, {
         details: dataCustom,
         wants: {
-          model: models.value,
-          doit: stateDoits.value,
+          model: models ? models.value : "",
+          doit: doits ? doits.value : "",
         },
       })
       .then(function (response) {
-        setMessage(JSON.stringify(response.data.body));
+        setResult(JSON.stringify(response.data.body));
       })
       .catch(function (error) {
-        console.log(errors, "err");
-        errors && setMessage("you have errors");
+        console.log(error.response, "err");
+        // error && setResult("you have errors");
         error &&
           error.response &&
-          setMessage(JSON.stringify(error.response.data));
+          setResult(JSON.stringify(error.response.data));
       });
   };
+
   return (
     <Container>
       <Left onSubmit={handleSubmit(onSubmit)}>
         <Models>
-          {dataModel && (
+          {dataSchema && (
             <Select
               styles={customStyles}
               id="models"
@@ -102,17 +118,17 @@ const App: React.FC<Props> = () => {
               // value={Models.value}
               onChange={(value: any) => {
                 setModels(value);
-                setStateDoits(null);
+                setDoits(null);
               }}
               options={optionModels}
             />
           )}
           {models !== null && (
             <Select
-              id="stateDoits"
-              value={stateDoits}
+              id="doits"
+              value={doits}
               styles={customStyles}
-              onChange={setStateDoits}
+              onChange={setDoits}
               width="230px"
               options={optionDoits}
             />
@@ -131,10 +147,10 @@ const App: React.FC<Props> = () => {
           value="play"
         />
         <Details>
-          {models !== "" &&
-            stateDoits !== null &&
+          {models !== null &&
+            doits !== null &&
             Object.keys(
-              dataModel[models.value].props.doits.props[stateDoits.value].props
+              dataSchema[models.value].props.doits.props[doits.value].props
                 .details.props
             ).map((key, index) => (
               <div key={key + index} style={{ flex: 1, padding: "0 1rem" }}>
@@ -142,10 +158,11 @@ const App: React.FC<Props> = () => {
                 <Show
                   register={register}
                   ke={key}
+                  key={key}
                   index={index}
                   value={""}
                   values={
-                    dataModel[models.value].props.doits.props[stateDoits.value]
+                    dataSchema[models.value].props.doits.props[doits.value]
                       .props.details.props[key]
                   }
                 />
@@ -154,7 +171,7 @@ const App: React.FC<Props> = () => {
         </Details>
       </Left>
       <Right>
-        {message}
+        {result}
         <Setting setFileChange={setFileChange} setPort={setPort} />
       </Right>
     </Container>
