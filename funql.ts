@@ -27,9 +27,22 @@ const createProject = async (init: string | boolean) => {
 const runPlayground = async () => {
   const app = new Application();
 
-  // Will contain trailing slash
   const __dirname = new URL(".", import.meta.url).pathname;
   const buildFolder = `${__dirname}playground/build`;
+
+  /**
+   * Please remove log after debug
+   * @author syd
+   * Please remove log after debug
+   */
+  console.group();
+  console.log();
+  console.log("__dirname, buildFolder ================== __dirname,");
+  console.log("==================");
+  console.log(__dirname, buildFolder);
+  console.log("END ------------------ END");
+  console.log();
+  console.groupEnd();
 
   const play = await exists("./.play");
 
