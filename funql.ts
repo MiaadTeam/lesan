@@ -29,7 +29,7 @@ const runPlayground = async () => {
 
   const __dirname = new URL(".", import.meta.url).pathname;
   const buildFolder = `${__dirname}playground/build`;
-  const realPath = await Deno.realPath("./playground/build");
+  const realPath = await Deno.realPath(buildFolder);
 
   /**
    * Please remove log after debug
