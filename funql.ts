@@ -1,11 +1,11 @@
 import { parse } from "https://deno.land/std/flags/mod.ts";
-import { ensureDir } from "https://deno.land/std/fs/mod.ts";
+import { copy, ensureDir, exists } from "https://deno.land/std/fs/mod.ts";
 import { createBlog } from "./blog/index.ts";
 import "./config/mod.ts";
 import { upgrade } from "./cli/mod.ts";
 import { generateDeclarations } from "./declarations/mod.ts";
-import { exec } from "https://deno.land/x/exec/mod.ts";
 import { runHelp } from "./help.ts";
+import { Application } from "https://deno.land/x/abc@v1.3.1/mod.ts";
 
 export interface CommandArgs {
   init?: boolean | string;
@@ -24,19 +24,24 @@ const createProject = async (init: string | boolean) => {
   await createBlog(`./${init}`);
 };
 
-const __filename = new URL(".", import.meta.url).pathname;
-
 const runPlayground = async () => {
-  //   console.log(__filename, "sallam", Deno.cwd());
-  //
-  //   Deno.chdir(`${Deno.cwd()}/playground`);
+  const app = new Application();
 
-  // Deno.run({
-  //   cmd: ["npm", "run", "start"],
-  //   // cmd: ["yarn", "start"],
-  // });
+  // Will contain trailing slash
+  const __dirname = new URL(".", import.meta.url).pathname;
+  const buildFolder = `${__dirname}playground/build`;
 
-  await exec("deno run -A playground.ts");
+  const play = await exists("./.play");
+
+  play && (await Deno.remove("./.play", { recursive: true }));
+
+  await copy(buildFolder, "./.play");
+
+  console.log(" Playgroud start at http://localhost:1366/ ");
+  app
+    .static("/", "./.play")
+    .file("/", "./.play/index.html")
+    .start({ port: 1366 });
 };
 
 args.init && (await createProject(args.init));
