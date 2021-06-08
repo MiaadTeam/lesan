@@ -29,6 +29,7 @@ const runPlayground = async () => {
 
   const __dirname = new URL(".", import.meta.url).pathname;
   const buildFolder = `${__dirname}playground/build`;
+  const realPath = await Deno.realPath("./playground/build");
 
   /**
    * Please remove log after debug
@@ -37,9 +38,9 @@ const runPlayground = async () => {
    */
   console.group();
   console.log();
-  console.log("__dirname, buildFolder ================== __dirname,");
+  console.log("__dirname, buildFolder, realPath ================== __dirname,");
   console.log("==================");
-  console.log(__dirname, buildFolder);
+  console.log(__dirname, buildFolder, realPath);
   console.log("END ------------------ END");
   console.log();
   console.groupEnd();
@@ -48,7 +49,7 @@ const runPlayground = async () => {
 
   play && (await Deno.remove("./.play", { recursive: true }));
 
-  await copy(buildFolder, "./.play");
+  await copy(realPath, "./.play");
 
   console.log(" Playgroud start at http://localhost:1366/ ");
   app
