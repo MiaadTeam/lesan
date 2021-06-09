@@ -18,6 +18,7 @@ const App: React.FC<Props> = () => {
   const [fileChange, setFileChange] = useState<string>(""); //this state is for read file when user input the schema file
   const [result, setResult] = useState<string>(""); //this state is for displaying the request result
   const [port, setPort] = useState<string>(""); //this state is for specifying the port to request server
+  const [header, setHeader] = useState<string>(""); //this state is for specifying the port to request server
 
   //this variable for set json schema
   let dataSchema: any;
@@ -87,13 +88,17 @@ const App: React.FC<Props> = () => {
       ? `http://127.0.0.1:${port}/funql`
       : `http://127.0.0.1:6005/funql`;
     axios
-      .post(link, {
-        details: dataCustom,
-        wants: {
-          model: models ? models.value : "",
-          doit: doits ? doits.value : "",
+      .post(
+        link,
+        {
+          details: dataCustom,
+          wants: {
+            model: models ? models.value : "",
+            doit: doits ? doits.value : "",
+          },
         },
-      })
+        { headers: header }
+      )
       .then(function (response) {
         setResult(JSON.stringify(response.data.body));
       })
@@ -107,74 +112,78 @@ const App: React.FC<Props> = () => {
   };
 
   return (
-    <Container>
-      <Left onSubmit={handleSubmit(onSubmit)}>
-        <Models>
-          {dataSchema && (
-            <Select
-              styles={customStyles}
-              id="models"
-              width="230px"
-              // value={Models.value}
-              onChange={(value: any) => {
-                setModels(value);
-                setDoits(null);
-              }}
-              options={optionModels}
-            />
-          )}
-          {models !== null && (
-            <Select
-              id="doits"
-              value={doits}
-              styles={customStyles}
-              onChange={setDoits}
-              width="230px"
-              options={optionDoits}
-            />
-          )}
-        </Models>
-        <input
-          style={{
-            position: "absolute",
-            top: "40%",
-            width: "5rem",
-            height: "5rem",
-            borderRadius: "50%",
-            right: "-2.5rem",
-          }}
-          type="submit"
-          value="play"
-        />
-        <Details>
-          {models !== null &&
-            doits !== null &&
-            Object.keys(
-              dataSchema[models.value].props.doits.props[doits.value].props
-                .details.props
-            ).map((key, index) => (
-              <div key={key + index} style={{ flex: 1, padding: "0 1rem" }}>
-                {key}
-                <Show
-                  register={register}
-                  ke={key}
-                  key={key}
-                  index={index}
-                  value={""}
-                  values={
-                    dataSchema[models.value].props.doits.props[doits.value]
-                      .props.details.props[key]
-                  }
-                />
-              </div>
-            ))}
-        </Details>
-      </Left>
-      <Right>
-        {result}
-        <Setting setFileChange={setFileChange} setPort={setPort} />
-      </Right>
-    </Container>
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <Setting
+        setHeader={setHeader}
+        setFileChange={setFileChange}
+        setPort={setPort}
+      />
+      <Container>
+        <Left onSubmit={handleSubmit(onSubmit)}>
+          <Models>
+            {dataSchema && (
+              <Select
+                styles={customStyles}
+                id="models"
+                width="230px"
+                // value={Models.value}
+                onChange={(value: any) => {
+                  setModels(value);
+                  setDoits(null);
+                }}
+                options={optionModels}
+              />
+            )}
+            {models !== null && (
+              <Select
+                id="doits"
+                value={doits}
+                styles={customStyles}
+                onChange={setDoits}
+                width="230px"
+                options={optionDoits}
+              />
+            )}
+          </Models>
+          <input
+            style={{
+              position: "absolute",
+              top: "40%",
+              width: "5rem",
+              height: "5rem",
+              borderRadius: "50%",
+              right: "-2.5rem",
+            }}
+            type="submit"
+            value="play"
+          />
+          <Details>
+            {models !== null &&
+              doits !== null &&
+              Object.keys(
+                dataSchema[models.value].props.doits.props[doits.value].props
+                  .details.props
+              ).map((key, index) => (
+                <div key={key + index} style={{ flex: 1, padding: "0 1rem" }}>
+                  {key}
+                  <Show
+                    register={register}
+                    ke={key}
+                    key={key}
+                    index={index}
+                    value={""}
+                    values={
+                      dataSchema[models.value].props.doits.props[doits.value]
+                        .props.details.props[key]
+                    }
+                  />
+                </div>
+              ))}
+          </Details>
+        </Left>
+        <Right>{result}</Right>
+      </Container>
+    </div>
   );
 };
 
