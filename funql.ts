@@ -5,6 +5,7 @@ import "./config/mod.ts";
 import { upgrade } from "./cli/mod.ts";
 import { generateDeclarations } from "./declarations/mod.ts";
 import { runHelp } from "./help.ts";
+import { generatePlay } from "./play/generatePlay.ts";
 import { Application } from "https://deno.land/x/abc@v1.3.1/mod.ts";
 
 export interface CommandArgs {
@@ -26,28 +27,12 @@ const createProject = async (init: string | boolean) => {
 
 const runPlayground = async () => {
   const app = new Application();
-  const __dirname = new URL(".", import.meta.url).pathname;
-  const buildFolder = `${__dirname}playground/build`;
 
   const play = await exists("./.play");
 
   play && (await Deno.remove("./.play", { recursive: true }));
 
-  // await generatePlay();
-  /**
-   * Please remove log after debug
-   * @author syd
-   * Please remove log after debug
-   */
-  console.group();
-  console.log();
-  console.log("realPath, buildFolder ================== realPath,");
-  console.log(buildFolder);
-  console.log("END ------------------ END");
-  console.log();
-  console.groupEnd();
-
-  await copy(buildFolder, "./.play");
+  await generatePlay();
 
   console.log(" Playgroud start at http://localhost:1366/ ");
   app
