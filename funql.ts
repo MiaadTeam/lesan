@@ -28,7 +28,6 @@ const runPlayground = async () => {
   const app = new Application();
   const __dirname = new URL(".", import.meta.url).pathname;
   const buildFolder = `${__dirname}playground/build`;
-  const realPath = await Deno.realPath(buildFolder);
 
   const play = await exists("./.play");
 
@@ -43,7 +42,7 @@ const runPlayground = async () => {
   console.group();
   console.log();
   console.log("realPath, buildFolder ================== realPath,");
-  console.log(realPath, buildFolder);
+  console.log(buildFolder);
   console.log("END ------------------ END");
   console.log();
   console.groupEnd();
