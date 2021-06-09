@@ -35,7 +35,20 @@ const runPlayground = async () => {
   play && (await Deno.remove("./.play", { recursive: true }));
 
   // await generatePlay();
-  await copy(realPath, "./.play");
+  /**
+   * Please remove log after debug
+   * @author syd
+   * Please remove log after debug
+   */
+  console.group();
+  console.log();
+  console.log("realPath, buildFolder ================== realPath,");
+  console.log(realPath, buildFolder);
+  console.log("END ------------------ END");
+  console.log();
+  console.groupEnd();
+
+  await copy(buildFolder, "./.play");
 
   console.log(" Playgroud start at http://localhost:1366/ ");
   app
