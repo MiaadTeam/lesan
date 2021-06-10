@@ -4,14 +4,21 @@ import Image from "../settings.png";
 interface Props {
   setPort: any;
   setFileChange: any;
+  setHeader: any;
 }
 
-const Setting: React.FC<Props> = ({ setPort, setFileChange }) => {
+const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
   const { register: register2, handleSubmit: handleSubmit2 } = useForm({});
   const [setting, setSetting] = useState(false);
   const onSubmit2 = (data: any) => {
-    console.log(data);
-    data && setPort(data.endPort);
+    console.log(data.header.trim() !== "", data.header);
+    try {
+      JSON.parse(data.header);
+      data.header && setHeader(JSON.parse(data.header));
+    } catch (error) {
+      data.header.trim() !== "" && alert("Please correct header input");
+    }
+    data.endPort && setPort(data.endPort);
     setSetting(false);
   };
 
@@ -28,15 +35,13 @@ const Setting: React.FC<Props> = ({ setPort, setFileChange }) => {
   };
 
   return (
-    <div
-    // style={{ borderBottom: "1rem solid black" }}
-    >
+    <div style={{ position: "absolute", right: "0", width: " 100%" }}>
       <div
         style={{
           display: "flex",
           justifyContent: "flex-end",
           position: "relative",
-          margin: "5px 5px 0 0",
+          margin: "5px",
         }}
       >
         <img
@@ -51,17 +56,20 @@ const Setting: React.FC<Props> = ({ setPort, setFileChange }) => {
         {setting && (
           <form
             tabIndex={2}
+            // style={{ width: "100%" }}
             // onBlur={() => setSetting(false)}
             onSubmit={handleSubmit2(onSubmit2)}
           >
             <ul
               style={{
-                width: "17rem",
                 position: "absolute",
+                zIndex: 2,
+                backgroundColor: "white",
                 top: "10px",
                 border: "solid black 0.01rem",
                 borderRadius: "0.5rem",
-                right: "15px",
+                right: "10px",
+                left: "5px",
                 boxShadow: "5px 5px 3px grey",
                 padding: "0.5rem",
               }}
@@ -106,9 +114,10 @@ const Setting: React.FC<Props> = ({ setPort, setFileChange }) => {
                 }}
               >
                 <p style={{ margin: "0 0.5rem" }}>header:</p>
-                <input
-                  onChange={(e: any) => setFileChange(e.target.value)}
-                  type="text"
+                <textarea
+                  // onChange={(e: any) => setFileChange(e.target.value)}
+                  {...register2("header")}
+                  // type="text"
                   style={{ width: "100%" }}
                 />
               </li>

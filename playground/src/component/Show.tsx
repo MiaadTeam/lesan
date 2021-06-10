@@ -56,14 +56,22 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
               >
                 {value}
               </p>
-              <Input name={value} {...register(ke + " " + value)} />
+              <Input
+                type={values.type === "number" ? "number" : "text"}
+                name={value}
+                {...register(ke + " " + value)}
+              />
             </div>
           ) : (
             <>
               <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>
                 {value}
               </p>
-              <Input name={value} {...register(ke + " " + value)} />
+              <Input
+                type={values.type === "number" ? "number" : "text"}
+                name={value}
+                {...register(ke + " " + value)}
+              />
             </>
           )}
         </div>

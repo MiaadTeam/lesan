@@ -5,17 +5,13 @@ export const createPlay = async () => {
   const buildFolder = `${__dirname}../playground/build`;
   let content = `
 import { ensureDir } from "https://deno.land/std/fs/mod.ts";
-
       /**
        * This file generated automaticly
        * @author syd
        * please dont touch it
        */
-
       export const generatePlay = async () => {
-
         await ensureDir(".play");
-
     `;
 
   for await (const entry of walk(buildFolder)) {
