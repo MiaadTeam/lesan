@@ -76,6 +76,7 @@ const App: React.FC<Props> = () => {
       if (data[key] === "") {
         delete data[key];
       } else {
+        !isNaN(parseInt(data[key])) && (data[key] = parseInt(data[key]));
         const arr: [] = key.split(" ");
         _.defaultsDeep(
           dataCustom,
