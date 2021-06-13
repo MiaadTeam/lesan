@@ -13,5 +13,58 @@ code {
 }
 .__json-pretty__{
   height: 100%;
+  width: 65vw;
   margin-top: 2.5rem; 
+}
+@keyframes fadeIn {
+  0% {
+    display: flex;
+  }
+  100% {
+    display: none;
+  }
+}
+
+.menu {
+  z-index :2 ;
+  
+width: 100%;
+  animation:all .3s ease;;
+}
+.ulmenu{
+  z-index :2 ;
+  margin:0;
+  background-color:  white;
+  height: 9rem;
+  top:  10px;
+  border:  solid black 0.01rem;
+  border-radius:  0.5rem;
+  right:10px;
+  left: 5px;
+  /* box-shadow: 5px 5px 3px grey; */
+  padding: 0.5rem;
+}
+.nomenu{
+  animation: fadeIn 5s ease-in-out;
+
+}
+.imagesetting{
+  position: absolute;
+  z-index: 2;
+  border-radius: 0.5rem;
+  background-color: rgba(19,153,236, 0.5);
+  padding: 0.5rem;
+  right:3rem
+}
+input[type=file]::-webkit-file-upload-button {
+  width: 7rem;
+  height: 1.5rem;
+  right:  -2.5rem;
+  background-color: #1183ca;
+  border: none;
+  color: white;
+  border-radius: 0.5rem;
+}
+input[type=file]::file-selector-button {
+
 }
