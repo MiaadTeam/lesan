@@ -1,4 +1,5 @@
 import { fvTypesConvertor } from "./fvTypesConvertor.ts";
+import { log } from "../../../../deps.ts";
 
 /**
  * @function
@@ -16,8 +17,17 @@ export const convertFvObToTsOb = (
       schema[key]["optional"] === true || schema[key]["nullable"] === true
         ? "?"
         : null;
+    let type;
 
-    const type = fvTypesConvertor(schema[key]);
+    try {
+      type = fvTypesConvertor(schema[key]);
+    } catch (error) {
+      log.warning(
+        `error in  converting type of field: '${key}' we assume it any `
+      );
+      type = "any";
+    }
+
     createdObject[optional ? key + optional : key] = type;
   }
 
