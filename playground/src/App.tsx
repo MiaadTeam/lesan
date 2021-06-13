@@ -7,6 +7,7 @@ import Show from "./component/Show";
 import { customStyles } from "./styles/reactSelectStyle";
 import { Container, Details, Left, Models, Right } from "./styles/styled";
 import _ from "lodash";
+import JSONPretty from "react-json-pretty";import 'react-json-pretty/themes/monikai.css';
 interface Props {}
 interface SelectOptions {
   value: string;
@@ -71,12 +72,11 @@ const App: React.FC<Props> = () => {
     return arr.reduceRight(reducer, first);
   };
   //when user click play button call this function
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: any) => { 
     Object.keys(data).map((key: any) => {
-      if (data[key] === "") {
+      if (data[key] === ""||data[key].toString()==="NaN") {
         delete data[key];
       } else {
-        !isNaN(parseInt(data[key])) && (data[key] = parseInt(data[key]));
         const arr: [] = key.split(" ");
         _.defaultsDeep(
           dataCustom,
@@ -84,7 +84,7 @@ const App: React.FC<Props> = () => {
         );
       }
     });
-    console.log(dataCustom, data);
+    console.log(  dataCustom);
     const link = port
       ? `http://127.0.0.1:${port}/funql`
       : `http://127.0.0.1:6005/funql`;
@@ -182,9 +182,11 @@ const App: React.FC<Props> = () => {
               ))}
           </Details>
         </Left>
-        <Right>{result}</Right>
+        <Right>
+          <JSONPretty style={{height:"100%"}} id="json-pretty" data= {result}></JSONPretty>
+        </Right>
       </Container>
-    </div>
+   </div>
   );
 };
 

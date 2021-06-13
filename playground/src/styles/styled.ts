@@ -16,7 +16,6 @@ export const Input = styled.input`
 export const Container = styled.div`
   display: flex;
   height: 100vh;
-  background-color: black;
 `;
 
 export const Left = styled.form`

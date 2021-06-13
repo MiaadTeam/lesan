@@ -11,3 +11,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.__json-pretty__{
+  height: 100%;
+  margin-top: 2.5rem; 
+}
