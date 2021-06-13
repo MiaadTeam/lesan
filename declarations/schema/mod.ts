@@ -1,6 +1,6 @@
 import { Project, log, emptyDir } from "../../deps.ts";
 import { rgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
-import { denoResolutionHost } from "../utils/mod.ts";
+import { denoResolutionHost, throwError } from "../utils/mod.ts";
 import { addFunQLInterfaceToSourceFile } from "./utils/addInterfaceToSrcFile.ts";
 
 export const getSchemaDeclarations = async (dirPath?: string) => {
@@ -16,7 +16,15 @@ export const getSchemaDeclarations = async (dirPath?: string) => {
     //handle differentiate between schema and schemas
     const dir =
       project.getDirectory(`${__dirname}/schema`) ||
-      project.getDirectory(`${__dirname}/schemas`);
+      project.getDirectory(`${__dirname}/schemas`) ||
+      project.getDirectory(`${__dirname}/src/schemas`) ||
+      project.getDirectory(`${__dirname}/src/schema`);
+
+    //throws error if dir not found
+    !dir &&
+      throwError(
+        "directory of schema was not found, please move your schemas to path ./src/schema(s) or ./schema(s)"
+      );
 
     const createdSourceFile = project.createSourceFile(
       `${__dirname}/declarations/schema/schema.ts`,
