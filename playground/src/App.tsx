@@ -71,6 +71,7 @@ const App: React.FC<Props> = () => {
     handleSubmit,
     watch,
     unregister,
+    reset,
     formState: { errors },
   } = useForm({
     //use resolver for validation values but now not working validation and will be developed in the future
@@ -210,6 +211,7 @@ const App: React.FC<Props> = () => {
               onChange={(value: any) => {
                 setModels(value);
                 setDoits(null);
+                reset();
               }}
               options={optionModels}
             />
@@ -226,7 +228,10 @@ const App: React.FC<Props> = () => {
               menuPlacement="auto"
               value={doits}
               styles={customStyles}
-              onChange={setDoits}
+              onChange={(value) => {
+                setDoits(value);
+                reset();
+              }}
               width="230px"
               options={optionDoits}
             />
