@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import Image from "../settings.png";
+import Image from "../settingsicons.png";
+import "../index.css"
 interface Props {
   setPort: any;
   setFileChange: any;
@@ -35,44 +36,23 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
   };
 
   return (
-    <div style={{ position: "absolute", right: "0", width: " 100%" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          position: "relative",
-          margin: "5px",
-        }}
-      >
-        <img
-          src={Image}
-          alt="Picture of the author"
-          width={25}
-          height={25}
-          onClick={() => setSetting(!setting)}
-          tabIndex={3}
-        />
+    <div style={{      display: "flex",
+    justifyContent: "flex-end", position:"fixed",top:"0",zIndex:2, right: "0", width: " 100%" }}>
+   
+       
 
-        {setting && (
-          <form
+      { setting&& 
+      <>
+      <div onClick={()=>setSetting(false)} style={{position:"fixed",height:"100%",width:"100%",backgroundColor:"rgba(0,0,0,0.7)"}}>S</div>
+        <form
             tabIndex={2}
-            // style={{ width: "100%" }}
+            className={"menu"}
+            // style={menu { width: "100%" }}
             // onBlur={() => setSetting(false)}
             onSubmit={handleSubmit2(onSubmit2)}
           >
             <ul
-              style={{
-                position: "absolute",
-                zIndex: 2,
-                backgroundColor: "white",
-                top: "10px",
-                border: "solid black 0.01rem",
-                borderRadius: "0.5rem",
-                right: "10px",
-                left: "5px",
-                boxShadow: "5px 5px 3px grey",
-                padding: "0.5rem",
-              }}
+               className="ulmenu"
             >
               <li
                 style={{
@@ -82,7 +62,7 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
                   justifyContent: "flex-start",
                 }}
               >
-                <p style={{ margin: "0 0.5rem" }}>port:</p>
+                <p style={{ margin: "0 0.5rem" ,width:"4rem"}}>port:</p>
                 <input
                   style={{ width: "100%" }}
                   type="number"
@@ -97,11 +77,11 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
                   justifyContent: "flex-start",
                 }}
               >
-                <p style={{ margin: "0 0.5rem" }}>port:</p>
+                <p style={{ margin: "0 0.5rem" ,width:"4rem"}}>port:</p>
                 <input
                   id="file"
-                  // accept=".css"
-                  type="file"
+                  // accept=".css" 
+                  type="file" 
                   onChange={(e) => showFile(e)}
                 />
               </li>
@@ -113,7 +93,7 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
                   justifyContent: "flex-start",
                 }}
               >
-                <p style={{ margin: "0 0.5rem" }}>header:</p>
+                <p style={{ margin: "0 0.5rem" ,width:"4rem"}}>header:</p>
                 <textarea
                   // onChange={(e: any) => setFileChange(e.target.value)}
                   {...register2("header")}
@@ -133,8 +113,13 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
                 <input
                   style={{
                     width: "5rem",
-                    height: "2  rem",
+                    height: "2rem",
                     right: "-2.5rem",
+                    backgroundColor:"#1183ca",
+                    border:"none",
+                    color:"white",
+                    borderRadius:"0.5rem"
+
                   }}
                   type="submit"
                   value="submit"
@@ -142,8 +127,19 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
               </li>
             </ul>
           </form>
-        )}
-      </div>
+      </>
+
+       }
+         <img
+          src={Image}
+          alt="Picture of the author"
+          width={25}
+          className="imagesetting"
+          style={setting?{ top:"10rem"}:{top:"0.5rem"}}
+          height={25}
+          onClick={() => setSetting(!setting)}
+          tabIndex={3}
+        />
     </div>
   );
 };

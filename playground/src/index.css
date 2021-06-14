@@ -1,20 +1,19 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-.__json-pretty__{
+.__json-pretty__ {
   height: 100%;
-  width: 65vw;
-  margin-top: 2.5rem; 
+  /* margin-top: 2.5rem; */
 }
 @keyframes fadeIn {
   0% {
@@ -24,47 +23,63 @@ code {
     display: none;
   }
 }
-
-.menu {
-  z-index :2 ;
-  
-width: 100%;
-  animation:all .3s ease;;
+::-webkit-scrollbar {
+  width: 5px;
 }
-.ulmenu{
-  z-index :2 ;
-  margin:0;
-  background-color:  white;
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(19, 153, 236, 0.5);
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(120, 122, 123);
+}
+.menu {
+  z-index: 2;
+  width: 100%;
+  animation: all 0.3s ease;
+}
+.ulmenu {
+  z-index: 2;
+  margin: 0;
+  background-color: white;
   height: 9rem;
-  top:  10px;
-  border:  solid black 0.01rem;
-  border-radius:  0.5rem;
-  right:10px;
+  top: 10px;
+  border: solid black 0.01rem;
+  border-radius: 0.5rem;
+  right: 10px;
   left: 5px;
   /* box-shadow: 5px 5px 3px grey; */
   padding: 0.5rem;
 }
-.nomenu{
+.nomenu {
   animation: fadeIn 5s ease-in-out;
-
 }
-.imagesetting{
+.imagesetting {
   position: absolute;
   z-index: 2;
   border-radius: 0.5rem;
-  background-color: rgba(19,153,236, 0.5);
+  background-color: rgba(19, 153, 236, 0.5);
   padding: 0.5rem;
-  right:3rem
+  right: 3rem;
 }
-input[type=file]::-webkit-file-upload-button {
+input[type="file"]::-webkit-file-upload-button {
   width: 7rem;
   height: 1.5rem;
-  right:  -2.5rem;
+  right: -2.5rem;
   background-color: #1183ca;
   border: none;
   color: white;
   border-radius: 0.5rem;
 }
-input[type=file]::file-selector-button {
-
+input[type="file"]::file-selector-button {
 }
