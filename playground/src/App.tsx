@@ -9,6 +9,8 @@ import { customStyles } from "./styles/reactSelectStyle";
 import {
   Bottom,
   BoxParagraphHeader,
+  BoxPlayGround,
+  BoxShow,
   ButtonPaly,
   Container,
   Details,
@@ -141,14 +143,14 @@ const App: React.FC<Props> = () => {
         <BoxParagraphHeader>
           <ParagraphHeader>Details</ParagraphHeader>
         </BoxParagraphHeader>
-        <div style={{ padding: "5rem 1rem" }}>
+        <BoxPlayGround>
           {models !== null &&
             doits !== null &&
             Object.keys(
               dataSchema[models.value].props.doits.props[doits.value].props
                 .details.props
             ).map((key, index) => (
-              <div key={key + index} style={{ flex: 1, padding: "0 1rem" }}>
+              <BoxShow key={key + index}>
                 {key}
                 <Show
                   register={register}
@@ -161,43 +163,26 @@ const App: React.FC<Props> = () => {
                       .props.details.props[key]
                   }
                 />
-              </div>
+              </BoxShow>
             ))}
-        </div>
+        </BoxPlayGround>
       </Left>
       <Right>
         <BoxParagraphHeader>
           <ParagraphHeader>Response</ParagraphHeader>
         </BoxParagraphHeader>
-        <div style={{ padding: "5rem 1rem" }}>
+        <BoxPlayGround>
           <JSONPretty
             style={{ height: "100%" }}
             id="json-pretty"
             data={result}
           ></JSONPretty>
-        </div>
+        </BoxPlayGround>
       </Right>
-      {/* <ButtonPaly /> */}
-      <input
-        type="submit"
-        value=""
-        style={{
-          position: "absolute",
-          background: `url(${Play})`,
-          backgroundPosition: "52% 20%",
-          backgroundRepeat: " no-repeat",
-          display: "flex",
-          justifyContent: "center",
-          bottom: "2rem",
-          border: " 0.1rem solid black",
-          width: "8rem",
-          backgroundColor: "white",
-          overflow: "hidden",
-          height: " 6.5rem",
-          backgroundSize: "1.7rem",
-          borderRadius: "50%",
-        }}
-      />
+      <ButtonPaly onClick={handleSubmit(onSubmit)}>
+        <IconPlay src={Play} />
+      </ButtonPaly>
+
       <Bottom>
         <LeftBottom>
           {dataSchema && (
@@ -239,81 +224,6 @@ const App: React.FC<Props> = () => {
         </RightBottom>
       </Bottom>
     </Container>
-    //   <div style={{ display: "flex", flexDirection: "column" }}>
-    //     <Setting
-    //       setHeader={setHeader}
-    //       setFileChange={setFileChange}
-    //       setPort={setPort}
-    //     />
-    //     <Container>
-    //       <Left onSubmit={handleSubmit(onSubmit)}>
-    //         <Models>
-    //           {dataSchema && (
-    //             <Select
-    //               styles={customStyles}
-    //               id="models"
-    //               width="230px"
-    //               // value={Models.value}
-    //               onChange={(value: any) => {
-    //                 setModels(value);
-    //                 setDoits(null);
-    //               }}
-    //               options={optionModels}
-    //             />
-    //           )}
-    //           {models !== null && (
-    //             <Select
-    //               id="doits"
-    //               value={doits}
-    //               styles={customStyles}
-    //               onChange={setDoits}
-    //               width="230px"
-    //               options={optionDoits}
-    //             />
-    //           )}
-    //         </Models>
-    //         <input
-    //           style={{
-    //             position: "absolute",
-    //             top: "40%",
-    //             width: "5rem",
-    //             height: "5rem",
-    //             borderRadius: "50%",
-    //             right: "-2.5rem",
-    //           }}
-    //           type="submit"
-    //           value="play"
-    //         />
-    //         <Details>
-    //           {models !== null &&
-    //             doits !== null &&
-    //             Object.keys(
-    //               dataSchema[models.value].props.doits.props[doits.value].props
-    //                 .details.props
-    //             ).map((key, index) => (
-    //               <div key={key + index} style={{ flex: 1, padding: "0 1rem" }}>
-    //                 {key}
-    //                 <Show
-    //                   register={register}
-    //                   ke={key}
-    //                   key={key}
-    //                   index={index}
-    //                   value={""}
-    //                   values={
-    //                     dataSchema[models.value].props.doits.props[doits.value]
-    //                       .props.details.props[key]
-    //                   }
-    //                 />
-    //               </div>
-    //             ))}
-    //         </Details>
-    //       </Left>
-    //       <Right>
-    //         <JSONPretty  style={{height:"100%"}} id="json-pretty" data= {result}></JSONPretty>
-    //     {/* <TreeChart/> */}
-    //       </Right>
-    //     </Container>
-    //  </div>
   );
 };
 

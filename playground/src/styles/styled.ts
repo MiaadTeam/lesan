@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import Play from "../playbutton.png";
 
 export const Input = styled.input`
   border: none;
@@ -14,13 +13,19 @@ export const Input = styled.input`
     margin: 0;
   }
 `;
-export const Container = styled.form`
+export const Container = styled.div`
   display: flex;
   height: 100vh;
   justify-content: center;
 `;
-
-export const Left = styled.div`
+export const BoxPlayGround = styled.div`
+  padding: 5rem 1rem;
+`;
+export const BoxShow = styled.div`
+  flex: 1;
+  padding: 0 1rem;
+`;
+export const Left = styled.form`
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -74,10 +79,9 @@ export const RightBottom = styled.div`
   flex: 1;
 `;
 
-export const ButtonPaly = styled.input.attrs({ type: "submit", value: "" })`
+export const ButtonPaly = styled.button`
   z-index: 1;
   position: absolute;
-  /* background: url(Play); */
   display: flex;
   justify-content: center;
   bottom: 2rem;
@@ -92,7 +96,7 @@ export const IconPlay = styled.img`
   width: 1.5rem;
   height: 1.5rem;
   position: absolute;
-  top: 1.2rem;
+  top: 1rem;
 `;
 
 export const BoxParagraphHeader = styled.div`
