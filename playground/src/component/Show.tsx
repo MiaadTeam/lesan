@@ -59,7 +59,7 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
               <Input
                 type={values.type === "number" ? "number" : "text"}
                 name={value}
-                {...register(ke + " " + value,{ valueAsNumber: values.type === "number"})}
+                {...register(ke + " " + value,{ valueAsNumber: true })}
               />
             </div>
           ) : (
