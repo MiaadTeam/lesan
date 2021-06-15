@@ -6,7 +6,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+*:focus {
+  outline: none;
+}
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
@@ -44,25 +46,62 @@ code {
   background: rgb(120, 122, 123);
 }
 .menu {
-  z-index: 2;
+  z-index: 32;
   width: 100%;
-  animation: all 0.3s ease;
+  height: 10rem;
+  background-color: white;
+  transition: all 0.6s linear;
 }
+.closemenu {
+  z-index: 3;
+  height: 0;
+  transition: all 0.6s linear;
+  width: 100%;
+}
+.darkcontainerclose {
+  transition: all 0.6s linear;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 3;
+  height: 0;
+}
+.darkcontaineropen {
+  position: fixed;
+  transition: all 0.6s linear;
+  z-index: 3;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.listsetting {
+  width: 100%;
+  display: flex;
+  margin: 0.5rem 0;
+  justify-content: flex-start;
+}
+.listsetting-btn {
+  display: flex;
+  justify-content: center;
+}
+
 .ulmenu {
   z-index: 2;
   margin: 0;
   background-color: white;
-  height: 9rem;
+  transition: all 0.3s linear;
   top: 10px;
-  border: solid black 0.01rem;
   border-radius: 0.5rem;
+  opacity: 1;
   right: 10px;
   left: 5px;
-  /* box-shadow: 5px 5px 3px grey; */
   padding: 0.5rem;
 }
-.nomenu {
-  animation: fadeIn 5s ease-in-out;
+.closeulmenu {
+  transition: all 0.2s linear;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  opacity: 0;
 }
 .imagesetting {
   position: absolute;
@@ -70,11 +109,24 @@ code {
   border-radius: 0.5rem;
   background-color: rgba(19, 153, 236, 0.5);
   padding: 0.5rem;
+  border-radius: 50%;
   right: 3rem;
+}
+.imagesettingopen {
+  top: 10.2rem;
+  transition: all 0.6s linear;
+  z-index: 3;
+  transform: rotate(0);
+}
+.imagesettingclose {
+  top: 0.5rem;
+  z-index: 3;
+  transition: all 0.6s linear;
+  transform: rotate(360deg);
 }
 input[type="file"]::-webkit-file-upload-button {
   width: 7rem;
-  height: 1.5rem;
+  /* height: 1.5rem; */
   right: -2.5rem;
   background-color: #1183ca;
   border: none;

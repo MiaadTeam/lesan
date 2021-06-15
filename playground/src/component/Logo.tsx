@@ -27,14 +27,14 @@ const CircleInner = styled.div`
   border-radius: 50%;
 `;
 const Dot = styled.div`
-  height: calc(${(props: Props) => props.size} / 10);
-  width: calc(${(props: Props) => props.size} / 10);
+  height: calc(${(props: Props) => props.size} / 25);
+  width: calc(${(props: Props) => props.size} / 25);
   margin: ${(props: Props) =>
     props.marginUp
-      ? ` calc(${props.size} / 20 *-1) 0`
-      : `0  calc(${props.size} / 20 *-1)`};
+      ? ` calc(${props.size} / 17 *-1) 0`
+      : `-6px  calc(${props.size} / 17 *-1)`};
   background-color: black;
-  border: calc(${(props: Props) => props.size} / 32.948) solid white;
+  border: calc(${(props: Props) => props.size} / 23.948) solid white;
   border-radius: 50%;
 `;
 

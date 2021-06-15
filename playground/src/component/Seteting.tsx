@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Image from "../settingsicons.png";
-import "../index.css"
+import "../index.css";
 interface Props {
   setPort: any;
   setFileChange: any;
@@ -36,64 +36,52 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
   };
 
   return (
-    <div style={{      display: "flex",
-    justifyContent: "flex-end", position:"fixed",top:"0",zIndex:2, right: "0", width: " 100%" }}>
-   
-       
-
-      { setting&& 
-      <>
-      <div onClick={()=>setSetting(false)} style={{position:"fixed",height:"100%",width:"100%",backgroundColor:"rgba(0,0,0,0.7)"}}>S</div>
-        <form
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        position: "fixed",
+        top: "0",
+        zIndex: 2,
+        right: "0",
+        width: " 100%",
+      }}
+    >
+      {
+        <>
+          <div
+            onClick={() => setSetting(false)}
+            className={setting ? "darkcontaineropen" : "darkcontainerclose"}
+          ></div>
+          <form
             tabIndex={2}
-            className={"menu"}
+            className={setting ? "menu" : "closemenu"}
             // style={menu { width: "100%" }}
             // onBlur={() => setSetting(false)}
             onSubmit={handleSubmit2(onSubmit2)}
           >
-            <ul
-               className="ulmenu"
-            >
-              <li
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  margin: "0.5rem 0",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <p style={{ margin: "0 0.5rem" ,width:"4rem"}}>port:</p>
+            <ul className={setting ? "ulmenu" : "closeulmenu"}>
+              <li className="listsetting">
+                <p style={{ margin: "0 0.5rem", width: "9rem" }}>port:</p>
                 <input
                   style={{ width: "100%" }}
                   type="number"
                   {...register2("endPort")}
                 />
               </li>
-              <li
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  margin: "0.5rem 0",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <p style={{ margin: "0 0.5rem" ,width:"4rem"}}>port:</p>
+              <li className="listsetting">
+                <p style={{ margin: "0 0.5rem", width: "9rem" }}>
+                  FastestValidation:
+                </p>
                 <input
                   id="file"
-                  // accept=".css" 
-                  type="file" 
+                  accept=".json"
+                  type="file"
                   onChange={(e) => showFile(e)}
                 />
               </li>
-              <li
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  margin: "0.5rem 0",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <p style={{ margin: "0 0.5rem" ,width:"4rem"}}>header:</p>
+              <li className="listsetting">
+                <p style={{ margin: "0 0.5rem", width: "9rem" }}>header:</p>
                 <textarea
                   // onChange={(e: any) => setFileChange(e.target.value)}
                   {...register2("header")}
@@ -101,25 +89,16 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
                   style={{ width: "100%" }}
                 />
               </li>
-              <li
-                style={{
-                  width: "100%",
-                  display: "flex",
-
-                  margin: "0.5rem 0",
-                  justifyContent: "center",
-                }}
-              >
+              <li className="listsetting listsetting-btn">
                 <input
                   style={{
                     width: "5rem",
                     height: "2rem",
                     right: "-2.5rem",
-                    backgroundColor:"#1183ca",
-                    border:"none",
-                    color:"white",
-                    borderRadius:"0.5rem"
-
+                    backgroundColor: "#1183ca",
+                    border: "none",
+                    color: "white",
+                    borderRadius: "0.5rem",
                   }}
                   type="submit"
                   value="submit"
@@ -127,19 +106,22 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
               </li>
             </ul>
           </form>
-      </>
-
-       }
-         <img
-          src={Image}
-          alt="Picture of the author"
-          width={25}
-          className="imagesetting"
-          style={setting?{ top:"10rem"}:{top:"0.5rem"}}
-          height={25}
-          onClick={() => setSetting(!setting)}
-          tabIndex={3}
-        />
+        </>
+      }
+      <img
+        src={Image}
+        alt="Picture of the author"
+        width={25}
+        className={
+          setting
+            ? "imagesettingopen" + " imagesetting"
+            : "imagesettingclose" + " imagesetting"
+        }
+        // style={setting ? { top: "10rem" } : { top: "0.5rem" }}
+        height={25}
+        onClick={() => setSetting(!setting)}
+        tabIndex={3}
+      />
     </div>
   );
 };

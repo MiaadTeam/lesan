@@ -55,7 +55,7 @@ export const Bottom = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
-  z-index: 2;
+  z-index: 1;
   align-items: center;
   border-radius: 50% 50% 0 0;
   background-color: white;
