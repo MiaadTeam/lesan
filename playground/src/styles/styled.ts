@@ -46,26 +46,35 @@ export const Right = styled.div`
   border-left: 0.1rem solid black;
 `;
 export const Bottom = styled.div`
-  position: absolute;
+  position: fixed;
   border-top: 0.1rem solid black;
-  /* border-right: 0.1rem solid black;
-  border-left: 0.1rem solid black; */
-  height: 5.2rem;
+  height: 3.5rem;
   bottom: 0;
   width: 100%;
   display: flex;
   justify-content: center;
-  z-index: 1;
+  z-index: 4;
   align-items: center;
-  border-radius: 50% 50% 0 0;
   background-color: white;
 `;
-
+export const IconPlay = styled.img`
+  width: 1.5rem;
+  height: 1.5rem;
+  position: absolute;
+  top: 1rem;
+`;
+export const Rectangle = styled.div`
+  width: 0;
+  height: 0;
+  border-top: 20px solid red;
+  border-left: 20px solid transparent;
+  /* border-radius: 0 0.5rem 0 0; */
+`;
 export const LeftBottom = styled.div`
   border-radius: 50% 0 0 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   height: 100%;
   flex: 1;
 `;
@@ -74,29 +83,38 @@ export const RightBottom = styled.div`
   border-radius: 0 50% 0 0;
   align-items: center;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   height: 100%;
   flex: 1;
 `;
-
+export const IconBottomLeft = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 0.1rem solid;
+  width: 5rem;
+  height: 100%;
+`;
+export const IconBottomRight = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 0.1rem solid;
+  width: 5rem;
+  height: 100%;
+`;
 export const ButtonPaly = styled.button`
   z-index: 1;
   position: absolute;
   display: flex;
   justify-content: center;
-  bottom: 2rem;
+  bottom: 0.5rem;
   border: 0.1rem solid black;
   width: 8rem;
   background-color: white;
   overflow: hidden;
   height: 6.5rem;
   border-radius: 50%;
-`;
-export const IconPlay = styled.img`
-  width: 1.5rem;
-  height: 1.5rem;
-  position: absolute;
-  top: 1rem;
 `;
 
 export const BoxParagraphHeader = styled.div`

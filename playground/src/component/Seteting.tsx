@@ -1,16 +1,23 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import Image from "../settingsicons.png";
+import Image from "../gear.svg";
 import "../index.css";
 interface Props {
   setPort: any;
   setFileChange: any;
   setHeader: any;
+  setSetting: any;
+  setting: any;
 }
 
-const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
+const Setting: React.FC<Props> = ({
+  setHeader,
+  setPort,
+  setFileChange,
+  setSetting,
+  setting,
+}) => {
   const { register: register2, handleSubmit: handleSubmit2 } = useForm({});
-  const [setting, setSetting] = useState(false);
   const onSubmit2 = (data: any) => {
     console.log(data.header.trim() !== "", data.header);
     try {
@@ -40,19 +47,12 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
       style={{
         display: "flex",
         justifyContent: "flex-end",
-        position: "fixed",
-        top: "0",
-        zIndex: 2,
-        right: "0",
-        width: " 100%",
+        bottom: "0rem",
+        zIndex: 3,
       }}
     >
       {
         <>
-          <div
-            onClick={() => setSetting(false)}
-            className={setting ? "darkcontaineropen" : "darkcontainerclose"}
-          ></div>
           <form
             tabIndex={2}
             className={setting ? "menu" : "closemenu"}
@@ -60,8 +60,14 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
             // onBlur={() => setSetting(false)}
             onSubmit={handleSubmit2(onSubmit2)}
           >
+            <div
+              onClick={() => setSetting(false)}
+              className={setting ? "openbtn" : ""}
+            >
+              X
+            </div>
             <ul className={setting ? "ulmenu" : "closeulmenu"}>
-              <li className="listsetting">
+              <li className={setting ? "listsetting" : "closelistsetting"}>
                 <p style={{ margin: "0 0.5rem", width: "9rem" }}>port:</p>
                 <input
                   style={{ width: "100%" }}
@@ -69,7 +75,7 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
                   {...register2("endPort")}
                 />
               </li>
-              <li className="listsetting">
+              <li className={setting ? "listsetting" : "closelistsetting"}>
                 <p style={{ margin: "0 0.5rem", width: "9rem" }}>
                   FastestValidation:
                 </p>
@@ -80,7 +86,7 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
                   onChange={(e) => showFile(e)}
                 />
               </li>
-              <li className="listsetting">
+              <li className={setting ? "listsetting" : "closelistsetting"}>
                 <p style={{ margin: "0 0.5rem", width: "9rem" }}>header:</p>
                 <textarea
                   // onChange={(e: any) => setFileChange(e.target.value)}
@@ -89,7 +95,11 @@ const Setting: React.FC<Props> = ({ setHeader, setPort, setFileChange }) => {
                   style={{ width: "100%" }}
                 />
               </li>
-              <li className="listsetting listsetting-btn">
+              <li
+                className={
+                  setting ? "listsetting listsetting-btn" : "closelistsetting"
+                }
+              >
                 <input
                   style={{
                     width: "5rem",

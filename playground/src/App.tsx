@@ -14,6 +14,8 @@ import {
   ButtonPaly,
   Container,
   Details,
+  IconBottomRight,
+  IconBottomLeft,
   IconPlay,
   Left,
   LeftBottom,
@@ -27,6 +29,7 @@ import JSONPretty from "react-json-pretty";
 import "react-json-pretty/themes/monikai.css";
 import TreeChart from "./component/Graph";
 import { Logo } from "./component/Logo";
+import Doc from "./component/Doc";
 interface Props {}
 interface SelectOptions {
   value: string;
@@ -39,6 +42,7 @@ const App: React.FC<Props> = () => {
   const [result, setResult] = useState<string>(""); //this state is for displaying the request result
   const [port, setPort] = useState<string>(""); //this state is for specifying the port to request server
   const [header, setHeader] = useState<string>(""); //this state is for specifying the port to request server
+  const [setting, setSetting] = useState(false);
 
   //this variable for set json schema
   let dataSchema: any = [];
@@ -134,11 +138,6 @@ const App: React.FC<Props> = () => {
 
   return (
     <Container onSubmit={handleSubmit(onSubmit)}>
-      <Setting
-        setHeader={setHeader}
-        setFileChange={setFileChange}
-        setPort={setPort}
-      />
       <Left>
         <BoxParagraphHeader>
           <ParagraphHeader>Details</ParagraphHeader>
@@ -156,6 +155,7 @@ const App: React.FC<Props> = () => {
                   register={register}
                   ke={key}
                   key={key}
+                  mainkey={key}
                   index={index}
                   value={""}
                   values={
@@ -182,31 +182,41 @@ const App: React.FC<Props> = () => {
       <ButtonPaly onClick={handleSubmit(onSubmit)}>
         <IconPlay src={Play} />
       </ButtonPaly>
-
       <Bottom>
         <LeftBottom>
-          {dataSchema && (
-            <Select
-              menuPlacement="auto"
-              styles={customStyles}
-              id="models"
-              placeholder={"Models"}
-              width="230px"
-              // value={Models.value}
-              onChange={(value: any) => {
-                setModels(value);
-                setDoits(null);
-                reset();
-              }}
-              options={optionModels}
+          <IconBottomRight>
+            <Doc
+              setHeader={setHeader}
+              setting={setting}
+              setSetting={setSetting}
+              setFileChange={setFileChange}
+              setPort={setPort}
             />
-          )}
+          </IconBottomRight>
+          <div style={{ flex: "1", display: "flex", justifyContent: "center" }}>
+            {dataSchema && (
+              <Select
+                menuPlacement="auto"
+                styles={customStyles}
+                id="models"
+                placeholder={"Models"}
+                width="230px"
+                // value={Models.value}
+                onChange={(value: any) => {
+                  setModels(value);
+                  setDoits(null);
+                  reset();
+                }}
+                options={optionModels}
+              />
+            )}
+          </div>
         </LeftBottom>
 
         <Logo size={"5rem"} />
 
         <RightBottom>
-          {
+          <div style={{ flex: "1", display: "flex", justifyContent: "center" }}>
             <Select
               id="doits"
               placeholder={"Doits"}
@@ -220,9 +230,23 @@ const App: React.FC<Props> = () => {
               width="230px"
               options={optionDoits}
             />
-          }
+          </div>
+
+          <IconBottomLeft>
+            <Setting
+              setHeader={setHeader}
+              setting={setting}
+              setSetting={setSetting}
+              setFileChange={setFileChange}
+              setPort={setPort}
+            />
+          </IconBottomLeft>
         </RightBottom>
       </Bottom>
+      <div
+        onClick={() => setSetting(false)}
+        className={setting ? "darkcontaineropen" : "darkcontainerclose"}
+      ></div>
     </Container>
   );
 };

@@ -7,8 +7,16 @@ interface Props {
   index: any;
   ke: any;
   register: any;
+  mainkey: any;
 }
-const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
+const Show: React.FC<Props> = ({
+  mainkey,
+  index,
+  ke,
+  value,
+  values,
+  register,
+}) => {
   return (
     <>
       {values.props && values.type === "object" ? (
@@ -28,6 +36,7 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
             return (
               <Show
                 key={ke + " " + value + ind}
+                mainkey={mainkey}
                 register={register}
                 ke={ke + (value === "" ? "" : " ") + value}
                 index={index + 1}
@@ -46,7 +55,7 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
             alignItems: "center",
           }}
         >
-          {ke === "get" ? (
+          {mainkey === "get" ? (
             <div style={{ marginLeft: index + "rem", display: "flex" }}>
               <p
                 style={{
@@ -59,7 +68,7 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
               <Input
                 type={values.type === "number" ? "number" : "text"}
                 name={value}
-                {...register(ke + " " + value,{ valueAsNumber: true})}
+                {...register(ke + " " + value, { valueAsNumber: true })}
               />
             </div>
           ) : (
@@ -70,7 +79,9 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
               <Input
                 type={values.type === "number" ? "number" : "text"}
                 name={value}
-                {...register(ke + " " + value,{valueAsNumber:values.type === "number"})}
+                {...register(ke + " " + value, {
+                  valueAsNumber: values.type === "number",
+                })}
               />
             </>
           )}
