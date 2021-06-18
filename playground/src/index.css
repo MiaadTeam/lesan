@@ -133,6 +133,8 @@ code {
 .imagesettingclose {
   bottom: 1rem;
   z-index: 3;
+  width: 2.5rem;
+  height: 2.5rem;
   transition: all 0.6s linear;
   transform: rotate(360deg);
 }
