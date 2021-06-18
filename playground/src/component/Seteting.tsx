@@ -62,7 +62,7 @@ const Setting: React.FC<Props> = ({
           >
             <div
               onClick={() => setSetting(false)}
-              className={setting ? "openbtn" : ""}
+              className={setting ? "openbtn" : "closebtn"}
             >
               X
             </div>

@@ -91,7 +91,12 @@ code {
   display: flex;
   justify-content: center;
 }
-
+.link__to-leaf {
+  fill: firebrick;
+}
+.rd3t-link {
+  stroke: red !important;
+}
 .ulmenu {
   z-index: 2;
   margin: 0;
@@ -152,6 +157,9 @@ input[type="file"]::-webkit-file-upload-button {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.closebtn {
+  height: 0;
 }
 input[type="file"]::file-selector-button {
 }
