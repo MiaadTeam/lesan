@@ -23,8 +23,9 @@ import { PathFunctionOption } from "react-d3-tree/lib/types/common";
 
 interface Props {
   setGraphPage: any;
+  data: any;
 }
-const OrgChartTree: React.FC<Props> = ({ setGraphPage }) => {
+const OrgChartTree: React.FC<Props> = ({ setGraphPage, data }) => {
   const [path, setPath] = useState<PathFunctionOption>("straight");
   return (
     // `<Tree />` will fill width/height of its container; in this case `#treeWrapper`.
@@ -100,7 +101,7 @@ const OrgChartTree: React.FC<Props> = ({ setGraphPage }) => {
         rootNodeClassName="node__root"
         // branchNodeClassName="node__branch"
         // leafNodeClassName="node__leaf"
-        data={TreeData()}
+        data={TreeData(data)}
         // data={orgChart}
       />
     </div>

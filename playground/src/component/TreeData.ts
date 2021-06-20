@@ -1,5 +1,3 @@
-import Data from "../fastestValidatorSchema.json";
-
 const recfunc: any = (values: any, ke: any, value: any) => {
   if (values.props && values.type === "object") {
     return Object.keys(values.props).map((val, ind) => {
@@ -12,7 +10,7 @@ const recfunc: any = (values: any, ke: any, value: any) => {
   }
 };
 
-export const TreeData = () => {
+export const TreeData = (Data?: any) => {
   let model: string[] = [];
   let alldata: any[] = [];
   let schema: any[] = [];
