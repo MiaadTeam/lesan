@@ -94,9 +94,9 @@ code {
 .link__to-leaf {
   fill: firebrick;
 }
-.rd3t-link {
+/* .rd3t-link {
   stroke: red !important;
-}
+} */
 .ulmenu {
   z-index: 2;
   margin: 0;
@@ -164,4 +164,24 @@ input[type="file"]::-webkit-file-upload-button {
   height: 0;
 }
 input[type="file"]::file-selector-button {
+}
+.btn {
+  width: 5rem;
+  height: 2rem;
+  background-color: #1183ca;
+  border: none;
+  color: white;
+  margin: 0.5rem;
+
+  border-radius: 0.5rem;
+}
+.btn1 {
+  width: 4rem;
+  height: 1.5rem;
+  background-color: #ca6c87;
+  border: none;
+  color: white;
+  margin: 0.5rem;
+
+  border-radius: 0.5rem;
 }

@@ -1,9 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import OrgChartTree from "./component/Test";
+import graph from "./flow-chart.svg";
+import test from "./test.svg";
 import Select from "react-select";
 import Setting from "./component/Seteting";
 import Play from "./playbutton.png";
+import "./styles/globals.css";
 import Show from "./component/Show";
 import { customStyles } from "./styles/reactSelectStyle";
 import {
@@ -27,9 +31,9 @@ import {
 import _ from "lodash";
 import JSONPretty from "react-json-pretty";
 import "react-json-pretty/themes/monikai.css";
-import TreeChart from "./component/Graph";
 import { Logo } from "./component/Logo";
 import Doc from "./component/Doc";
+import { TreeData } from "./component/TreeData";
 interface Props {}
 interface SelectOptions {
   value: string;
@@ -135,118 +139,169 @@ const App: React.FC<Props> = () => {
           setResult(JSON.stringify(error.response.data));
       });
   };
-
+  const [graphPage, setGraphPage] = useState(false);
   return (
     <Container onSubmit={handleSubmit(onSubmit)}>
-      <Left>
-        <BoxParagraphHeader>
-          <ParagraphHeader>Details</ParagraphHeader>
-        </BoxParagraphHeader>
-        <BoxPlayGround>
-          {models !== null &&
-            doits !== null &&
-            Object.keys(
-              dataSchema[models.value].props.doits.props[doits.value].props
-                .details.props
-            ).map((key, index) => (
-              <BoxShow key={key + index}>
-                {key}
-                <Show
-                  register={register}
-                  ke={key}
-                  key={key}
-                  mainkey={key}
-                  index={index}
-                  value={""}
-                  values={
-                    dataSchema[models.value].props.doits.props[doits.value]
-                      .props.details.props[key]
-                  }
+      {graphPage ? (
+        <OrgChartTree setGraphPage={setGraphPage} />
+      ) : (
+        <>
+          <Left>
+            <BoxParagraphHeader>
+              <ParagraphHeader>Details</ParagraphHeader>
+            </BoxParagraphHeader>
+            <BoxPlayGround>
+              {models !== null &&
+                doits !== null &&
+                Object.keys(
+                  dataSchema[models.value].props.doits.props[doits.value].props
+                    .details.props
+                ).map((key, index) => (
+                  <BoxShow key={key + index}>
+                    {key}
+                    <Show
+                      register={register}
+                      ke={key}
+                      key={key}
+                      mainkey={key}
+                      index={index}
+                      value={""}
+                      values={
+                        dataSchema[models.value].props.doits.props[doits.value]
+                          .props.details.props[key]
+                      }
+                    />
+                  </BoxShow>
+                ))}
+            </BoxPlayGround>
+          </Left>
+          <Right>
+            <BoxParagraphHeader>
+              <ParagraphHeader>Response</ParagraphHeader>
+            </BoxParagraphHeader>
+            <BoxPlayGround>
+              <JSONPretty
+                style={{ height: "100%" }}
+                id="json-pretty"
+                data={result}
+              ></JSONPretty>
+            </BoxPlayGround>
+          </Right>
+          <ButtonPaly onClick={handleSubmit(onSubmit)}>
+            <IconPlay src={Play} />
+          </ButtonPaly>
+          <Bottom>
+            <LeftBottom>
+              <IconBottomRight>
+                <Doc
+                  setHeader={setHeader}
+                  setting={setting}
+                  setSetting={setSetting}
+                  setFileChange={setFileChange}
+                  setPort={setPort}
                 />
-              </BoxShow>
-            ))}
-        </BoxPlayGround>
-      </Left>
-      <Right>
-        <BoxParagraphHeader>
-          <ParagraphHeader>Response</ParagraphHeader>
-        </BoxParagraphHeader>
-        <BoxPlayGround>
-          <JSONPretty
-            style={{ height: "100%" }}
-            id="json-pretty"
-            data={result}
-          ></JSONPretty>
-        </BoxPlayGround>
-      </Right>
-      <ButtonPaly onClick={handleSubmit(onSubmit)}>
-        <IconPlay src={Play} />
-      </ButtonPaly>
-      <Bottom>
-        <LeftBottom>
-          <IconBottomRight>
-            <Doc
-              setHeader={setHeader}
-              setting={setting}
-              setSetting={setSetting}
-              setFileChange={setFileChange}
-              setPort={setPort}
-            />
-          </IconBottomRight>
-          <div style={{ flex: "1", display: "flex", justifyContent: "center" }}>
-            {dataSchema && (
-              <Select
-                menuPlacement="auto"
-                styles={customStyles}
-                id="models"
-                placeholder={"Models"}
-                width="230px"
-                // value={Models.value}
-                onChange={(value: any) => {
-                  setModels(value);
-                  setDoits(null);
-                  reset();
+              </IconBottomRight>
+              <div
+                style={{
+                  width: "4rem",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+
+                  borderRight: "0.1rem solid",
                 }}
-                options={optionModels}
-              />
-            )}
-          </div>
-        </LeftBottom>
+              >
+                <img
+                  src={graph}
+                  onClick={() => setGraphPage(true)}
+                  style={{
+                    height: "2.5rem",
+                    padding: "0.5rem",
+                    width: "2.5rem",
+                  }}
+                />
+              </div>
 
-        <Logo size={"5rem"} />
+              <div
+                style={{ flex: "1", display: "flex", justifyContent: "center" }}
+              >
+                {dataSchema && (
+                  <Select
+                    menuPlacement="auto"
+                    styles={customStyles}
+                    id="models"
+                    placeholder={"Models"}
+                    width="230px"
+                    // value={Models.value}
+                    onChange={(value: any) => {
+                      setModels(value);
+                      setDoits(null);
+                      reset();
+                    }}
+                    options={optionModels}
+                  />
+                )}
+              </div>
+            </LeftBottom>
 
-        <RightBottom>
-          <div style={{ flex: "1", display: "flex", justifyContent: "center" }}>
-            <Select
-              id="doits"
-              placeholder={"Doits"}
-              menuPlacement="auto"
-              value={doits}
-              styles={customStyles}
-              onChange={(value) => {
-                setDoits(value);
-                reset();
-              }}
-              width="230px"
-              options={optionDoits}
-            />
-          </div>
+            <Logo size={"5rem"} />
 
-          <IconBottomLeft>
-            <Setting
-              setHeader={setHeader}
-              setting={setting}
-              setSetting={setSetting}
-              setFileChange={setFileChange}
-              setPort={setPort}
-            />
-          </IconBottomLeft>
-        </RightBottom>
-      </Bottom>
-      <div
-        onClick={() => setSetting(false)}
-        className={setting ? "darkcontaineropen" : "darkcontainerclose"}
-      ></div>
+            <RightBottom>
+              <div
+                style={{ flex: "1", display: "flex", justifyContent: "center" }}
+              >
+                <Select
+                  id="doits"
+                  placeholder={"Doits"}
+                  menuPlacement="auto"
+                  value={doits}
+                  styles={customStyles}
+                  onChange={(value) => {
+                    setDoits(value);
+                    reset();
+                  }}
+                  width="230px"
+                  options={optionDoits}
+                />
+              </div>
+              <div
+                style={{
+                  width: "4rem",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+
+                  borderLeft: "0.1rem solid",
+                }}
+              >
+                <img
+                  src={test}
+                  style={{
+                    height: "2.5rem",
+                    padding: "0.5rem",
+                    width: "2.5rem",
+                  }}
+                />
+              </div>
+              <IconBottomLeft>
+                <Setting
+                  setHeader={setHeader}
+                  setting={setting}
+                  setSetting={setSetting}
+                  setFileChange={setFileChange}
+                  setPort={setPort}
+                />
+              </IconBottomLeft>
+            </RightBottom>
+          </Bottom>
+          <div
+            onClick={() => setSetting(false)}
+            className={setting ? "darkcontaineropen" : "darkcontainerclose"}
+          ></div>
+        </>
+      )}
     </Container>
   );
 };
