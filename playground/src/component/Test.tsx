@@ -78,13 +78,16 @@ const OrgChartTree: React.FC<Props> = ({ setGraphPage, data }) => {
                 }}
                 onClick={toggleNode}
               >
-                {nodeDatum.data &&
+                {/* {nodeDatum.data &&
                   nodeDatum.data.map((valArray: any) => {
-                    return valArray.map((valArray1: any) => {
-                      // console.log("asas", valArray1);
-                      return createElementDetails(valArray1, 0);
-                    });
-                  })}
+                    // console.log("a", valArray);
+                    return valArray
+                      ? valArray.map((valArray1: any) => {
+                          // console.log("asas", valArray1);
+                          return createElementDetails(valArray1, 0);
+                        })
+                      : {};
+                  })} */}
               </div>
             </foreignObject>
           );
