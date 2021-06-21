@@ -161,7 +161,21 @@ const App: React.FC<Props> = () => {
                     .details.props
                 ).map((key, index) => (
                   <BoxShow key={key + index}>
+                  <p
+                    style={{
+                      display: "flex",
+                      marginLeft: index + "rem",
+                      minWidth: "4rem",
+                      backgroundColor: "rgb(24,37,46)",
+                      padding: "1rem",
+                      borderRadius: "0.4rem",
+                      marginTop: "1.5rem",
+                      marginBottom: "0.3rem",
+                      border: "1px solid rgb(237,41,96)"
+                    }}
+                  >
                     {key}
+                  </p>
                     <Show
                       register={register}
                       ke={key}
@@ -182,9 +196,8 @@ const App: React.FC<Props> = () => {
             <BoxParagraphHeader>
               <ParagraphHeader>Response</ParagraphHeader>
             </BoxParagraphHeader>
-            <BoxPlayGround>
+            <BoxPlayGround style={{padding: 0}}>
               <JSONPretty
-                style={{ height: "100%" }}
                 id="json-pretty"
                 data={result}
               ></JSONPretty>

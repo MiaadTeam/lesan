@@ -19,17 +19,24 @@ export const Container = styled.div`
   justify-content: center;
 `;
 export const BoxPlayGround = styled.div`
-  padding: 5rem 1rem;
+  padding: 5rem 0rem;
+    color: white;
+    pre {
+        padding: 5rem 1rem;
+    margin: 0;
+    min-height: 100vh;
+    }
 `;
 export const BoxShow = styled.div`
   flex: 1;
-  padding: 0 1rem;
+  padding: 0.5rem 1rem;
+
 `;
 export const Left = styled.form`
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background-color: white;
+    background-color: rgb(33,40,53);
   position: relative;
   overflow-y: auto;
   width: 50%;
@@ -41,6 +48,7 @@ export const Right = styled.div`
   flex-direction: column;
   box-sizing: border-box;
   flex: 1;
+  overflow-y: auto;
   position: relative;
   background-color: white;
   border-left: 0.1rem solid black;
@@ -105,7 +113,7 @@ export const IconBottomRight = styled.div`
 `;
 export const ButtonPaly = styled.button`
   z-index: 1;
-  position: absolute;
+  position: fixed;
   display: flex;
   justify-content: center;
   bottom: 0.5rem;
@@ -118,7 +126,6 @@ export const ButtonPaly = styled.button`
 `;
 
 export const BoxParagraphHeader = styled.div`
-  background-color: white;
   position: fixed;
   width: 48%;
   margin: 0 1%;
@@ -126,10 +133,12 @@ export const BoxParagraphHeader = styled.div`
 `;
 export const ParagraphHeader = styled.p`
   font-size: 1rem;
-  border: 0.1rem solid black;
+  border: 2px solid rgb(119,82,190);
   border-radius: 1rem;
+    color:rgb(26,29,31) ;
   margin: 0;
   padding: 0.5rem 2rem;
+    background-color: rgba(254,255,237,0.8)
 `;
 export const Icon = styled.img`
   width: 3rem;

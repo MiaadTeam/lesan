@@ -21,16 +21,23 @@ const Show: React.FC<Props> = ({
     <>
       {values.props && values.type === "object" ? (
         <>
-          <p
-            style={{
-              display: "flex",
-              marginLeft: index + "rem",
-              minWidth: "4rem",
-            }}
-          >
-            {value}
-          </p>
-          <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>{"{"}</p>
+            {value && (
+              <p
+                style={{
+                  display: "flex",
+                  marginLeft: index + "rem",
+                  minWidth: "4rem",
+                  backgroundColor: "rgb(24,37,46)",
+                  padding: "1rem",
+                  borderRadius: "0.4rem",
+                  marginTop: "1.5rem",
+                  marginBottom: "0.3rem",
+                  border: "1px solid rgb(255,168,62)"
+                }}
+              >
+                {value}
+              </p>
+            )}
 
           {Object.keys(values.props).map((val, ind) => {
             return (
@@ -45,7 +52,6 @@ const Show: React.FC<Props> = ({
               />
             );
           })}
-          <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>{"}"}</p>
         </>
       ) : (
         <div
@@ -53,28 +59,32 @@ const Show: React.FC<Props> = ({
             display: "flex",
             height: "2rem",
             alignItems: "center",
+            marginTop: "0.5rem",
+            marginLeft: index + "rem",
+             backgroundColor: "rgb(73,82,97)", padding: "0.2rem 0.1rem" 
           }}
         >
           {mainkey === "get" ? (
-            <div style={{ marginLeft: index + "rem", display: "flex" }}>
+            <div style={{ padding: "0.6rem", display: "flex" }}>
               <p
                 style={{
                   minWidth: "4rem",
                   margin: "0",
                 }}
               >
-                {value}
+                {value} :
               </p>
               <Input
                 type={values.type === "number" ? "number" : "text"}
                 name={value}
                 {...register(ke + " " + value, { valueAsNumber: true })}
               />
+              <span style={{color: "rgb(145,145,145)", marginLeft: "2rem"}}>value are just 0 or 1 {console.log("inyeki value", values.type)} </span>
             </div>
           ) : (
             <>
               <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>
-                {value}
+                {value} :
               </p>
               <Input
                 type={values.type === "number" ? "number" : "text"}
@@ -83,6 +93,7 @@ const Show: React.FC<Props> = ({
                   valueAsNumber: values.type === "number",
                 })}
               />
+              <span style={{color: "rgb(145,145,145)", marginLeft: "2rem"}}>{JSON.stringify(values)}</span>
             </>
           )}
         </div>
