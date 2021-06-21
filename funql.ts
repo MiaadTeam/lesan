@@ -13,7 +13,7 @@ export interface CommandArgs {
   declaration?: boolean;
   upgrade?: string;
   _: (string | number)[];
-  playground?: boolean;
+  play?: boolean;
   help?: boolean;
 }
 
@@ -43,7 +43,7 @@ const runPlayground = async () => {
 
 args.init && (await createProject(args.init));
 args.declaration && (await generateDeclarations(true, true));
-args.playground && (await runPlayground());
+args.play && (await runPlayground());
 args.help && (runHelp());
 
 args.upgrade && (await upgrade(args.upgrade));
