@@ -50,7 +50,6 @@ args.declaration === "schema"
   ? await generateDeclarations(false, true)
   : args.declaration && generateDeclarations(true, true);
 args.help && runHelp();
-args.declaration && (await generateDeclarations(true, true));
 args.play && (await runPlayground());
 args.help && runHelp();
 
