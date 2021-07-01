@@ -1,9 +1,16 @@
-import { SourceFile, SyntaxKind } from "../../../../deps.ts";
+import { SourceFile, SyntaxKind, bgRgb24, log } from "../../../../deps.ts";
 import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
 import { constructFVDoits } from "./constructFVDoits.ts";
 
-export async function constructFVModels(sourceFile: SourceFile) {
+export async function constructFVModels(
+  sourceFile: SourceFile,
+  contentName: string
+) {
+  log.info(
+    bgRgb24(`in construction of models for content: ${contentName}`, 0x380406)
+  );
+
   //get object iterator in mod.ts
   const objectIterator = sourceFile.getFirstDescendantByKindOrThrow(
     SyntaxKind.ElementAccessExpression

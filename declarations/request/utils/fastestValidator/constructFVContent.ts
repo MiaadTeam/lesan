@@ -20,7 +20,8 @@ export async function constructFVContents(sourceFile: SourceFile) {
     const res: any = {};
     res.name = listOfFn.name;
     (res.models = await constructFVModels(
-      getImpSourceFile(sourceFile, listOfFn.functionName!)
+      getImpSourceFile(sourceFile, listOfFn.functionName!),
+      res.name
     )),
       results.push(res);
   }
