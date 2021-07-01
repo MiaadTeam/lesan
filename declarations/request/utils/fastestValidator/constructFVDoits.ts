@@ -2,6 +2,7 @@ import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
 import { constructFVDetails } from "./constructFVDetails.ts";
 import { SourceFile, SyntaxKind, log } from "../../../../deps.ts";
+import { bgRgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
 
 /**
  * @function
@@ -13,7 +14,9 @@ export async function constructFVDoits(
   sourceFile: SourceFile,
   modelName: string
 ) {
-  log.info(`in construction of doits for model: ${modelName}`);
+  log.info(
+    bgRgb24(`in construction of doits for model: ${modelName}`, 0x010217)
+  );
   const objectIterator = sourceFile?.getFirstDescendantByKind(
     SyntaxKind.ElementAccessExpression
   );

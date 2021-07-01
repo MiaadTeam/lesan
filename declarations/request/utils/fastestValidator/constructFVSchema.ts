@@ -1,13 +1,16 @@
 import { SourceFile } from "../../../../deps.ts";
-import { constructFVModels } from "./constructFVModels.ts";
+import { constructFVContents } from "./constructFVContent.ts";
 
 export async function constructFVSchema(sourceFile: SourceFile) {
-  const models = await constructFVModels(sourceFile);
-
   return {
     schema: {
       type: "object",
-      props: { models: { type: "object", props: models } },
+      props: {
+        contents: {
+          type: "object",
+          props: await constructFVContents(sourceFile),
+        },
+      },
     },
   };
 }

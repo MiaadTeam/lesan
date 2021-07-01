@@ -7,4 +7,6 @@ export const generateDeclarations = async (
 ) => {
   generateRequest && (await getRequestDeclarations());
   generateSchema && (await getSchemaDeclarations());
+
+  return;
 };

@@ -4,7 +4,6 @@ export async function constructFVDetails(sourceFile: SourceFile) {
   log.info(
     `in construction of details: ${sourceFile
       .getFilePath()
-      .split("functions")[1]
       .replace(".fn.ts", "")}`
   );
   const typePath = sourceFile.getFilePath().replace(".fn.", ".type.");
