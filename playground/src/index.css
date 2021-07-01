@@ -1,13 +1,187 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+*:focus {
+  outline: none;
+}
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+.__json-pretty__ {
+  height: 100%;
+  /* margin-top: 2.5rem; */
+}
+@keyframes fadeIn {
+  0% {
+    display: flex;
+  }
+  100% {
+    display: none;
+  }
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(19, 153, 236, 0.5);
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(120, 122, 123);
+}
+.menu {
+  z-index: 4;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  right: 0;
+  height: 11rem;
+  background-color: white;
+  transition: all 0.6s linear;
+}
+.closemenu {
+  z-index: 3;
+  position: fixed;
+  height: 0;
+  transition: all 0.6s linear;
+  width: 100%;
+}
+.darkcontainerclose {
+  transition: all 0.6s linear;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 3;
+  height: 0;
+}
+.darkcontaineropen {
+  position: fixed;
+  transition: all 0.6s linear;
+  z-index: 3;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+.listsetting {
+  width: 100%;
+  display: flex;
+  margin: 0.5rem 0;
+  justify-content: flex-start;
+}
+.closelistsetting {
+  display: none;
+}
+.listsetting-btn {
+  display: flex;
+  justify-content: center;
+}
+.link__to-leaf {
+  fill: firebrick;
+}
+/* .rd3t-link {
+  stroke: red !important;
+} */
+.ulmenu {
+  z-index: 2;
+  margin: 0;
+  background-color: white;
+  transition: all 0.3s linear;
+  top: 10px;
+  border-radius: 0.5rem;
+  opacity: 1;
+  right: 10px;
+  left: 5px;
+  padding: 1.5rem 0.5rem 0 0.5rem;
+}
+.closeulmenu {
+  transition: all 0.2s linear;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+.imagesetting {
+  z-index: 2;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+.imagesettingopen {
+  bottom: 10.2rem;
+  transition: all 0.6s linear;
+  z-index: 3;
+  transform: rotate(0);
+}
+.imagesettingclose {
+  bottom: 1rem;
+  z-index: 3;
+  width: 2.5rem;
+  height: 2.5rem;
+  transition: all 0.6s linear;
+  transform: rotate(360deg);
+}
+input[type="file"]::-webkit-file-upload-button {
+  width: 7rem;
+  /* height: 1.5rem; */
+  right: -2.5rem;
+  background-color: #1183ca;
+  border: none;
+  color: white;
+  border-radius: 0.5rem;
+}
+.openbtn {
+  position: absolute;
+  right: 2rem;
+  height: 1.8rem;
+  width: 2rem;
+  font-size: 0.9rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  top: -1.8rem;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.closebtn {
+  height: 0;
+}
+input[type="file"]::file-selector-button {
+}
+.btn {
+  width: 5rem;
+  height: 2rem;
+  background-color: #1183ca;
+  border: none;
+  color: white;
+  margin: 0.5rem;
+
+  border-radius: 0.5rem;
+}
+.btn1 {
+  width: 4rem;
+  height: 1.5rem;
+  background-color: #ca6c87;
+  border: none;
+  color: white;
+  margin: 0.5rem;
+
+  border-radius: 0.5rem;
 }

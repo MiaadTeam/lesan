@@ -14,7 +14,7 @@ export interface CommandArgs {
   upgrade?: string;
   gs?: string;
   _: (string | number)[];
-  playground?: boolean;
+  play?: boolean;
   help?: boolean;
 }
 
@@ -49,7 +49,9 @@ args.declaration === "schema"
   : args.declaration === "request"
   ? await generateDeclarations(false, true)
   : args.declaration && generateDeclarations(true, true);
-args.playground && (await runPlayground());
+args.help && runHelp();
+args.declaration && (await generateDeclarations(true, true));
+args.play && (await runPlayground());
 args.help && runHelp();
 
 args.upgrade && (await upgrade(args.upgrade));

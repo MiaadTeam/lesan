@@ -1,12 +1,39 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import OrgChartTree from "./component/Test";
+import graph from "./flow-chart.svg";
+import test from "./test.svg";
 import Select from "react-select";
 import Setting from "./component/Seteting";
+import Play from "./playbutton.png";
+import "./styles/globals.css";
 import Show from "./component/Show";
 import { customStyles } from "./styles/reactSelectStyle";
-import { Container, Details, Left, Models, Right } from "./styles/styled";
+import {
+  Bottom,
+  BoxParagraphHeader,
+  BoxPlayGround,
+  BoxShow,
+  ButtonPaly,
+  Container,
+  Details,
+  IconBottomRight,
+  IconBottomLeft,
+  IconPlay,
+  Left,
+  LeftBottom,
+  Models,
+  ParagraphHeader,
+  Right,
+  RightBottom,
+} from "./styles/styled";
 import _ from "lodash";
+import JSONPretty from "react-json-pretty";
+import "react-json-pretty/themes/monikai.css";
+import { Logo } from "./component/Logo";
+import Doc from "./component/Doc";
+import { TreeData } from "./component/TreeData";
 interface Props {}
 interface SelectOptions {
   value: string;
@@ -19,9 +46,10 @@ const App: React.FC<Props> = () => {
   const [result, setResult] = useState<string>(""); //this state is for displaying the request result
   const [port, setPort] = useState<string>(""); //this state is for specifying the port to request server
   const [header, setHeader] = useState<string>(""); //this state is for specifying the port to request server
+  const [setting, setSetting] = useState(false);
 
   //this variable for set json schema
-  let dataSchema: any;
+  let dataSchema: any = [];
 
   //this variables for options react-select
   let optionModels: SelectOptions[] = [];
@@ -53,6 +81,7 @@ const App: React.FC<Props> = () => {
     handleSubmit,
     watch,
     unregister,
+    reset,
     formState: { errors },
   } = useForm({
     //use resolver for validation values but now not working validation and will be developed in the future
@@ -73,10 +102,9 @@ const App: React.FC<Props> = () => {
   //when user click play button call this function
   const onSubmit = (data: any) => {
     Object.keys(data).map((key: any) => {
-      if (data[key] === "") {
+      if (data[key] === "" || data[key].toString() === "NaN") {
         delete data[key];
       } else {
-        !isNaN(parseInt(data[key])) && (data[key] = parseInt(data[key]));
         const arr: [] = key.split(" ");
         _.defaultsDeep(
           dataCustom,
@@ -84,7 +112,7 @@ const App: React.FC<Props> = () => {
         );
       }
     });
-    console.log(dataCustom, data);
+    console.log(dataCustom);
     const link = port
       ? `http://127.0.0.1:${port}/funql`
       : `http://127.0.0.1:6005/funql`;
@@ -111,80 +139,186 @@ const App: React.FC<Props> = () => {
           setResult(JSON.stringify(error.response.data));
       });
   };
-
+  const [graphPage, setGraphPage] = useState(false);
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <Setting
-        setHeader={setHeader}
-        setFileChange={setFileChange}
-        setPort={setPort}
-      />
-      <Container>
-        <Left onSubmit={handleSubmit(onSubmit)}>
-          <Models>
-            {dataSchema && (
-              <Select
-                styles={customStyles}
-                id="models"
-                width="230px"
-                // value={Models.value}
-                onChange={(value: any) => {
-                  setModels(value);
-                  setDoits(null);
+    <Container onSubmit={handleSubmit(onSubmit)}>
+      {graphPage ? (
+        <OrgChartTree
+          data={JSON.parse(fileChange)}
+          setGraphPage={setGraphPage}
+        />
+      ) : (
+        <>
+          <Left>
+            <BoxParagraphHeader>
+              <ParagraphHeader>Details</ParagraphHeader>
+            </BoxParagraphHeader>
+            <BoxPlayGround>
+              {models !== null &&
+                doits !== null &&
+                Object.keys(
+                  dataSchema[models.value].props.doits.props[doits.value].props
+                    .details.props
+                ).map((key, index) => (
+                  <BoxShow key={key + index}>
+                  <p
+                    style={{
+                      display: "flex",
+                      marginLeft: index + "rem",
+                      minWidth: "4rem",
+                      backgroundColor: "rgb(24,37,46)",
+                      padding: "1rem",
+                      borderRadius: "0.4rem",
+                      marginTop: "1.5rem",
+                      marginBottom: "0.3rem",
+                      border: "1px solid rgb(237,41,96)"
+                    }}
+                  >
+                    {key}
+                  </p>
+                    <Show
+                      register={register}
+                      ke={key}
+                      key={key}
+                      mainkey={key}
+                      index={index}
+                      value={""}
+                      values={
+                        dataSchema[models.value].props.doits.props[doits.value]
+                          .props.details.props[key]
+                      }
+                    />
+                  </BoxShow>
+                ))}
+            </BoxPlayGround>
+          </Left>
+          <Right>
+            <BoxParagraphHeader>
+              <ParagraphHeader>Response</ParagraphHeader>
+            </BoxParagraphHeader>
+            <BoxPlayGround style={{padding: 0}}>
+              <JSONPretty
+                id="json-pretty"
+                data={result}
+              ></JSONPretty>
+            </BoxPlayGround>
+          </Right>
+          <ButtonPaly onClick={handleSubmit(onSubmit)}>
+            <IconPlay src={Play} />
+          </ButtonPaly>
+          <Bottom>
+            <LeftBottom>
+              <IconBottomRight>
+                <Doc
+                  setHeader={setHeader}
+                  setting={setting}
+                  setSetting={setSetting}
+                  setFileChange={setFileChange}
+                  setPort={setPort}
+                />
+              </IconBottomRight>
+              <div
+                style={{
+                  width: "4rem",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+
+                  borderRight: "0.1rem solid",
                 }}
-                options={optionModels}
-              />
-            )}
-            {models !== null && (
-              <Select
-                id="doits"
-                value={doits}
-                styles={customStyles}
-                onChange={setDoits}
-                width="230px"
-                options={optionDoits}
-              />
-            )}
-          </Models>
-          <input
-            style={{
-              position: "absolute",
-              top: "40%",
-              width: "5rem",
-              height: "5rem",
-              borderRadius: "50%",
-              right: "-2.5rem",
-            }}
-            type="submit"
-            value="play"
-          />
-          <Details>
-            {models !== null &&
-              doits !== null &&
-              Object.keys(
-                dataSchema[models.value].props.doits.props[doits.value].props
-                  .details.props
-              ).map((key, index) => (
-                <div key={key + index} style={{ flex: 1, padding: "0 1rem" }}>
-                  {key}
-                  <Show
-                    register={register}
-                    ke={key}
-                    key={key}
-                    index={index}
-                    value={""}
-                    values={
-                      dataSchema[models.value].props.doits.props[doits.value]
-                        .props.details.props[key]
-                    }
+              >
+                <img
+                  src={graph}
+                  onClick={() => setGraphPage(true)}
+                  style={{
+                    height: "2.5rem",
+                    padding: "0.5rem",
+                    width: "2.5rem",
+                  }}
+                />
+              </div>
+
+              <div
+                style={{ flex: "1", display: "flex", justifyContent: "center" }}
+              >
+                {dataSchema && (
+                  <Select
+                    menuPlacement="auto"
+                    styles={customStyles}
+                    id="models"
+                    placeholder={"Models"}
+                    width="230px"
+                    // value={Models.value}
+                    onChange={(value: any) => {
+                      setModels(value);
+                      setDoits(null);
+                      reset();
+                    }}
+                    options={optionModels}
                   />
-                </div>
-              ))}
-          </Details>
-        </Left>
-        <Right>{result}</Right>
-      </Container>
-    </div>
+                )}
+              </div>
+            </LeftBottom>
+
+            <Logo size={"5rem"} />
+
+            <RightBottom>
+              <div
+                style={{ flex: "1", display: "flex", justifyContent: "center" }}
+              >
+                <Select
+                  id="doits"
+                  placeholder={"Doits"}
+                  menuPlacement="auto"
+                  value={doits}
+                  styles={customStyles}
+                  onChange={(value) => {
+                    setDoits(value);
+                    reset();
+                  }}
+                  width="230px"
+                  options={optionDoits}
+                />
+              </div>
+              <div
+                style={{
+                  width: "4rem",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+
+                  borderLeft: "0.1rem solid",
+                }}
+              >
+                <img
+                  src={test}
+                  style={{
+                    height: "2.5rem",
+                    padding: "0.5rem",
+                    width: "2.5rem",
+                  }}
+                />
+              </div>
+              <IconBottomLeft>
+                <Setting
+                  setHeader={setHeader}
+                  setting={setting}
+                  setSetting={setSetting}
+                  setFileChange={setFileChange}
+                  setPort={setPort}
+                />
+              </IconBottomLeft>
+            </RightBottom>
+          </Bottom>
+          <div
+            onClick={() => setSetting(false)}
+            className={setting ? "darkcontaineropen" : "darkcontainerclose"}
+          ></div>
+        </>
+      )}
+    </Container>
   );
 };
 

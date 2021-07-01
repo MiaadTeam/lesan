@@ -7,27 +7,43 @@ interface Props {
   index: any;
   ke: any;
   register: any;
+  mainkey: any;
 }
-const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
+const Show: React.FC<Props> = ({
+  mainkey,
+  index,
+  ke,
+  value,
+  values,
+  register,
+}) => {
   return (
     <>
       {values.props && values.type === "object" ? (
         <>
-          <p
-            style={{
-              display: "flex",
-              marginLeft: index + "rem",
-              minWidth: "4rem",
-            }}
-          >
-            {value}
-          </p>
-          <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>{"{"}</p>
+          {value && (
+            <p
+              style={{
+                display: "flex",
+                marginLeft: index + "rem",
+                minWidth: "4rem",
+                backgroundColor: "rgb(24,37,46)",
+                padding: "1rem",
+                borderRadius: "0.4rem",
+                marginTop: "1.5rem",
+                marginBottom: "0.3rem",
+                border: "1px solid rgb(255,168,62)",
+              }}
+            >
+              {value}
+            </p>
+          )}
 
           {Object.keys(values.props).map((val, ind) => {
             return (
               <Show
                 key={ke + " " + value + ind}
+                mainkey={mainkey}
                 register={register}
                 ke={ke + (value === "" ? "" : " ") + value}
                 index={index + 1}
@@ -36,7 +52,6 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
               />
             );
           })}
-          <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>{"}"}</p>
         </>
       ) : (
         <div
@@ -44,34 +59,51 @@ const Show: React.FC<Props> = ({ index, ke, value, values, register }) => {
             display: "flex",
             height: "2rem",
             alignItems: "center",
+            marginTop: "0.5rem",
+            marginLeft: index + "rem",
+            backgroundColor: "rgb(73,82,97)",
+            padding: "0.2rem 0.1rem",
           }}
         >
-          {ke === "get" ? (
-            <div style={{ marginLeft: index + "rem", display: "flex" }}>
+          {mainkey === "get" ? (
+            <div style={{ padding: "0.6rem", display: "flex" }}>
               <p
                 style={{
                   minWidth: "4rem",
                   margin: "0",
                 }}
               >
-                {value}
+                {value} :
               </p>
               <Input
                 type={values.type === "number" ? "number" : "text"}
                 name={value}
-                {...register(ke + " " + value)}
+                {...register(ke + " " + value, { valueAsNumber: true })}
               />
+              <span style={{ color: "rgb(145,145,145)", marginLeft: "2rem" }}>
+                value are just 0 or 1 {console.log("inyeki value", values.type)}{" "}
+              </span>
             </div>
           ) : (
             <>
               <p style={{ marginLeft: index + "rem", minWidth: "4rem" }}>
-                {value}
+                {value} :
               </p>
               <Input
                 type={values.type === "number" ? "number" : "text"}
                 name={value}
-                {...register(ke + " " + value)}
+                {...register(ke + " " + value, {
+                  valueAsNumber:
+                    values.type === "number" ||
+                    (values.type === "enum" &&
+                      Array.isArray(values.values) &&
+                      values.values.length > 0 &&
+                      parseInt(values.values[0]).toString() != "NaN"),
+                })}
               />
+              <span style={{ color: "rgb(145,145,145)", marginLeft: "2rem" }}>
+                {JSON.stringify(values)}
+              </span>
             </>
           )}
         </div>

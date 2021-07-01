@@ -66,7 +66,7 @@ export const runHelp = () => {
   console.log();
 
   head(" playground ");
-  command("funql --playground");
+  command("funql --play");
   info("        running one instance of funql playground project");
   console.log("------------------ ");
 
