@@ -2,49 +2,43 @@ import React from "react";
 import "react-json-pretty/themes/monikai.css";
 import styled from "styled-components";
 interface Props {
-  isStatic: any;
-  setIsStatic: any;
-  setModels: any;
-  setDoits: any;
-  reset: any;
+  switchBool: boolean;
+  setSwitchBool: any;
+  fn: any;
+  value: [string, string];
 }
 
 const SwitchContent: React.FC<Props> = ({
-  reset,
-  setIsStatic,
-  setDoits,
-  isStatic,
-  setModels,
+  switchBool,
+  setSwitchBool,
+  value,
+  fn,
 }) => {
   return (
     <ContainerSwitch>
-      {isStatic ? (
+      {switchBool ? (
         <>
-          <On>static</On>
+          <On>{value[0]}</On>
           <Off
             onClick={() => {
-              setModels(null);
-              reset();
-              setDoits(null);
-              setIsStatic(!isStatic);
+              fn();
+              setSwitchBool(!switchBool);
             }}
           >
-            dynamic
+            {value[1]}
           </Off>
         </>
       ) : (
         <>
           <Off
             onClick={() => {
-              setModels(null);
-              reset();
-              setDoits(null);
-              setIsStatic(!isStatic);
+              fn();
+              setSwitchBool(!switchBool);
             }}
           >
-            static
+            {value[0]}
           </Off>
-          <On>dynamic</On>
+          <On> {value[1]}</On>
         </>
       )}
     </ContainerSwitch>

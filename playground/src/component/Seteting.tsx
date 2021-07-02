@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Image from "../gear.svg";
 import "../index.css";
@@ -19,7 +18,6 @@ const Setting: React.FC<Props> = ({
 }) => {
   const { register: register2, handleSubmit: handleSubmit2 } = useForm({});
   const onSubmit2 = (data: any) => {
-    console.log(data.header.trim() !== "", data.header);
     try {
       JSON.parse(data.header);
       data.header && setHeader(JSON.parse(data.header));

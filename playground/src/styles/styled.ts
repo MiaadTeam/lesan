@@ -128,12 +128,15 @@ export const BoxParagraphHeader = styled.div`
   margin: 0 1%;
   padding: 0.5rem 0;
 `;
-export const ParagraphHeader = styled.p`
+export const ParagraphHeader = styled.div`
   font-size: 1rem;
   border: 2px solid rgb(119, 82, 190);
   border-radius: 1rem;
   color: rgb(26, 29, 31);
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.5rem 2rem;
   background-color: rgba(254, 255, 237, 0.8);
 `;

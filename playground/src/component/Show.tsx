@@ -69,19 +69,21 @@ const Show: React.FC<Props> = ({
             <div style={{ padding: "0.6rem", display: "flex" }}>
               <p
                 style={{
-                  minWidth: "4rem",
+                  minWidth: "8rem",
                   margin: "0",
                 }}
               >
                 {value} :
               </p>
               <Input
-                type={values.type === "number" ? "number" : "text"}
+                type={values.type === "enum" ? "number" : "text"}
                 name={value}
+                max={1}
+                min={0}
                 {...register(ke + " " + value, { valueAsNumber: true })}
               />
               <span style={{ color: "rgb(145,145,145)", marginLeft: "2rem" }}>
-                value are just 0 or 1 {console.log("inyeki value", values.type)}{" "}
+                value are just 0 or 1
               </span>
             </div>
           ) : (

@@ -1,11 +1,13 @@
 import axios from "axios";
-import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import JSONPretty from "react-json-pretty";
 import "react-json-pretty/themes/monikai.css";
 import Select from "react-select";
+import Code from "./code.svg";
 import Doc from "./component/Doc";
+import { makeObjectData } from "./component/function";
+import InputTextarea from "./component/InputTextarea";
 import { Logo } from "./component/Logo";
 import Setting from "./component/Seteting";
 import Show from "./component/Show";
@@ -32,6 +34,7 @@ import {
   RightBottom,
 } from "./styles/styled";
 import test from "./test.svg";
+import Website from "./website.svg";
 interface Props {}
 interface SelectOptions {
   value: string;
@@ -46,6 +49,7 @@ const App: React.FC<Props> = () => {
   const [header, setHeader] = useState<string>(""); //this state is for specifying the port to request server
   const [setting, setSetting] = useState(false);
   const [isStatic, setIsStatic] = useState<boolean>(false); //this state is for react-select models management
+  const [isTextarea, setIsTextarea] = useState<boolean>(true); //this state is for react-select models management
 
   //this variable for set json schema
   let dataSchemaDynamic: any = [];
@@ -112,42 +116,21 @@ const App: React.FC<Props> = () => {
       };
     },
   });
-  let dataCustom: any = {};
-  const makeNestedObjWithArrayItemsAsKeys = (arr: any, first: any) => {
-    const reducer = (acc: any, item: any) => {
-      return { [item]: acc };
-    };
-    return arr.reduceRight(reducer, first);
-  };
-  // const IsJsonString = (text: string) => {
-  //   return /^[\],:{}\s]*$/.test(
-  //     text
-  //       .replace(/\\["\\\/bfnrtu]/g, "@")
-  //       .replace(
-  //         /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-  //         "]"
-  //       )
-  //       .replace(/(?:^|:|,)(?:\s*\[)+/g, "")
-  //   );
-  // };
-  //when user click play button call this function
-  const onSubmit = (data: any) => {
-    Object.keys(data).map((key: any) => {
-      if (data[key] === "" || data[key].toString() === "NaN") {
-        delete data[key];
-      } else {
-        const arr: [] = key.split(" ");
-        // console.log(
-        //   IsJsonString(data[key]) && parseInt(data[key]).toString() == "NaN"
-        // );
 
-        _.defaultsDeep(
-          dataCustom,
-          makeNestedObjWithArrayItemsAsKeys(arr, data[key])
-        );
-      }
-    });
-    console.log(dataCustom);
+  const onSubmit = (data: any) => {
+    let dataCustom = makeObjectData(data);
+
+    console.log(
+      {
+        contents: isStatic ? "static" : "dynamic",
+        details: dataCustom,
+        wants: {
+          model: models ? models.value : "",
+          doit: doits ? doits.value : "",
+        },
+      },
+      "dat"
+    );
     const link = port
       ? `http://127.0.0.1:${port}/funql`
       : `http://127.0.0.1:6005/funql`;
@@ -188,10 +171,28 @@ const App: React.FC<Props> = () => {
         <>
           <Left>
             <BoxParagraphHeader>
-              <ParagraphHeader>Details</ParagraphHeader>
+              <ParagraphHeader>
+                <p style={{ margin: "0" }}>Details</p>
+                {isTextarea ? (
+                  <img
+                    onClick={() => setIsTextarea(!isTextarea)}
+                    style={{ cursor: "pointer", width: "1rem", height: "1rem" }}
+                    src={Code}
+                  />
+                ) : (
+                  <img
+                    onClick={() => setIsTextarea(!isTextarea)}
+                    style={{ cursor: "pointer", width: "1rem", height: "1rem" }}
+                    src={Website}
+                  />
+                )}
+              </ParagraphHeader>
             </BoxParagraphHeader>
             <BoxPlayGround>
-              {models !== null &&
+              {isTextarea ? (
+                <InputTextarea watch={watch} />
+              ) : (
+                models !== null &&
                 doits !== null &&
                 Object.keys(
                   isStatic
@@ -232,7 +233,8 @@ const App: React.FC<Props> = () => {
                       }
                     />
                   </BoxShow>
-                ))}
+                ))
+              )}
             </BoxPlayGround>
           </Left>
           <Right>
@@ -306,13 +308,15 @@ const App: React.FC<Props> = () => {
                     }
                   />
                 )}
-                {console.log(models)}
                 <SwitchContent
-                  setDoits={setDoits}
-                  reset={reset}
-                  setModels={setModels}
-                  isStatic={isStatic}
-                  setIsStatic={setIsStatic}
+                  fn={() => {
+                    setModels(null);
+                    reset();
+                    setDoits(null);
+                  }}
+                  value={["static", "dynamic"]}
+                  switchBool={isStatic}
+                  setSwitchBool={setIsStatic}
                 />
               </div>
             </LeftBottom>
