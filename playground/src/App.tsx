@@ -155,6 +155,7 @@ const App: React.FC<Props> = () => {
       .post(
         link,
         {
+          contents: isStatic ? "static" : "dynamic",
           details: dataCustom,
           wants: {
             model: models ? models.value : "",
@@ -242,9 +243,7 @@ const App: React.FC<Props> = () => {
               <JSONPretty id="json-pretty" data={result}></JSONPretty>
             </BoxPlayGround>
           </Right>
-          <ButtonPaly onClick={handleSubmit(onSubmit)}>
-            <IconPlay src={Play} />
-          </ButtonPaly>
+
           <Bottom>
             <LeftBottom>
               <IconBottomRight>
@@ -277,21 +276,21 @@ const App: React.FC<Props> = () => {
                   }}
                 />
               </div>
-              <SwitchContent
-                setDoits={setDoits}
-                reset={reset}
-                setModels={setModels}
-                isStatic={isStatic}
-                setIsStatic={setIsStatic}
-              />
 
               <div
-                style={{ flex: "1", display: "flex", justifyContent: "center" }}
+                style={{
+                  flex: "1",
+                  alignItems: "center",
+                  height: "50%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
               >
                 {(dataSchemaDynamic || dataSchemaStatic) && (
                   <Select
                     menuPlacement="auto"
                     styles={customStyles}
+                    height={"2rem"}
                     id="models"
                     placeholder={"Models"}
                     width="230px"
@@ -307,20 +306,34 @@ const App: React.FC<Props> = () => {
                     }
                   />
                 )}
+                {console.log(models)}
+                <SwitchContent
+                  setDoits={setDoits}
+                  reset={reset}
+                  setModels={setModels}
+                  isStatic={isStatic}
+                  setIsStatic={setIsStatic}
+                />
               </div>
             </LeftBottom>
 
-            <Logo size={"5rem"} />
+            <Logo size={"3.5rem"} />
 
             <RightBottom>
               <div
-                style={{ flex: "1", display: "flex", justifyContent: "center" }}
+                style={{
+                  flex: "1",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
                 <Select
                   id="doits"
                   placeholder={"Doits"}
                   menuPlacement="auto"
                   value={doits}
+                  height={"2rem"}
                   styles={customStyles}
                   onChange={(value) => {
                     setDoits(value);
@@ -329,7 +342,11 @@ const App: React.FC<Props> = () => {
                   width="230px"
                   options={isStatic ? optionStaticDoits : optionDynamicDoits}
                 />
+                <ButtonPaly onClick={handleSubmit(onSubmit)}>
+                  <IconPlay src={Play} />
+                </ButtonPaly>
               </div>
+
               <div
                 style={{
                   width: "4rem",

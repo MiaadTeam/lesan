@@ -56,15 +56,19 @@ const ContainerSwitch = styled.div`
   height: 2rem;
   width: 10rem;
   cursor: pointer;
-  border-radius: 0.3rem;
+  border-radius: 0.5rem 0.5rem 0 0;
   align-items: center;
   justify-content: center;
-  margin-left: 1rem;
-  overflow: hidden;
   display: flex;
+  font-size: 0.8rem;
+  position: fixed;
+  padding: 0.3rem;
+  background-color: #ffffff;
+  overflow: hidden;
+  bottom: 2.4rem;
 `;
 const Off = styled.div`
-  height: 2rem;
+  height: 100%;
   background-color: #ccc;
   width: 100%;
   align-items: center;
@@ -73,7 +77,7 @@ const Off = styled.div`
 `;
 const On = styled.div`
   background-color: #2196f3;
-  height: 2rem;
+  height: 100%;
   width: 100%;
   color: white;
   align-items: center;
