@@ -49,7 +49,7 @@ const App: React.FC<Props> = () => {
   const [header, setHeader] = useState<string>(""); //this state is for specifying the port to request server
   const [setting, setSetting] = useState(false);
   const [isStatic, setIsStatic] = useState<boolean>(false); //this state is for react-select models management
-  const [isTextarea, setIsTextarea] = useState<boolean>(true); //this state is for react-select models management
+  const [isTextarea, setIsTextarea] = useState<boolean>(false); //this state is for react-select models management
 
   //this variable for set json schema
   let dataSchemaDynamic: any = [];
