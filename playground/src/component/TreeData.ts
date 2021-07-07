@@ -12,44 +12,63 @@ const recfunc: any = (values: any, ke: any, value: any) => {
 
 export const TreeData = (Data?: any) => {
   let model: string[] = [];
+  let isStatic: string[] = [];
+  let subdata: any[] = [];
   let alldata: any[] = [];
   let schema: any[] = [];
-  const dataSchema: any = Data.schema.props.models.props;
-  Object.keys(dataSchema).map((keyModel: string) => {
-    model.push(keyModel);
-    let doits: any[] = new Array();
+  const dataSchema: any = Data.schema.props.contents.props;
+  Object.keys(dataSchema).map((keyContents: string) => {
+    Object.keys(dataSchema[keyContents].props.models.props).map(
+      (keyModel: string) => {
+        model.push(keyModel);
+        let doits: any[] = new Array();
 
-    Object.keys(dataSchema[keyModel].props.doits.props).map((keyDoits) => {
-      Object.keys(
-        dataSchema[keyModel].props.doits.props[keyDoits].props.details.props
-      ).map((keyDetails) => {
-        schema.push(
-          recfunc(
-            dataSchema[keyModel].props.doits.props[keyDoits].props.details
-              .props[keyDetails],
-            keyDetails,
-            ""
-          )
-        );
-      });
-      let obje = {};
-      schema.length !== 0
-        ? (obje = {
-            name: keyDoits,
-            children: [{ name: "details", data: schema }],
-          })
-        : (obje = { name: keyDoits });
+        Object.keys(
+          dataSchema[keyContents].props.models.props[keyModel].props.doits.props
+        ).map((keyDoits) => {
+          Object.keys(
+            dataSchema[keyContents].props.models.props[keyModel].props.doits
+              .props[keyDoits].props.details.props
+          ).map((keyDetails) => {
+            schema.push(
+              recfunc(
+                dataSchema[keyContents].props.models.props[keyModel].props.doits
+                  .props[keyDoits].props.details.props[keyDetails],
+                keyDetails,
+                ""
+              )
+            );
+          });
+          let obje = {};
+          schema.length !== 0
+            ? (obje = {
+                name: keyDoits,
+                children: [{ name: "details", data: schema }],
+              })
+            : (obje = { name: keyDoits });
 
-      doits.push(obje);
+          doits.push(obje);
 
-      schema = [];
-    });
+          schema = [];
+        });
 
+        subdata.push({
+          name: keyModel,
+          children: doits,
+        });
+        console.log("doits", {
+          name: keyModel,
+          children: doits,
+        });
+
+        doits = [];
+      }
+    );
     alldata.push({
-      name: keyModel,
-      children: doits,
+      name: keyContents,
+      children: subdata,
     });
-    doits = [];
+    subdata = [];
   });
 
   return { name: "Funql", children: alldata };

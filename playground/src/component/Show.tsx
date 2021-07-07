@@ -57,10 +57,11 @@ const Show: React.FC<Props> = ({
         <div
           style={{
             display: "flex",
-            height: "2rem",
+            // height: "a",
             alignItems: "center",
             marginTop: "0.5rem",
             marginLeft: index + "rem",
+            boxSizing: "border-box",
             backgroundColor: "rgb(73,82,97)",
             padding: "0.2rem 0.1rem",
           }}
@@ -103,7 +104,12 @@ const Show: React.FC<Props> = ({
                       parseInt(values.values[0]).toString() != "NaN"),
                 })}
               />
-              <span style={{ color: "rgb(145,145,145)", marginLeft: "2rem" }}>
+              <span
+                style={{
+                  color: "rgb(145,145,145)",
+                  marginLeft: "2rem",
+                }}
+              >
                 {JSON.stringify(values)}
               </span>
             </>

@@ -190,7 +190,12 @@ const App: React.FC<Props> = () => {
             </BoxParagraphHeader>
             <BoxPlayGround>
               {isTextarea ? (
-                <InputTextarea watch={watch} />
+                <InputTextarea
+                  doit={doits ? doits.value : ""}
+                  isStatic={isStatic}
+                  model={models ? models.value : ""}
+                  watch={watch}
+                />
               ) : (
                 models !== null &&
                 doits !== null &&
@@ -219,6 +224,7 @@ const App: React.FC<Props> = () => {
                     >
                       {key}
                     </p>
+
                     <Show
                       register={register}
                       ke={key}
@@ -227,9 +233,13 @@ const App: React.FC<Props> = () => {
                       index={index}
                       value={""}
                       values={
-                        dataSchemaDynamic[models.value].props.doits.props[
-                          doits.value
-                        ].props.details.props[key]
+                        isStatic
+                          ? dataSchemaStatic[models.value].props.doits.props[
+                              doits.value
+                            ].props.details.props[key]
+                          : dataSchemaDynamic[models.value].props.doits.props[
+                              doits.value
+                            ].props.details.props[key]
                       }
                     />
                   </BoxShow>

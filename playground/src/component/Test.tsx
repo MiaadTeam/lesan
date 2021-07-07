@@ -1,10 +1,9 @@
-import React, { createElement, useRef, useState } from "react";
-import "../styles/globals.css";
-import "../index.css";
+import React, { useState } from "react";
 import Tree from "react-d3-tree";
-import { TreeData } from "./TreeData";
-import createElementDetails from "./CreateElementDetails";
 import { PathFunctionOption } from "react-d3-tree/lib/types/common";
+import "../index.css";
+import "../styles/globals.css";
+import { TreeData } from "./TreeData";
 
 // This is a simplified example of an org chart with a depth of 2.
 // Note how deeper levels are defined recursively via the `children` property.
