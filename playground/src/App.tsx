@@ -164,7 +164,7 @@ const App: React.FC<Props> = () => {
     <Container onSubmit={handleSubmit(onSubmit)}>
       {graphPage ? (
         <OrgChartTree
-          data={JSON.parse(fileChange)}
+          data={fileChange ? JSON.parse(fileChange) : ""}
           setGraphPage={setGraphPage}
         />
       ) : (

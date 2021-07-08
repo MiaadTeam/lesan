@@ -56,10 +56,6 @@ export const TreeData = (Data?: any) => {
           name: keyModel,
           children: doits,
         });
-        console.log("doits", {
-          name: keyModel,
-          children: doits,
-        });
 
         doits = [];
       }
@@ -70,6 +66,6 @@ export const TreeData = (Data?: any) => {
     });
     subdata = [];
   });
-
+  // console.log(alldata);
   return { name: "Funql", children: alldata };
 };

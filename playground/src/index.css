@@ -143,6 +143,7 @@ input[type="file"]::-webkit-file-upload-button {
   /* height: 1.5rem; */
   right: -2.5rem;
   background-color: #1183ca;
+  height: 1.7rem;
   border: none;
   color: white;
   border-radius: 0.5rem;
@@ -178,6 +179,7 @@ input[type="file"]::file-selector-button {
 .btn1 {
   width: 4rem;
   height: 1.5rem;
+
   background-color: #ca6c87;
   border: none;
   color: white;
