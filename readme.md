@@ -90,7 +90,7 @@ every schema should have 4 seprate things :
 - After that just run this line:
 
 ```shell
-deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql@0.0.29/funql.ts
+deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql@0.0.30/funql.ts
 ```
 
 ## How to Use It
