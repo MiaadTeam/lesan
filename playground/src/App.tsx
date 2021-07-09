@@ -50,6 +50,7 @@ const App: React.FC<Props> = () => {
   const [setting, setSetting] = useState(false);
   const [isStatic, setIsStatic] = useState<boolean>(false); //this state is for react-select models management
   const [isTextarea, setIsTextarea] = useState<boolean>(false); //this state is for react-select models management
+  const [collapse, setCollapse] = useState<[boolean, boolean]>([false, false]);
 
   //this variable for set json schema
   let dataSchemaDynamic: any = [];
@@ -212,7 +213,6 @@ const App: React.FC<Props> = () => {
                     <p
                       style={{
                         display: "flex",
-                        marginLeft: index + "rem",
                         minWidth: "4rem",
                         backgroundColor: "rgb(24,37,46)",
                         padding: "1rem",
@@ -222,26 +222,48 @@ const App: React.FC<Props> = () => {
                         border: "1px solid rgb(237,41,96)",
                       }}
                     >
+                      <span
+                        style={{
+                          fontSize: "1.5rem",
+                          marginRight: "0.5rem",
+                          cursor: "pointer",
+                          marginTop: "-0.3rem",
+                        }}
+                        onClick={() =>
+                          index === 1
+                            ? setCollapse([collapse[0], !collapse[1]])
+                            : setCollapse([!collapse[0], collapse[1]])
+                        }
+                      >
+                        {collapse[index] ? "-" : "+"}
+                      </span>
                       {key}
                     </p>
-
-                    <Show
-                      register={register}
-                      ke={key}
-                      key={key}
-                      mainkey={key}
-                      index={index}
-                      value={""}
-                      values={
-                        isStatic
-                          ? dataSchemaStatic[models.value].props.doits.props[
-                              doits.value
-                            ].props.details.props[key]
-                          : dataSchemaDynamic[models.value].props.doits.props[
-                              doits.value
-                            ].props.details.props[key]
+                    <div
+                      style={
+                        collapse[index]
+                          ? { display: "none" }
+                          : { display: "block" }
                       }
-                    />
+                    >
+                      <Show
+                        register={register}
+                        ke={key}
+                        key={key}
+                        mainkey={key}
+                        index={0}
+                        value={""}
+                        values={
+                          isStatic
+                            ? dataSchemaStatic[models.value].props.doits.props[
+                                doits.value
+                              ].props.details.props[key]
+                            : dataSchemaDynamic[models.value].props.doits.props[
+                                doits.value
+                              ].props.details.props[key]
+                        }
+                      />
+                    </div>
                   </BoxShow>
                 ))
               )}

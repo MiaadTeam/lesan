@@ -164,6 +164,19 @@ input[type="file"]::-webkit-file-upload-button {
 .closebtn {
   height: 0;
 }
+
+.rainbow0 {
+  border-left: solid rgba(255, 127, 255, 0.1) 2rem;
+}
+.rainbow1 {
+  border-left: solid rgba(127, 255, 127, 0.1) 2rem;
+}
+.rainbow2 {
+  border-left: solid rgba(79, 236, 236, 0.1) 2rem;
+}
+.rainbow3 {
+  border-left: solid rgba(255, 255, 64, 0.1) 2rem;
+}
 input[type="file"]::file-selector-button {
 }
 .btn {

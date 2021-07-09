@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 export const Input = styled.input`
   border: none;
+  border-radius: 0.2rem;
+  height: 1.2rem;
   border-bottom: 0.1rem solid black;
   margin-left: 0.5rem;
   ::-webkit-inner-spin-button {
