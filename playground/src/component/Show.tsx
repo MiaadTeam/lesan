@@ -101,7 +101,13 @@ const Show: React.FC<Props> = ({
                   min={0}
                   {...register(ke + " " + value, { valueAsNumber: true })}
                 />
-                <span style={{ color: "rgb(145,145,145)", marginLeft: "2rem" }}>
+                <span
+                  style={{
+                    wordBreak: "break-all",
+                    color: "rgb(145,145,145)",
+                    marginLeft: "2rem",
+                  }}
+                >
                   value are just 0 or 1
                 </span>
               </>
@@ -131,6 +137,7 @@ const Show: React.FC<Props> = ({
                   style={{
                     color: "rgb(145,145,145)",
                     marginLeft: "2rem",
+                    wordBreak: "break-word",
                   }}
                 >
                   {JSON.stringify(values)}
