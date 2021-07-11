@@ -19,6 +19,7 @@ const Show: React.FC<Props> = ({
 }) => {
   const [collapse, setCollapse] = useState<boolean>(false);
   // let a = [false];
+  let valkey = ke;
   ke = ke + (value === "" ? "" : " ") + value;
   return (
     <>
@@ -99,7 +100,7 @@ const Show: React.FC<Props> = ({
                   name={value}
                   max={1}
                   min={0}
-                  {...register(ke + " " + value, { valueAsNumber: true })}
+                  {...register(valkey + " " + value, { valueAsNumber: true })}
                 />
                 <span
                   style={{
@@ -124,7 +125,7 @@ const Show: React.FC<Props> = ({
                 <Input
                   type={values.type === "number" ? "number" : "text"}
                   name={value}
-                  {...register(ke + " " + value, {
+                  {...register(valkey + " " + value, {
                     valueAsNumber:
                       values.type === "number" ||
                       (values.type === "enum" &&
@@ -140,7 +141,7 @@ const Show: React.FC<Props> = ({
                     wordBreak: "break-word",
                   }}
                 >
-                  {JSON.stringify(values)}
+                  {JSON.stringify(values, null, 2)}
                 </span>
               </>
             )}
