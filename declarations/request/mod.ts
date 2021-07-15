@@ -70,4 +70,6 @@ export const getRequestDeclarations = async (dirPath?: string) => {
     0x0fffc3
   )}
   `);
+
+  return true;
 };

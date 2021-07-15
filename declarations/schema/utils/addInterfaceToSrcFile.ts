@@ -49,7 +49,7 @@ export function addFunQLInterfaceToSourceFile(
       prop.setType("string");
     }
     //construct deps of interface in prop
-    handlePropType(prop, createdSourceFile);
+    handlePropType(prop, createdSourceFile, { type });
     //add prop to created interface
     createdInterface.addProperty(prop.getStructure());
   }

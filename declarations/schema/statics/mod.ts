@@ -1,5 +1,5 @@
 import { findStaticSchemaFromSourceFile } from "./utils/mod.ts";
-import { emptyDir, Project, log, rgb24 } from "../../../deps.ts";
+import { emptyDir, Project, log, rgb24, SourceFile } from "../../../deps.ts";
 import { denoResolutionHost, throwError } from "../../utils/mod.ts";
 import { addFunQLInterfaceToSourceFile } from "../utils/addInterfaceToSrcFile.ts";
 
@@ -8,35 +8,24 @@ import { addFunQLInterfaceToSourceFile } from "../utils/addInterfaceToSrcFile.ts
  * construct static schemas
  * @param dirPath
  */
-export const getStaticSchemaDeclarations = async (dirPath?: string) => {
+export const getStaticSchemaDeclarations = async (
+  project: Project,
+  createdSourceFile: SourceFile,
+  dirPath: string
+) => {
   try {
-    log.info("Generating of declarations of  static schemas is started");
-    const project = new Project({
-      resolutionHost: denoResolutionHost,
-    });
+    log.info("Generating of declarations of static schemas is started");
 
-    const __dirname = dirPath || Deno.cwd();
-    await emptyDir("declarations/schema/static");
-    project.addSourceFilesAtPaths(`${__dirname}/**/*.ts`);
     //handle differentiate between path that project was created
     const dir =
-      project.getDirectory(`${__dirname}/isdb`) ||
-      project.getDirectory(`${__dirname}/src/isdb`);
+      project.getDirectory(`${dirPath}/isdb`) ||
+      project.getDirectory(`${dirPath}/src/isdb`);
 
     //throws error if dir not found
     !dir &&
       throwError(
         "isdb directory was not found, please move your isdb folder to path ./src/isdb or ./isdb"
       );
-
-    //create schema file for putting results in it
-    const createdSourceFile = project.createSourceFile(
-      `${__dirname}/declarations/schema/static/schema.ts`,
-      undefined,
-      {
-        overwrite: true,
-      }
-    );
 
     dir?.getDirectories().map((staticSchemaDirectory) => {
       staticSchemaDirectory.getDirectories().map((sliceSchemaDirectory) => {
@@ -49,22 +38,10 @@ export const getStaticSchemaDeclarations = async (dirPath?: string) => {
       });
     });
 
-    //console.log(newSourceFile.getText());
     await createdSourceFile.save();
-
-    log.info(`creating of declaration files for static schemas was successful
-    ${rgb24(
-      `
-     -------------------------------------------------------------
-     |  Ts interface:  file://${createdSourceFile.getFilePath()}
-     -------------------------------------------------------------
-     `,
-      0xebd300
-    )}
-    `);
   } catch (error) {
     log.error(
-      `creating of schema was unsuccessful please review your project 
+      `creating of static schemas was unsuccessful please review your project 
       ${error}
       `
     );

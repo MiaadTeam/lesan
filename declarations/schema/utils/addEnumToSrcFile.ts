@@ -17,7 +17,7 @@ export function addFunQLEnumToSourceFile(
 
   //checks enum name is duplicate or not
   if (
-    //when enum was inserted to source file
+    //return when enum was inserted to source file
     myEnum.getName().startsWith("FQl")
   ) {
     return;
