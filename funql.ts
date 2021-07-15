@@ -44,11 +44,8 @@ const runPlayground = async () => {
 
 args.init && (await createProject(args.init));
 
-args.declaration === "schema"
-  ? await generateDeclarations(true, false)
-  : args.declaration === "request"
-  ? await generateDeclarations(false, true)
-  : args.declaration && generateDeclarations(true, true);
+args.declaration && (await generateDeclarations(args));
+
 args.help && runHelp();
 args.play && (await runPlayground());
 args.help && runHelp();

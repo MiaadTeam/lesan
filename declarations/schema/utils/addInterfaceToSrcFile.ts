@@ -13,19 +13,23 @@ import {
  */
 export function addFunQLInterfaceToSourceFile(
   myInterface: InterfaceDeclaration,
-  createdSourceFile: SourceFile
+  createdSourceFile: SourceFile,
+  options: { type?: "dynamic" | "static" } = { type: "dynamic" }
 ) {
+  //extract options
+  const { type } = options;
+
   //checks interface name is duplicate or not and also is Date or not
   if (
     //ignore date type or similar
     isInternalType(myInterface.getName()) ||
     //when interface was inserted to source file
-    myInterface.getName().startsWith("FunQl")
+    myInterface.getName().startsWith("FQl")
   ) {
     return;
   } else {
     //change name of interface first
-    changeNameAndItsRefs(myInterface);
+    changeNameAndItsRefs(myInterface, type);
   }
 
   //create new interface with new name

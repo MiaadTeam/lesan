@@ -17,8 +17,12 @@ import { addFunQLEnumToSourceFile } from "./mod.ts";
  */
 export function handlePropType(
   prop: PropertySignature,
-  createdSourceFile: SourceFile
+  createdSourceFile: SourceFile,
+  options: { type?: "dynamic" | "static" } = { type: "dynamic" }
 ) {
+  //extract options
+  const { type } = options;
+
   const typeReferences = prop.getDescendantsOfKind(SyntaxKind.TypeReference);
   typeReferences.map((reference) => {
     try {
@@ -27,13 +31,15 @@ export function handlePropType(
       //if type is interface we should find interface and process it again
       if (typeOfReference.isInterface()) {
         const foundedInterface = getInterfaceFromType(typeOfReference);
-        addFunQLInterfaceToSourceFile(foundedInterface, createdSourceFile);
+        addFunQLInterfaceToSourceFile(foundedInterface, createdSourceFile, {
+          type,
+        });
         return;
       }
       //if type is enum we should find enum and add it to source file
       else if (typeOfReference.isEnum()) {
         const foundedEnum = getEnumFromType(typeOfReference);
-        addFunQLEnumToSourceFile(foundedEnum, createdSourceFile);
+        addFunQLEnumToSourceFile(foundedEnum, createdSourceFile, { type });
         return;
       } else {
         throw Error(
