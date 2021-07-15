@@ -1,5 +1,5 @@
 import { Project, emptyDir, log, rgb24 } from "../../deps.ts";
-import { denoResolutionHost } from "../utils/mod.ts";
+import { denoResolutionHost, pickRandomColor } from "../utils/mod.ts";
 import { getDynamicSchemaDeclarations } from "./dynamics/mod.ts";
 import { getStaticSchemaDeclarations } from "./statics/mod.ts";
 
@@ -41,7 +41,7 @@ export const getSchemaDeclarations = async (givenDirPath?: string) => {
      |  Ts interface:  file://${createdSourceFile.getFilePath()}
      -------------------------------------------------------------
      `,
-      0xadfc03
+      pickRandomColor()
     )}
     `);
   } catch (error) {
