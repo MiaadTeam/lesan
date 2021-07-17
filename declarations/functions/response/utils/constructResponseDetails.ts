@@ -40,12 +40,11 @@ export const constructResponseDetails = (
     !fnTypeDeclaration &&
       throwError("declaration of type of fn function was not found");
 
-    log.warning(fnTypeDeclaration.getChildren().map((a) => a.getKindName()));
-
     //finds return type
-    const returnTypeDeclaration =
-      fnTypeDeclaration!.getLastChildByKind(SyntaxKind.TypeReference) ||
-      fnTypeDeclaration.getLastChildByKindOr(SyntaxKind.CallExpression);
+    const returnTypeDeclaration = fnTypeDeclaration!.getLastChildByKind(
+      SyntaxKind.TypeReference
+    );
+    //  || fnTypeDeclaration.getLastChildByKind(SyntaxKind.CallExpression);
 
     !returnTypeDeclaration &&
       throwError("some problem in finding return type please review your code");
