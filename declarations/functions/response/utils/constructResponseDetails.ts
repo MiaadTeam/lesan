@@ -40,10 +40,15 @@ export const constructResponseDetails = (
     !fnTypeDeclaration &&
       throwError("declaration of type of fn function was not found");
 
+    log.warning(fnTypeDeclaration.getChildren().map((a) => a.getKindName()));
+
     //finds return type
-    const returnTypeDeclaration = fnTypeDeclaration!.getLastChildByKindOrThrow(
-      SyntaxKind.TypeReference
-    );
+    const returnTypeDeclaration =
+      fnTypeDeclaration!.getLastChildByKind(SyntaxKind.TypeReference) ||
+      fnTypeDeclaration.getLastChildByKindOr(SyntaxKind.CallExpression);
+
+    !returnTypeDeclaration &&
+      throwError("some problem in finding return type please review your code");
 
     //remove promise from return type
     const returnTypeDeclarationWithoutPromise =
@@ -69,7 +74,7 @@ export const constructResponseDetails = (
     }).replaceAll('"', "");
   } catch (error) {
     log.warning(
-      `we have some problem in finding return type in file: ${sourceFile.getFilePath} we assume it any
+      `we have some problem in finding return type in file: ${sourceFile.getFilePath()} we assume it any
       note: you should write return type  in separate type and reference to it   
       Error: ${error}
       `

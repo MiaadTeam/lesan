@@ -12,7 +12,9 @@ import { getResponseDeclarations } from "./functions/response/mod.ts";
 export const generateDeclarations = async (commandArgs?: CommandArgs) => {
   typeof commandArgs?.declaration === "boolean" &&
   commandArgs?.declaration === true
-    ? (await getRequestDeclarations()) && (await getSchemaDeclarations())
+    ? (await getRequestDeclarations()) &&
+      (await getSchemaDeclarations()) &&
+      (await getResponseDeclarations())
     : commandArgs?.declaration === "request"
     ? await getRequestDeclarations()
     : commandArgs?.declaration === "schema"
