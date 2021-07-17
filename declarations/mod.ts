@@ -1,6 +1,7 @@
-import { getRequestDeclarations } from "./request/mod.ts";
+import { getRequestDeclarations } from "./functions/request/mod.ts";
 import { CommandArgs } from "../funql.ts";
 import { getSchemaDeclarations } from "./schema/mod.ts";
+import { getResponseDeclarations } from "./functions/response/mod.ts";
 
 /**
  * @function
@@ -16,6 +17,8 @@ export const generateDeclarations = async (commandArgs?: CommandArgs) => {
     ? await getRequestDeclarations()
     : commandArgs?.declaration === "schema"
     ? await getSchemaDeclarations()
+    : commandArgs?.declaration === "response"
+    ? await getResponseDeclarations()
     : null;
   return;
 };

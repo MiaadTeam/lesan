@@ -1,7 +1,7 @@
 import { Project, emptyDir, log, rgb24 } from "../../deps.ts";
 import { denoResolutionHost, pickRandomColor } from "../utils/mod.ts";
-import { getDynamicSchemaDeclarations } from "./dynamics/mod.ts";
-import { getStaticSchemaDeclarations } from "./statics/mod.ts";
+import { getDynamicSchemaDeclarations } from "./dynamic/mod.ts";
+import { getStaticSchemaDeclarations } from "./static/mod.ts";
 
 /**
  * @function

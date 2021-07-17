@@ -1,4 +1,4 @@
-import { SourceFile } from "../../../../deps.ts";
+import { SourceFile } from "../../../../../deps.ts";
 import { constructFVContents } from "./constructFVContent.ts";
 
 export async function constructFVSchema(sourceFile: SourceFile) {

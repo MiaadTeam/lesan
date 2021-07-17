@@ -1,5 +1,5 @@
 import { SourceFile, InterfaceDeclaration } from "../../../deps.ts";
-import { isInternalType, handlePropType } from "./mod.ts";
+import { isInternalType, addNodeInnerTypeToSrcFile } from "./mod.ts";
 import {
   changeNameAndItsRefs,
   findAllPropsOfInterface,
@@ -14,7 +14,7 @@ import {
 export function addFunQLInterfaceToSourceFile(
   myInterface: InterfaceDeclaration,
   createdSourceFile: SourceFile,
-  options: { type?: "dynamic" | "static" } = { type: "dynamic" }
+  options: { type?: "dynamic" | "static" | "return" } = { type: "dynamic" }
 ) {
   //extract options
   const { type } = options;
@@ -49,7 +49,7 @@ export function addFunQLInterfaceToSourceFile(
       prop.setType("string");
     }
     //construct deps of interface in prop
-    handlePropType(prop, createdSourceFile, { type });
+    addNodeInnerTypeToSrcFile(prop, createdSourceFile, { type });
     //add prop to created interface
     createdInterface.addProperty(prop.getStructure());
   }

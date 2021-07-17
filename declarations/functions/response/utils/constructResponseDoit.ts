@@ -1,8 +1,11 @@
-import { exObIterator } from "../tsMorph/exObIterator.ts";
-import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
-import { constructFVDetails } from "./constructFVDetails.ts";
 import { SourceFile, SyntaxKind, log } from "../../../../deps.ts";
 import { bgRgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
+import {
+  constructFVDetails,
+  getImpSourceFile,
+  exObIterator,
+} from "../../request/utils/mod.ts";
+import { constructResponseDetails } from "./constructResponseDetails.ts";
 
 /**
  * @function
@@ -10,9 +13,10 @@ import { bgRgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
  * @param sourceFile
  * @param modelName
  */
-export async function constructFVDoits(
+export async function constructResponseDoit(
   sourceFile: SourceFile,
-  modelName: string
+  modelName: string,
+  createdSourceFile: SourceFile
 ) {
   log.info(
     bgRgb24(`in construction of doits for model: ${modelName}`, 0x010217)
@@ -33,18 +37,18 @@ export async function constructFVDoits(
   for (const fn of exObIterator(listOfFns!)) {
     results.push({
       name: fn.name,
-      details: await constructFVDetails(
-        getImpSourceFile(sourceFile, fn.functionName!)
+      details: await constructResponseDetails(
+        getImpSourceFile(sourceFile, fn.functionName!),
+        createdSourceFile
       ),
     });
   }
 
   //convert array to object
-  return results.reduce((pre: any, curr) => {
-    pre[curr.name!] = {
-      type: "object",
-      props: { details: { type: "object", props: curr.details } },
-    };
-    return pre;
-  }, {});
+  return JSON.stringify(
+    results.reduce((pre: any, curr) => {
+      pre[curr.name!] = { details: curr.details };
+      return pre;
+    }, {})
+  ).replaceAll('"', "");
 }

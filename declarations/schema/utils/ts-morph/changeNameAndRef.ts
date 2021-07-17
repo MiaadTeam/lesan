@@ -12,7 +12,7 @@ import {
  */
 export function changeNameAndItsRefs(
   node: InterfaceDeclaration | EnumDeclaration | TypeAliasDeclaration,
-  type: "static" | "dynamic" = "dynamic"
+  type: "static" | "dynamic" | "return" = "dynamic"
 ) {
   try {
     //we use split for remove some postfixes for example authority.embedded.ts

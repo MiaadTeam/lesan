@@ -1,11 +1,10 @@
-import { Project, log, emptyDir } from "../../deps.ts";
+import { Project, log, emptyDir, rgb24 } from "../../../deps.ts";
 import {
   jsonObToTsType,
   convertFvObToTsOb,
   constructFVSchema,
 } from "./utils/mod.ts";
-import { rgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
-import { denoResolutionHost, pickRandomColor } from "../utils/mod.ts";
+import { denoResolutionHost, pickRandomColor } from "../../utils/mod.ts";
 
 export const getRequestDeclarations = async (dirPath?: string) => {
   log.info("Generating of declarations of request is started");

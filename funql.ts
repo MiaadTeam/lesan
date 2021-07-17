@@ -10,7 +10,7 @@ import { Application } from "https://deno.land/x/abc@v1.3.1/mod.ts";
 
 export interface CommandArgs {
   init?: boolean | string;
-  declaration?: boolean | "schema" | "request";
+  declaration?: boolean | "schema" | "request" | "response";
   upgrade?: string;
   gs?: string;
   _: (string | number)[];

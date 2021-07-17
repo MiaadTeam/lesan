@@ -1,9 +1,16 @@
-import { SourceFile, SyntaxKind } from "../../../../deps.ts";
+import { SourceFile, SyntaxKind, bgRgb24, log } from "../../../../../deps.ts";
 import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
-import { constructFVModels } from "./constructFVModels.ts";
+import { constructFVDoits } from "./constructFVDoits.ts";
 
-export async function constructFVContents(sourceFile: SourceFile) {
+export async function constructFVModels(
+  sourceFile: SourceFile,
+  contentName: string
+) {
+  log.info(
+    bgRgb24(`in construction of models for content: ${contentName}`, 0x380406)
+  );
+
   //get object iterator in mod.ts
   const objectIterator = sourceFile.getFirstDescendantByKindOrThrow(
     SyntaxKind.ElementAccessExpression
@@ -19,16 +26,16 @@ export async function constructFVContents(sourceFile: SourceFile) {
   for (const listOfFn of exObIterator(listOfFns)) {
     const res: any = {};
     res.name = listOfFn.name;
-    (res.models = await constructFVModels(
+    (res.doits = await constructFVDoits(
       getImpSourceFile(sourceFile, listOfFn.functionName!),
-      res.name
+      listOfFn.name!
     )),
       results.push(res);
   }
   return results.reduce((pre, curr) => {
     pre[curr.name] = {
       type: "object",
-      props: { models: { type: "object", props: curr.models } },
+      props: { doits: { type: "object", props: curr.doits } },
     };
     return pre;
   }, {});

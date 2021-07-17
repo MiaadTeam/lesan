@@ -1,11 +1,11 @@
 import { SourceFile, SyntaxKind, bgRgb24, log } from "../../../../deps.ts";
-import { exObIterator } from "../tsMorph/exObIterator.ts";
-import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
-import { constructFVDoits } from "./constructFVDoits.ts";
+import { exObIterator, getImpSourceFile } from "../../request/utils/mod.ts";
+import { constructResponseDoit } from "./constructResponseDoit.ts";
 
-export async function constructFVModels(
+export async function constructResponseModel(
   sourceFile: SourceFile,
-  contentName: string
+  contentName: string,
+  createdSourceFile: SourceFile
 ) {
   log.info(
     bgRgb24(`in construction of models for content: ${contentName}`, 0x380406)
@@ -26,17 +26,17 @@ export async function constructFVModels(
   for (const listOfFn of exObIterator(listOfFns)) {
     const res: any = {};
     res.name = listOfFn.name;
-    (res.doits = await constructFVDoits(
+    (res.doits = await constructResponseDoit(
       getImpSourceFile(sourceFile, listOfFn.functionName!),
-      listOfFn.name!
+      listOfFn.name!,
+      createdSourceFile
     )),
       results.push(res);
   }
-  return results.reduce((pre, curr) => {
-    pre[curr.name] = {
-      type: "object",
-      props: { doits: { type: "object", props: curr.doits } },
-    };
-    return pre;
-  }, {});
+  return JSON.stringify(
+    results.reduce((pre, curr) => {
+      pre[curr.name] = { doits: curr.doits };
+      return pre;
+    }, {})
+  ).replaceAll('"', "");
 }

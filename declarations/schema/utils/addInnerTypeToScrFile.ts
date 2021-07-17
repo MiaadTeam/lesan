@@ -1,12 +1,8 @@
-import {
-  PropertySignature,
-  SourceFile,
-  SyntaxKind,
-  log,
-} from "../../../deps.ts";
+import { SourceFile, SyntaxKind, log, Node } from "../../../deps.ts";
 import { getInterfaceFromType, getEnumFromType } from "./ts-morph/mod.ts";
 import { addFunQLInterfaceToSourceFile } from "./addInterfaceToSrcFile.ts";
 import { addFunQLEnumToSourceFile } from "./mod.ts";
+import { isInternalType } from "./isTypeInternal.ts";
 
 /**
  * @function
@@ -15,19 +11,27 @@ import { addFunQLEnumToSourceFile } from "./mod.ts";
  * @param createdSourceFile
  * @todo handle type alias type
  */
-export function handlePropType(
-  prop: PropertySignature,
+export function addNodeInnerTypeToSrcFile(
+  node: Node,
   createdSourceFile: SourceFile,
-  options: { type?: "dynamic" | "static" } = { type: "dynamic" }
+  options: { type?: "dynamic" | "static" | "return" } = { type: "dynamic" }
 ) {
   //extract options
   const { type } = options;
 
-  const typeReferences = prop.getDescendantsOfKind(SyntaxKind.TypeReference);
+  const typeReferences = node.getDescendantsOfKind(SyntaxKind.TypeReference);
+
   typeReferences.map((reference) => {
     try {
       //get type of references
       const typeOfReference = reference.getType();
+      //checks type is internal or not supported
+      if (
+        isInternalType(reference.getText()) ||
+        isInternalType(typeOfReference.getText())
+      ) {
+        return;
+      }
       //if type is interface we should find interface and process it again
       if (typeOfReference.isInterface()) {
         const foundedInterface = getInterfaceFromType(typeOfReference);
@@ -48,7 +52,7 @@ export function handlePropType(
       }
     } catch (error) {
       log.error(
-        `we have some problem in finding type: ${reference.getText()} in file: ${reference
+        `we have some problem in finding type: '${reference.getText()}' in file: ${reference
           .getSourceFile()
           .getBaseName()} 
           ${error}
