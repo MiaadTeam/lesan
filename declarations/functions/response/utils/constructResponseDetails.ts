@@ -45,9 +45,8 @@ export const constructResponseDetails = (
       throwError("declaration of type of fn function was not found");
 
     //finds return type
-    const returnTypeDeclaration =
-      fnTypeDeclaration!.getLastChildByKind(SyntaxKind.TypeReference) ||
-      fnTypeDeclaration!.getLastChildIfKind(SyntaxKind.AnyKeyword);
+    //normally return type is last child in type syntax
+    const returnTypeDeclaration = fnTypeDeclaration!.getLastChild();
 
     //TODO add more conditions
     (returnTypeDeclaration!.getText() === "any" ||
