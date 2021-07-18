@@ -45,8 +45,10 @@ export function addFunQLInterfaceToSourceFile(
 
   for (const prop of foundedProps) {
     //handle when type of prop is Bson.ObjectId or similar
-    modifyIllegalType(prop);
-    //construct deps of interface in prop
+    if (prop.getText().match(/(Bson.)?ObjectI[dD]/)) {
+      prop.setType("string");
+    }
+    //con    //construct deps of interface in prop
     addNodeInnerTypeToSrcFile(prop, createdSourceFile, { type });
     //add prop to created interface
     createdInterface.addProperty(prop.getStructure());
