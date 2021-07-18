@@ -1,8 +1,19 @@
-import { SourceFile, SyntaxKind, log, Node } from "../../../deps.ts";
-import { getInterfaceFromType, getEnumFromType } from "./ts-morph/mod.ts";
+import {
+  SourceFile,
+  SyntaxKind,
+  log,
+  Node,
+  TypeReferenceNode,
+} from "../../../deps.ts";
+import {
+  getInterfaceFromType,
+  getEnumFromType,
+  getTypeAliasFromType,
+} from "./ts-morph/mod.ts";
 import { addFunQLInterfaceToSourceFile } from "./addInterfaceToSrcFile.ts";
 import { addFunQLEnumToSourceFile } from "./mod.ts";
 import { isInternalType } from "./isTypeInternal.ts";
+import { addFunQLAliasTypeToSourceFile } from "./addTypeAliasToSrcFile.ts";
 
 /**
  * @function
@@ -20,6 +31,10 @@ export function addNodeInnerTypeToSrcFile(
   const { type } = options;
 
   const typeReferences = node.getDescendantsOfKind(SyntaxKind.TypeReference);
+
+  //adds own node if type of node is type reference
+  node.getKind() === SyntaxKind.TypeReference &&
+    typeReferences.push(<TypeReferenceNode>node);
 
   typeReferences.map((reference) => {
     try {
@@ -45,7 +60,14 @@ export function addNodeInnerTypeToSrcFile(
         const foundedEnum = getEnumFromType(typeOfReference);
         addFunQLEnumToSourceFile(foundedEnum, createdSourceFile, { type });
         return;
+        //this type is type alias
+      } else if (typeOfReference.isObject()) {
+        const foundedTypeAlias = getTypeAliasFromType(typeOfReference);
+        addFunQLAliasTypeToSourceFile(foundedTypeAlias, createdSourceFile, {
+          type,
+        });
       } else {
+        /*else if(){} */
         throw Error(
           "please use only interface and enum types for your type referencing"
         );

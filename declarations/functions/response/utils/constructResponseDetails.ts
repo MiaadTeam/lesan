@@ -75,6 +75,9 @@ export const constructResponseDetails = (
         }
       );
 
+    !returnTypeDeclarationWithoutPromise &&
+      throwError("can not detect return type");
+
     //returns all of things that we need to create details in string format
     return withDetails
       ? JSON.stringify({

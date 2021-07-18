@@ -44,7 +44,11 @@ export const getResponseDeclarations = async (dirPath?: string) => {
     createdSourceFile
   );
 
-  createdSourceFile.formatText({ indentSize: 1 });
+  createdSourceFile.formatText({
+    indentSize: 1,
+    insertSpaceAfterSemicolonInForStatements: true,
+    insertSpaceAfterCommaDelimiter: true,
+  });
   await createdSourceFile.save();
   log.info(`creating of declaration files for response was successful
   ${rgb24(
