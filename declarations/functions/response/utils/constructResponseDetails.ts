@@ -14,7 +14,8 @@ import { throwError } from "../../../utils/throwError.ts";
 export const constructResponseDetails = (
   sourceFile: SourceFile,
   functionName: string,
-  createdSourceFile: SourceFile
+  createdSourceFile: SourceFile,
+  withDetails: boolean = true
 ): string => {
   try {
     //finds funql function that by convention ends with Fn and declare with variable declaration
@@ -48,7 +49,6 @@ export const constructResponseDetails = (
       fnTypeDeclaration!.getLastChildByKind(SyntaxKind.TypeReference) ||
       fnTypeDeclaration!.getLastChildIfKind(SyntaxKind.AnyKeyword);
 
-    //  || fnTypeDeclaration.getLastChildByKind(SyntaxKind.CallExpression);
     //TODO add more conditions
     (returnTypeDeclaration!.getText() === "any" ||
       returnTypeDeclaration!.getText() === "Promise<any>" ||
@@ -76,9 +76,11 @@ export const constructResponseDetails = (
       );
 
     //returns all of things that we need to create details in string format
-    return JSON.stringify({
-      response: returnTypeDeclarationWithoutPromise?.getText() ?? "any",
-    }).replaceAll('"', "");
+    return withDetails
+      ? JSON.stringify({
+          response: returnTypeDeclarationWithoutPromise?.getText() ?? "any",
+        }).replaceAll('"', "")
+      : returnTypeDeclarationWithoutPromise?.getText() ?? "any";
   } catch (error) {
     log.warning(
       `we have some problem in finding return type in file: ${sourceFile.getFilePath()} we assume it any
@@ -86,8 +88,10 @@ export const constructResponseDetails = (
       `
     );
     //returns all of things that we need to create details in string format
-    return JSON.stringify({
-      response: "any",
-    }).replaceAll('"', "");
+    return withDetails
+      ? JSON.stringify({
+          response: "any",
+        }).replaceAll('"', "")
+      : "any";
   }
 };

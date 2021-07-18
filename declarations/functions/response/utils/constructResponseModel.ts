@@ -5,7 +5,8 @@ import { constructResponseDoit } from "./constructResponseDoit.ts";
 export function constructResponseModel(
   sourceFile: SourceFile,
   contentName: string,
-  createdSourceFile: SourceFile
+  createdSourceFile: SourceFile,
+  withDetails: boolean = true
 ) {
   log.info(
     bgRgb24(`in construction of models for content: ${contentName}`, 0x380406)
@@ -29,7 +30,8 @@ export function constructResponseModel(
     (res.doits = constructResponseDoit(
       getImpSourceFile(sourceFile, listOfFn.functionName!),
       listOfFn.name!,
-      createdSourceFile
+      createdSourceFile,
+      withDetails
     )),
       results.push(res);
   }

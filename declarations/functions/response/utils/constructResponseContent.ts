@@ -1,10 +1,11 @@
-import { SourceFile, SyntaxKind, log } from "./../../../../deps.ts";
+import { SourceFile, SyntaxKind } from "./../../../../deps.ts";
 import { constructResponseModel } from "./constructResponseModel.ts";
 import { getImpSourceFile, exObIterator } from "../../request/utils/mod.ts";
 
 export function constructResponseContent(
   sourceFile: SourceFile,
-  createdSourceFile: SourceFile
+  createdSourceFile: SourceFile,
+  withDetails: boolean = true
 ) {
   //get object iterator in mod.ts
   const objectIterator = sourceFile.getFirstDescendantByKindOrThrow(
@@ -25,7 +26,8 @@ export function constructResponseContent(
     res.models = constructResponseModel(
       getImpSourceFile(sourceFile, listOfFn.functionName!),
       res.name,
-      createdSourceFile
+      createdSourceFile,
+      withDetails
     );
 
     results.push(res);

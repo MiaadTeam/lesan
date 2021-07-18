@@ -3,13 +3,29 @@ import { constructResponseContent } from "./constructResponseContent.ts";
 
 export function constructResponseSchema(
   sourceFile: SourceFile,
-  createdInterface: InterfaceDeclaration,
+  createdInterfaceWihDetails: InterfaceDeclaration,
+  createdInterfaceWithoutDetails: InterfaceDeclaration,
   createdSourceFile: SourceFile
 ) {
-  const property = createdInterface.addProperty({ name: "schema" });
-  const responseContent = constructResponseContent(
+  const propertyWithDetails = createdInterfaceWihDetails.addProperty({
+    name: "schema",
+  });
+  const propertyWithoutDetails = createdInterfaceWithoutDetails.addProperty({
+    name: "schema",
+  });
+
+  const responseContentWithDetails = constructResponseContent(
     sourceFile,
-    createdSourceFile
+    createdSourceFile,
+    true
   );
-  property.setType(`{contents: ${responseContent}}`);
+  const responseContentWithoutDetails = constructResponseContent(
+    sourceFile,
+    createdSourceFile,
+    false
+  );
+  propertyWithDetails.setType(`{contents: ${responseContentWithDetails}}`);
+  propertyWithoutDetails.setType(
+    `{contents: ${responseContentWithoutDetails}}`
+  );
 }

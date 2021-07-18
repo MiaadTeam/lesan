@@ -27,12 +27,22 @@ export const getResponseDeclarations = async (dirPath?: string) => {
     { overwrite: true }
   );
 
-  const createdInterface = createdSourceFile.addInterface({
-    name: "FunQLResponse",
+  const createdInterfaceWithDetails = createdSourceFile.addInterface({
+    name: "FunQLResponseWithDetails",
     isExported: true,
   });
 
-  constructResponseSchema(sourceFile, createdInterface, createdSourceFile);
+  const createdInterfaceWithoutDetails = createdSourceFile.addInterface({
+    name: "FunQLResponseWithoutDetails",
+    isExported: true,
+  });
+
+  constructResponseSchema(
+    sourceFile,
+    createdInterfaceWithDetails,
+    createdInterfaceWithoutDetails,
+    createdSourceFile
+  );
 
   createdSourceFile.formatText({ indentSize: 1 });
   await createdSourceFile.save();

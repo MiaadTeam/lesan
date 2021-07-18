@@ -16,7 +16,8 @@ import { constructResponseDetails } from "./constructResponseDetails.ts";
 export function constructResponseDoit(
   sourceFile: SourceFile,
   modelName: string,
-  createdSourceFile: SourceFile
+  createdSourceFile: SourceFile,
+  withDetails: boolean = true
 ) {
   log.info(
     bgRgb24(`in construction of doits for model: ${modelName}`, 0x010217)
@@ -40,7 +41,8 @@ export function constructResponseDoit(
       details: constructResponseDetails(
         getImpSourceFile(sourceFile, fn.functionName!),
         fn.functionName!,
-        createdSourceFile
+        createdSourceFile,
+        withDetails
       ),
     });
   }
@@ -48,7 +50,9 @@ export function constructResponseDoit(
   //convert array to object
   return JSON.stringify(
     results.reduce((pre: any, curr) => {
-      pre[curr.name!] = { details: curr.details };
+      withDetails
+        ? (pre[curr.name!] = { details: curr.details })
+        : (pre[curr.name!] = curr.details);
       return pre;
     }, {})
   ).replaceAll('"', "");
