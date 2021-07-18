@@ -1,4 +1,4 @@
-import { SourceFile, InterfaceDeclaration } from "../../../deps.ts";
+import { SourceFile, InterfaceDeclaration, SyntaxKind } from "../../../deps.ts";
 import { isInternalType, addNodeInnerTypeToSrcFile } from "./mod.ts";
 import {
   changeNameAndItsRefs,
@@ -45,10 +45,10 @@ export function addFunQLInterfaceToSourceFile(
 
   for (const prop of foundedProps) {
     //handle when type of prop is Bson.ObjectId or similar
-    if (prop.getText().match(/(Bson.)?ObjectI[dD]/)) {
-      prop.setType("string");
-    }
-    //con    //construct deps of interface in prop
+    prop
+      .getDescendantsOfKind(SyntaxKind.TypeReference)
+      .map((node) => modifyIllegalType(node));
+    //construct deps of interface in prop
     addNodeInnerTypeToSrcFile(prop, createdSourceFile, { type });
     //add prop to created interface
     createdInterface.addProperty(prop.getStructure());

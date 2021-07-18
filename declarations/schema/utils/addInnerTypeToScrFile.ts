@@ -62,14 +62,13 @@ export function addNodeInnerTypeToSrcFile(
         //this type is type alias
       } else if (typeOfReference.isObject()) {
         const foundedTypeAlias = getTypeAliasFromType(typeOfReference);
-        log.error(foundedTypeAlias.getText());
         addFunQLAliasTypeToSourceFile(foundedTypeAlias, createdSourceFile, {
           type,
         });
       } else {
         /*else if(){} */
         throw Error(
-          "please use only interface and enum types for your type referencing"
+          "please use only interface and enum types for your type referencing type is supported incompletely"
         );
       }
     } catch (error) {
