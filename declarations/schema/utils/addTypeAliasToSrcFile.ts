@@ -6,6 +6,7 @@ import {
   log,
 } from "../../../deps.ts";
 import { addNodeInnerTypeToSrcFile } from "./mod.ts";
+import { modifyIllegalType } from "./modifyIllegalType.ts";
 
 /**
  * @function
@@ -43,10 +44,8 @@ export function addFunQLAliasTypeToSourceFile(
     SyntaxKind.TypeReference
   )) {
     //handle when type of node is Bson.ObjectId or similar to it
-    //map it to string type
-    if (node.getText().match(/(Bson.)?ObjectI[dD]/)) {
-      node.replaceWithText("string");
-    }
+    modifyIllegalType(node);
+
     //construct deps of type alias in node
     addNodeInnerTypeToSrcFile(node, createdSourceFile, { type });
   }

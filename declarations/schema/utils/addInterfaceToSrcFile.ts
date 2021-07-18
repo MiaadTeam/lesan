@@ -4,6 +4,7 @@ import {
   changeNameAndItsRefs,
   findAllPropsOfInterface,
 } from "./ts-morph/mod.ts";
+import { modifyIllegalType } from "./modifyIllegalType.ts";
 
 /**
  * @function
@@ -43,14 +44,8 @@ export function addFunQLInterfaceToSourceFile(
   const foundedProps = findAllPropsOfInterface(myInterface);
 
   for (const prop of foundedProps) {
-    //handle when type of prop is Bson.ObjectId
-    //map it to string type
-    if (
-      prop.getText().match(/Bson.ObjectI[dD]/) ||
-      prop.getText().match(/ObjectI[dD]/)
-    ) {
-      prop.setType("string");
-    }
+    //handle when type of prop is Bson.ObjectId or similar
+    modifyIllegalType(prop);
     //construct deps of interface in prop
     addNodeInnerTypeToSrcFile(prop, createdSourceFile, { type });
     //add prop to created interface
