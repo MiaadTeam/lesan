@@ -3,6 +3,7 @@ import {
   EnumDeclaration,
   TypeAliasDeclaration,
   log,
+  Type,
 } from "../../../../deps.ts";
 
 /**

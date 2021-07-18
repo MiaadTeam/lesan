@@ -29,9 +29,8 @@ export function addNodeInnerTypeToSrcFile(
 ) {
   //extract options
   const { type } = options;
-
+  //gets all type references in descendants
   const typeReferences = node.getDescendantsOfKind(SyntaxKind.TypeReference);
-
   //adds own node if type of node is type reference
   node.getKind() === SyntaxKind.TypeReference &&
     typeReferences.push(<TypeReferenceNode>node);
@@ -63,6 +62,7 @@ export function addNodeInnerTypeToSrcFile(
         //this type is type alias
       } else if (typeOfReference.isObject()) {
         const foundedTypeAlias = getTypeAliasFromType(typeOfReference);
+        log.error(foundedTypeAlias.getText());
         addFunQLAliasTypeToSourceFile(foundedTypeAlias, createdSourceFile, {
           type,
         });
