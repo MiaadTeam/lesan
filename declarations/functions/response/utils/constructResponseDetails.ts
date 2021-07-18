@@ -44,11 +44,16 @@ export const constructResponseDetails = (
       throwError("declaration of type of fn function was not found");
 
     //finds return type
-    const returnTypeDeclaration = fnTypeDeclaration!.getLastChildByKind(
-      SyntaxKind.TypeReference
-    );
-    //  || fnTypeDeclaration.getLastChildByKind(SyntaxKind.CallExpression);
+    const returnTypeDeclaration =
+      fnTypeDeclaration!.getLastChildByKind(SyntaxKind.TypeReference) ||
+      fnTypeDeclaration!.getLastChildIfKind(SyntaxKind.AnyKeyword);
 
+    //  || fnTypeDeclaration.getLastChildByKind(SyntaxKind.CallExpression);
+    //TODO add more conditions
+    (returnTypeDeclaration!.getText() === "any" ||
+      returnTypeDeclaration!.getText() === "Promise<any>" ||
+      returnTypeDeclaration!.getText() === "Promise<any[]>") &&
+      throwError("return type is any");
     !returnTypeDeclaration &&
       throwError("some problem in finding return type please review your code");
 
@@ -77,7 +82,6 @@ export const constructResponseDetails = (
   } catch (error) {
     log.warning(
       `we have some problem in finding return type in file: ${sourceFile.getFilePath()} we assume it any
-      note: you should write return type  in separate type and reference to it   
       Error: ${error}
       `
     );

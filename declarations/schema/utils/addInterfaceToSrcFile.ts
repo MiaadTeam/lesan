@@ -45,7 +45,10 @@ export function addFunQLInterfaceToSourceFile(
   for (const prop of foundedProps) {
     //handle when type of prop is Bson.ObjectId
     //map it to string type
-    if (prop.getText().match(/Bson.ObjectI[dD]/)) {
+    if (
+      prop.getText().match(/Bson.ObjectI[dD]/) ||
+      prop.getText().match(/ObjectI[dD]/)
+    ) {
       prop.setType("string");
     }
     //construct deps of interface in prop
