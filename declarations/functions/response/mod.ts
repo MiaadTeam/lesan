@@ -2,6 +2,11 @@ import { Project, log, emptyDir, rgb24 } from "../../../deps.ts";
 import { denoResolutionHost, pickRandomColor } from "../../utils/mod.ts";
 import { constructResponseSchema } from "./utils/constructResponseSchema.ts";
 
+/**
+ * @function
+ * @async
+ * construct response type of functions in funQL
+ */
 export const getResponseDeclarations = async (dirPath?: string) => {
   log.info("Generating of declarations of response is started");
   const project = new Project({
@@ -23,15 +28,11 @@ export const getResponseDeclarations = async (dirPath?: string) => {
   );
 
   const createdInterface = createdSourceFile.addInterface({
-    name: "response",
+    name: "FunQLResponse",
     isExported: true,
   });
 
-  await constructResponseSchema(
-    sourceFile,
-    createdInterface,
-    createdSourceFile
-  );
+  constructResponseSchema(sourceFile, createdInterface, createdSourceFile);
 
   createdSourceFile.formatText({ indentSize: 1 });
   await createdSourceFile.save();
@@ -39,9 +40,7 @@ export const getResponseDeclarations = async (dirPath?: string) => {
   ${rgb24(
     `
     -------------------------------------------------------------
-    | Fastest validator schema:  file://${__dirname}/declarations/request/fastestValidatorSchema.json
-    | Json schema:  file://${__dirname}/declarations/request/schema.json
-    | Ts interface:   file://${__dirname}/declarations/request/schema.ts
+    | Ts interface:   file://${createdSourceFile.getFilePath()}
     -------------------------------------------------------------
     `,
     pickRandomColor()

@@ -2,7 +2,7 @@ import { SourceFile, SyntaxKind, bgRgb24, log } from "../../../../deps.ts";
 import { exObIterator, getImpSourceFile } from "../../request/utils/mod.ts";
 import { constructResponseDoit } from "./constructResponseDoit.ts";
 
-export async function constructResponseModel(
+export function constructResponseModel(
   sourceFile: SourceFile,
   contentName: string,
   createdSourceFile: SourceFile
@@ -26,7 +26,7 @@ export async function constructResponseModel(
   for (const listOfFn of exObIterator(listOfFns)) {
     const res: any = {};
     res.name = listOfFn.name;
-    (res.doits = await constructResponseDoit(
+    (res.doits = constructResponseDoit(
       getImpSourceFile(sourceFile, listOfFn.functionName!),
       listOfFn.name!,
       createdSourceFile

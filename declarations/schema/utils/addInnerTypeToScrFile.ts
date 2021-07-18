@@ -14,7 +14,7 @@ import { isInternalType } from "./isTypeInternal.ts";
 export function addNodeInnerTypeToSrcFile(
   node: Node,
   createdSourceFile: SourceFile,
-  options: { type?: "dynamic" | "static" | "return" } = { type: "dynamic" }
+  options: { type?: "dynamic" | "static" | "response" } = { type: "dynamic" }
 ) {
   //extract options
   const { type } = options;

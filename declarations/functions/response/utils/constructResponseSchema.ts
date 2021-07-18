@@ -1,13 +1,13 @@
 import { SourceFile, InterfaceDeclaration } from "../../../../deps.ts";
 import { constructResponseContent } from "./constructResponseContent.ts";
 
-export async function constructResponseSchema(
+export function constructResponseSchema(
   sourceFile: SourceFile,
   createdInterface: InterfaceDeclaration,
   createdSourceFile: SourceFile
 ) {
   const property = createdInterface.addProperty({ name: "schema" });
-  const responseContent = await constructResponseContent(
+  const responseContent = constructResponseContent(
     sourceFile,
     createdSourceFile
   );

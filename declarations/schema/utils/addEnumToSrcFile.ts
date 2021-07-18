@@ -10,7 +10,7 @@ import { changeNameAndItsRefs } from "./ts-morph/mod.ts";
 export function addFunQLEnumToSourceFile(
   myEnum: EnumDeclaration,
   createdSourceFile: SourceFile,
-  options: { type?: "dynamic" | "static" | "return" } = { type: "dynamic" }
+  options: { type?: "dynamic" | "static" | "response" } = { type: "dynamic" }
 ) {
   //extract options
   const { type } = options;

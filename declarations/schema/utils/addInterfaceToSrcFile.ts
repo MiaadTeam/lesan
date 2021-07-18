@@ -14,7 +14,7 @@ import {
 export function addFunQLInterfaceToSourceFile(
   myInterface: InterfaceDeclaration,
   createdSourceFile: SourceFile,
-  options: { type?: "dynamic" | "static" | "return" } = { type: "dynamic" }
+  options: { type?: "dynamic" | "static" | "response" } = { type: "dynamic" }
 ) {
   //extract options
   const { type } = options;

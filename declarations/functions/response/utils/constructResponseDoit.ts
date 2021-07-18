@@ -13,7 +13,7 @@ import { constructResponseDetails } from "./constructResponseDetails.ts";
  * @param sourceFile
  * @param modelName
  */
-export async function constructResponseDoit(
+export function constructResponseDoit(
   sourceFile: SourceFile,
   modelName: string,
   createdSourceFile: SourceFile
@@ -37,8 +37,9 @@ export async function constructResponseDoit(
   for (const fn of exObIterator(listOfFns!)) {
     results.push({
       name: fn.name,
-      details: await constructResponseDetails(
+      details: constructResponseDetails(
         getImpSourceFile(sourceFile, fn.functionName!),
+        fn.functionName!,
         createdSourceFile
       ),
     });

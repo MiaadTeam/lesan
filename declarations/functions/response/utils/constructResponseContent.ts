@@ -2,7 +2,7 @@ import { SourceFile, SyntaxKind, log } from "./../../../../deps.ts";
 import { constructResponseModel } from "./constructResponseModel.ts";
 import { getImpSourceFile, exObIterator } from "../../request/utils/mod.ts";
 
-export async function constructResponseContent(
+export function constructResponseContent(
   sourceFile: SourceFile,
   createdSourceFile: SourceFile
 ) {
@@ -22,7 +22,7 @@ export async function constructResponseContent(
   for (const listOfFn of exObIterator(listOfFns)) {
     const res: any = {};
     res.name = listOfFn.name;
-    res.models = await constructResponseModel(
+    res.models = constructResponseModel(
       getImpSourceFile(sourceFile, listOfFn.functionName!),
       res.name,
       createdSourceFile

@@ -13,13 +13,16 @@ import { throwError } from "../../../utils/throwError.ts";
  */
 export const constructResponseDetails = (
   sourceFile: SourceFile,
+  functionName: string,
   createdSourceFile: SourceFile
 ): string => {
   try {
     //finds funql function that by convention ends with Fn and declare with variable declaration
     const fnDeclaration = sourceFile
       .getDescendantsOfKind(SyntaxKind.VariableDeclaration)
-      .find((vd) => vd.getName().endsWith("Fn"));
+      .find(
+        (vd) => vd.getName().endsWith("Fn") || vd.getName() === functionName
+      );
 
     //checks fun declaration was found are not
     !fnDeclaration && throwError("fn function was not found");
@@ -63,7 +66,7 @@ export const constructResponseDetails = (
         returnTypeDeclarationWithoutPromise,
         createdSourceFile,
         {
-          type: "return",
+          type: "response",
         }
       );
 

@@ -45,7 +45,7 @@ export const getRequestDeclarations = async (dirPath?: string) => {
 
   //construct new interface
   const funQLInterface = newSourceFile.addInterface({
-    name: "FunQL",
+    name: "FunQLRequest",
     isExported: true,
   });
   //add types to interface
