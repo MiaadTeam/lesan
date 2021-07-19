@@ -6,22 +6,26 @@ import {
 } from "./utils/mod.ts";
 import { denoResolutionHost, pickRandomColor } from "../../utils/mod.ts";
 
-export const getRequestDeclarations = async (dirPath?: string) => {
+export const getRequestDeclarations = async (
+  givenDirPath?: string,
+  givenOutPath?: string
+) => {
   log.info("Generating of declarations of request is started");
   const project = new Project({
     resolutionHost: denoResolutionHost,
   });
 
-  const __dirname = dirPath || Deno.cwd();
+  const dirPath = givenDirPath || Deno.cwd();
+  const outPath = `${givenOutPath || Deno.cwd()}/declarations/request`;
 
-  await emptyDir("declarations/request");
+  await emptyDir(outPath);
 
-  project.addSourceFilesAtPaths(`${__dirname}/**/*.ts`);
+  project.addSourceFilesAtPaths(`${dirPath}/**/*.ts`);
 
-  const sourceFile = project.getSourceFileOrThrow(`${__dirname}/mod.ts`);
+  const sourceFile = project.getSourceFileOrThrow(`${dirPath}/mod.ts`);
 
   const newSourceFile = project.createSourceFile(
-    `${__dirname}/declarations/request/schema.ts`,
+    `${outPath}/schema.ts`,
     undefined,
     {
       overwrite: true,
@@ -33,13 +37,13 @@ export const getRequestDeclarations = async (dirPath?: string) => {
 
   //store fastest validator object
   await Deno.writeTextFile(
-    `${__dirname}/declarations/request/fastestValidatorSchema.json`,
+    `${outPath}/fastestValidatorSchema.json`,
     JSON.stringify(fastestValidatorObject, null, 2)
   );
 
   //store regular object
   await Deno.writeTextFile(
-    `${__dirname}/declarations/request/schema.json`,
+    `${outPath}/schema.json`,
     JSON.stringify(object, null, 2)
   );
 
@@ -61,9 +65,9 @@ export const getRequestDeclarations = async (dirPath?: string) => {
   ${rgb24(
     `
     -------------------------------------------------------------
-    | Fastest validator schema:  file://${__dirname}/declarations/request/fastestValidatorSchema.json
-    | Json schema:  file://${__dirname}/declarations/request/schema.json
-    | Ts interface:   file://${__dirname}/declarations/request/schema.ts
+    | Fastest validator schema:  file://${outPath}/fastestValidatorSchema.json
+    | Json schema:  file://${outPath}/schema.json
+    | Ts interface:   file://${outPath}/schema.ts
     -------------------------------------------------------------
     `,
     pickRandomColor()

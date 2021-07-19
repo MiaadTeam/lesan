@@ -7,22 +7,26 @@ import { constructResponseSchema } from "./utils/constructResponseSchema.ts";
  * @async
  * construct response type of functions in funQL
  */
-export const getResponseDeclarations = async (dirPath?: string) => {
+export const getResponseDeclarations = async (
+  givenDirPath?: string,
+  givenOutPath?: string
+) => {
   log.info("Generating of declarations of response is started");
   const project = new Project({
     resolutionHost: denoResolutionHost,
   });
 
-  const __dirname = dirPath || Deno.cwd();
+  const dirPath = givenDirPath || Deno.cwd();
+  const outPath = `${givenOutPath || Deno.cwd()}/declarations/response`;
 
-  await emptyDir("declarations/response");
+  await emptyDir(outPath);
 
-  project.addSourceFilesAtPaths(`${__dirname}/**/*.ts`);
+  project.addSourceFilesAtPaths(`${dirPath}/**/*.ts`);
 
-  const sourceFile = project.getSourceFileOrThrow(`${__dirname}/mod.ts`);
+  const sourceFile = project.getSourceFileOrThrow(`${dirPath}/mod.ts`);
 
   const createdSourceFile = project.createSourceFile(
-    "declarations/response/schema.ts",
+    `${outPath}/schema.ts`,
     undefined,
     { overwrite: true }
   );

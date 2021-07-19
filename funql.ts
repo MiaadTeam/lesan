@@ -15,6 +15,8 @@ export interface CommandArgs {
   gs?: string;
   _: (string | number)[];
   play?: boolean;
+  "dir-path"?: string;
+  "out-path"?: string;
   help?: boolean;
 }
 

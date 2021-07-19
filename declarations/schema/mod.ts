@@ -9,21 +9,25 @@ import { getStaticSchemaDeclarations } from "./static/mod.ts";
  * construct dynamic and static schemas
  * @param givenDirPath
  */
-export const getSchemaDeclarations = async (givenDirPath?: string) => {
+export const getSchemaDeclarations = async (
+  givenDirPath?: string,
+  givenOutPath?: string
+) => {
   const project = new Project({
     resolutionHost: denoResolutionHost,
   });
   try {
     const dirPath = givenDirPath || Deno.cwd();
+    const outPath = `${givenOutPath || Deno.cwd()}/declarations/schema`;
 
     project.addSourceFilesAtPaths(`${dirPath}/**/*.ts`);
 
     //construct a dir and delete content of it
-    await emptyDir("declarations/schema");
+    await emptyDir(outPath);
 
     //create schema file for putting results in it
     const createdSourceFile = project.createSourceFile(
-      `${dirPath}/declarations/schema/schema.ts`,
+      `${outPath}/schema.ts`,
       undefined,
       {
         overwrite: true,
