@@ -48,11 +48,14 @@ export const constructResponseDetails = (
     //normally return type is last child in type syntax
     const returnTypeDeclaration = fnTypeDeclaration!.getLastChild();
 
-    //TODO add more conditions
-    (returnTypeDeclaration!.getText() === "any" ||
-      returnTypeDeclaration!.getText() === "Promise<any>" ||
-      returnTypeDeclaration!.getText() === "Promise<any[]>") &&
-      throwError("return type is any");
+    //check type is any or not and show warring
+    (returnTypeDeclaration!.getDescendantsOfKind(SyntaxKind.AnyKeyword).length >
+      0 ||
+      returnTypeDeclaration?.getKind() === SyntaxKind.AnyKeyword) &&
+      log.warning(
+        `some parts of return type are any in file: ${sourceFile.getFilePath()}`
+      );
+    //checks return type is exists ot not
     !returnTypeDeclaration &&
       throwError("some problem in finding return type please review your code");
 
