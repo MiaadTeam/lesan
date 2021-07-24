@@ -165,6 +165,8 @@ const App: React.FC<Props> = () => {
     <Container onSubmit={handleSubmit(onSubmit)}>
       {graphPage ? (
         <OrgChartTree
+          port={port}
+          header={header}
           data={fileChange ? JSON.parse(fileChange) : ""}
           setGraphPage={setGraphPage}
         />
@@ -277,7 +279,6 @@ const App: React.FC<Props> = () => {
               <JSONPretty id="json-pretty" data={result}></JSONPretty>
             </BoxPlayGround>
           </Right>
-
           <Bottom>
             <LeftBottom>
               <IconBottomRight>

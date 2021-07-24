@@ -6,26 +6,28 @@ const recfunc: any = (values: any, ke: any, value: any) => {
         : { [value]: recfunc(values.props[val], ke, val) };
     });
   } else {
-    return value;
+    return { value, type: values.type };
   }
 };
 
 export const TreeData = (Data?: any) => {
-  let model: string[] = [];
   let isStatic: string[] = [];
   let subdata: any[] = [];
   let alldata: any[] = [];
   let schema: any[] = [];
   const dataSchema: any = Data.schema.props.contents.props;
   Object.keys(dataSchema).map((keyContents: string) => {
+    const content = keyContents;
     Object.keys(dataSchema[keyContents].props.models.props).map(
       (keyModel: string) => {
-        model.push(keyModel);
         let doits: any[] = new Array();
+        const model = keyModel;
 
         Object.keys(
           dataSchema[keyContents].props.models.props[keyModel].props.doits.props
         ).map((keyDoits) => {
+          const doit = keyDoits;
+
           Object.keys(
             dataSchema[keyContents].props.models.props[keyModel].props.doits
               .props[keyDoits].props.details.props
@@ -43,7 +45,10 @@ export const TreeData = (Data?: any) => {
           schema.length !== 0
             ? (obje = {
                 name: keyDoits,
-                children: [{ name: "details", data: schema }],
+                children: [
+                  { data: schema, parent: content + " " + model + " " + doit },
+                  {},
+                ],
               })
             : (obje = { name: keyDoits });
 
