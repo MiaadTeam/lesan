@@ -3,6 +3,7 @@ import {
   EnumDeclaration,
   TypeAliasDeclaration,
   log,
+  Type,
 } from "../../../../deps.ts";
 
 /**
@@ -11,7 +12,8 @@ import {
  * @param node the node that we want to rename it and own references
  */
 export function changeNameAndItsRefs(
-  node: InterfaceDeclaration | EnumDeclaration | TypeAliasDeclaration
+  node: InterfaceDeclaration | EnumDeclaration | TypeAliasDeclaration,
+  type: "static" | "dynamic" | "response" = "dynamic"
 ) {
   try {
     //we use split for remove some postfixes for example authority.embedded.ts
@@ -20,7 +22,7 @@ export function changeNameAndItsRefs(
       .getBaseNameWithoutExtension()
       .split(".")[0];
     //generate new name
-    const newName = `FunQl_${node.getName()}_${fileName}`;
+    const newName = `FQl_${type}_${fileName}_${node.getName()}`;
 
     //rename node and its refs
     node.rename(newName, {

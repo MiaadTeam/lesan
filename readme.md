@@ -89,8 +89,16 @@ every schema should have 4 seprate things :
 - Firstly, [`deno`](https://deno.land/manual/getting_started/installation) must be installed.
 - After that just run this line:
 
+to install latest version: 
+
 ```shell
-deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql@0.0.34/funql.ts
+deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql/funql.ts
+```
+
+to install specific version: 
+
+```shell
+deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql@{SPECIFIC_VERSION}/funql.ts
 ```
 
 ## How to Use It

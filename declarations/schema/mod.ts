@@ -1,77 +1,55 @@
-import { Project, log, emptyDir } from "../../deps.ts";
-import { rgb24 } from "https://deno.land/std@0.96.0/fmt/colors.ts";
-import { denoResolutionHost, throwError } from "../utils/mod.ts";
-import { addFunQLInterfaceToSourceFile } from "./utils/addInterfaceToSrcFile.ts";
+import { Project, emptyDir, log, rgb24 } from "../../deps.ts";
+import { denoResolutionHost, pickRandomColor } from "../utils/mod.ts";
+import { getDynamicSchemaDeclarations } from "./dynamic/mod.ts";
+import { getStaticSchemaDeclarations } from "./static/mod.ts";
 
-export const getSchemaDeclarations = async (dirPath?: string) => {
+/**
+ * @function
+ * @async
+ * construct dynamic and static schemas
+ * @param givenDirPath
+ */
+export const getSchemaDeclarations = async (
+  givenDirPath?: string,
+  givenOutPath?: string
+) => {
+  const project = new Project({
+    resolutionHost: denoResolutionHost,
+  });
   try {
-    log.info("Generating of declarations of schema is started");
-    const project = new Project({
-      resolutionHost: denoResolutionHost,
-    });
+    const dirPath = givenDirPath || Deno.cwd();
+    const outPath = `${givenOutPath || Deno.cwd()}/declarations/schema`;
 
-    const __dirname = dirPath || Deno.cwd();
-    await emptyDir("declarations/schema");
-    project.addSourceFilesAtPaths(`${__dirname}/**/*.ts`);
-    //handle differentiate between schema and schemas
-    const dir =
-      project.getDirectory(`${__dirname}/schema`) ||
-      project.getDirectory(`${__dirname}/schemas`) ||
-      project.getDirectory(`${__dirname}/src/schemas`) ||
-      project.getDirectory(`${__dirname}/src/schema`);
+    project.addSourceFilesAtPaths(`${dirPath}/**/*.ts`);
 
-    //throws error if dir not found
-    !dir &&
-      throwError(
-        "directory of schema was not found, please move your schemas to path ./src/schema(s) or ./schema(s)"
-      );
+    //construct a dir and delete content of it
+    await emptyDir(outPath);
 
+    //create schema file for putting results in it
     const createdSourceFile = project.createSourceFile(
-      `${__dirname}/declarations/schema/schema.ts`,
+      `${outPath}/schema.ts`,
       undefined,
       {
         overwrite: true,
       }
     );
 
-    const sourceFiles = dir!.getSourceFiles();
-
-    //get all of interfaces
-    sourceFiles?.map((sourceFile) => {
-      const selectedInterfaces = sourceFile
-        .getInterfaces()
-        .filter(
-          (inter) =>
-            inter.getName().startsWith("Pu") ||
-            inter.getName().startsWith("Em") ||
-            inter.getName().startsWith("In") ||
-            inter.getName().startsWith("OutRel") ||
-            inter.getName().startsWith("I")
-        );
-
-      selectedInterfaces.map((inter) =>
-        addFunQLInterfaceToSourceFile(inter, createdSourceFile)
-      );
-    });
-
-    //console.log(newSourceFile.getText());
-    await createdSourceFile.save();
+    //construct dynamic and static schemas
+    await getDynamicSchemaDeclarations(project, createdSourceFile, dirPath);
+    await getStaticSchemaDeclarations(project, createdSourceFile, dirPath);
 
     log.info(`creating of declaration files for schema was successful
     ${rgb24(
       `
      -------------------------------------------------------------
-     |  Ts interface:  file://${__dirname}/declarations/schema/schema.ts
+     |  Ts interface:  file://${createdSourceFile.getFilePath()}
      -------------------------------------------------------------
      `,
-      0xadfc03
+      pickRandomColor()
     )}
     `);
   } catch (error) {
-    log.error(
-      `creating of schema was unsuccessful please review your project 
-      ${error}
-      `
-    );
+    log.error("some problems in creating schema was found ");
   }
+  return true;
 };

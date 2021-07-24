@@ -10,11 +10,13 @@ import { Application } from "https://deno.land/x/abc@v1.3.1/mod.ts";
 
 export interface CommandArgs {
   init?: boolean | string;
-  declaration?: boolean | "schema" | "request";
+  declaration?: boolean | "schema" | "request" | "response";
   upgrade?: string;
   gs?: string;
   _: (string | number)[];
   play?: boolean;
+  "dir-path"?: string;
+  "out-path"?: string;
   help?: boolean;
 }
 
@@ -44,11 +46,8 @@ const runPlayground = async () => {
 
 args.init && (await createProject(args.init));
 
-args.declaration === "schema"
-  ? await generateDeclarations(true, false)
-  : args.declaration === "request"
-  ? await generateDeclarations(false, true)
-  : args.declaration && generateDeclarations(true, true);
+args.declaration && (await generateDeclarations(args));
+
 args.help && runHelp();
 args.play && (await runPlayground());
 args.help && runHelp();

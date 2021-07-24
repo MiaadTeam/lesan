@@ -4,5 +4,17 @@
  * @todo should add new name of types
  */
 export function isInternalType(typeName: string) {
-  return typeName === "Date";
+  return (
+    typeName === "Date" ||
+    typeName.startsWith("Promise") ||
+    typeName.startsWith("Partial") ||
+    typeName === "object" ||
+    typeName === "string" ||
+    typeName === "number" ||
+    typeName === "boolean" ||
+    typeName === "any" ||
+    typeName === "undefined" ||
+    typeName === "null" ||
+    typeName === "Array"
+  );
 }

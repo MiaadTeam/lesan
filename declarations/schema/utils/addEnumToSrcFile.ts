@@ -9,14 +9,26 @@ import { changeNameAndItsRefs } from "./ts-morph/mod.ts";
  */
 export function addFunQLEnumToSourceFile(
   myEnum: EnumDeclaration,
-  createdSourceFile: SourceFile
+  createdSourceFile: SourceFile,
+  options: { type?: "dynamic" | "static" | "response" } = { type: "dynamic" }
 ) {
+  //extract options
+  const { type } = options;
+
+  //checks enum name is duplicate or not
+  if (
+    //return when enum was inserted to source file
+    myEnum.getName().startsWith("FQl")
+  ) {
+    return;
+  }
+
   //checks enum name is duplicate or not
   if (myEnum.getName().startsWith("FunQl")) {
     return;
   } else {
     //change name of interface first
-    changeNameAndItsRefs(myEnum);
+    changeNameAndItsRefs(myEnum, type);
   }
   //even enum is not exported we export it
   createdSourceFile.addEnum({ ...myEnum.getStructure(), isExported: true });
