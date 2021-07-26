@@ -21,6 +21,8 @@ export function fvTypesConvertor(schemaValue: any): any {
       "luhn" ||
       "objectID":
       return "string";
+    case "forbidden": 
+      return "never";
     case "number" || "date":
       return "number";
     case "boolean":
