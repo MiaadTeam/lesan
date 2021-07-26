@@ -53,17 +53,17 @@ code {
   right: 0;
   height: 11rem;
   background-color: white;
-  transition: all 0.4s linear;
+  transition: all 0.3s linear;
 }
 .closemenu {
   z-index: 3;
   position: fixed;
   height: 0;
-  transition: all 0.4s linear;
+  transition: all 0.3s linear;
   width: 100%;
 }
 .darkcontainerclose {
-  transition: all 0.4s linear;
+  transition: all 0.3s linear;
   position: fixed;
   height: 100%;
   width: 100%;
@@ -72,7 +72,7 @@ code {
 }
 .darkcontaineropen {
   position: fixed;
-  transition: all 0.4s linear;
+  transition: all 0.3s linear;
   z-index: 3;
   height: 100%;
   width: 100%;
@@ -101,7 +101,7 @@ code {
   z-index: 2;
   margin: 0;
   background-color: white;
-  transition: all 0.4s linear;
+  transition: all 0.3s linear;
   top: 10px;
   border-radius: 0.5rem;
   opacity: 1;
@@ -110,7 +110,7 @@ code {
   padding: 1.5rem 0.5rem 0 0.5rem;
 }
 .closeulmenu {
-  transition: all 0.4s linear;
+  transition: all 0.3s linear;
   padding: 0.5rem;
   border-radius: 0.5rem;
   opacity: 0;
@@ -126,7 +126,7 @@ code {
 }
 .imagesettingopen {
   bottom: 10.2rem;
-  transition: all 0.4s linear;
+  transition: all 0.3s linear;
   z-index: 3;
   transform: rotate(0);
 }
@@ -135,7 +135,7 @@ code {
   z-index: 3;
   width: 2.5rem;
   height: 2.5rem;
-  transition: all 0.4s linear;
+  transition: all 0.3s linear;
   transform: rotate(360deg);
 }
 input[type="file"]::-webkit-file-upload-button {
@@ -186,7 +186,7 @@ input[type="file"]::file-selector-button {
   border: none;
   color: white;
   margin: 0.5rem;
-
+  cursor: pointer;
   border-radius: 0.5rem;
 }
 .btn1 {

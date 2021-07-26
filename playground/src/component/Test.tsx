@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import Tree from "react-d3-tree";
 import { PathFunctionOption } from "react-d3-tree/lib/types/common";
+import { useForm } from "react-hook-form";
 import "../index.css";
 import "../styles/globals.css";
+import Leaf from "./Leaf";
 import { TreeData } from "./TreeData";
 
 // This is a simplified example of an org chart with a depth of 2.
@@ -19,36 +21,93 @@ import { TreeData } from "./TreeData";
 //     if(!ndObj._collapsed)
 //     myRef.handleNodeToggle(ndObj.id, false);
 //     });
-const createElementDetails = (item: any, index: number) => {
-  return Object.keys(item).map((val: any) =>
-    Array.isArray(item[val]) ? (
-      <>
-        <p style={{ marginLeft: `${index + 1}rem` }}>
-          {Object.keys(item[val][0])[0]}
-        </p>
-        {item[val].map((va: any) => {
-          return <>{createElementDetails(va, index + 1)}</>;
-        })}
-      </>
-    ) : (
-      <div
-        style={{
-          marginLeft: `${index + 1}rem`,
-          display: "flex",
-          marginTop: "0.5rem",
-        }}
-      >
-        <p style={{ margin: "0 0.5rem" }}>{item[val]}</p>
-        <input style={{ height: "1.5rem" }} />
-      </div>
-    )
-  );
-};
+
 interface Props {
   setGraphPage: any;
   data: any;
+  port: string;
+  header: string;
 }
-const OrgChartTree: React.FC<Props> = ({ setGraphPage, data }) => {
+
+const OrgChartTree: React.FC<Props> = ({
+  setGraphPage,
+  data,
+  header,
+  port,
+}) => {
+  const {
+    register: register3,
+    handleSubmit: handleSubmit3,
+    watch,
+    unregister,
+    reset,
+  } = useForm();
+
+  const onSubmit3 = (data: any) => {
+    // let model;
+    // let doit;
+    // let contents;
+    // let obdata: any;
+    // Object.keys(data).map((key: any) => {
+    //   if (data[key] === "" || data[key].toString() === "NaN") {
+    //     delete data[key];
+    //   } else {
+    //     contents = key.split(" ")[0];
+    //     model = key.split(" ")[1];
+    //     doit = key.split(" ")[2];
+    //     console.log(key, key.split(contents + " " + model + " " + doit)[1]);
+
+    //     obdata = {
+    //       ...obdata,
+    //     };
+    //     delete Object.assign(data, {
+    //       [key.split(contents + " " + model + " " + doit)[1]]: data[key],
+    //     })[key];
+    //   }
+    // });
+    // let dataCustom = makeObjectData(data);
+
+    console.log(
+      {
+        // contents: isStatic ? "static" : "dynamic",
+        details: data,
+        // wants: {
+        //   model: models ? models.value : "",
+        //   doit: doits ? doits.value : "",
+        // },
+      },
+      "dat"
+    );
+    // const link = port
+    //   ? `http://127.0.0.1:${port}/funql`
+    //   : `http://127.0.0.1:6005/funql`;
+    // axios
+    //   .post(
+    //     link,
+    //     {
+    //       contents: isStatic ? "static" : "dynamic",
+    //       details: dataCustom,
+    //       wants: {
+    //         model: models ? models.value : "",
+    //         doit: doits ? doits.value : "",
+    //       },
+    //     },
+    //     { headers: header }
+    //   )
+    //   .then(function (response) {
+    //     setResult(JSON.stringify(response.data.body));
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error.response, "err");
+    //     // error && setResult("you have errors");
+    //     error &&
+    //       error.response &&
+    //       setResult(JSON.stringify(error.response.data));
+    //   });
+  };
+
+  let list: any;
+
   const [path, setPath] = useState<PathFunctionOption>("straight");
   return (
     // `<Tree />` will fill width/height of its container; in this case `#treeWrapper`.
@@ -65,6 +124,11 @@ const OrgChartTree: React.FC<Props> = ({ setGraphPage, data }) => {
         justifyContent: "center",
       }}
     >
+      {/* {result !== "" && (
+        <ModalBox textHeader="" open={result} setOpen={setResult}>
+          <div>{result}</div>
+        </ModalBox>
+      )} */}
       {!data ? (
         <div
           style={{
@@ -131,42 +195,17 @@ const OrgChartTree: React.FC<Props> = ({ setGraphPage, data }) => {
                   </text>
                 </>
               ) : (
-                <foreignObject x={-200} width={400} height={550}>
-                  <div
-                    style={{
-                      height: "15rem",
-                      overflow: "auto",
-                      border: "0.1rem solid",
-                      padding: "0.5rem",
-                    }}
-                    onClick={toggleNode}
-                  >
-                    {nodeDatum.data.map((valArray: any) => {
-                      return (
-                        valArray && (
-                          <>
-                            <p>
-                              {" "}
-                              {valArray[0] &&
-                                Object.keys(valArray[0]) &&
-                                Object.keys(valArray[0])}
-                            </p>
-                            {valArray.map((va: any) => {
-                              return <>{createElementDetails(va, 0)}</>;
-                            })}
-                          </>
-                        )
-                      );
-                      // console.log("a", valArray);
-                      // return valArray
-                      //   ? valArray.map((valArray1: any) => {
-                      //       // console.log("asas", valArray1);
-                      //       return createElementDetails(valArray1, 0);
-                      //     })
-                      //   : {};
-                    })}
-                  </div>
-                </foreignObject>
+                <>
+                  {nodeDatum.data && (
+                    <Leaf
+                      data={nodeDatum.data}
+                      parent={nodeDatum.parent}
+                      port={port}
+                      header={header}
+                      toggleNode={toggleNode}
+                    />
+                  )}
+                </>
               );
             }}
             // collapsible={true}
@@ -176,6 +215,7 @@ const OrgChartTree: React.FC<Props> = ({ setGraphPage, data }) => {
             initialDepth={3}
             depthFactor={500}
             pathFunc={path}
+            nodeSize={{ x: 400, y: 200 }}
             // ={() => <div>asdass</div>}
             orientation="vertical"
             rootNodeClassName="node__root"
