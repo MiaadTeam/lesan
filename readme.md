@@ -1,19 +1,62 @@
-# `FUNQL` is Simply a new way to create web servers
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
+  <h1 align="center"><a href="https://github.com/funql/funql"><span align='center'>FUNQL</span> </a></h1>
 
-## What is FUNQL ?
+  <h3 align="center"> <code>FUNQL</code> is Simply a new way to create web servers</h3>
+  <br />
+<p align="center">
+  <img alt="Denon Supported Version" src="https://img.shields.io/badge/deno-^1.4.0-informational?logo=deno&style=for-the-badge" />
+  <img alt="Denon Releases" src="https://img.shields.io/github/v/release/funql/funql?logo=github&style=for-the-badge" />
+  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/funql/funql?style=for-the-badge">
+  <img alt="GitHub issues" src="https://img.shields.io/github/issues/funql/funql?style=for-the-badge">
 
-### funql is just a Native Graphql
+</p>
+  <p align="center">
+    <br />
+    ·
+    <a href="https://github.com/funql/funql/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/funql/funql/issues">Request Feature</a>
+  </p>
+</p>
+
+<details open="open"><summary>Table of Contents</summary>
+
+1.  [About The Project](#about-the-project)
+    - [What Is FUNQL?](#what-is-funql)
+    - [FUNQL Basics](#funql-basics)
+    - [Basic Rules](#basic-rules)
+    - [Features](#features)
+2.  [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+3.  [Usage](#usage)
+4.  [Roadmap](#roadmap)
+5.  [Contributing](#contributing)
+6.  [License](#license)
+
+</details>
+
+<!-- ABOUT THE PROJECT -->
+
+## About The Project
+
+### What Is FUNQL?
+
+FUNQL is just a Native [Graphql]('https://en.wikipedia.org/wiki/GraphQL')
 
 - If you hate `gql` and prefer to handle backend tasks with standard and robust methods.
 - If you experience difficulties in using graphql in your projects due to its inherent complexities namely, time-consuming typesafety.
 - Despite the simplicity of REST APIs, you are likely to get caught in the process of life-cycles and middlewares, etc.
 - If you hate the secrets under the hood of libraries or frameworks.
-- If you love MongoDB and want to use its potential capabilities.  
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **funql Is For You**
+- If you love MongoDB and want to use its potential capabilities.
 
-## Funql Basics
+  <p align="center" ><b>FUNQL Is For You!</b></p>
 
-`funql` is just a sets of rules:
+### FUNQL Basics
+
+`FUNQL` is just a sets of rules:
 
 1. You must send standard `JSON`'s `HTTP POST` request to `http://localhost:${PORT}/funql`
 2. Your request should have `wants` object in it. `wants` object should have 2 properties : `model` and `doit`. `model` is one of your MongoDB schemas and `doit` is one of your methods you write for that schema.
@@ -22,8 +65,9 @@
 - `set` is a group of proprieties you try to send in a request like properties you need for creating a schema or properties you need to sort or filter on getting documents from schema.
 - `get` is an object to specify which fields client wants to retrieve.
 
-4. The structure of folders is quite important in a `funql` project  
-   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Folder structure example in `deno` server:
+4. The structure of folders is quite important in a `funql` project
+
+#### Folder structure example in `deno` server:
 
 - project `a blog example`
   - config `should have`
@@ -66,17 +110,14 @@
   - index.ts `should have`
   - script.json `should have if use denon`
 
-## Basic rules
+### Basic Rules
 
-### schemas
+- #### schemas
+  every schema should have 4 seprate things :
+  1. an inteface to describe and hint
+- #### functions
 
-every schema should have 4 seprate things :
-
-1. an inteface to describe and hint
-
-### functions
-
-## Features
+### Features
 
 - It uses the best capabilities of graphql idea.
 - It uses the best design elements of REST API's.
@@ -84,40 +125,46 @@ every schema should have 4 seprate things :
 - `funql` fully implements `functional programming` characteristics. Everything is comprised of small functions
 - `funql` is fundamentally based on `fs(function schema)` architecture.
 
-## How to Install
+## Getting Started
 
-- Firstly, [`deno`](https://deno.land/manual/getting_started/installation) must be installed.
-- After that just run this line:
+To install `FUNQL` simply enter the following into a terminal:
 
-to install latest version: 
+### Prerequisites
+
+[`deno`](https://deno.land/manual/getting_started/installation) must be installed.
+
+### Installation
+
+#### **Install Latest Version:**
 
 ```shell
 deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql/funql.ts
 ```
 
-to install specific version: 
+#### **Install Specific Version:**
 
 ```shell
 deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql@{SPECIFIC_VERSION}/funql.ts
 ```
 
-## How to Use It
+## Usage
 
-### To start using `funql`, just enter this command
+To start using `funql`, just enter this command:
 
-```
-    funql --init [blog]
+```shell
+funql --init [blog]
 ```
 
 - `blog` is name of the project and for sake of simplicity, we create the blog project by `funql` because `funql` is just a concept with set of rules
-- `blog project` uses [mongoDB](http) and [redis](http). So install them, we recommend using [denon](http) for running project so after install `denon` just run :
+- `blog project` uses [mongoDB](http) and [redis](http).
+  So install them, we recommend using [denon](http) for running project so after install `denon` just run on the **root** of project directory :
 
 ```
 denon start
 ```
 
-on the root of project directory.
 After downloading dependencies, `http://localhost:8000/` will be displayed on the console.
+
 Now send this http request to retrieve data:
 
 ```
@@ -146,7 +193,9 @@ content-type: application/json
 }
 ```
 
-## Todo
+## Roadmap
+
+See the [open issues](https://github.com/funql/funql/issues) for a list of proposed features (and known issues).
 
 | Language |                 Process                 |      Description |
 | :------- | :-------------------------------------: | ---------------: |
@@ -154,3 +203,25 @@ content-type: application/json
 | NodeJS   | ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ | nothing for know |
 | Golang   | ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ | nothing for know |
 | Rust     | ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ ⚪️ | nothing for know |
+
+## Contributing
+
+Contributions, issues and feature requests are welcome!
+
+Feel free to check [issues page](https://github.com/funql/funql/issues).
+
+ <!-- You can also take a look at the [contributing guide](https://github.com/funql/funql/blob/main/contributing.md). -->
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+## License
+
+This project is [AGPL--3.0 License](https://github.com/funql/funql/blob/main/LICENSE) licensed.
