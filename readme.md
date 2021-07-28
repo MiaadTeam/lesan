@@ -6,10 +6,18 @@
   <h3 align="center"> <code>FUNQL</code> is Simply a new way to create web servers</h3>
   <br />
 <p align="center">
-  <img alt="Denon Supported Version" src="https://img.shields.io/badge/deno-^1.4.0-informational?logo=deno&style=for-the-badge" />
-  <img alt="Denon Releases" src="https://img.shields.io/github/v/release/funql/funql?logo=github&style=for-the-badge" />
-  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/funql/funql?style=for-the-badge">
-  <img alt="GitHub issues" src="https://img.shields.io/github/issues/funql/funql?style=for-the-badge">
+  <a href='https://github.com/denoland/deno'>
+    <img alt="Denon Supported Version" src="https://img.shields.io/badge/deno-^1.4.0-informational?logo=deno&style=for-the-badge" />
+  </a>
+  <a href='https://github.com/funql/funql/releases'>
+    <img alt="Denon Releases" src="https://img.shields.io/github/v/release/funql/funql?logo=github&style=for-the-badge" />
+  </a>
+  <a href='https://github.com/funql/funql/graphs/contributors'>
+    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/funql/funql?style=for-the-badge">
+  </a>
+  <a href='https://github.com/funql/funql/issues'>
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/funql/funql?style=for-the-badge">
+  </a>
 
 </p>
   <p align="center">
