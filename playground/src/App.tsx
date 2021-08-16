@@ -7,6 +7,7 @@ import Select from "react-select";
 import Code from "./code.svg";
 import Doc from "./component/Doc";
 import { makeObjectData } from "./component/function";
+import History from "./component/History";
 import InputTextarea from "./component/InputTextarea";
 import { Logo } from "./component/Logo";
 import Setting from "./component/Seteting";
@@ -51,6 +52,7 @@ const App: React.FC<Props> = () => {
   const [isStatic, setIsStatic] = useState<boolean>(false); //this state is for react-select models management
   const [isTextarea, setIsTextarea] = useState<boolean>(false); //this state is for react-select models management
   const [collapse, setCollapse] = useState<[boolean, boolean]>([false, false]);
+  const [history, setHistory] = useState<boolean>(false);
 
   //this variable for set json schema
   let dataSchemaDynamic: any = [];
@@ -150,6 +152,29 @@ const App: React.FC<Props> = () => {
       )
       .then(function (response) {
         setResult(JSON.stringify(response.data.body));
+
+        const history: string = localStorage.getItem("history")
+          ? localStorage.getItem("history")!
+          : JSON.stringify([]);
+
+        localStorage.setItem(
+          "history",
+          JSON.stringify([
+            ...JSON.parse(history),
+            {
+              request: {
+                contents: isStatic ? "static" : "dynamic",
+                details: dataCustom,
+                wants: {
+                  model: models ? models.value : "",
+                  doit: doits ? doits.value : "",
+                },
+              },
+              response: response.data.body,
+            },
+          ])
+        );
+        // console.log(JSON.parse(history!.split("^^^")[1]), "slam");
       })
       .catch(function (error) {
         console.log(error.response, "err");
@@ -163,6 +188,7 @@ const App: React.FC<Props> = () => {
   const [graphPage, setGraphPage] = useState(false);
   return (
     <Container onSubmit={handleSubmit(onSubmit)}>
+      <History setHistory={setHistory} history={history} />
       {graphPage ? (
         <OrgChartTree
           port={port}
@@ -397,6 +423,7 @@ const App: React.FC<Props> = () => {
               >
                 <img
                   src={test}
+                  onClick={() => setHistory(true)}
                   style={{
                     height: "2.5rem",
                     padding: "0.5rem",

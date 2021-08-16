@@ -3,12 +3,12 @@ import styled from "styled-components";
 
 interface Props {
   textHeader: string;
-  open: any;
+  open: boolean;
   setOpen: any;
   width?: string;
 }
 interface ContainMI {
-  open: string;
+  open: boolean;
   width?: string;
 }
 const ModalBox: React.FC<Props> = ({
@@ -20,7 +20,7 @@ const ModalBox: React.FC<Props> = ({
 }) => {
   return (
     <>
-      <Modal open={open} onClick={() => setOpen("")}></Modal>
+      <Modal open={open} onClick={() => setOpen(false)}></Modal>
 
       <ContainerModal width={width} open={open}>
         <HeaderModal>
@@ -34,9 +34,9 @@ const ModalBox: React.FC<Props> = ({
 export default ModalBox;
 
 const Modal = styled.div<ContainMI>`
-  display: ${(props) => (props.open !== "" ? "flex" : "none")};
+  display: ${(props) => (props.open ? "flex" : "none")};
   flex-direction: column;
-  z-index: 1;
+  z-index: 10;
   left: 0;
   justify-content: center;
   align-items: center;
@@ -48,10 +48,12 @@ const Modal = styled.div<ContainMI>`
   background-color: rgba(0, 0, 0, 0.4);
 `;
 const ContainerModal = styled.div<ContainMI>`
-  display: ${(props) => (props.open !== "" ? "flex" : "none")};
+  display: ${(props) => (props.open ? "flex" : "none")};
   border-radius: 0.8rem;
   width: ${(props) => (props.width ? props.width : "65%")};
-  z-index: 2;
+  z-index: 11;
+  position: absolute;
+
   margin: 5rem auto;
   height: 80%;
   background-color: white;
@@ -78,8 +80,8 @@ const TextHeader = styled.h3`
 // `;
 const BodyModal = styled.div`
   display: flex;
-  justify-content: center;
-  padding: 2rem 0 3rem 0;
+  align-items: center;
+  height: 100%;
   flex-wrap: wrap;
   overflow-y: auto;
 `;
