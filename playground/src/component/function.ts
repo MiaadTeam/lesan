@@ -14,10 +14,11 @@ export const makeObjectData = (data: any) => {
       delete data[key];
     } else {
       const arr: [] = key.split(" ");
-      // console.log(
-      //   IsJsonString(data[key]) && parseInt(data[key]).toString() == "NaN"
-      // );
-
+      try {
+        isNaN(data[key]) && (data[key] = JSON.parse(data[key]));
+      } catch (error) {
+        console.log(error.message);
+      }
       _.defaultsDeep(
         dataCustom,
         makeNestedObjWithArrayItemsAsKeys(arr, data[key])

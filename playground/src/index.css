@@ -15,7 +15,11 @@ code {
 }
 .__json-pretty__ {
   height: 100%;
+  margin: 0;
   /* margin-top: 2.5rem; */
+}
+#json-pretty-history {
+  width: 100%;
 }
 @keyframes fadeIn {
   0% {
@@ -27,8 +31,8 @@ code {
 }
 ::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
-
 /* Track */
 ::-webkit-scrollbar-track {
   box-shadow: inset 0 0 5px grey;
