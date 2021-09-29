@@ -3,10 +3,13 @@ import { constructResponseModel } from "./constructResponseModel.ts";
 import { getImpSourceFile, exObIterator } from "../../request/utils/mod.ts";
 
 export function constructResponseContent(
-  sourceFile: SourceFile,
+  entryPoint: SourceFile,
   createdSourceFile: SourceFile,
   withDetails: boolean = true
 ) {
+  //find lesan source file
+  const sourceFile = getImpSourceFile(entryPoint, "serveLesan");
+
   //get object iterator in mod.ts
   const objectIterator = sourceFile.getFirstDescendantByKindOrThrow(
     SyntaxKind.ElementAccessExpression

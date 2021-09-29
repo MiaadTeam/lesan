@@ -3,7 +3,10 @@ import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
 import { constructFVModels } from "./constructFVModels.ts";
 
-export async function constructFVContents(sourceFile: SourceFile) {
+export async function constructFVContents(entryPoint: SourceFile) {
+  //find lesan source file
+  const sourceFile = getImpSourceFile(entryPoint, "serveLesan");
+
   //get object iterator in mod.ts
   const objectIterator = sourceFile.getFirstDescendantByKindOrThrow(
     SyntaxKind.ElementAccessExpression
