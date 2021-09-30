@@ -146,13 +146,13 @@ To install `FUNQL` simply enter the following into a terminal:
 #### **Install Latest Version:**
 
 ```shell
-deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql/funql.ts
+deno install -qAf --v8-flags="--max-old-space-size=48384,--max-heap-size=16384" --allow-read --allow-write --unstable https://deno.land/x/funql/funql.ts
 ```
 
 #### **Install Specific Version:**
 
 ```shell
-deno install -qAf --allow-read --allow-write --unstable https://deno.land/x/funql@{SPECIFIC_VERSION}/funql.ts
+deno install -qAf --v8-flags="--max-old-space-size=48384,--max-heap-size=16384" --allow-read --allow-write --unstable https://deno.land/x/funql@{SPECIFIC_VERSION}/funql.ts
 ```
 
 ## Usage
