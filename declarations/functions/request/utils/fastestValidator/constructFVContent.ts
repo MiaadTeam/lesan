@@ -1,4 +1,4 @@
-import { SourceFile, SyntaxKind } from "../../../../../deps.ts";
+import { log, SourceFile, SyntaxKind } from "../../../../../deps.ts";
 import { exObIterator } from "../tsMorph/exObIterator.ts";
 import { getImpSourceFile } from "../tsMorph/getImpSourceFile.ts";
 import { constructFVModels } from "./constructFVModels.ts";
@@ -21,12 +21,16 @@ export async function constructFVContents(entryPoint: SourceFile) {
   const results = [];
   for (const listOfFn of exObIterator(listOfFns)) {
     const res: any = {};
-    res.name = listOfFn.name;
-    (res.models = await constructFVModels(
-      getImpSourceFile(sourceFile, listOfFn.functionName!),
-      res.name
-    )),
-      results.push(res);
+    try {
+      res.name = listOfFn.name;
+      (res.models = await constructFVModels(
+        getImpSourceFile(sourceFile, listOfFn.functionName!),
+        res.name
+      )),
+        results.push(res);
+    } catch (error) {
+      log.warning("some content type does not implement correctly");
+    }
   }
   return results.reduce((pre, curr) => {
     pre[curr.name] = {

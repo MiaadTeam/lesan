@@ -1,4 +1,4 @@
-import { SourceFile, SyntaxKind } from "./../../../../deps.ts";
+import { log, SourceFile, SyntaxKind } from "./../../../../deps.ts";
 import { constructResponseModel } from "./constructResponseModel.ts";
 import { getImpSourceFile, exObIterator } from "../../request/utils/mod.ts";
 
@@ -24,16 +24,19 @@ export function constructResponseContent(
   //deno has problem in dynamic importing 2 or more files simultaneously
   const results = [];
   for (const listOfFn of exObIterator(listOfFns)) {
-    const res: any = {};
-    res.name = listOfFn.name;
-    res.models = constructResponseModel(
-      getImpSourceFile(sourceFile, listOfFn.functionName!),
-      res.name,
-      createdSourceFile,
-      withDetails
-    );
-
-    results.push(res);
+    try {
+      const res: any = {};
+      res.name = listOfFn.name;
+      res.models = constructResponseModel(
+        getImpSourceFile(sourceFile, listOfFn.functionName!),
+        res.name,
+        createdSourceFile,
+        withDetails
+      );
+      results.push(res);
+    } catch (error) {
+      log.warning("some content type does not implement correctly");
+    }
   }
 
   return JSON.stringify(
