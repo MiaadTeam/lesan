@@ -24,6 +24,7 @@ export async function upgrade(version?: string): Promise<void> {
       "deno",
       "install",
       "-qAfr",
+      '--v8-flags="--max-old-space-size=48384,--max-heap-size=16384"',
       "--allow-read",
       "--allow-write",
       "--unstable",
