@@ -90,7 +90,7 @@ const checkServices = async (req: Request, port: number) => {
 
 export const serveLesan = async (req: Request, port: number) => {
   const response = async () => {
-    await checkServices(req, port);
+    return await checkServices(req, port);
   };
 
   return new Response(
