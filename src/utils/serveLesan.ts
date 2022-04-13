@@ -9,7 +9,7 @@ import {
 } from "../mod.ts";
 import { Body, parsBody } from "./mod.ts";
 
-export const runAct = (body: Body) => {
+export const runAct = async (body: Body) => {
   const bodyService = body.service || "main";
   const act = getAct(
     bodyService,
@@ -19,33 +19,33 @@ export const runAct = (body: Body) => {
   );
   assert(body.details, act.validator);
 
-  return act.fn(body);
+  return await act.fn(body);
 };
 
-const checkActs = (body: Body) => {
+const checkActs = async (body: Body) => {
   const bodyService = body.service || "main";
   const actKeys = getActsKeys(bodyService, body.contents, body.wants.model);
   const acts = enums(actKeys);
   assert(body.wants.act, acts);
 
-  return runAct(body);
+  return await runAct(body);
 };
 
-const checkModels = (body: Body) => {
+const checkModels = async (body: Body) => {
   const bodyService = body.service || "main";
   const models = body.contents === "static"
     ? enums(getStaticKeys(bodyService))
     : enums(getDynamicKeys(bodyService));
   assert(body.wants.model, models);
 
-  return checkActs(body);
+  return await checkActs(body);
 };
 
-const checkContetType = (body: Body) => {
+const checkContetType = async (body: Body) => {
   const content = enums(["dynamic", "static"]);
   assert(body.contents, content);
 
-  return checkModels(body);
+  return await checkModels(body);
 };
 
 async function postData(url = "", body: Body, headers = {}) {
@@ -84,8 +84,8 @@ const checkServices = async (req: Request, port: number) => {
   assert(bodyService, servic);
   const serviceValue = getService(bodyService);
   return typeof serviceValue === "string"
-    ? fetchService(req.headers, body, serviceValue)
-    : checkContetType(body);
+    ? await fetchService(req.headers, body, serviceValue)
+    : await checkContetType(body);
 };
 
 export const serveLesan = async (req: Request, port: number) => {
