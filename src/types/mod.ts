@@ -10,12 +10,16 @@ export const generateSchemTypes = () => {
     export type ${schema}Inp = {
       ${
       Object.keys(schemas[schema].inrelation).map(schemaName =>
-        `${schemaName}: number | ${schemaName}Inp`
+        `${schemaName}: number | ${
+          schemas[schema].inrelation[schemaName].schemaName
+        }Inp`
       ).join("\n")
     }
       ${
       Object.keys(schemas[schema].outrelation).map(schemaName =>
-        `${schemaName}: number | ${schemaName}Inp`
+        `${schemaName}: number | ${
+          schemas[schema].outrelation[schemaName].schemaName
+        }Inp`
       ).join("\n")
     }
     }
