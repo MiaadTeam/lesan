@@ -1,7 +1,8 @@
-import { getSchemas } from "../mod.ts";
+import { ensureDir } from "../mod.ts";
+import { ISchema, schemas as schemaFns } from "../models/mod.ts";
 
-export const generateSchemTypes = () => {
-  const schemas = getSchemas();
+export const generateSchemTypes = async (schemasObj: ISchema) => {
+  const schemas = schemaFns(schemasObj).getSchemas();
 
   let str = "";
 
@@ -25,5 +26,6 @@ export const generateSchemTypes = () => {
     }
 `;
   }
-  Deno.writeTextFileSync("./schemas.ts", str);
+  await ensureDir("./declarations");
+  await Deno.writeTextFile("./declarations/selectInp.ts", str);
 };

@@ -1,19 +1,23 @@
 /// context type ----
 export interface Context {
-  [key: string]: any
+  [key: string]: any;
 }
-export let context: Context = {};
 
-export const getContextModel = () => context;
+export const contextFns = () => {
+  let context: Context = {};
 
-export const addContexts = (con:Context) => {
-  context=con
+  const getContextModel = () => context;
+
+  const addContexts = (con: Context) => context = con;
+
+  const addContext = (con: Context) => context = { ...context, con };
+
+  const addReqToContext = (con: Request) => context["Request"] = con;
+
+  return {
+    getContextModel,
+    addContexts,
+    addContext,
+    addReqToContext,
+  };
 };
-
-export const addContext =(con:Context)=>{
-  context={...context,con}
-}
-
-export const addReqToContext = (con:Request)=>{
-  context["Request"]=con
-}

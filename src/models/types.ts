@@ -1,17 +1,16 @@
-import { Struct } from "https://deno.land/x/lestruct/mod.ts";
-import { SchemasKey } from "./mod.ts";
+import { Struct } from "../deps.ts";
 
 export interface PureModel {
   [key: string]: Struct<any>;
 }
 
 export interface InRelation {
-  schemaName: SchemasKey;
+  schemaName: string;
   type: "one" | "many";
 }
 
 export interface OutRelation {
-  schemaName: SchemasKey;
+  schemaName: string;
   number: number;
   sort: { field: string; order: "asc" | "desc" };
 }

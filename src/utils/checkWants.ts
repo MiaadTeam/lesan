@@ -1,4 +1,3 @@
-import { ServiceKeys } from "../mod.ts";
 import { throwError } from "./mod.ts";
 
 export interface Details {
@@ -7,7 +6,7 @@ export interface Details {
 }
 
 export interface Body {
-  service?: ServiceKeys;
+  service?: string;
   contents: "dynamic" | "static";
   wants: {
     model: string;

@@ -1,8 +1,16 @@
-import { getSchemas, SchemasKey } from "./schema.ts";
+import { ISchema } from "./mod.ts";
+import { schemaFns } from "./schema.ts";
 
-const schemas = getSchemas();
+export const relationFns = (schemasObjs: ISchema) => {
+  const getRelation = (
+    name: string,
+    relationType: "inrelation" | "outrelation",
+  ) => {
+    const schemas = schemaFns(schemasObjs).getSchemas();
+    return schemas[name][relationType];
+  };
 
-export const getRelation = (
-  name: SchemasKey,
-  relationType: "inrelation" | "outrelation",
-) => schemas[name][relationType];
+  return {
+    getRelation,
+  };
+};
