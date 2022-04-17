@@ -2,7 +2,6 @@
 //
 /**
  * Context Holds values and carries them in functions.
- * @interface
  * @example
  * {
  *    Request: "values of Req",
@@ -20,7 +19,6 @@ export interface Context {
 /**
  * this function is create for define all things in local scope
  *  and also  all functions of context define in this function
- * @function
  * @returns - return objects of all functions that define in this function
  */
 export const contextFns = () => {
@@ -32,7 +30,6 @@ export const contextFns = () => {
     let context: Context = {};
 
     /**
-     * @function
      * @returns The contextObj
      */
     const getContextModel = () => context;
