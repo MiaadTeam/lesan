@@ -3,5 +3,5 @@
 just import it from `deno.land` :
 
 ```typescript
-import struct from "https://deno.land/x/lesan/mod.ts";
+import server from "https://deno.land/x/lesan/mod.ts";
 ```
