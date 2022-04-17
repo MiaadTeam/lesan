@@ -4,8 +4,10 @@ import {
   Database,
   enums,
   Filter,
+  FindOptions,
   InsertDocument,
   InsertOptions,
+  object,
   UpdateFilter,
   UpdateOptions,
 } from "../deps.ts";
@@ -38,21 +40,32 @@ export const odm = (schemasObj: ISchema) => {
       : throwError("No database connection");
   };
 
-  const findOneData = async (collection: string, query: Bson.Document) => {
+  const findOneData = async (
+    collection: string,
+    filter: Filter<Bson.Document>,
+    get: Record<string, any>,
+    options?: FindOptions,
+  ) => {
     const db = getDbClinet();
     const getSchemas = enums(schemaFns(schemasObj).getSchemasKeys());
     assert(collection, getSchemas);
+
     return db
-      ? await db.collection(collection).findOne(query)
+      ? await db.collection(collection).findOne(filter, {
+        ...options,
+        projection: get,
+      })
       : throwError("No database connection");
   };
 
   const insertOneData = async (
     collection: string,
     doc: InsertDocument<Bson.Document>,
-    options?: InsertOptions
+    options?: InsertOptions,
   ) => {
     const db = getDbClinet();
+    const getSchema = schemaFns(schemasObj).getPureSchema(collection);
+    assert(doc, object(getSchema));
     return db
       ? await db.collection(collection).insertOne(doc, options)
       : throwError("No database connection");
@@ -62,7 +75,7 @@ export const odm = (schemasObj: ISchema) => {
     collection: string,
     filter: Filter<Bson.Document>,
     update: UpdateFilter<Bson.Document>,
-    options?: UpdateOptions
+    options?: UpdateOptions,
   ) => {
     const db = getDbClinet();
     return db
@@ -82,7 +95,7 @@ export const odm = (schemasObj: ISchema) => {
     name: string,
     pureModel: PureModel,
     inrelation: Record<string, InRelation>,
-    outrelation: Record<string, OutRelation>
+    outrelation: Record<string, OutRelation>,
   ) => {
     const schemas = schemaFns(schemasObj).getSchemas();
     schemas[name] = {
@@ -93,12 +106,16 @@ export const odm = (schemasObj: ISchema) => {
 
     return {
       find: (query: Bson.Document) => findData(name, query),
-      findOne: (query: Bson.Document) => findOneData(name, query),
+      findOne: (
+        filter: Filter<Bson.Document>,
+        get: Record<string, any>,
+        options?: FindOptions,
+      ) => findOneData(name, filter, get, options),
       insertOne: (query: Bson.Document) => insertOneData(name, query),
       updateOne: (
         filter: Filter<Bson.Document>,
         update: UpdateFilter<Bson.Document>,
-        options?: UpdateOptions
+        options?: UpdateOptions,
       ) => updateOneData(name, filter, update, options),
       remove: (query: Bson.Document) => removeData(name, query),
     };
