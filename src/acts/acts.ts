@@ -47,7 +47,7 @@ import { Act, ActInp, Acts, Services } from "./types.ts";
 
 /**
  * this function is create for define all things in local scope
- *  and also define all functions in this function
+ *  and also  all functions define in this function
  * @function
  * @param {Services} acts - is type of Services for get ServiceKeys in function
  * @returns - return objects of all functions that define in this function
