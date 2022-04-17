@@ -1,4 +1,5 @@
 import { acts, Services } from "./acts/mod.ts";
+import { Database } from "./deps.ts";
 import { Model, schemas } from "./models/mod.ts";
 import { odm } from "./odm/mod.ts";
 import { lesanServer } from "./server/mod.ts";
@@ -17,7 +18,7 @@ export const lesan = () => {
   return {
     acts: { ...acts(actsObj) },
     schemas: { ...schemas(schemasObj) },
-    odm: { ...odm() },
+    odm: { ...odm(schemasObj) },
     runServer: lesanServer(schemasObj, actsObj),
     generateSchemTypes: generateSchemTypes(schemasObj),
   };

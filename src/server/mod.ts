@@ -7,18 +7,17 @@ import { generateSchemTypes } from "../types/mod.ts";
 import { lesanFns } from "../utils/mod.ts";
 import { runPlayground } from "./playground/mod.ts";
 
-const setDb = odm().setDb;
-
-export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
+export const lesanServer = (
+  schemasObj: ISchema,
+  actsObj: Services,
+) => {
   const runServer = async (
-    { port, playground, db, typeGeneration }: {
+    { port, playground, typeGeneration }: {
       port: number;
       playground: boolean;
-      db: Database;
       typeGeneration: boolean;
     },
   ) => {
-    setDb(db);
     typeGeneration && await generateSchemTypes(schemasObj);
     const handler = async (request: Request): Promise<Response> => {
       try {

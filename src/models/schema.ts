@@ -68,6 +68,8 @@ export const schemaFns = (schemas: Record<string, Model>) => {
     return assign(object(schema.pure), object(createEmbedded(schemaName)));
   };
 
+  const getSchemasKeys = () => Object.keys(schemas);
+
   return {
     getSchemas,
     getSchema,
@@ -76,5 +78,6 @@ export const schemaFns = (schemas: Record<string, Model>) => {
     getPureFromOutRel,
     createEmbedded,
     createStruct,
+    getSchemasKeys,
   };
 };
