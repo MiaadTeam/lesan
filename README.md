@@ -12,7 +12,7 @@ import { lesan } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 const coreApp = lesan();
 ```
 
-please replase `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 before anything let's connect `database` to our app, so please add a new `MongoDb` instance :
 
