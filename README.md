@@ -7,17 +7,19 @@ it also has several concepts about arbitrary embedding documents and creating SS
 first of all, create a ts file called `mod.ts` and import the last version of `lesan` and assign a constant call `coreApp` to its:
 
 ```typescript
-import { lesan } from "https://deno.land/x/lesan@0.0.61/mod.ts";
+import { lesan } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 
 const coreApp = lesan();
 ```
+
+please replase `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 before anything let's connect `database` to our app, so please add a new `MongoDb` instance :
 
 first add `MongoClient` from `lesan` :
 
 ```typescript
-import { lesan, MongoClient } from "https://deno.land/x/lesan@0.0.61/mod.ts";
+import { lesan, MongoClient } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 ```
 
 and create `new MongoClient` :
@@ -55,7 +57,7 @@ import {
   optional,
   OutRelation,
   string,
-} from "https://deno.land/x/lesan@0.0.61/mod.ts";
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 ```
 
 and then create schema shapes :
@@ -129,7 +131,7 @@ import {
   optional,
   OutRelation,
   string,
-} from "https://deno.land/x/lesan@0.0.61/mod.ts";
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 ```
 
 and this is `act` :
@@ -225,7 +227,7 @@ import {
   optional,
   OutRelation,
   string,
-} from "https://deno.land/x/lesan@0.0.61/mod.ts";
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 
 const coreApp = lesan();
 
@@ -316,6 +318,214 @@ coreApp.acts.setAct({
 });
 
 coreApp.runServer({ port: 8080, typeGeneration: true, playground: false });
+```
+
+### lets create microservice
+
+please move the `mod.ts` file to `core/mod.ts` and create another file in `ecommerce/mod.ts` and paste these codes into it :
+
+```typescript
+import {
+  ActFn,
+  InRelation,
+  lesan,
+  MongoClient,
+  number,
+  object,
+  optional,
+  OutRelation,
+  string,
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts";
+
+const ecommerceApp = lesan();
+
+const client = new MongoClient();
+
+await client.connect("mongodb://localhost:27017/arc");
+const db = client.database("core");
+
+ecommerceApp.odm.setDb(db);
+
+const warePure = {
+  name: string(),
+  brand: optional(string()),
+  price: number(),
+};
+
+const wareTypePure = {
+  name: string(),
+  description: string(),
+};
+
+const wareInRel: Record<string, InRelation> = {
+  wareType: {
+    schemaName: "wareType",
+    type: "one",
+  },
+};
+
+const wareOutRel = {};
+
+const wareTypeInRel: Record<string, InRelation> = {};
+
+const wareTypeOutRel: Record<string, OutRelation> = {
+  wares: {
+    schemaName: "ware",
+    number: 50,
+    sort: { field: "_id", order: "desc" },
+  },
+};
+
+const wares = ecommerceApp.odm.setModel(
+  "ware",
+  warePure,
+  wareInRel,
+  wareOutRel,
+);
+const wareTypes = ecommerceApp.odm.setModel(
+  "wareType",
+  wareTypePure,
+  wareTypeInRel,
+  wareTypeOutRel,
+);
+
+const addWareValidator = () => {
+  return object({
+    set: object(warePure),
+    get: ecommerceApp.schemas.selectStruct("ware", { country: 1 }),
+  });
+};
+
+const addWare: ActFn = async (body) => {
+  const createdWare = await wares.insertOne(body.details.set);
+  return await wares.findOne({ _id: createdWare }, body.details.get);
+};
+
+ecommerceApp.acts.setAct({
+  type: "dynamic",
+  schema: "ware",
+  actName: "addWare",
+  validator: addWareValidator(),
+  fn: addWare,
+});
+
+const addWareTypeValidator = () => {
+  return object({
+    set: object(wareTypePure),
+    get: ecommerceApp.schemas.selectStruct("wareType", 2),
+  });
+};
+
+const addWareType: ActFn = async (body) => {
+  const createdWareType = await wareTypes.insertOne(body.details.set);
+  return await wareTypes.findOne({ _id: createdWareType }, body.details.get);
+};
+
+ecommerceApp.acts.setAct({
+  type: "dynamic",
+  schema: "wareType",
+  actName: "addWareType",
+  validator: addWareTypeValidator(),
+  fn: addWareType,
+});
+
+ecommerceApp.runServer({ port: 8585, typeGeneration: true, playground: false });
+```
+
+now we have to server one for `core` in `port: 8080` and another for `ecommerce` in `port: 8585`.
+
+let's implement `ecommerce` as a microservice in `core`. it's very easy just add this line of code before `coreApp.runServer(...`.
+
+```typescript
+coreApp.acts.setService("ecommerce", "http://localhost:8585/lesan");
+```
+
+now execute `deno run -A mod.ts` in both `core/` and `ecommerce/` folder until see this log :
+
+on `core/` :
+
+```bash
+HTTP webserver running. Access it at: http://localhost:8080/
+```
+
+and on `ecommerce/` :
+
+```bash
+HTTP webserver running. Access it at: http://localhost:8585/
+```
+
+you can now send an `HTTP POST` request for adding wareType which belongs to `ecommerce` service on the `http://localhost:8585/lesan` address with this `JSON` on the request body :
+
+```JSON
+{
+  "contents": "dynamic",
+  "wants": {
+    "model": "wareType",
+    "act": "addWareType"
+  },
+  "details": {
+    "set": {
+      "name": "digital",
+      "description": "digital product include phone and ..."
+    },
+    "get": {
+      "name": 1
+    }
+  }
+}
+```
+
+and even add wareType by sending an `HTTP POST` request to `http://localhost:8080/lesan` which is for `core` service with this `JSON` on request body :
+
+```bash
+{
+  "service": "ecommerce",
+  "contents": "dynamic",
+  "wants": {
+    "model": "wareType",
+    "act": "addWareType"
+  },
+  "details": {
+    "set": {
+      "name": "digital",
+      "description": "digital product include phone and ..."
+    },
+    "get": {
+      "name": 1
+    }
+  }
+}
+```
+
+and even better you can export all `ecommerce` actions with just one line of code. so please add this line before `ecommerceApp.runServer(...` in `ecommerce/mod.ts` and comment `runServer` line
+
+```typescript
+export const ecommerceActs = ecommerceApp.acts.getMainActs();
+// ecommerceApp.runServer({ port: 8585, typeGeneration: true, playground: false });
+```
+
+now import ecommerceActs in `core/mod.ts`:
+
+```typescript
+import { ecommerceActs } from "../ecommerce/mod.ts";
+```
+
+and change `coreApp.acts.setService` to :
+
+```typescript
+coreApp.acts.setService("ecommerce", ecommerceActs);
+```
+
+now we have all ecommerce actions without running ecommerce server and sending `addWareType` request to the `core` service for creating `wareType`.
+
+if you want to see your actions just log this line of code in anywhere of your code :
+
+```typescript
+const acts = coreApp.acts.getAtcsWithServices();
+
+console.log();
+console.info({ acts }, " ------ ");
+console.log();
 ```
 
 #### Documantation is comming ...
