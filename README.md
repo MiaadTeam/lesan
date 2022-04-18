@@ -7,7 +7,7 @@ it also has several concepts about arbitrary embedding documents and creating SS
 first of all, create a ts file called `mod.ts` and import the last version of `lesan` and assign a constant call `coreApp` to its:
 
 ```typescript
-import { lesan } from "https://deno.land/x/lesan@0.0.60/mod.ts";
+import { lesan } from "https://deno.land/x/lesan@0.0.61/mod.ts";
 
 const coreApp = lesan();
 ```
@@ -17,7 +17,7 @@ before anything let's connect `database` to our app, so please add a new `MongoD
 first add `MongoClient` from `lesan` :
 
 ```typescript
-import { lesan, MongoClient } from "https://deno.land/x/lesan@0.0.58/mod.ts";
+import { lesan, MongoClient } from "https://deno.land/x/lesan@0.0.61/mod.ts";
 ```
 
 and create `new MongoClient` :
@@ -55,7 +55,7 @@ import {
   optional,
   OutRelation,
   string,
-} from "https://deno.land/x/lesan@0.0.57/mod.ts";
+} from "https://deno.land/x/lesan@0.0.61/mod.ts";
 ```
 
 and then create schema shapes :
@@ -129,7 +129,7 @@ import {
   optional,
   OutRelation,
   string,
-} from "https://deno.land/x/lesan@0.0.57/mod.ts";
+} from "https://deno.land/x/lesan@0.0.61/mod.ts";
 ```
 
 and this is `act` :
@@ -225,7 +225,7 @@ import {
   optional,
   OutRelation,
   string,
-} from "https://deno.land/x/lesan@0.0.57/mod.ts";
+} from "https://deno.land/x/lesan@0.0.61/mod.ts";
 
 const coreApp = lesan();
 
