@@ -132,19 +132,13 @@ import {
 } from "https://deno.land/x/lesan@0.0.57/mod.ts";
 ```
 
-and import `userInp` from generated type when running server :
-
-```typescript
-import { userInp } from "./declarations/selectInp.ts";
-```
-
 and this is `act` :
 
 ```typescript
 const addUserValidator = () => {
   return object({
     set: object(userPure),
-    get: coreApp.schemas.selectStruct<userInp>("user", { country: 1 }),
+    get: coreApp.schemas.selectStruct("user", { country: 1 }),
   });
 };
 
@@ -203,6 +197,21 @@ the `projection` of getting data is based on [MongoDb Projection](https://www.mo
 
 the `coreApp.schemas.selectStruct` function can limit the projection based on your schema relation and prevent an Infinite loop in retrieving data
 
+after running the server whit `typeGeneration` set to true. the `declarations` folder is created now you can
+
+import `userInp` from generated type and make `coreApp.schemas.selectStruct<userInp>("user", { country: 1 })` type safe:
+
+```typescript
+import { userInp } from "./declarations/selectInp.ts";
+
+const addUserValidator = () => {
+  return object({
+    set: object(userPure),
+    get: coreApp.schemas.selectStruct<userInp>("user", { country: 1 }),
+  });
+};
+```
+
 ### this is the full example text :
 
 ```typescript
@@ -218,7 +227,6 @@ import {
   string,
 } from "https://deno.land/x/lesan@0.0.57/mod.ts";
 import { ecommerceActs } from "../ecommerce/mod.ts";
-import { countryInp, userInp } from "./declarations/selectInp.ts";
 
 const coreApp = lesan();
 
@@ -270,7 +278,7 @@ const countries = coreApp.odm.setModel(
 const addUserValidator = () => {
   return object({
     set: object(userPure),
-    get: coreApp.schemas.selectStruct<userInp>("user", { country: 1 }),
+    get: coreApp.schemas.selectStruct("user", { country: 1 }),
   });
 };
 
@@ -291,7 +299,7 @@ coreApp.acts.setAct({
 const addCountryValidator = () => {
   return object({
     set: object(countryPure),
-    get: coreApp.schemas.selectStruct<countryInp>("country", { users: 1 }),
+    get: coreApp.schemas.selectStruct("country", { users: 1 }),
   });
 };
 
