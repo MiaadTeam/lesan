@@ -7,7 +7,7 @@ it also has several concepts about arbitrary embedding documents and creating SS
 first of all, create a ts file called `mod.ts` and import the last version of `lesan` and assign a constant call `coreApp` to its:
 
 ```typescript
-import { lesan } from "https://deno.land/x/lesan@0.0.58/mod.ts";
+import { lesan } from "https://deno.land/x/lesan@0.0.59/mod.ts";
 
 const coreApp = lesan();
 ```
