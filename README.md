@@ -4,7 +4,7 @@ it also has several concepts about arbitrary embedding documents and creating SS
 
 ### let's create a simple web server :
 
-first of all create a ts file called `mod.ts` and import last version of `lesan` and assign a constant call `coreApp` to it's :
+first of all, create a ts file called `mod.ts` and import the last version of `lesan` and assign a constant call `coreApp` to its:
 
 ```typescript
 import { lesan } from "https://deno.land/x/lesan@0.0.58/mod.ts";
@@ -12,7 +12,7 @@ import { lesan } from "https://deno.land/x/lesan@0.0.58/mod.ts";
 const coreApp = lesan();
 ```
 
-before anything lets connect `database` to our app, so please adding new `MongoDb` instance :
+before anything let's connect `database` to our app, so please add a new `MongoDb` instance :
 
 first add `MongoClient` from `lesan` :
 
@@ -28,21 +28,21 @@ await client.connect("mongodb://localhost:27017/arc");
 const db = client.database("core");
 ```
 
-we should setup `ODM` with new database :
+we should set up `ODM` with a new database :
 
 ```typescript
 coreApp.odm.setDb(db);
 ```
 
-we have three concept for every model in databse : `pure` and `inrelation` and `outrelation`.
+we have three concepts for every model in the database: `pure` and `inrelation` and `outrelation`.
 
-`pure` is just simple object with `key` of `string` and `value` of [SuperStruct](https://github.com/ianstormtaylor/superstruct) structure.
+`pure` is just a simple object with `key` of `string` and `value` of [SuperStruct](https://github.com/ianstormtaylor/superstruct) structure.
 
-`inrelation` is a `array` or `single` `pure` object of another `MongoDb collection` we wants to embedding. in `SQL` paradim every relations we saved the `key` or `id` of it we called `inrelation`. for example we have a `blogPost` which it has creator from `user` `collection`. and we save `pure` of `user` in `blogPost` `collection`.
+`inrelation` is an `array` or `single` `pure` object of another `MongoDb collection` we want to embed. in `SQL` paradigm every relation we saved the `key` or `id` of it we called `inrelation`. for example we have a `blogPost` which has a creator from `user` `collection`. and we save `pure` of `user` in `blogPost` `collection`.
 
-`outrelation` is a relations for `collection` but it is very huage and we do not even save `key` or `id` of it in `SQL` paradim. for example we have a `user` `collection` which he/she write many `blogPost` and we save for example 50 `array` `pure` object of `blogPost` in order of date sort for first pagination in `user` `collection`.
+`outrelation` is a relation for `collection` but it is very huge and we do not even save `key` or `id` of it in `SQL` paradigm. for example, we have a `user` `collection` which he/she writes many `blogPost` and we save for example 50 `array` `pure` object of `blogPost` in order of date sort for the first pagination in `user` `collection`.
 
-so lets create `user` and `country` schema :
+so let's create `user` and `country` schema :
 
 first let import `string` `number` `optional` `InRelation` and `OutRelation` from `lesan` :
 
@@ -104,15 +104,15 @@ const countries = coreApp.odm.setModel(
 );
 ```
 
-at this point we need to have some endpoint to calling from http request, so lets go to write some endpoint.
+at this point we need to have some endpoint to call from an HTTP request, so let's go to write some endpoint.
 
 for creating end point we need to set `act` from `coreApp.acts.setAct` function which require `type` `schema` `actName` `validator` and `fn`.
 
-the `type` is just enum of `static` and `dynamic`.
-`schema` is the model name we wants to set action to it.
-`actName` is just a simple string for indetify `act`.
-`validator` is a superstruct `object` which is call before `act` `fn` calling and validatin the giving data. `validator` include `set` and `get` `object`.
-`fn` is the function we call when request for it is arrived.
+the `type` is just an enum of `static` and `dynamic`.
+`schema` is the model name we want to set an action to it.
+`actName` is just a simple string to identify `act`.
+`validator` is a superstruct `object` which is call before `act` `fn` calling and validation the giving data. `validator` include `set` and `get` `object`.
+`fn` is the function we call when a request for it arrives.
 
 this is a one example of `act` :
 
@@ -162,21 +162,21 @@ coreApp.acts.setAct({
 });
 ```
 
-the last thing we need is just run the web server :
+the last thing we need is just to run the web server :
 
 ```typescript
 coreApp.runServer({ port: 8080, typeGeneration: true, playground: false });
 ```
 
-when `typeGeneration` is set to `true` it's create a `declarations` folder with some typescript type we need in project.
+when `typeGeneration` is set to `true` it creates a `declarations` folder with some typescript type we need in the project.
 
-now run the in termial with :
+now run this command in the terminal :
 
 ```bash
 deno rum -A mod.ts
 ```
 
-that's all now we can send a `POST` https request to `http://localhost:8080/lesan` whit this `JSON` in body to get data :
+that's all now we can send a `POST` HTTP request to `http://localhost:8080/lesan` whit this `JSON` in the body to get data :
 
 ```JSON
 {
@@ -201,7 +201,7 @@ that's all now we can send a `POST` https request to `http://localhost:8080/lesa
 
 the `projection` of getting data is based on [MongoDb Projection](https://www.mongodb.com/docs/manual/tutorial/project-fields-from-query-results/)
 
-the `coreApp.schemas.selectStruct` funtions can limit this projection based on your schema relation and prevent to cycling in retive data
+the `coreApp.schemas.selectStruct` function can limit the projection based on your schema relation and prevent an Infinite loop in retrieving data
 
 ### this is the full example text :
 
