@@ -44,7 +44,7 @@ Conceptually we have three important concepts for every model in the database, n
 
 `pure` is merely a simple object with `key` of `string` and a `value` similar to [SuperStruct](https://github.com/ianstormtaylor/superstruct) structure.
 
-`inrelation` is an `array` or `single` `pure` object of another `MongoDb collection` we want to embed. in `SQL` paradigm every relation we saved the `key` or `id` of it we called `inrelation`. for example we have a `blogPost` which has a creator from `user` `collection`. and we save `pure` of `user` in `blogPost` `collection`.
+`inrelation` represents an **array** or ***single*** `pure` object of another `MongoDb collection`, we want to embed in the current document. In `SQL` modeling, for every relation we save the `key` or `id` which we call `inrelation`. As an example, we have a `blogPost` which has a creator from `user` collection and we save `pure` model of the `user` in `blogPost` collection.
 
 `outrelation` is a relation for `collection` but it is very huge and we do not even save `key` or `id` of it in `SQL` paradigm. for example, we have a `user` `collection` which he/she writes many `blogPost` and we save for example 50 `array` `pure` object of `blogPost` in order of date sort for the first pagination in `user` `collection`.
 
