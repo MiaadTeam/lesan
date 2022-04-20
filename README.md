@@ -114,15 +114,16 @@ At this point, we need to have some endpoints to call from an HTTP request, so l
 
 For creating an end point, we need to set `act` from `coreApp.acts.setAct` function which requires `type` `schema` `actName` `validator` and `fn`.
 
-The `type` is just an enum of `static` and `dynamic`.
-`schema` is the model name we want to set an action to it.
-`actName` is just a simple string to identify `act`.
-`validator` is a superstruct `object` which is call before `act` `fn` calling and validation the giving data. `validator` include `set` and `get` `object`.
-`fn` is the function we call when a request for it arrives.
+- The `type` is just an enum of two possible options namely, `static` and `dynamic`.
+- `schema` is the name of the model to which we want to set an action.
+- `actName` is just a simple string to identify the `act`.
+- `validator` is a superstruct `object` which is called before `act` `fn` calling and validation the giving data.  
+- `validator` includes `set` and `get` objects.
+- `fn` is the function we call when a request for it arrives.
 
-this is a one example of `act` :
+The following is an one example of `act`:
 
-before creating `act` please import `object` and `ActFn` from `lesan` :
+Before creating `act`, import `object` and `ActFn` from `lesan`:
 
 ```typescript
 import {
@@ -138,7 +139,7 @@ import {
 } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 ```
 
-and this is `act` :
+and the `act` will be in the following form:
 
 ```typescript
 const addUserValidator = () => {
@@ -162,21 +163,21 @@ coreApp.acts.setAct({
 });
 ```
 
-the last thing we need is just to run the web server :
+The last thing we need is just to run the web server:
 
 ```typescript
 coreApp.runServer({ port: 8080, typeGeneration: true, playground: false });
 ```
 
-when `typeGeneration` is set to `true` it creates a `declarations` folder with some typescript type we need in the project.
+When `typeGeneration` is set to `true`, it creates a **declarations** folder with some typescript typings we need in the project.
 
-now run this command in the terminal :
+Now run this command in the terminal:
 
 ```bash
 deno rum -A mod.ts
 ```
 
-that's all now we can send a `POST` HTTP request to `http://localhost:8080/lesan` whit this `JSON` in the body to get data :
+We are all set and now we can send a `POST` HTTP request to `http://localhost:8080/lesan`, include the following in `JSON` format inside the body in order to retrieve the desired data:
 
 ```JSON
 {
@@ -199,11 +200,11 @@ that's all now we can send a `POST` HTTP request to `http://localhost:8080/lesan
 }
 ```
 
-the `projection` of getting data is based on [MongoDb Projection](https://www.mongodb.com/docs/manual/tutorial/project-fields-from-query-results/)
+The `projection` of retrieving data is fundamentally based on [MongoDb Projection](https://www.mongodb.com/docs/manual/tutorial/project-fields-from-query-results/).
 
-the `coreApp.schemas.selectStruct` function can limit the projection based on your schema relation and prevent an Infinite loop in retrieving data
+The `coreApp.schemas.selectStruct` function can limit the projection based on your schema relationships and prevent an infinite loop in retrieving data.
 
-after running the server whit `typeGeneration` set to true. the `declarations` folder is created now you can
+After running the server with `typeGeneration` set to true, the `declarations` folder is created now you can
 
 import `userInp` from generated type and make `coreApp.schemas.selectStruct<userInp>("user", { country: 1 })` type safe:
 
@@ -218,7 +219,7 @@ const addUserValidator = () => {
 };
 ```
 
-### this is the full example text :
+### The following is the full example of what we have discussed so far:
 
 ```typescript
 import {
@@ -324,9 +325,9 @@ coreApp.acts.setAct({
 coreApp.runServer({ port: 8080, typeGeneration: true, playground: false });
 ```
 
-### lets create microservice
+### Microservice Architecture with Lesan:
 
-please move the `mod.ts` file to `core/mod.ts` and create another file in `ecommerce/mod.ts` and paste these codes into it :
+Move the `mod.ts` file to `core/mod.ts` and create another file in `ecommerce/mod.ts` and place the following code in it:
 
 ```typescript
 import {
@@ -436,9 +437,9 @@ ecommerceApp.acts.setAct({
 ecommerceApp.runServer({ port: 8585, typeGeneration: true, playground: false });
 ```
 
-now we have to server one for `core` in `port: 8080` and another for `ecommerce` in `port: 8585`.
+Now we have to create servers, one for the `core` on `port: 8080` and another for `ecommerce` on `port: 8585`.
 
-let's implement `ecommerce` as a microservice in `core`. it's very easy just add this line of code before `coreApp.runServer(...`.
+Then let's implement `ecommerce` as a microservice in `core`. It's can be done quitely easy by just adding this lines of code before `coreApp.runServer(...)`.
 
 ```typescript
 coreApp.acts.setService("ecommerce", "http://localhost:8585/lesan");
@@ -458,7 +459,7 @@ and on `ecommerce/` :
 HTTP webserver running. Access it at: http://localhost:8585/
 ```
 
-you can now send an `HTTP POST` request for adding wareType which belongs to `ecommerce` service on the `http://localhost:8585/lesan` address with this `JSON` on the request body :
+You can now send an `HTTP POST` request for adding wareType which belongs to the `ecommerce` service on the `http://localhost:8585/lesan` endpoint with the following `JSON` in the request body:
 
 ```JSON
 {
