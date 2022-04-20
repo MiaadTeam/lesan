@@ -46,11 +46,11 @@ Conceptually we have three important concepts for every model in the database, n
 
 `inrelation` represents an **array** or ***single*** `pure` object of another `MongoDb collection`, we want to embed in the current document. In `SQL` modeling, for every relation we save the `key` or `id` which we call `inrelation`. As an example, we have a `blogPost` which has a creator from `user` collection and we save `pure` model of the `user` in `blogPost` collection.
 
-`outrelation` is a relation for `collection` but it is very huge and we do not even save `key` or `id` of it in `SQL` paradigm. for example, we have a `user` `collection` which he/she writes many `blogPost` and we save for example 50 `array` `pure` object of `blogPost` in order of date sort for the first pagination in `user` `collection`.
+`outrelation` specifies a relation for a specific `collection` but it could contain a massive set of data, thus we do not even save its `key` or `id` in `SQL` modeling. For example, we have a `user` entity who writes many blog posts and we save for example an `array` of `pure` object of `blogPost` in order of the date published for the first pagination in `user` `collection` containing the latest 50 blog posts.
 
-so let's create `user` and `country` schema :
+Now let's get our hands dirty and create the `user` and `country` schemas:
 
-first let import `string` `number` `optional` `InRelation` and `OutRelation` from `lesan` :
+First import `string` `number` `optional` `InRelation` and `OutRelation` from `lesan` :
 
 ```typescript
 import {
@@ -64,7 +64,7 @@ import {
 } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 ```
 
-and then create schema shapes :
+and then create the schema shapes:
 
 ```typescript
 const userPure = {
@@ -98,7 +98,7 @@ const countryOutRel: Record<string, OutRelation> = {
 };
 ```
 
-we should set schema in `coreApp` :
+We should set the schema in `coreApp`:
 
 ```typescript
 const users = coreApp.odm.setModel("user", userPure, userInRel, userOutRel);
@@ -110,11 +110,11 @@ const countries = coreApp.odm.setModel(
 );
 ```
 
-at this point we need to have some endpoint to call from an HTTP request, so let's go to write some endpoint.
+At this point, we need to have some endpoints to call from an HTTP request, so let's write some endpoints.
 
-for creating end point we need to set `act` from `coreApp.acts.setAct` function which require `type` `schema` `actName` `validator` and `fn`.
+For creating an end point, we need to set `act` from `coreApp.acts.setAct` function which requires `type` `schema` `actName` `validator` and `fn`.
 
-the `type` is just an enum of `static` and `dynamic`.
+The `type` is just an enum of `static` and `dynamic`.
 `schema` is the model name we want to set an action to it.
 `actName` is just a simple string to identify `act`.
 `validator` is a superstruct `object` which is call before `act` `fn` calling and validation the giving data. `validator` include `set` and `get` `object`.
