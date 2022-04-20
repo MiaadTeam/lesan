@@ -1,12 +1,12 @@
-# Lesan is a combination of the web server and MongoDb ODM with some microservice setting
+# Lesan is a combination of the web server and MongoDb ODM with some microservice infrastructure:
 
-it also has several concepts about arbitrary embedding documents and creating SSG contents
+It also has employed several concepts about arbitrary embedding documents and creating **SSG** contents.
 
-### let's create a simple web server :
+### Let's create a simple web server:
 
-you can find complete implemention of this example [here](https://github.com/MiaadTeam/lesan/tree/main/examples/simpleMircoservice)
+You can find complete implementation of this example [here](https://github.com/MiaadTeam/lesan/tree/main/examples/simpleMircoservice)
 
-first of all, create a ts file called `mod.ts` and import the last version of `lesan` and assign a constant call `coreApp` to its:
+First of all, create a ts file called `mod.ts` and import the last version of `lesan` and assign a constant called `coreApp`:
 
 ```typescript
 import { lesan } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
@@ -14,11 +14,11 @@ import { lesan } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 const coreApp = lesan();
 ```
 
-please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+> Please replace `x.x.x` in the import link with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
-before anything let's connect `database` to our app, so please add a new `MongoDb` instance :
+Before anything let's connect a `database` to our app, so add a new `MongoDb` instance.
 
-first add `MongoClient` from `lesan` :
+First add `MongoClient` from `lesan`:
 
 ```typescript
 import { lesan, MongoClient } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
@@ -28,19 +28,21 @@ and create `new MongoClient` :
 
 ```typescript
 const client = new MongoClient();
+
 await client.connect("mongodb://localhost:27017/arc");
+
 const db = client.database("core");
 ```
 
-we should set up `ODM` with a new database :
+We should set up the `ODM` with a new database:
 
 ```typescript
 coreApp.odm.setDb(db);
 ```
 
-we have three concepts for every model in the database: `pure` and `inrelation` and `outrelation`.
+Conceptually we have three important concepts for every model in the database, namely: `pure` and `inrelation` and `outrelation`.
 
-`pure` is just a simple object with `key` of `string` and `value` of [SuperStruct](https://github.com/ianstormtaylor/superstruct) structure.
+`pure` is merely a simple object with `key` of `string` and a `value` similar to [SuperStruct](https://github.com/ianstormtaylor/superstruct) structure.
 
 `inrelation` is an `array` or `single` `pure` object of another `MongoDb collection` we want to embed. in `SQL` paradigm every relation we saved the `key` or `id` of it we called `inrelation`. for example we have a `blogPost` which has a creator from `user` `collection`. and we save `pure` of `user` in `blogPost` `collection`.
 
