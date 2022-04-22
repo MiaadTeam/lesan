@@ -6,6 +6,7 @@
 //       "age": number(),
 //     },
 //     inrelation: {
+//
 //       "posts": { schemaName: "post", type: "many" },
 //     },
 //     outrelation: {
@@ -138,3 +139,14 @@
 //     ),
 //   },
 // };
+//
+//
+//
+//
+const sampleData = {
+  user: {
+    inrelation: {
+      posts: { schemaName: "post", type: "many" },
+    },
+  },
+};

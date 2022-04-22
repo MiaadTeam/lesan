@@ -5,10 +5,10 @@ export const runPlayground = () => {
   *
   *  Please remove your log after debugging
   */
-  console.group("playground is running ------ ");
-  console.log(" ============= ");
-  console.log();
-  console.log();
-  console.log(" ============= ");
-  console.groupEnd();
+  // console.group("playground is running ------ ");
+  // console.log(" ============= ");
+  // console.log();
+  // console.log();
+  // console.log(" ============= ");
+  // console.groupEnd();
 };

@@ -14,16 +14,18 @@ import {
 import { InRelation, ISchema, OutRelation, PureModel } from "../models/mod.ts";
 import { schemaFns } from "../models/schema.ts";
 import { throwError } from "../utils/throwError.ts";
+import { collectDate } from "./collectData.ts";
+import { makeProjection } from "./makeProjection.ts";
 
 export const odm = (schemasObj: ISchema) => {
   let mongoDb: Database;
 
   const setDb = (db: Database) => (mongoDb = db);
 
-  const getDbClinet = () => mongoDb;
+  const getDbClient = () => mongoDb;
 
   const getCollection = (collection: string) => {
-    const db = getDbClinet();
+    const db = getDbClient();
     const getSchemas = enums(schemaFns(schemasObj).getSchemasKeys());
     assert(collection, getSchemas);
     return db
@@ -32,7 +34,7 @@ export const odm = (schemasObj: ISchema) => {
   };
 
   const findData = async (collection: string, query: Bson.Document) => {
-    const db = getDbClinet();
+    const db = getDbClient();
     const getSchemas = enums(schemaFns(schemasObj).getSchemasKeys());
     assert(collection, getSchemas);
     return db
@@ -46,16 +48,33 @@ export const odm = (schemasObj: ISchema) => {
     get: Record<string, any>,
     options?: FindOptions,
   ) => {
-    const db = getDbClinet();
+    const db = getDbClient();
     const getSchemas = enums(schemaFns(schemasObj).getSchemasKeys());
+    const schemas = schemaFns(schemasObj).getSchemas();
     assert(collection, getSchemas);
 
-    return db
-      ? await db.collection(collection).findOne(filter, {
-        ...options,
-        projection: get,
-      })
-      : throwError("No database connection");
+    const projection = makeProjection(collection, {}, get, schemas);
+
+    const result = await collectDate(
+      schemas,
+      filter,
+      db,
+      projection,
+      collection,
+      {},
+      "one",
+      options,
+    );
+
+    console.log(result);
+
+    return result;
+    // return db
+    //   ? await db.collection(collection).findOne(filter, {
+    //     ...options,
+    //     projection: get,
+    //   })
+    //   : throwError("No database connection");
   };
 
   const insertOneData = async (
@@ -63,7 +82,7 @@ export const odm = (schemasObj: ISchema) => {
     doc: InsertDocument<Bson.Document>,
     options?: InsertOptions,
   ) => {
-    const db = getDbClinet();
+    const db = getDbClient();
     const getSchema = schemaFns(schemasObj).getPureSchema(collection);
     assert(doc, object(getSchema));
     return db
@@ -77,14 +96,14 @@ export const odm = (schemasObj: ISchema) => {
     update: UpdateFilter<Bson.Document>,
     options?: UpdateOptions,
   ) => {
-    const db = getDbClinet();
+    const db = getDbClient();
     return db
       ? await db.collection(collection).updateOne(filter, update, options)
       : throwError("No database connection");
   };
 
   const removeData = async (collection: string, query: Bson.Document) => {
-    const db = getDbClinet();
+    const db = getDbClient();
     return db
       ? await db.collection(collection).find(query).toArray()
       : throwError("No database connection");

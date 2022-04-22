@@ -87,12 +87,11 @@ export const schemaFns = (schemas: Record<string, Model>) => {
       // console.log(`${property}: ${object[property]}`);
       pureSchemas = {
         ...pureSchemas,
-        [property]:
-          schema.inrelation[property].type === "one"
-            ? object(schemas[schema.inrelation[property].schemaName]?.pure)
-            : array(
-                object(schemas[schema.inrelation[property].schemaName]?.pure)
-              ),
+        [property]: schema.inrelation[property].type === "one"
+          ? object(schemas[schema.inrelation[property].schemaName]?.pure)
+          : array(
+            object(schemas[schema.inrelation[property].schemaName]?.pure),
+          ),
       };
     }
     return pureSchemas;
@@ -124,7 +123,7 @@ export const schemaFns = (schemas: Record<string, Model>) => {
       pureSchemas = {
         ...pureSchemas,
         [property]: array(
-          object(schemas[schema.outrelation[property].schemaName]?.pure)
+          object(schemas[schema.outrelation[property].schemaName]?.pure),
         ),
       };
     }
@@ -181,7 +180,6 @@ export const schemaFns = (schemas: Record<string, Model>) => {
    */
   const createStruct = (schemaName: string) => {
     const schema = getSchema(schemaName);
-
     return assign(object(schema.pure), object(createEmbedded(schemaName)));
   };
 
