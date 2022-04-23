@@ -5,7 +5,7 @@ It also has employed several concepts regarding arbitrary embedding documents an
 
 ### Let's create a simple web server:
 
-You can find complete implementation of this example [here](https://github.com/MiaadTeam/lesan/tree/main/examples/simpleMircoservice)
+You can find complete implementation of this example [here](https://github.com/MiaadTeam/lesan/tree/main/examples/simpleMircoservice).
 
 First of all, create a "ts" file called `mod.ts` and import the latest version of `lesan` and assign it to a constant variable called `coreApp`:
 
@@ -30,7 +30,7 @@ and create a database instance via `new MongoClient`:
 ```typescript
 const client = new MongoClient();
 
-await client.connect("mongodb://localhost:27017/arc");
+await client.connect("mongodb://localhost:27017/${your_database_name}");
 
 const db = client.database("core");
 ```
