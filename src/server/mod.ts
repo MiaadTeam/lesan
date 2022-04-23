@@ -34,8 +34,8 @@ export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
         return await lesanFns(actsObj).serveLesan(request, port);
       } catch (e) {
         return new Response(
-          `Somthing has wrong =>> :: ${
-            e.message || "we do not know anything !!! sorry"
+          `Something gone wrong =>> :: ${
+            e.message || "We do not know anything about the issue!!! sorry"
           }`,
           { status: 501 }
         );
