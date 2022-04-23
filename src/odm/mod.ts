@@ -66,7 +66,9 @@ export const odm = (schemasObj: ISchema) => {
       options,
     );
 
-    console.log(result);
+    // console.log("#################################################");
+    // console.log(result);
+    // console.log("#################################################");
 
     return result;
   };
@@ -125,7 +127,6 @@ export const odm = (schemasObj: ISchema) => {
         get: Record<string, any>,
         options?: FindOptions,
       ) => {
-        console.log(name, "in setModel in findOne");
         findOneData(name, filter, get, options);
       },
 

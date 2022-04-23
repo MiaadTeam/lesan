@@ -1,5 +1,7 @@
 import { Bson, Database, Filter, FindOptions } from "../deps.ts";
 
+let level = 0;
+
 export const collectData = async (
   schemas: any,
   filter: Filter<Bson.Document>,
@@ -10,6 +12,8 @@ export const collectData = async (
   type: "one" | "many",
   options?: FindOptions,
 ) => {
+  level++;
+
   result = type === "one"
     ? await db.collection(collection).findOne(filter, {
       ...options,
@@ -46,8 +50,8 @@ export const collectData = async (
         Object.keys(projection[key]).length !==
           Object.keys(result[0][key]).length
       ) {
-        result.forEach(async (item) => {
-          filter = result[key].map((value: any) => value._id);
+        for (const item of result) {
+          filter = item[key].map((value: any) => value._id);
 
           item[key] = await collectData(
             schemas,
@@ -58,7 +62,7 @@ export const collectData = async (
             {},
             "many",
           );
-        });
+        }
       }
     } else if (
       Object.keys(schemas[collection]["inrelation"]).includes(key) &&
@@ -69,7 +73,7 @@ export const collectData = async (
         Object.keys(projection[key]).length !==
           Object.keys(result[key]).length
       ) {
-        filter = { id: result._id };
+        filter = { _id: result._id };
 
         result[key] = await collectData(
           schemas,
@@ -85,8 +89,9 @@ export const collectData = async (
         Object.keys(projection[key]).length !==
           Object.keys(result[0][key]).length
       ) {
-        result.forEach(async (item) => {
-          filter = { id: item._id };
+        // OMG loooool
+        for (const item of result) {
+          filter = { _id: item[key]._id };
 
           item[key] = await collectData(
             schemas,
@@ -97,7 +102,7 @@ export const collectData = async (
             {},
             "one",
           );
-        });
+        }
       }
     } else if (
       Object.keys(schemas[collection]["outrelation"]).includes(key)
@@ -114,28 +119,30 @@ export const collectData = async (
           filter,
           db,
           projection[key],
-          schemas[collection]["inrelation"][key]["schemaName"],
+          schemas[collection]["outrelation"][key]["schemaName"],
           {},
           "many",
         );
       } else if (
         result instanceof Array &&
-        Object.keys(projection[key]).length !==
+        Object.keys(projection).length !==
           Object.keys(result[0][key]).length
       ) {
-        result.forEach(async (item) => {
-          filter = result[key].map((value: any) => value._id);
+        for (const item of result) {
+          filter = item[key].map((value: any) => value._id);
+
+          console.log("item===============>", item);
 
           item[key] = await collectData(
             schemas,
             filter,
             db,
             projection[key],
-            schemas[collection]["inrelation"][key]["schemaName"],
+            schemas[collection]["outrelation"][key]["schemaName"],
             {},
             "many",
           );
-        });
+        }
       }
     }
   }
