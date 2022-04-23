@@ -1,5 +1,5 @@
-# What is **Lesa**?
-Lesan is a combination of a web server and a MongoDb ODM with some built-in microservice infrastructure.
+# What is **Lesan**?
+Lesan is a combination of a **web server** and a ***MongoDb ODM*** with some built-in microservice infrastructure.
 
 It also has employed several concepts regarding arbitrary embedding documents and creating **SSG** contents.
 
@@ -7,7 +7,7 @@ It also has employed several concepts regarding arbitrary embedding documents an
 
 You can find complete implementation of this example [here](https://github.com/MiaadTeam/lesan/tree/main/examples/simpleMircoservice)
 
-First of all, create a "ts" file called `mod.ts` and import the last version of `lesan` and assign a constant called `coreApp`:
+First of all, create a "ts" file called `mod.ts` and import the latest version of `lesan` and assign it to a constant variable called `coreApp`:
 
 ```typescript
 import { lesan } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
@@ -17,15 +17,15 @@ const coreApp = lesan();
 
 > Please replace `x.x.x` in the import link with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
-Before anything let's connect a `database` to our app, so add a new `MongoDb` instance.
+Before anything, let's connect a `database` to our app, so add a new `MongoDb` instance to your code.
 
-First add `MongoClient` from `lesan`:
+First, import `MongoClient` from `lesan`:
 
 ```typescript
 import { lesan, MongoClient } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 ```
 
-and create `new MongoClient` :
+and create a database instance via `new MongoClient`:
 
 ```typescript
 const client = new MongoClient();
@@ -35,19 +35,19 @@ await client.connect("mongodb://localhost:27017/arc");
 const db = client.database("core");
 ```
 
-We should set up the `ODM` with a new database:
+We should set up the `ODM` with a new database instance:
 
 ```typescript
 coreApp.odm.setDb(db);
 ```
 
-Conceptually we have three important concepts for every model in the database, namely: `pure` and `inrelation` and `outrelation`.
+Conceptually, we have three important concepts for designing every model in the database, namely: `pure` and `inrelation` and `outrelation`.
 
 `pure` is merely a simple object with `key` of `string` and a `value` similar to [SuperStruct](https://github.com/ianstormtaylor/superstruct) structure.
 
-`inrelation` represents an **array** or ***single*** `pure` object of another `MongoDb collection`, we want to embed in the current document. In `SQL` modeling, for every relation we save the `key` or `id` which we call `inrelation`. As an example, we have a `blogPost` which has a creator from `user` collection and we save `pure` model of the `user` in `blogPost` collection.
+`inrelation` represents an **array** or a ***single*** `pure` object of another `MongoDb collection`, we want to embed in the current document. In `SQL` modeling, for every relation we save the `key` or `id` which we call `inrelation`. As an example, we have a `blogPost` which has a creator from `user` collection and we save `pure` model of the `user` in `blogPost` collection.
 
-`outrelation` specifies a relation for a specific `collection` but it could contain a massive set of data, thus we do not even save its `key` or `id` in `SQL` modeling. For example, we have a `user` entity who writes many blog posts and we save for example an `array` of `pure` object of `blogPost` in order of the date published for the first pagination in `user` `collection` containing the latest 50 blog posts.
+`outrelation` specifies a relation for a specific `collection` but it could contain an unbound set of data that could outgrow the **16MB** limit size of a document in MongoDB. Thus we do not even save its `key` or `id` in `SQL` modeling. For example, we have a `user` entity who writes many blog posts and we save for example an `array` of `pure` object of `blogPost` in order of the date published for the first pagination in `user` collection containing the latest 50 blog posts.
 
 Now let's get our hands dirty and create the `user` and `country` schemas:
 
