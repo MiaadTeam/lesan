@@ -14,7 +14,7 @@ import {
 import { InRelation, ISchema, OutRelation, PureModel } from "../models/mod.ts";
 import { schemaFns } from "../models/schema.ts";
 import { throwError } from "../utils/throwError.ts";
-import { collectDate } from "./collectData.ts";
+import { collectData } from "./collectData.ts";
 import { makeProjection } from "./makeProjection.ts";
 
 export const odm = (schemasObj: ISchema) => {
@@ -55,7 +55,7 @@ export const odm = (schemasObj: ISchema) => {
 
     const projection = makeProjection(collection, {}, get, schemas);
 
-    const result = await collectDate(
+    const result = await collectData(
       schemas,
       filter,
       db,
@@ -69,12 +69,6 @@ export const odm = (schemasObj: ISchema) => {
     console.log(result);
 
     return result;
-    // return db
-    //   ? await db.collection(collection).findOne(filter, {
-    //     ...options,
-    //     projection: get,
-    //   })
-    //   : throwError("No database connection");
   };
 
   const insertOneData = async (
@@ -116,6 +110,7 @@ export const odm = (schemasObj: ISchema) => {
     inrelation: Record<string, InRelation>,
     outrelation: Record<string, OutRelation>,
   ) => {
+    console.log(name, "in base setModel");
     const schemas = schemaFns(schemasObj).getSchemas();
     schemas[name] = {
       pure: pureModel,
@@ -129,7 +124,11 @@ export const odm = (schemasObj: ISchema) => {
         filter: Filter<Bson.Document>,
         get: Record<string, any>,
         options?: FindOptions,
-      ) => findOneData(name, filter, get, options),
+      ) => {
+        console.log(name, "in setModel in findOne");
+        findOneData(name, filter, get, options);
+      },
+
       insertOne: (query: Bson.Document) => insertOneData(name, query),
       updateOne: (
         filter: Filter<Bson.Document>,
