@@ -1,6 +1,6 @@
-import { Bson, Database, Filter, FindOptions } from "../deps.ts";
+import { Bson, Database, Filter, FindOptions } from "../../deps.ts";
 
-let level = 0;
+import { throwError } from "../../utils/mod.ts";
 
 export const collectData = async (
   schemas: any,
@@ -12,17 +12,19 @@ export const collectData = async (
   type: "one" | "many",
   options?: FindOptions,
 ) => {
-  level++;
-
   result = type === "one"
-    ? await db.collection(collection).findOne(filter, {
+    ? db
+      ? await db.collection(collection).findOne(filter, {
+        ...options,
+        projection,
+      })
+      : throwError("No database connection")
+    : db
+    ? await db.collection(collection).find({ _id: { $in: filter } }, {
       ...options,
       projection,
-    })
-    : await db.collection(collection).find({ _id: { $in: filter } }, {
-      ...options,
-      projection,
-    }).toArray();
+    }).toArray()
+    : throwError("No database connection");
 
   for (let key in projection) {
     if (
@@ -130,8 +132,6 @@ export const collectData = async (
       ) {
         for (const item of result) {
           filter = item[key].map((value: any) => value._id);
-
-          console.log("item===============>", item);
 
           item[key] = await collectData(
             schemas,

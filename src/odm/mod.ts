@@ -14,8 +14,7 @@ import {
 import { InRelation, ISchema, OutRelation, PureModel } from "../models/mod.ts";
 import { schemaFns } from "../models/schema.ts";
 import { throwError } from "../utils/throwError.ts";
-import { collectData } from "./collectData.ts";
-import { makeProjection } from "./makeProjection.ts";
+import { collectData, makeProjection } from "./utils/mod.ts";
 
 export const odm = (schemasObj: ISchema) => {
   let mongoDb: Database;
@@ -67,7 +66,7 @@ export const odm = (schemasObj: ISchema) => {
     );
 
     // console.log("#################################################");
-    // console.log(result);
+    // console.log(JSON.stringify(result, null, 2));
     // console.log("#################################################");
 
     return result;
@@ -79,8 +78,10 @@ export const odm = (schemasObj: ISchema) => {
     options?: InsertOptions,
   ) => {
     const db = getDbClient();
-    const getSchema = schemaFns(schemasObj).getPureSchema(collection);
-    assert(doc, object(getSchema));
+    const pureInrelSchema = schemaFns(schemasObj).getPureInRel(collection);
+
+    assert(doc, object(pureInrelSchema));
+
     return db
       ? await db.collection(collection).insertOne(doc, options)
       : throwError("No database connection");
@@ -112,8 +113,8 @@ export const odm = (schemasObj: ISchema) => {
     inrelation: Record<string, InRelation>,
     outrelation: Record<string, OutRelation>,
   ) => {
-    console.log(name, "in base setModel");
     const schemas = schemaFns(schemasObj).getSchemas();
+
     schemas[name] = {
       pure: pureModel,
       inrelation: inrelation,

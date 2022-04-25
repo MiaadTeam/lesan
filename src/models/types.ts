@@ -5,7 +5,7 @@ import { Struct } from "../deps.ts";
  * @public
  */
 export interface PureModel {
-    [key: string]: Struct<any>;
+  [key: string]: Struct<any>;
 }
 /**
  * if schema has relation with other schema and in SQL that we keep foreign key.
@@ -13,15 +13,15 @@ export interface PureModel {
  * @public
  */
 export interface InRelation {
-    /**
-     * name of schema that this schema has relation with
-     */
-    schemaName: string;
-    /**
-     * type of relation if equal to one: this schema record one object from other schema else
-     * this schema record array of object from other schema
-     */
-    type: "one" | "many";
+  /**
+   * name of schema that this schema has relation with
+   */
+  schemaName: string;
+  /**
+   * type of relation if equal to one: this schema record one object from other schema else
+   * this schema record array of object from other schema
+   */
+  type: "one" | "many";
 }
 /**
  * if schema has relation with other schema and in SQL that we dont keep foriegn key.
@@ -30,18 +30,22 @@ export interface InRelation {
  * @public
  */
 export interface OutRelation {
-    /**
-     * name of schema that this schema has relation with
-     */
-    schemaName: string;
-    /**
-     * number of value that we want to keep
-     */
-    number: number;
-    /**
-     * sort : {field , order} - field of sort , and order of sort
-     */
-    sort: { field: string; order: "asc" | "desc" };
+  /**
+   * name of schema that this schema has relation with
+   */
+  schemaName: string;
+  /**
+   * number of value that we want to keep
+   */
+  number: number;
+  /**
+   * sort : {field , order} - field of sort , and order of sort
+   */
+  sort: {
+    field: string;
+    order: "asc" | "desc";
+    type: "number" | "date" | "objectId";
+  };
 }
 
 /**
@@ -49,7 +53,7 @@ export interface OutRelation {
  * @public
  */
 export interface Model {
-    pure: PureModel;
-    inrelation: Record<string, InRelation>;
-    outrelation: Record<string, OutRelation>;
+  pure: PureModel;
+  inrelation: Record<string, InRelation>;
+  outrelation: Record<string, OutRelation>;
 }

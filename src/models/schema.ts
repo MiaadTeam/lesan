@@ -26,9 +26,11 @@ export const schemaFns = (schemas: Record<string, Model>) => {
    *       "name": string(),
    *       "age": number(),
    *     },
+   *
    *     inrelation: {
    *       "posts": { schemaName: "post", type: "many" },
    *     },
+   *
    *     outrelation: {
    *       "comments": {
    *         schemaName: "comment",
@@ -37,6 +39,7 @@ export const schemaFns = (schemas: Record<string, Model>) => {
    *       },
    *     },
    */
+
   const getSchema = (schemaName: string) => {
     const schema = schemas[schemaName];
 
@@ -56,12 +59,14 @@ export const schemaFns = (schemas: Record<string, Model>) => {
    *       "age": number(),
    *     },
    */
+
   const getPureSchema = (schemaName: string) => {
     const schema = schemas[schemaName];
 
     if (!schema) {
       throw new Error(`Schema ${schemaName} not found`);
     }
+
     return schema.pure;
   };
 
@@ -80,6 +85,17 @@ export const schemaFns = (schemas: Record<string, Model>) => {
    *         "content": string(),
    *       }),}
    */
+
+  const getPureInRel = (schemaName: string) => {
+    const pureSchema = getPureSchema(schemaName);
+    const pureInrel = getPureFromInRel(schemaName);
+
+    return {
+      ...pureSchema,
+      ...pureInrel,
+    };
+  };
+
   const getPureFromInRel = (schemaName: string) => {
     const schema = getSchema(schemaName);
     let pureSchemas = {};
@@ -96,6 +112,7 @@ export const schemaFns = (schemas: Record<string, Model>) => {
     }
     return pureSchemas;
   };
+
   /**
    * extract pure feature of outrelation of schema
    * @param schemaName - name of schema
@@ -115,6 +132,7 @@ export const schemaFns = (schemas: Record<string, Model>) => {
    *       }),
    * }
    */
+
   const getPureFromOutRel = (schemaName: string) => {
     const schema = getSchema(schemaName);
     let pureSchemas = {};
@@ -147,12 +165,18 @@ export const schemaFns = (schemas: Record<string, Model>) => {
    *       }),
    * }
    */
+
+  // const getPureInRel = (schemaName) => {
+  //   return {};
+  // };
+
   const createEmbedded = (schemaName: string) => {
     return {
       ...getPureFromInRel(schemaName),
       ...getPureFromOutRel(schemaName),
     };
   };
+
   /**
    * create struct features, struct feature is used for create client of db.
    * struct feature is include pure feature and embed features
@@ -187,6 +211,7 @@ export const schemaFns = (schemas: Record<string, Model>) => {
 
   return {
     getSchemas,
+    getPureInRel,
     getSchema,
     getPureSchema,
     getPureFromInRel,
