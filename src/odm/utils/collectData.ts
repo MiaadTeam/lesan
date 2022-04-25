@@ -31,8 +31,9 @@ export const collectData = async (
       Object.keys(schemas[collection]["inrelation"]).includes(key) &&
       schemas[collection]["inrelation"][key]["type"] === "many"
     ) {
+      
       if (
-        (result instanceof Object && !(result instanceof Array)) &&
+        !Array.isArray(result) &&
         Object.keys(projection[key]).length !==
           Object.keys(result[key][0]).length
       ) {
@@ -48,7 +49,7 @@ export const collectData = async (
           "many",
         );
       } else if (
-        result instanceof Array &&
+        Array.isArray(result) &&
         Object.keys(projection[key]).length !==
           Object.keys(result[0][key]).length
       ) {
@@ -71,7 +72,7 @@ export const collectData = async (
       schemas[collection]["inrelation"][key]["type"] === "one"
     ) {
       if (
-        (result instanceof Object && !(result instanceof Array)) &&
+        !Array.isArray(result) &&
         Object.keys(projection[key]).length !==
           Object.keys(result[key]).length
       ) {
@@ -87,11 +88,11 @@ export const collectData = async (
           "one",
         );
       } else if (
-        result instanceof Array &&
+        Array.isArray(result) &&
         Object.keys(projection[key]).length !==
           Object.keys(result[0][key]).length
       ) {
-        // OMG loooool
+
         for (const item of result) {
           filter = { _id: item[key]._id };
 
@@ -126,7 +127,7 @@ export const collectData = async (
           "many",
         );
       } else if (
-        result instanceof Array &&
+        Array.isArray(result) &&
         Object.keys(projection).length !==
           Object.keys(result[0][key]).length
       ) {
@@ -146,5 +147,6 @@ export const collectData = async (
       }
     }
   }
+
   return result;
 };
