@@ -85,8 +85,6 @@ export const odm = (schemasObj: ISchema) => {
     const db = getDbClient();
     const pureInrelSchema = schemaFns(schemasObj).getPureInRel(collection);
     const foundedSchema = schemaFns(schemasObj).getSchema(collection);
-    const inrelationKeys =
-      schemaFns(schemasObj).getSchema(collection).inrelation;
 
     assert(doc, object(pureInrelSchema));
 
@@ -101,6 +99,9 @@ export const odm = (schemasObj: ISchema) => {
     console.log(result);
 
     // checkRelation()
+
+
+    
   };
 
   const updateOneData = async (
@@ -143,7 +144,9 @@ export const odm = (schemasObj: ISchema) => {
         filter: Filter<Bson.Document>,
         get: Record<string, any>,
         options?: FindOptions,
-      ) => findOneData(name, filter, get, options),
+      ) => {
+        findOneData(name, filter, get, options);
+      },
 
       insertOne: (query: Bson.Document) => insertOneData(name, query),
       updateOne: (
