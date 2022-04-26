@@ -18,6 +18,7 @@ import {
   addOutrelation,
   checkRelation,
   collectData,
+  getPureFromDoc,
   makeProjection,
 } from "./utils/mod.ts";
 
@@ -69,11 +70,6 @@ export const odm = (schemasObj: ISchema) => {
       "one",
       options,
     );
-
-    // console.log("#################################################");
-    // console.log(JSON.stringify(result, null, 2));
-    // console.log("#################################################");
-
     return result;
   };
 
@@ -85,22 +81,23 @@ export const odm = (schemasObj: ISchema) => {
     const db = getDbClient();
     const pureInrelSchema = schemaFns(schemasObj).getPureInRel(collection);
     const foundedSchema = schemaFns(schemasObj).getSchema(collection);
-    const inrelationKeys =
+    const inrelationObj =
       schemaFns(schemasObj).getSchema(collection).inrelation;
+
+    const inrelationKeys = Object.keys(inrelationObj);
 
     assert(doc, object(pureInrelSchema));
 
     doc = addOutrelation(collection, doc, foundedSchema);
 
-    console.log("doc===========>", doc);
-
     const result = db
       ? await db.collection(collection).insertOne(doc, options)
       : throwError("No database connection");
+    doc._id = result;
 
     console.log(result);
 
-    // checkRelation()
+    checkRelation(collection, inrelationObj, schemasObj, doc, db);
   };
 
   const updateOneData = async (
