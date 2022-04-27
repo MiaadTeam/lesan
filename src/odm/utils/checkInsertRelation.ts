@@ -18,8 +18,8 @@ export const checkRelation = (
     ).forEach(async ([keyName, obj]) => {
       if (schemaName === obj.schemaName && schemaInrel[key]["type"] === "one") {
         if (obj.sort.type === "objectId" || obj.sort.type === "date") {
-          if (doc[key] && obj.sort.order === "asc") {
-            await db.collection(schemaInrel[key]["schemaName"]).updateOne({
+          doc[key] && obj.sort.order === "asc"
+            ? await db.collection(schemaInrel[key]["schemaName"]).updateOne({
               _id: doc[key]._id,
             }, {
               $push: {
@@ -27,9 +27,8 @@ export const checkRelation = (
                   $each: [{ ...pureDoc }],
                 },
               },
-            });
-          } else {
-            await db.collection(schemaInrel[key]["schemaName"])
+            })
+            : await db.collection(schemaInrel[key]["schemaName"])
               .updateOne({
                 _id: doc[key]._id,
               }, {
@@ -40,8 +39,8 @@ export const checkRelation = (
                   },
                 },
               });
-          }
-        } else if (obj.sort.type === "number") {}
+        } else if (obj.sort.type === "number") {
+        }
       } else if (
         schemaName === obj.schemaName && schemaInrel[key]["type"] === "many"
       ) {

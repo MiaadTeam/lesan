@@ -84,20 +84,23 @@ export const odm = (schemasObj: ISchema) => {
     const inrelationObj =
       schemaFns(schemasObj).getSchema(collection).inrelation;
 
+    console.log(collection);
+
     const inrelationKeys = Object.keys(inrelationObj);
 
     assert(doc, object(pureInrelSchema));
 
     doc = addOutrelation(collection, doc, foundedSchema);
 
-    const result = db
+    doc._id = db
       ? await db.collection(collection).insertOne(doc, options)
       : throwError("No database connection");
-    doc._id = result;
 
-    console.log(result);
+    // console.log(result);
 
     checkRelation(collection, inrelationObj, schemasObj, doc, db);
+
+    return doc._id;
   };
 
   const updateOneData = async (
