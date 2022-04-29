@@ -84,10 +84,6 @@ export const odm = (schemasObj: ISchema) => {
     const inrelationObj =
       schemaFns(schemasObj).getSchema(collection).inrelation;
 
-    console.log(collection);
-
-    const inrelationKeys = Object.keys(inrelationObj);
-
     assert(doc, object(pureInrelSchema));
 
     doc = addOutrelation(collection, doc, foundedSchema);

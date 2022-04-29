@@ -44,6 +44,32 @@ export const checkRelation = (
       } else if (
         schemaName === obj.schemaName && schemaInrel[key]["type"] === "many"
       ) {
+        if (obj.sort.type === "objectId" || obj.sort.type === "date") {
+          doc[key] && obj.sort.order === "asc"
+            ? doc[key].forEach(async (document: any) => {
+              await db.collection(schemaInrel[key]["schemaName"]).updateOne({
+                _id: document._id,
+              }, {
+                $push: {
+                  [keyName]: {
+                    $each: [{ ...pureDoc }],
+                  },
+                },
+              });
+            })
+            : doc[key].forEach(async (document: any) => {
+              await db.collection(schemaInrel[key]["schemaName"]).updateOne({
+                _id: document._id,
+              }, {
+                $push: {
+                  [keyName]: {
+                    $each: [{ ...pureDoc }],
+                    $position: 0,
+                  },
+                },
+              });
+            });
+        }
       }
     });
   });
