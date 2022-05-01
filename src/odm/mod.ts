@@ -8,6 +8,7 @@ import {
   InsertDocument,
   InsertOptions,
   object,
+  ObjectId,
   UpdateFilter,
   UpdateOptions,
 } from "../deps.ts";
@@ -110,6 +111,7 @@ export const odm = (schemasObj: ISchema) => {
   const insertOneData = async (
     collection: string,
     doc: InsertDocument<Bson.Document>,
+    relation: Record<string, ObjectId | ObjectId[]>,
     options?: InsertOptions,
   ) => {
     const db = getDbClient();
@@ -119,7 +121,22 @@ export const odm = (schemasObj: ISchema) => {
       schemaFns(schemasObj).getSchema(collection).inrelation;
 
     // console.log("doc================>", doc);
-
+    for (const key in inrelationObj) {
+      if (inrelationObj[key].optional === false) {
+        if (!Array.isArray(relation[inrelationObj[key].schemaName])) {
+          const res = await findOnePureData(inrelationObj[key].schemaName, {
+            _id: relation[inrelationObj[key].schemaName],
+          });
+          doc[key] = res;
+          // doc = Object.assign(res, doc);
+        } else {
+          const res = await findPureData(inrelationObj[key].schemaName, {
+            _id: { $in: relation[inrelationObj[key].schemaName] },
+          });
+          doc[key] = res;
+        }
+      }
+    }
     assert(doc, object(pureInrelSchema));
 
     doc = addOutrelation(collection, doc, foundedSchema);
@@ -154,7 +171,6 @@ export const odm = (schemasObj: ISchema) => {
       : throwError("No database connection");
   };
 
-  // TODO : must be check if the inrelation and outrelation pure model is exist
   const setModel = (
     name: string,
     pureModel: PureModel,
@@ -178,7 +194,10 @@ export const odm = (schemasObj: ISchema) => {
         options?: FindOptions,
       ) => findOneData(name, filter, get, options),
 
-      insertOne: (query: Bson.Document) => insertOneData(name, query),
+      insertOne: (
+        query: Bson.Document,
+        relation: Record<string, ObjectId | ObjectId[]>,
+      ) => insertOneData(name, query, relation),
       updateOne: (
         filter: Filter<Bson.Document>,
         update: UpdateFilter<Bson.Document>,
