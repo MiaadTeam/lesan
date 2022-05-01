@@ -2,6 +2,8 @@ import { Bson, Database, Filter, FindOptions } from "../../deps.ts";
 
 import { throwError } from "../../utils/mod.ts";
 
+let count = 0;
+
 export const collectData = async (
   schemas: any,
   filter: Filter<Bson.Document>,
@@ -12,10 +14,14 @@ export const collectData = async (
   type: "one" | "many",
   options?: FindOptions,
 ) => {
-  console.log("===========================================>");
-  console.log("in findOne");
-  console.log("==================>projection", projection);
-  console.log("===========================================>");
+  // count++;
+  // console.log("===========================================>");
+  // console.log("count=======>", count);
+  // console.log("collection================>", collection);
+  // console.log("in findOne");
+  // console.log("==================>projection", projection);
+  // console.log("=================> filter", filter);
+  // console.log("===========================================>");
 
   result = type === "one"
     ? db
@@ -30,6 +36,11 @@ export const collectData = async (
       projection,
     }).toArray()
     : throwError("No database connection");
+
+  // console.log("===========================================>");
+  // console.log("in findOne function");
+  // console.log("==================>result", result);
+  // console.log("===========================================>");
 
   for (let key in projection) {
     if (
@@ -80,7 +91,7 @@ export const collectData = async (
         Object.keys(projection[key]).length !==
           Object.keys(result[key]).length
       ) {
-        filter = { _id: result._id };
+        filter = { _id: result[key]._id };
 
         result[key] = await collectData(
           schemas,

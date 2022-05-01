@@ -76,26 +76,11 @@ export const odm = (schemasObj: ISchema) => {
   const findOnePureData = async (
     collection: string,
     filter: Filter<Bson.Document>,
-    get: Record<string, any>,
     options?: FindOptions,
   ) => {
-    const db = getDbClient();
-    const getSchemas = enums(schemaFns(schemasObj).getSchemasKeys());
-    const schemas = schemaFns(schemasObj).getSchemas();
-    assert(collection, getSchemas);
+    const getPureSchema = schemaFns(schemasObj);
+    const result = "";
 
-    const projection = makeProjection(collection, {}, get, schemas);
-
-    const result = await collectData(
-      schemas,
-      filter,
-      db,
-      projection,
-      collection,
-      {},
-      "one",
-      options,
-    );
     return result;
   };
 
@@ -110,7 +95,7 @@ export const odm = (schemasObj: ISchema) => {
     const inrelationObj =
       schemaFns(schemasObj).getSchema(collection).inrelation;
 
-    console.log("doc================>", doc);
+    // console.log("doc================>", doc);
 
     assert(doc, object(pureInrelSchema));
 
