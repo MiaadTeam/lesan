@@ -9,6 +9,10 @@ export const checkRelation = (
   doc: Bson.Document,
   db: Database,
 ) => {
+  console.log("================================>");
+  console.log("in function body");
+  console.log("================================>");
+
   const pureDoc = getPureFromDoc(schemaName, schemaObj, doc);
 
   Object.keys(schemaInrel).forEach((key) => {
@@ -17,6 +21,11 @@ export const checkRelation = (
         .outrelation,
     ).forEach(async ([keyName, obj]) => {
       if (schemaName === obj.schemaName && schemaInrel[key]["type"] === "one") {
+        console.log("================================>");
+        console.log("one type condition its ok");
+        console.log("================>", key);
+        console.log("================================>");
+
         if (obj.sort.type === "objectId" || obj.sort.type === "date") {
           doc[key] && obj.sort.order === "asc"
             ? await db.collection(schemaInrel[key]["schemaName"]).updateOne({
@@ -44,6 +53,11 @@ export const checkRelation = (
       } else if (
         schemaName === obj.schemaName && schemaInrel[key]["type"] === "many"
       ) {
+        console.log("================================>");
+        console.log("many type condition its ok");
+        console.log("================>", key);
+        console.log("================================>");
+
         if (obj.sort.type === "objectId" || obj.sort.type === "date") {
           doc[key] && obj.sort.order === "asc"
             ? doc[key].forEach(async (document: any) => {

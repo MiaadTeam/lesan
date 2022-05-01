@@ -12,6 +12,11 @@ export const collectData = async (
   type: "one" | "many",
   options?: FindOptions,
 ) => {
+  console.log("===========================================>");
+  console.log("in findOne");
+  console.log("==================>projection", projection);
+  console.log("===========================================>");
+
   result = type === "one"
     ? db
       ? await db.collection(collection).findOne(filter, {
@@ -31,7 +36,6 @@ export const collectData = async (
       Object.keys(schemas[collection]["inrelation"]).includes(key) &&
       schemas[collection]["inrelation"][key]["type"] === "many"
     ) {
-      
       if (
         !Array.isArray(result) &&
         Object.keys(projection[key]).length !==
@@ -92,7 +96,6 @@ export const collectData = async (
         Object.keys(projection[key]).length !==
           Object.keys(result[0][key]).length
       ) {
-
         for (const item of result) {
           filter = { _id: item[key]._id };
 

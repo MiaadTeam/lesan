@@ -1,4 +1,4 @@
-import { array, assign, object } from "../deps.ts";
+import { array, assign, object, optional } from "../deps.ts";
 import { Model } from "./types.ts";
 
 /**
@@ -104,7 +104,15 @@ export const schemaFns = (schemas: Record<string, Model>) => {
       pureSchemas = {
         ...pureSchemas,
         [property]: schema.inrelation[property].type === "one"
-          ? object(schemas[schema.inrelation[property].schemaName]?.pure)
+          ? schema.inrelation[property].optional === true
+            ? optional(
+              object(schemas[schema.inrelation[property].schemaName]?.pure),
+            )
+            : object(schemas[schema.inrelation[property].schemaName]?.pure)
+          : schema.inrelation[property].optional === true
+          ? optional(array(
+            object(schemas[schema.inrelation[property].schemaName]?.pure),
+          ))
           : array(
             object(schemas[schema.inrelation[property].schemaName]?.pure),
           ),

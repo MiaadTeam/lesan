@@ -22,6 +22,8 @@ export interface InRelation {
    * this schema record array of object from other schema
    */
   type: "one" | "many";
+
+  optional: boolean;
 }
 /**
  * if schema has relation with other schema and in SQL that we dont keep foriegn key.
