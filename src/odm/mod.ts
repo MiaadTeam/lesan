@@ -38,12 +38,16 @@ export const odm = (schemasObj: ISchema) => {
       : throwError("No database connection");
   };
 
-  const findData = async (collection: string, query: Bson.Document) => {
+  const findData = async (
+    collection: string,
+    query: Bson.Document,
+    projection: any,
+  ) => {
     const db = getDbClient();
     const getSchemas = enums(schemaFns(schemasObj).getSchemasKeys());
     assert(collection, getSchemas);
     return db
-      ? await db.collection(collection).find(query).toArray()
+      ? await db.collection(collection).find(query, projection).toArray()
       : throwError("No database connection");
   };
 
@@ -78,10 +82,29 @@ export const odm = (schemasObj: ISchema) => {
     filter: Filter<Bson.Document>,
     options?: FindOptions,
   ) => {
-    const getPureSchema = schemaFns(schemasObj);
-    const result = "";
+    let projection: any = {};
+    const PureSchema = schemaFns(schemasObj).getSchema(collection).pure;
 
-    return result;
+    for (const key in PureSchema) {
+      projection.key = 1;
+    }
+
+    await findOneData(collection, filter, projection, options);
+  };
+
+  const findPureData = async (
+    collection: string,
+    filter: Filter<Bson.Document>,
+    options?: FindOptions,
+  ) => {
+    let projection: any = {};
+    const PureSchema = schemaFns(schemasObj).getSchema(collection).pure;
+
+    for (const key in PureSchema) {
+      projection.key = 1;
+    }
+
+    await findData(collection, filter, projection);
   };
 
   const insertOneData = async (
@@ -147,7 +170,8 @@ export const odm = (schemasObj: ISchema) => {
     };
 
     return {
-      find: (query: Bson.Document) => findData(name, query),
+      find: (query: Bson.Document, projection: any) =>
+        findData(name, query, projection),
       findOne: (
         filter: Filter<Bson.Document>,
         get: Record<string, any>,
