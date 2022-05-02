@@ -1,5 +1,6 @@
 # What is **Lesan**?
-Lesan is a combination of a **web server** and a ***MongoDb ODM*** with some built-in microservice infrastructure.
+
+Lesan is a combination of a **web server** and a _**MongoDb ODM**_ with some built-in microservice infrastructure.
 
 It also has employed several concepts regarding arbitrary embedding documents and creating **SSG** contents.
 
@@ -45,7 +46,7 @@ Conceptually, we have three important concepts for designing every model in the 
 
 `pure` is merely a simple object with `key` of `string` and a `value` similar to [SuperStruct](https://github.com/ianstormtaylor/superstruct) structure.
 
-`inrelation` represents an **array** or a ***single*** `pure` object of another `MongoDb collection`, we want to embed in the current document. In `SQL` modeling, for every relation we save the `key` or `id` which we call `inrelation`. As an example, we have a `blogPost` which has a creator from `user` collection and we save `pure` model of the `user` in `blogPost` collection.
+`inrelation` represents an **array** or a _**single**_ `pure` object of another `MongoDb collection`, we want to embed in the current document. In `SQL` modeling, for every relation we save the `key` or `id` which we call `inrelation`. As an example, we have a `blogPost` which has a creator from `user` collection and we save `pure` model of the `user` in `blogPost` collection.
 
 `outrelation` specifies a relation for a specific `collection` but it could contain an unbound set of data that could outgrow the **16MB** limit size of a document in MongoDB. Thus we do not even save its `key` or `id` in `SQL` modeling. For example, we have a `user` entity who writes many blog posts and we save for example an `array` of `pure` object of `blogPost` in order of the date published for the first pagination in `user` collection containing the latest 50 blog posts.
 
@@ -83,6 +84,7 @@ const userInRel: Record<string, InRelation> = {
   country: {
     schemaName: "country",
     type: "one",
+    optional: false,
   },
 };
 
@@ -94,7 +96,7 @@ const countryOutRel: Record<string, OutRelation> = {
   users: {
     schemaName: "user",
     number: 50,
-    sort: { field: "_id", order: "desc" },
+    sort: { field: "_id", order: "desc", type: "objectId" },
   },
 };
 ```
@@ -118,7 +120,7 @@ For creating an end point, we need to set `act` from `coreApp.acts.setAct` funct
 - The `type` is just an enum of two possible options namely, `static` and `dynamic`.
 - `schema` is the name of the model to which we want to set an action.
 - `actName` is just a simple string to identify the `act`.
-- `validator` is a superstruct `object` which is called before `act` `fn` calling and validation the giving data.  
+- `validator` is a superstruct `object` which is called before `act` `fn` calling and validation the giving data.
 - `validator` includes `set` and `get` objects.
 - `fn` is the function we call when a request for it arrives.
 
@@ -257,6 +259,7 @@ const userInRel: Record<string, InRelation> = {
   country: {
     schemaName: "country",
     type: "one",
+    optional: false,
   },
 };
 
@@ -268,7 +271,7 @@ const countryOutRel: Record<string, OutRelation> = {
   users: {
     schemaName: "user",
     number: 50,
-    sort: { field: "_id", order: "desc" },
+    sort: { field: "_id", order: "desc", type: "objectId" },
   },
 };
 
@@ -325,6 +328,7 @@ coreApp.runServer({ port: 8080, typeGeneration: true, playground: false });
 ```
 
 ### Microservice Architecture with Lesan:
+
 Lesan provides the capability to create independent services which follow the distributed architecture for your system.
 
 Follow the below instructions in order to create a microservice example:
