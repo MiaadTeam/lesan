@@ -5,12 +5,10 @@ import { Acts, Services } from "./types.ts";
  *  @param serviceName - name of service
  *  @param service - type of service string or Acts
  */
-export const setService = (acts: Services) => {
-  type ServiceKeys = keyof typeof acts;
-  return (
-    serviceName: ServiceKeys,
-    service: Acts | string,
-  ) => {
-    acts[serviceName] = service;
-  };
+export const setService = (
+  acts: Services,
+  serviceName: keyof typeof acts,
+  service: Acts | string,
+) => {
+  acts[serviceName] = service;
 };

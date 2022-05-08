@@ -17,13 +17,16 @@ import { Act, Services } from "./types.ts";
  *         },
  *        }
  */
-export const getDynamicAct = (acts: Services) =>
-  (schema: string, actName: string) => {
-    if (!acts.main.dynamic[schema]) {
-      throw new Error(`Invalid schema: ${schema}`);
-    }
-    if (!acts.main.dynamic[schema][actName]) {
-      throw new Error(`Invalid actName: ${actName}`);
-    }
-    return acts.main.dynamic[schema][actName];
-  };
+export const getDynamicAct = (
+  acts: Services,
+  schema: string,
+  actName: string,
+) => {
+  if (!acts.main.dynamic[schema]) {
+    throw new Error(`Invalid schema: ${schema}`);
+  }
+  if (!acts.main.dynamic[schema][actName]) {
+    throw new Error(`Invalid actName: ${actName}`);
+  }
+  return acts.main.dynamic[schema][actName];
+};

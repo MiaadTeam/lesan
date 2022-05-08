@@ -11,19 +11,19 @@ import { ActInp, Services } from "./types.ts";
  * }
  */
 
-export const setAct = (acts: Services) =>
-  (
-    { type, schema, actName, validator, fn }: ActInp,
-  ) => {
-    if (!acts.main[type]) {
-      throw new Error(`Invalid type: ${type}`);
-    }
+export const setAct = (
+  acts: Services,
+  { type, schema, actName, validator, fn }: ActInp,
+) => {
+  if (!acts.main[type]) {
+    throw new Error(`Invalid type: ${type}`);
+  }
 
-    if (!acts.main[type][schema]) {
-      acts.main[type][schema] = {};
-    }
-    acts.main[type][schema][actName] = {
-      validator,
-      fn,
-    };
+  if (!acts.main[type][schema]) {
+    acts.main[type][schema] = {};
+  }
+  acts.main[type][schema][actName] = {
+    validator,
+    fn,
   };
+};

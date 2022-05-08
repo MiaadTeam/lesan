@@ -5,15 +5,12 @@ import { Act, Services } from "./types.ts";
  *  @param schema - name of schema
  *  @returns dynamic Actions of specific schema of main service
  */
-type GetSchmaStaticActs = (
+export const getSchemaDynamicActs = (
+  acts: Services,
   schema: string,
-) => { [key: string]: Act };
-export const getSchemaDynamicActs = (acts: Services): GetSchmaStaticActs =>
-  (
-    schema,
-  ) => {
-    if (!acts.main.dynamic[schema]) {
-      throw new Error(`Invalid schema: ${schema}`);
-    }
-    return acts.main.dynamic[schema];
-  };
+) => {
+  if (!acts.main.dynamic[schema]) {
+    throw new Error(`Invalid schema: ${schema}`);
+  }
+  return acts.main.dynamic[schema];
+};

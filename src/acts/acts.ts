@@ -15,7 +15,7 @@ import { getStaticActs } from "./getStaticActs.ts";
 import { getStaticKeys } from "./getStaticKeys.ts";
 import { setAct } from "./setAct.ts";
 import { setService } from "./setService.ts";
-import { Services } from "./types.ts";
+import { ActInp, Acts, Services } from "./types.ts";
 
 // const actsSample = {
 //
@@ -77,22 +77,49 @@ import { Services } from "./types.ts";
  */
 export const acts = (acts: Services) => {
   return {
-    setAct: setAct(acts),
-    getDynamicActs: getDynamicActs(acts),
-    getStaticActs: getStaticActs(acts),
-    getStaticKeys: getStaticKeys(acts),
-    getDynamicKeys: getDynamicKeys(acts),
-    getServiceKeys: getServiceKeys(acts),
-    getSchemaDynamicActs: getSchemaDynamicActs(acts),
-    getSchemaStaticActs: getSchemaStaticActs(acts),
-    getDynamicAct: getDynamicAct(acts),
-    getStaticAct: getStaticAct(acts),
-    getActs: getActs(acts),
-    getActsKeys: getActsKeys(acts),
-    getAct: getAct(acts),
-    getAtcsWithServices: getAtcsWithServices(acts),
-    getMainActs: getMainActs(acts),
-    setService: setService(acts),
-    getService: getService(acts),
+    setAct: (actInp: ActInp) => setAct(acts, actInp),
+    getDynamicActs: (
+      serviceName?: keyof typeof acts,
+    ) => getDynamicActs(acts, serviceName),
+    getDynamicKeys: (serviceName: keyof typeof acts) =>
+      getDynamicKeys(acts, serviceName),
+    getServiceKeys: () => getServiceKeys(acts),
+    getSchemaDynamicActs: (schema: string) =>
+      getSchemaDynamicActs(acts, schema),
+    getSchemaStaticActs: (schema: string) => getSchemaStaticActs(acts, schema),
+    getDynamicAct: (schema: string, actName: string) =>
+      getDynamicAct(acts, schema, actName),
+    getStaticAct: (
+      schema: string,
+      actName: string,
+    ) => getStaticAct(acts, schema, actName),
+    getActs: (
+      type: "static" | "dynamic",
+      schema: string,
+    ) => getActs(acts, type, schema),
+    getActsKeys: (
+      service: keyof typeof acts,
+      type: "static" | "dynamic",
+      schema: string,
+    ) => getActsKeys(acts, service, type, schema),
+    getAct: (
+      service: keyof typeof acts,
+      type: "static" | "dynamic",
+      schema: string,
+      actName: string,
+    ) => getAct(acts, service, type, schema, actName),
+    getAtcsWithServices: () => getAtcsWithServices(acts),
+    getMainActs: () => getMainActs(acts),
+    setService: (
+      serviceName: keyof typeof acts,
+      service: Acts | string,
+    ) => setService(acts, serviceName, service),
+    getService: (
+      service: keyof typeof acts,
+    ) => getService(acts, service),
+    getStaticActs: (serviceName?: keyof typeof acts) =>
+      getStaticActs(acts, serviceName),
+    getStaticKeys: (serviceName?: keyof typeof acts) =>
+      getStaticKeys(acts, serviceName),
   };
 };

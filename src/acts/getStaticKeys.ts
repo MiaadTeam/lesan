@@ -7,14 +7,14 @@ import { Acts, Services } from "./types.ts";
  * @returns key of static actions
  * if service doesnt have static Acts throw Exception
  */
-export const getStaticKeys = (acts: Services) => {
-  type ServiceKeys = keyof typeof acts;
-  return (serviceName?: ServiceKeys) => {
-    return (serviceName && acts[serviceName] &&
-        (typeof acts[serviceName] !== "string"))
-      ? Object.keys((acts[serviceName] as Acts).static)
-      : (serviceName === "main")
-      ? Object.keys(acts.main.static)
-      : throwError(`serviceName not valid : ${serviceName}`);
-  };
+export const getStaticKeys = (
+  acts: Services,
+  serviceName?: keyof typeof acts,
+) => {
+  return (serviceName && acts[serviceName] &&
+      (typeof acts[serviceName] !== "string"))
+    ? Object.keys((acts[serviceName] as Acts).static)
+    : (serviceName === "main")
+    ? Object.keys(acts.main.static)
+    : throwError(`serviceName not valid : ${serviceName}`);
 };

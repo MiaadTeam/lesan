@@ -5,12 +5,12 @@ import { Services } from "./types.ts";
  *  @param schema - name of schema
  *  @returns static Actions of specific schema of main service
  */
-export const getSchemaStaticActs = (acts: Services) =>
-  (
-    schema: string,
-  ) => {
-    if (!acts.main.static[schema]) {
-      throw new Error(`Invalid schema: ${schema}`);
-    }
-    return acts.main.static[schema];
-  };
+export const getSchemaStaticActs = (
+  acts: Services,
+  schema: string,
+) => {
+  if (!acts.main.static[schema]) {
+    throw new Error(`Invalid schema: ${schema}`);
+  }
+  return acts.main.static[schema];
+};

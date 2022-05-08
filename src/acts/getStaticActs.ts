@@ -6,12 +6,12 @@ import { Acts, Services } from "./types.ts";
  * @returns static actions
  * if service doesnt have static Acts throw Exception
  */
-export const getStaticActs = (acts: Services) => {
-  type ServiceKeys = keyof typeof acts;
-  return (serviceName?: ServiceKeys) => {
-    return (serviceName && acts[serviceName] &&
-        (typeof acts[serviceName] !== "string"))
-      ? (acts[serviceName] as Acts).static
-      : acts.main.static;
-  };
+export const getStaticActs = (
+  acts: Services,
+  serviceName?: keyof typeof acts,
+) => {
+  return (serviceName && acts[serviceName] &&
+      (typeof acts[serviceName] !== "string"))
+    ? (acts[serviceName] as Acts).static
+    : acts.main.static;
 };
