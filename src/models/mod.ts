@@ -1,6 +1,6 @@
 import { contextFns } from "./context.ts";
-import { inrelationFns } from "./inrelation.ts";
-import { outrelationFns } from "./outrelation.ts";
+import { inrelationFns } from "./inrelation/mod.ts";
+import { outrelationFns } from "./outrelation/mod.ts";
 import { pureFns } from "./pure.ts";
 import { relationFns } from "./relation.ts";
 import { schemaFns } from "./schema.ts";
@@ -24,3 +24,6 @@ export const schemas = (schemas: ISchema) => {
     ...selectStructFns(schemas),
   };
 };
+
+export * from "./inrelation/mod.ts";
+export * from "./outrelation/mod.ts";
