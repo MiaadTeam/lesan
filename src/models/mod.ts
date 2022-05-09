@@ -30,3 +30,5 @@ export * from "./outrelation/mod.ts";
 export * from "./pure/mod.ts";
 export * from "./relation/mod.ts";
 export * from "./schema/mod.ts";
+export * from "./selectInp.ts";
+export * from "./selectStruct.ts";
