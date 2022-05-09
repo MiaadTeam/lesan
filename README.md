@@ -10,7 +10,7 @@ for know is just working on deno, node js version also is comming
 
 You can find complete implementation of this example [here](https://github.com/MiaadTeam/lesan/tree/main/examples/simpleMircoservice).
 
-First of all, create a "ts" file called `mod.ts` and import the latest version of `lesan` and assign it to a constant variable called `coreApp`:
+First of all, create a `mod.ts` file and import the latest version of `lesan` and assign it to a constant variable called `coreApp`:
 
 ```typescript
 import { lesan } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
