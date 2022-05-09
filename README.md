@@ -4,7 +4,9 @@ Lesan is a combination of a **web server** and a _**MongoDb ODM**_ with some bui
 
 It also has employed several concepts regarding arbitrary embedding documents and creating **SSG** contents.
 
-### Let's create a simple web server:
+for know is just working on deno, node js version also is comming
+
+### Let's create a simple web server with deno:
 
 You can find complete implementation of this example [here](https://github.com/MiaadTeam/lesan/tree/main/examples/simpleMircoservice).
 
