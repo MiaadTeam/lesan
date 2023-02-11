@@ -1,10 +1,6 @@
 # In the name of God the compassionate the merciful
 
-Lasan Framework documents
-
-[GitHub link](https://github.com/MiaadTeam/lesan)
-
-# Introduction {#introduction}
+# Introduction
 
 Lesan is a collection of a [Web Server](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_web_server) and an ODM along with an idea to implement [microservices](https://www.ibm.com/cloud/learn/microservices).
 
@@ -24,23 +20,19 @@ One of the most critical challenges for implementing the ability to receive data
 
 Let us review the previous methods before explaining Lesan's method.
 
-### Previous methods and the main challenge {#previous-methods-and-the-main-challenge}
+### Previous methods and the main challenge
 
 Many of the current architectures for interacting with server-side applications require multiple requests to be sent to the server to receive a set of related information. Also, due to the incompatibility of the transmitted information with the customer's needs, much of the sent information will be unused and cause a waste of resources and bandwidth. The first problem is known as under-fetching, that is, the received information is less than what is needed, and the request needs to be re-sent to the server. This will reduce the number of requests that can be answered by the server per unit of time. And its processing load will increase.
 
-    The second problem is known as over-fetching. That is, the client needs only a certain part of the information, but the server also sends other data in the same table regardless of its needs. This problem causes the occupation of additional bandwidth and increases the time of data exchange. To solve this problem, Facebook introduced a new concept called [GraphQL](https://graphql.org/), which solved the above problems. This idea was very creative and practical, but it also comes with problems.
-
-<p id="gdcalert1" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image1.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert2">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+The second problem is known as over-fetching. That is, the client needs only a certain part of the information, but the server also sends other data in the same table regardless of its needs. This problem causes the occupation of additional bandwidth and increases the time of data exchange. To solve this problem, Facebook introduced a new concept called [GraphQL](https://graphql.org/), which solved the above problems. This idea was very creative and practical, but it also comes with problems.
 
 ![alt_text](images/image1.png "image_tooltip")
 
-## 
-
-    GraphQL problems
+### GraphQL problems
 
 Considering that GraphQL is a language for describing data models and how to request them, in addition to the usual implementation of the server program, a specific implementation for GraphQL is also needed. This case violates one of the fundamental principles of programming, namely ["Don't repeat yourself" (DRY)](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself). And it forces developers to learn the descriptive language unique to GraphQL , namely GQL .
 
-```
+```TypeScript
 # This Book type has two fields: title and author
 type Book {
  title: String  # returns a String
@@ -56,8 +48,6 @@ After the description of the data model is done in GraphQL language, in order to
 
 One of the things handled in GraphQL is sending data along with their relationships. But the depth and type of relationships that are requested cannot be easily managed and this causes non-optimal requests to be sent to the server.
 
-<p id="gdcalert2" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image2.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert3">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image2.png "image_tooltip")
 
 GraphQL is a descriptive language with a general approach and is not optimized for any particular database. In fact, this tool has no vision of what implementation has been done in other structures, and no special optimization has been done on it.
@@ -68,7 +58,7 @@ The common standards of requests on the web platform have not been used and [new
 
 ## Lesan's solution for how to communicate between the server and the client
 
-The idea of ​​connecting client-side nodes with the backend in Lasan is inspired by GraphQL. But we tried to make this communication simpler and more practical. So that we can solve the problems mentioned above.
+The idea of connecting client-side nodes with the backend in Lasan is inspired by GraphQL. But we tried to make this communication simpler and more practical. So that we can solve the problems mentioned above.
 
 To do this, we paid attention to the following two points:
 
@@ -350,140 +340,131 @@ The next issue is how to penetrate deep. In GraphQL, you have very complex solut
 
 - First of all, we create an app with the Lesan framework, for example (this example is written in TypeScript language):
 
+  ```TypeScript
+  const ecommerceApp = lesan();
   ```
+
+- We write the model we want for the software with the pure-inrelation-outrelation method and add it to our ODM application. In this way (for countries and cities, consider the same information as in the above example):
+
+  ```TypeScript
+  const statePureObj = {
+    id: optional(any()),
+    name: string(),
+    geometries: optional(object({
+      type: string(),
+      coordinates: array(array(number())),
+    })),
+    abb: optional(string()),
+    description: optional(string()),
+  };
+
+  const stateInRel = {
+    country: {
+      schemaName: "country",
+      type: "one",
+      optional: false,
+    },
+    cities: {
+      schemaName: "city",
+      type: "many",
+      optional: true,
+    },
+  };
+
+  const stateOutRel = {};
+
+  const states = () =>
+    ecommerceApp.odm.setModel(
+      "state",
+      statePureObj,
+      stateInRel as Record<string, InRelation>,
+      stateOutRel as Record<string, OutRelation>,
+    );
   ```
-
-const ecommerceApp = lesan();
-
-````
-* We write the model we want for the software with the pure-inrelation-outrelation method and add it to our ODM application. In this way (for countries and cities, consider the same information as in the above example):
-
-    ```
-const statePureObj = {
-	id: optional(any()),
-	name: string(),
-	geometries: optional(object({
-    	type: string(),
-    	coordinates: array(array(number())),
-	})),
-abb: optional(string()),
-description: optional(string()),
-};
-
-const stateInRel = {
-	country: {
-    	schemaName: "country",
-    	type: "one",
-    	optional: false,
-	},
-	cities: {
-    	schemaName: "city",
-    	type: "many",
-    	optional: true,
-	},
-};
-
-const stateOutRel = {};
-
-const states = () =>
-	ecommerceApp.odm.setModel(
-    	"state",
-    	statePureObj,
-    	stateInRel as Record<string, InRelation>,
-    	stateOutRel as Record<string, OutRelation>,
-	);
-````
-
 - Now we create a function for this model and add it to the actions of our application (in fact, this action is provided to the user on the client side to call it) like this:
 
-  ```
-  ```
-
-const addStateFn: ActFn = async (body) => {
-const {
-set: { name, enName, countryId, geometries },
-get,
-} = body.details;
+  ```TypeScript
+  const addStateFn: ActFn = async (body) => {
+    const {
+      set: { name, enName, countryId, geometries },
+      get,
+    } = body.details;
 
     const inState = await states().insertOne({
-    	name,
-    	enName,
-    	geometries,
+      name,
+      enName,
+      geometries,
     }, { country: new ObjectId(countryId) });
     return Object.keys(get).length != 0
-    	? await states().findOne({ _id: new ObjectId(inState) }, get)
-    	: { _id: inState };
+      ? await states().findOne({ _id: new ObjectId(inState) }, get)
+      : { _id: inState };
+  };
+  ```
 
-};
+- Now we write a validator for this function as follows:
 
-````
-* Now we write a validator for this function as follows:
-
-    ```
-const addStateValidator = () => {
-	return object({
-    	set: object({
-        	countryId: string(),
-        	name: string(),
-        	enName: string(),
-        	geometries: optional(object({
-            	type: string(),
-            	coordinates: array(array(number())),
-        	})),
-    	}),
-    	get: selectStruct("state", 2),
-	});
-};
-````
+  ```TypeScript
+  const addStateValidator = () => {
+    return object({
+      set: object({
+        countryId: string(),
+        name: string(),
+        enName: string(),
+        geometries: optional(object({
+          type: string(),
+          coordinates: array(array(number())),
+        })),
+      }),
+      get: selectStruct("state", 2),
+    });
+  };
+  ```
 
 - As you can see, addState function validator has an object with set and get keys. The set key is used for information that we need to add state, and as you saw in addStateFn, this information is used. But the get key value is what we need to penetrate deep. This value must be an object of a model that accurately specifies the amount of penetration in each of the relations of that model for the validator of a function (here the addStateFn function). Here the get key is generated by a function called selectStruct. This function contains two inputs. The first input is the name of the model for which we want to generate this object, and the second input specifies the depth of each relationship. The second input can be a number like 2 or an object. The keys of this object must be the names of the relations of the selected model, and its value can be a number or an object of the relations of that key. As :
 
-  ```
+  ```TypeScript
+  { country : { state: 2 }, cities: 1 }
   ```
 
-{ country : { state: 2 }, cities: 1 }
-
-```
 As a result, an object will be produced as follows:
-```
 
+```TypeScript
 {
-id: enums([0,1]),
-name: enums([0,1]),
-abb: enums([0,1]),
-description: enums([0,1]),
-geoLocation: enums([0,1]),
-country: {
-id: enums([0,1]),
-name: enums([0,1]),
-abb: enums([0,1]),
-description: enums([0,1]),
-geoLocation: enums([0,1]),
-},
-cities: {
-id: enums([0,1]),
-name: enums([0,1]),
-abb: enums([0,1]),
-description: enums([0,1]),
-geoLocation: enums([0,1]),
+  id: enums([0,1]),
+  name: enums([0,1]),
+  abb: enums([0,1]),
+  description: enums([0,1]),
+  geoLocation: enums([0,1]),
+  country: {
+    id: enums([0,1]),
+    name: enums([0,1]),
+    abb: enums([0,1]),
+    description: enums([0,1]),
+    geoLocation: enums([0,1]),
+  },
+  cities: {
+    id: enums([0,1]),
+    name: enums([0,1]),
+    abb: enums([0,1]),
+    description: enums([0,1]),
+    geoLocation: enums([0,1]),
+  }
 }
-}
-
 ```
+
 This object is used to verify the data sent from the client side to the server. With this method, we have accurately and separately determined the amount of depth penetration for each function. If you pay attention, the get key is made exactly like the projection in mongodb, and after validation, we send the same object to the database without changes to receive the data. In addition, we can inform the client side user about the details of all requests written on the server side. As a result, on the client side, even before sending the request, we can understand what information should be sent and what information we can receive. Finally, we add this function and validator to our software with the setAct function.
-```
 
+```TypeScript
 ecommerceApp.acts.setAct({
-type: "dynamic",
-schema: "state",
-fn: addStateFn,
-actName: "addState",
-validator: addStateValidator(),
+  type: "dynamic",
+  schema: "state",
+  fn: addStateFn,
+  actName: "addState",
+  validator: addStateValidator(),
 });
-
 ```
-## Microservice {#microservice}
 
+## Microservice {#microservice}
 
 ### Microservice process implementation
 
@@ -497,144 +478,149 @@ Another problem that occurs in microservices is the lack of data coordination. T
 
 The next issue in microservices is the distribution of hardware resources on the server side. If we have many services, managing the hardware processing these services will be complicated and we need many tools to analyze the requests so that we can know the amount of hardware resources involved when each piece of written code is executed. In addition, exchanging messages between services is an additional processing load that must be done. Also, the repetitions created from the data, in addition to the additional space required for storage, also require writing parallel logics, because each logic processes separate data separately. But the main problem in processing load distribution occurs when it is divided horizontally. If the data is integrated in one place, it will be easy to manage the distribution of the processing load, but when each service has its own database and processing load and at the same time needs the data of other services, the distribution of the processing load for it will need to consider these dependencies. Due to the limitations of vertical distribution, it will be necessary to remove the obstacles of horizontal distribution. Lesan provides small solutions for implementing microservices that can reduce the complexity of their implementation. It also proposes a new process that has an architecture between microservice and monolith, which will be explained later.
 
-
 ## Lesan's solution
 
 As mentioned in the above section, Lesan is a set of models and actions created for those models. But in fact, these models are embedded in another object called contentType (data type). contentType contains two other objects named dynamic and static (it will be explained about these two objects later). The contentType itself is embedded in another object named main or any other service that is active in this process. All the information in the main key can be obtained with the getMainActs function. All the functions that we create with the setAct function are stored in the main object by default. But there is another function called setService. Using this function, we can add another service to our project. After adding the new service, we can access it by sending an object from the client side that has the service key. The setService function has two inputs: the first input is the name of the service and the second input can be received in two ways:
 
-
-
-* in the form of a string that is actually the access address to another service.
-* as another object, which is actually the output of the getMainActs function in another service.
+- in the form of a string that is actually the access address to another service.
+- as another object, which is actually the output of the getMainActs function in another service.
 
 If the second input is a string, http or grpc methods are used to communicate with it, and if it is an object, that other service will be added as a plugin on the current service. As a result, we can simultaneously manage a project both as a [monolith](https://www.geeksforgeeks.org/monolithic-vs-microservices-architecture/) and as a microservice.
 
-
 ## A proposal for microservice (an architecture between microservice and monolith)
 
-To create a model in Amir, it can be expanded based on another model so that it has nothing more than that and can only have a number of its keys. Therefore, it is possible to create a database for all services along with all models that these models have all the necessary keys in all services. Next, each service should define its model separately based on the integrated database model and take some of the keys it needs from that main model. According to the way the models are written in Lesan (implementation of the model based on a schema validator), it is possible to have a common database at the same time, and each service can validate its data separately based on the extended model of the comprehensive and original model. It is also possible to move the models and writing actions in Lesan, and you can easily have the database of each service separately or integrated with the rest of the services at the same time. On the other hand, NoSQL databases are usually without schema and you can easily give any form to the data in the database. And Lesan is currently developed based on MongoDB.  If we can fit all the service models in a comprehensive database, we can avoid data duplication, and we will not need to write parallel logic to manage this duplication. In addition, we no longer need synchronization tools or writing separate logics for data synchronization. And finally, we can take advantage of the ease of horizontal distribution of NoSQL databases, without having to worry about data integrity. Consider the following example:
+To create a model in Amir, it can be expanded based on another model so that it has nothing more than that and can only have a number of its keys. Therefore, it is possible to create a database for all services along with all models that these models have all the necessary keys in all services. Next, each service should define its model separately based on the integrated database model and take some of the keys it needs from that main model. According to the way the models are written in Lesan (implementation of the model based on a schema validator), it is possible to have a common database at the same time, and each service can validate its data separately based on the extended model of the comprehensive and original model. It is also possible to move the models and writing actions in Lesan, and you can easily have the database of each service separately or integrated with the rest of the services at the same time. On the other hand, NoSQL databases are usually without schema and you can easily give any form to the data in the database. And Lesan is currently developed based on MongoDB. If we can fit all the service models in a comprehensive database, we can avoid data duplication, and we will not need to write parallel logic to manage this duplication. In addition, we no longer need synchronization tools or writing separate logics for data synchronization. And finally, we can take advantage of the ease of horizontal distribution of NoSQL databases, without having to worry about data integrity. Consider the following example:
 
 Suppose we have several services called core - ecommerce - blog, etc., all of which have a model for users called user. We can create a user model that has all the fields of all these services and share it between all services, like this:
-```
 
+```TypeScript
 import {
-any,
-array,
-boolean,
-date,
-enums,
-InRelation,
-number,
-object,
-optional,
-OutRelation,
-string,
+  any,
+  array,
+  boolean,
+  date,
+  enums,
+  InRelation,
+  number,
+  object,
+  optional,
+  OutRelation,
+  string,
 } from "../../../deps.ts";
 
 export const level = enums(["Admin", "Editor", "Author", "Ghost", "Normal"]);
 export const gender = enums(["Male", "Female"]);
 
 export const addressObj = object({
-addressId: string(),
-countryId: string(),
-stateId: string(),
-cityId: string(),
-addressText: string(),
-location: optional(object({
-type: string(),
-coordinates: array(array(number())),
-})),
+  addressId: string(),
+  countryId: string(),
+  stateId: string(),
+  cityId: string(),
+  addressText: string(),
+  location: optional(object({
+    type: string(),
+    coordinates: array(array(number())),
+  })),
 });
 
 export const pureUserObj = {
-_id: optional(any()),
-name: string(),
-age: number(),
-lastName: string(),
-phone: number(),
-gender: gender,
-birthDate: optional(date()),
-postalCode: string(),
-level: array(level),
-email: optional(string()),
-isActive: optional(boolean()),
-creditCardNumber: optional(number()),
-address: optional(array(addressObj)),
+  _id: optional(any()),
+  name: string(),
+  age: number(),
+  lastName: string(),
+  phone: number(),
+  gender: gender,
+  birthDate: optional(date()),
+  postalCode: string(),
+  level: array(level),
+  email: optional(string()),
+  isActive: optional(boolean()),
+  creditCardNumber: optional(number()),
+  address: optional(array(addressObj)),
 };
 
 export const userInRel: Record<string, InRelation> = {};
 // TODO how c
 export const userOutRel: Record<string, OutRelation> = {
-blogPosts: {
-schemaName: "blogPosts",
-number: 50,
-sort: { type: "objectId", field: "_id", order: "desc" },
-},
-orders: {
-schemaName: "order",
-number: 50,
-sort: { type: "objectId", field: "_id", order: "desc" },
-},
+  blogPosts: {
+    schemaName: "blogPosts",
+    number: 50,
+    sort: { type: "objectId", field: "_id", order: "desc" },
+  },
+  orders: {
+    schemaName: "order",
+    number: 50,
+    sort: { type: "objectId", field: "_id", order: "desc" },
+  },
 };
-
 ```
+
 Now, for example, we create a user model for e-commerce and write its fields in such a way that it does not have anything more than the shared user model, like this:
-```
 
+```TypeScript
 import { ecommerceApp } from "../../../../../apps/ecommerce/mod.ts";
-import { any, array, boolean, date, InRelation, number, optional, OutRelation, string } from "../../../deps.ts";
+import {
+  any,
+  array,
+  boolean,
+  date,
+  InRelation,
+  number,
+  optional,
+  OutRelation,
+  string,
+} from "../../../deps.ts";
 
 import {
-addressObj,
-gender,
-level,
-pureUserObj as sharedPureUserObj,
-userInRel as sharedUserInRel,
-userOutRel as sharedUserOutRel,
+  addressObj,
+  gender,
+  level,
+  pureUserObj as sharedPureUserObj,
+  userInRel as sharedUserInRel,
+  userOutRel as sharedUserOutRel,
 } from "../../shared/mod.ts";
 
 const userPureObj: Partial<typeof sharedPureUserObj> = {
-_id: optional(any()),
-name: string(),
-age: number(),
-lastName: string(),
-phone: number(),
-gender: gender,
-birthDate: optional(date()),
-postalCode: string(),
-level: array(level),
-email: optional(string()),
-isActive: optional(boolean()),
-creditCardNumber: optional(number()),
-address: optional(array(addressObj)),
+  _id: optional(any()),
+  name: string(),
+  age: number(),
+  lastName: string(),
+  phone: number(),
+  gender: gender,
+  birthDate: optional(date()),
+  postalCode: string(),
+  level: array(level),
+  email: optional(string()),
+  isActive: optional(boolean()),
+  creditCardNumber: optional(number()),
+  address: optional(array(addressObj)),
 };
 
 const userInRel: Partial<typeof sharedUserInRel> = {};
 
 const userOutRel: Partial<typeof sharedUserOutRel> = {
-// blogPosts: {
-// 	schemaName: "blogPosts",
-// 	number: 50,
-// 	sort: { type: "objectId", field: "_id", order: "desc" },
-// },
-orders: {
-schemaName: "order",
-number: 50,
-sort: { type: "objectId", field: "_id", order: "desc" },
-},
+  // blogPosts: {
+  // 	schemaName: "blogPosts",
+  // 	number: 50,
+  // 	sort: { type: "objectId", field: "_id", order: "desc" },
+  // },
+  orders: {
+    schemaName: "order",
+    number: 50,
+    sort: { type: "objectId", field: "_id", order: "desc" },
+  },
 };
 
 export const users = () =>
-ecommerceApp.odm.setModel(
-"user",
-userPureObj,
-userInRel as Record<string, InRelation>,
-userOutRel as Record<string, OutRelation>,
-);
-
+  ecommerceApp.odm.setModel(
+    "user",
+    userPureObj,
+    userInRel as Record<string, InRelation>,
+    userOutRel as Record<string, OutRelation>,
+  );
 ```
-Now we can connect several services to a common database at the same time as they continue to work independently, while validating data schemas for each service works independently and only understands its own data. You can see a complete example of this type of microservice implementation [here](https://github.com/MiaadTeam/lesan/tree/main/examples/microservice).
 
+Now we can connect several services to a common database at the same time as they continue to work independently, while validating data schemas for each service works independently and only understands its own data. You can see a complete example of this type of microservice implementation [here](https://github.com/MiaadTeam/lesan/tree/main/examples/microservice).
 
 # Artificial intelligence
 
@@ -643,4 +629,3 @@ As explained above (in the section Why Data Repetition), Amir will use machine l
 Artificial intelligence and machine learning can also be used to integrate and unify commands within QQ. So that if there are several requests to update a schema, we can find and merge them together.
 
 AI suggestions can be used to optimize the data model to better manage how dependencies are embedded. to minimize the amount of processing and the speed of receiving information.
-```
