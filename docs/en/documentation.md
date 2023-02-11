@@ -87,46 +87,48 @@ Let us clarify the issue with an example:
 
 Consider a schema for a table named country with the following fields:
 
-```
-id
-name
-abb
-description
-geoLocation
-capital
-provinces
-cities
+```TypeScript
+id;
+name;
+abb;
+description;
+geoLocation;
+capital;
+provinces;
+cities;
 ```
 
 And also a schema for the province with the following fields:
 
-```
-id
-name
-abb
-description
-geoLocation
-center
-country
-cities
+```TypeScript
+id;
+name;
+abb;
+description;
+geoLocation;
+center;
+country;
+cities;
 ```
 
 And also a schema for the city with the following fields:
 
-```
-id
-name
-abb
-description
-geoLocation
-country
-province
+```TypeScript
+id;
+name;
+abb;
+description;
+geoLocation;
+country;
+province;
 ```
 
 The field capital in the country and center in the province are of the city type and we embed them completely. This form of relationship is a simple relationship and we call it inrelation, its type is singular and it is defined in this way in Lesan:
 
-```
-countryInrelations = { capital: { schemaName: "city", type: "one", optional: false } }
+```TypeScript
+countryInrelations = {
+  capital: { schemaName: "city", type: "one", optional: false },
+};
 ```
 
 All the relations of the country do not end here. This schema is also related to the province and city. Now, with a simple question, we can complete the country's relations:
@@ -135,8 +137,11 @@ Is the number of provinces that we are going to keep in the country too many? (T
 
 Answer: The number of provinces is limited and we can store all the provinces inside the country schema. So this relationship is also inrelation. Therefore, the above object should look like this:
 
-```
-countryInrelations = { capital: { schemaName: "city", type: "one", optional: false }, provinces: { schemaName: "province", type: "many", optional: true }}
+```TypeScript
+countryInrelations = {
+  capital: { schemaName: "city", type: "one", optional: false },
+  provinces: { schemaName: "province", type: "many", optional: true },
+};
 ```
 
 Another relationship we have in the country is the city, how do we define it?
@@ -145,19 +150,25 @@ There are many cities in a country and we cannot store all the cities in a count
 
 So this is a complex relationship with a high number, we define it as an outrelation, the process of defining it requires more information to know exactly what value and what data we are going to embed, we add that information in the sort key.
 
-```
-countryOutrelation = { cities: { schemaName: "city", number: 50, sort: { field: "_id", order: "desc", type: "objectId"}}}
+```TypeScript
+countryOutrelation = {
+  cities: {
+    schemaName: "city",
+    number: 50,
+    sort: { field: "_id", order: "desc", type: "objectId" },
+  },
+};
 ```
 
 We also define the rest of the country's fields, which are specific to it and are not related to any relationship, as pure fields:
 
-```
+```TypeScript
 countryPure: { name: string(), abb: optional(string()), ... }
 ```
 
 In the same way for the province:
 
-```
+```TypeScript
 provinceInrelations = { center: { schemaName : "city", type: "one" }, country: { schemaName: "country", type: "one" }}
 provinceOutrelation = { cities: { schemaName: "city", number: 50, sort: { field: " _id", order: "desc", type: "objectId"}}}
 provincePure: { name: string(), abb: optional(string()), ... }
@@ -165,7 +176,7 @@ provincePure: { name: string(), abb: optional(string()), ... }
 
 And for the city in the same way:
 
-```
+```TypeScript
 cityInrelations = { country: { schemaName: "country", type: "one" }, province: { schemaName: "province", type: "one" } }
 cityOutrelation = {}
 cityPure: { name: string(), abb: string() , ... }
@@ -175,66 +186,66 @@ If you pay attention, every relation that is kept as inrelation in a schema, the
 
 It is worth noting that we save this form of defining schemas in the integrated runtime in an object called Schemas. We will discuss its structure further. But what is stored in the database is the initial form that we showed earlier. It means for the country:
 
-```
-id
-name
-abb
-description
-geoLocation
-capital
-provinces
-cities
+```TypeScript
+id;
+name;
+abb;
+description;
+geoLocation;
+capital;
+provinces;
+cities;
 ```
 
 The amount of pure fields is known. And the value of the fields that are of the relation type of schemas will be in the form of objects of the pure type of that relation. That is, for example, for the country:
 
-```
+```TypeScript
 {
-id: "234fwee656",
-name: "iran",
-abb: "ir",
-description: "a big country in asia",
-geoLocation : [ [12,4], [32,45], ... ],
-capital : {
-	id: "234fwee656",
-	name: "tehran",
-	abb: "th",
-	description: "the beautiful city in middle of iran",
-	geoLocation : [ [12,4], [32,45], ... ]
-},
-provinces : [{
-	id: "234fwee656",
-	name: "tehran",
-	abb: "th",
-	description: "one of the irans provinces",
-	geoLocation : [ [12,4], [32,45], ... ]
-	},
-	{
+  id: "234fwee656",
+  name: "iran",
+  abb: "ir",
+  description: "a big country in asia",
+  geoLocation : [ [12,4], [32,45], ... ],
+  capital : {
+      id: "234fwee656",
+      name: "tehran",
+      abb: "th",
+      description: "the beautiful city in middle of iran",
+      geoLocation : [ [12,4], [32,45], ... ]
+  },
+  provinces : [{
+      id: "234fwee656",
+      name: "tehran",
+      abb: "th",
+      description: "one of the irans provinces",
+      geoLocation : [ [12,4], [32,45], ... ]
+      },
+      {
 
-	id: "234fwee656",
-	name: "hamedan",
-	abb: "hm",
-	description: "one of the irans provinces",
-	geoLocation : [ [12,4], [32,45], ... ]
-},
-... til to end of the provinces
-}],
-cities :  [{
-		id: "234fwee656",
-	name: "tehran",
-	abb: "th",
-	description: "the beautiful city in middle of iran",
-	geoLocation : [ [12,4], [32,45], ... ]
-	},
-	{
-		Id: "234fwee656",
-	name: "hamedan",
-	abb: "hm",
-	description: "one of the irans cities",
-	geoLocation : [ [12,4], [32,45], ... ]
-},
-... til to end of the number limit for the first paginate
-}],
+      id: "234fwee656",
+      name: "hamedan",
+      abb: "hm",
+      description: "one of the irans provinces",
+      geoLocation : [ [12,4], [32,45], ... ]
+  },
+  ... til to end of the provinces
+  }],
+  cities :  [{
+          id: "234fwee656",
+      name: "tehran",
+      abb: "th",
+      description: "the beautiful city in middle of iran",
+      geoLocation : [ [12,4], [32,45], ... ]
+      },
+      {
+          Id: "234fwee656",
+      name: "hamedan",
+      abb: "hm",
+      description: "one of the irans cities",
+      geoLocation : [ [12,4], [32,45], ... ]
+  },
+  ... til to end of the number limit for the first paginate
+  }],
 ```
 
 Now the user can filter and receive all the fields of a schema along with the first depth of its relations by sending only one request to the database.
@@ -243,7 +254,7 @@ This request is done according to the [projection](https://www.mongodb.com/docs/
 
 If the following fields are requested from the schema of a country in a request. Not only with a single request to the server but also with a single request to the database, all requested information will be received and returned to the user:
 
-```
+```TypeScript
 getCountry → id: 1
               Name: 1
 		  abb: 1
@@ -261,7 +272,7 @@ getCountry → id: 1
 
 What if the user penetrates deeper than one level? That is, to request the country, it should request the provinces and its cities from within the provinces. As in the following example:
 
-```
+```TypeScript
 getCountry → id: 1
               name : 1
 		  abb : 1
