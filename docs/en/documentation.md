@@ -26,7 +26,7 @@ Many of the current architectures for interacting with server-side applications 
 
 The second problem is known as over-fetching. That is, the client needs only a certain part of the information, but the server also sends other data in the same table regardless of its needs. This problem causes the occupation of additional bandwidth and increases the time of data exchange. To solve this problem, Facebook introduced a new concept called [GraphQL](https://graphql.org/), which solved the above problems. This idea was very creative and practical, but it also comes with problems.
 
-![alt_text](images/image1.png "image_tooltip")
+![over-fetching](https://miro.medium.com/max/1396/0*HzeviPdGTku_f5Dr)
 
 ### GraphQL problems
 
@@ -45,10 +45,11 @@ type Mutation {
 ```
 
 After the description of the data model is done in GraphQL language, in order to send each request to the server, it is necessary to analyze descriptive texts, which also has a [processing overhead](https://en.wikipedia.org/wiki/Overhead_(computing)) .
+![proccess gql](https://camo.githubusercontent.com/e31c0377b14b9744768cd473d11ff40a1176db3cb8008b9ef16d6225b4f60443/68747470733a2f2f6772617068716c2d656e67696e652d63646e2e6861737572612e696f2f6173736574732f6a736f6e326772617068716c2f6a736f6e32706f7374677265732d6772617068716c2e706e67)
 
 One of the things handled in GraphQL is sending data along with their relationships. But the depth and type of relationships that are requested cannot be easily managed and this causes non-optimal requests to be sent to the server.
 
-![alt_text](images/image2.png "image_tooltip")
+![graphql depth](https://apim.docs.wso2.com/en/4.0.0/assets/img/learn/graphql-depth-limitation.png)
 
 GraphQL is a descriptive language with a general approach and is not optimized for any particular database. In fact, this tool has no vision of what implementation has been done in other structures, and no special optimization has been done on it.
 
