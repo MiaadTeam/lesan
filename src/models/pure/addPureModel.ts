@@ -1,5 +1,4 @@
-import { ISchema, PureModel } from "../mod.ts";
-import { schemaFns } from "../schema.ts";
+import { ISchema, PureModel, schemaFns } from "../mod.ts";
 
 /**
  * add pure feature of model to schema

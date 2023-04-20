@@ -1,5 +1,4 @@
 import { Bson } from "../../deps.ts";
-import { schemaFns } from "../../models/schema.ts";
 
 export const addOutrelation = (
   schemaName: string,

@@ -13,7 +13,7 @@ import {
   UpdateOptions,
 } from "../deps.ts";
 import { InRelation, ISchema, OutRelation, PureModel } from "../models/mod.ts";
-import { schemaFns } from "../models/schema.ts";
+import { schemaFns } from "../models/mod.ts";
 import { throwError } from "../utils/throwError.ts";
 import {
   addOutrelation,

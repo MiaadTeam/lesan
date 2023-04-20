@@ -1,5 +1,4 @@
-import { ISchema } from "../mod.ts";
-import { schemaFns } from "../schema.ts";
+import { ISchema, schemaFns } from "../mod.ts";
 
 /**
  * add addOneOutRelation to previous outrelation of schema.

@@ -1,5 +1,5 @@
 import { Bson, Database } from "../../deps.ts";
-import { schemaFns } from "../../models/schema.ts";
+import { schemaFns } from "../../models/mod.ts";
 import { getPureFromDoc } from "./mod.ts";
 
 export const checkRelation = (

@@ -1,4 +1,4 @@
-import { schemaFns } from "../../models/schema.ts";
+import { schemaFns } from "../../models/mod.ts";
 
 export const getPureFromDoc = (
   collectionName: string,

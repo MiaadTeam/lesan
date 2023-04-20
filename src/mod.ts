@@ -10,3 +10,4 @@ export * from "./acts/types.ts";
 export * from "./deps.ts";
 export * from "./lesan.ts";
 export * from "./models/types.ts";
+export * from "./types.ts";

@@ -1,5 +1,4 @@
-import { ISchema } from "../mod.ts";
-import { schemaFns } from "../schema.ts";
+import { ISchema, schemaFns } from "../mod.ts";
 
 /**
  * get pure one feature of one schema by name of schema and key of feature

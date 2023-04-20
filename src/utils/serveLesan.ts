@@ -1,6 +1,13 @@
 import { acts, Services } from "../acts/mod.ts";
+import { contextFns } from "../context.ts";
 import { assert, enums } from "../deps.ts";
 import { Body, parsBody } from "./mod.ts";
+
+const runPreActs = async (preActs: Function[]) => {
+  for (const func of preActs) {
+    await func();
+  }
+};
 
 /**
   * function of lesan
@@ -27,6 +34,8 @@ export const lesanFns = (actsObj: Services) => {
       body.wants.act,
     );
     assert(body.details, act.validator);
+
+    act.preAct && await runPreActs(act.preAct);
 
     return await act.fn(body);
   };
@@ -149,6 +158,7 @@ export const lesanFns = (actsObj: Services) => {
    */
   const serveLesan = async (req: Request, port: number) => {
     const response = async () => {
+      contextFns.addHeaderToContext(req.headers);
       return await checkServices(req, port);
     };
 

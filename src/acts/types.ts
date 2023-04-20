@@ -22,8 +22,9 @@ export type ActFn = (body: Body) => any;
  * @interface
  */
 export interface Act {
-    validator: Struct<any>;
-    fn: ActFn;
+  validator: Struct<any>;
+  fn: ActFn;
+  preAct?: Function[];
 }
 /**
  * Acts include tow features : dynamic and static
@@ -72,16 +73,16 @@ export interface Act {
  *   },
  */
 export interface Acts {
-    dynamic: {
-        [key: string]: {
-            [key: string]: Act;
-        };
+  dynamic: {
+    [key: string]: {
+      [key: string]: Act;
     };
-    static: {
-        [key: string]: {
-            [key: string]: Act;
-        };
+  };
+  static: {
+    [key: string]: {
+      [key: string]: Act;
     };
+  };
 }
 
 /**
@@ -131,8 +132,8 @@ export interface Acts {
  *  if type of string we get answer of req with http Request , but if type of it equal to Acts with anwer to req directly
  */
 export interface Services {
-    main: Acts;
-    [key: string]: Acts | string | undefined;
+  main: Acts;
+  [key: string]: Acts | string | undefined;
 }
 
 /**
@@ -141,27 +142,32 @@ export interface Services {
  * @interface
  */
 export interface ActInp {
-    /**
-     * type of action static or dynamic
-     * when equal to static for get static file (isdb)
-     * else for dynamic request(request to db ideed)
-     */
-    type: "static" | "dynamic";
-    /**
-     * name of schema that set action for it
-     */
-    schema: string;
-    /**
-     * name of action
-     */
-    actName: string;
-    /**
-     * validator function for example for validion input date
-     */
-    validator: Struct<any>;
+  /**
+   * type of action static or dynamic
+   * when equal to static for get static file (isdb)
+   * else for dynamic request(request to db ideed)
+   */
+  type: "static" | "dynamic";
+  /**
+   * name of schema that set action for it
+   */
+  schema: string;
+  /**
+   * name of action
+   */
+  actName: string;
+  /**
+   * validator function for example for validion input date
+   */
+  validator: Struct<any>;
 
-    /**
-     * function
-     */
-    fn: ActFn;
+  /**
+   * function
+   */
+  fn: ActFn;
+
+  /**
+   * these functions use to implement somthing in context before run fn
+   */
+  preAct?: Function[];
 }

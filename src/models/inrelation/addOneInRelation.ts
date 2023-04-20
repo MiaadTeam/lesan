@@ -1,5 +1,4 @@
-import { ISchema } from "../mod.ts";
-import { schemaFns } from "../schema.ts";
+import { ISchema, schemaFns } from "../mod.ts";
 
 /**
  * add one innerRelation to previous inrelation of schema that schema has relation with it example of relation of SQL that we keep foriegn key.
