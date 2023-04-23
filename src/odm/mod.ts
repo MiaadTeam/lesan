@@ -1,4 +1,6 @@
 import {
+  AggregateOptions,
+  AggregatePipeline,
   assert,
   Bson,
   Database,
@@ -9,18 +11,20 @@ import {
   InsertOptions,
   object,
   ObjectId,
+  optional,
   UpdateFilter,
   UpdateOptions,
 } from "../deps.ts";
 import { InRelation, ISchema, OutRelation, PureModel } from "../models/mod.ts";
 import { schemaFns } from "../models/mod.ts";
 import { throwError } from "../utils/throwError.ts";
+import { generateProjection, Projection } from "./aggregation/mod.ts";
 import {
   addOutrelation,
   checkRelation,
   collectData,
-  getPureFromDoc,
   makeProjection,
+  objectIdValidation,
 } from "./utils/mod.ts";
 
 export const odm = (schemasObj: ISchema) => {
@@ -43,7 +47,7 @@ export const odm = (schemasObj: ISchema) => {
   const findData = async (
     collection: string,
     filter: Filter<Bson.Document>,
-    get: Record<string, any>,
+    get: Projection,
     options?: FindOptions,
   ) => {
     const db = getDbClient();
@@ -69,7 +73,7 @@ export const odm = (schemasObj: ISchema) => {
   const findOneData = async (
     collection: string,
     filter: Filter<Bson.Document>,
-    get: Record<string, any>,
+    get: Projection,
     options?: FindOptions,
   ) => {
     const db = getDbClient();
@@ -97,7 +101,7 @@ export const odm = (schemasObj: ISchema) => {
     filter: Filter<Bson.Document>,
     options?: FindOptions,
   ) => {
-    let projection: any = {};
+    const projection: Projection = {};
     const PureSchema = schemaFns(schemasObj).getSchema(collection).pure;
 
     for (const key in PureSchema) {
@@ -112,7 +116,7 @@ export const odm = (schemasObj: ISchema) => {
     filter: Filter<Bson.Document>,
     options?: FindOptions,
   ) => {
-    let projection: any = {};
+    const projection: Projection = {};
     const PureSchema = schemaFns(schemasObj).getSchema(collection).pure;
 
     for (const key in PureSchema) {
@@ -187,6 +191,30 @@ export const odm = (schemasObj: ISchema) => {
       : throwError("No database connection");
   };
 
+  const aggregationData = async (
+    {
+      collection,
+      pipline,
+      options,
+      get,
+    }: {
+      collection: string;
+      pipline: AggregatePipeline<Bson.Document>[];
+      options?: AggregateOptions | undefined;
+      get?: Projection;
+    },
+  ) => {
+    const db = getDbClient();
+    const projection = get
+      ? generateProjection(get, schemasObj, collection)
+      : [];
+    pipline = [...pipline, ...projection];
+
+    return db
+      ? await db.collection(collection).aggregate(pipline, options).toArray()
+      : throwError("No database connection");
+  };
+
   const setModel = (
     name: string,
     pureModel: PureModel,
@@ -195,6 +223,13 @@ export const odm = (schemasObj: ISchema) => {
   ) => {
     const schemas = schemaFns(schemasObj).getSchemas();
 
+    pureModel = pureModel._id
+      ? pureModel
+      : {
+        _id: optional(objectIdValidation),
+        ...pureModel,
+      };
+
     schemas[name] = {
       pure: pureModel,
       inrelation: inrelation,
@@ -202,11 +237,11 @@ export const odm = (schemasObj: ISchema) => {
     };
 
     return {
-      find: (query: Bson.Document, projection: any) =>
+      find: (query: Bson.Document, projection: Projection) =>
         findData(name, query, projection),
       findOne: (
         filter: Filter<Bson.Document>,
-        get: Record<string, any>,
+        get: Projection,
         options?: FindOptions,
       ) => findOneData(name, filter, get, options),
 
@@ -220,6 +255,17 @@ export const odm = (schemasObj: ISchema) => {
         options?: UpdateOptions,
       ) => updateOneData(name, filter, update, options),
       remove: (query: Bson.Document) => removeData(name, query),
+      aggregation: (
+        {
+          pipline,
+          options,
+          get,
+        }: {
+          pipline: AggregatePipeline<Bson.Document>[];
+          options?: AggregateOptions | undefined;
+          get?: Projection;
+        },
+      ) => aggregationData({ collection: name, pipline, options, get }),
     };
   };
 
