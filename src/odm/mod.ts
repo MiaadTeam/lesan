@@ -4,6 +4,7 @@ import {
   assert,
   Bson,
   Database,
+  DeleteOptions,
   enums,
   Filter,
   FindOptions,
@@ -123,15 +124,22 @@ export const odm = (schemasObj: ISchema) => {
       projection[key] = 1;
     }
 
-    return await findData(collection, filter, projection);
+    return await findData(collection, filter, projection, options);
   };
 
-  const insertOneData = async (
-    collection: string,
-    doc: InsertDocument<Bson.Document>,
-    relation?: Record<string, ObjectId | ObjectId[]>,
-    options?: InsertOptions,
-  ) => {
+  const insertOneData = async ({
+    collection,
+    doc,
+    relation,
+    options,
+    get,
+  }: {
+    collection: string;
+    doc: InsertDocument<Bson.Document>;
+    relation?: Record<string, ObjectId | ObjectId[]>;
+    options?: InsertOptions;
+    get?: Projection;
+  }) => {
     const db = getDbClient();
     const pureInrelSchema = schemaFns(schemasObj).getPureInRel(collection);
     const foundedSchema = schemaFns(schemasObj).getSchema(collection);
@@ -169,7 +177,14 @@ export const odm = (schemasObj: ISchema) => {
 
     checkRelation(collection, inrelationObj, schemasObj, doc, db);
 
-    return doc._id;
+    const getAggregation = async () =>
+      await aggregationData({
+        collection,
+        pipline: [{ $match: { _id: doc._id } }],
+        get,
+      });
+
+    return get ? await getAggregation() : doc._id;
   };
 
   const updateOneData = async (
@@ -184,10 +199,81 @@ export const odm = (schemasObj: ISchema) => {
       : throwError("No database connection");
   };
 
-  const removeData = async (collection: string, query: Bson.Document) => {
+  const updateByIdData = async ({
+    collection,
+    _id,
+    update,
+    options,
+    get,
+  }: {
+    collection: string;
+    _id: string | ObjectId;
+    update: UpdateFilter<Bson.Document>;
+    options?: UpdateOptions;
+    get?: Projection;
+  }) => {
+    const db = getDbClient();
+
+    const getAggregation = async () =>
+      await aggregationData({
+        collection,
+        pipline: [{ $match: { _id } }],
+        get,
+      });
+
+    const updatedData = await db.collection(collection).updateOne(
+      { _id },
+      update,
+      options,
+    );
+
+    return db
+      ? get
+        ? await getAggregation()
+        : updatedData
+      : throwError("No database connection");
+  };
+
+  const deleteData = async (
+    collection: string,
+    query: Bson.Document,
+    options?: DeleteOptions,
+  ) => {
     const db = getDbClient();
     return db
-      ? await db.collection(collection).find(query).toArray()
+      ? await db.collection(collection).delete(query, options)
+      : throwError("No database connection");
+  };
+
+  const deleteByIdData = async ({
+    collection,
+    _id,
+    options,
+    get,
+  }: {
+    collection: string;
+    _id: ObjectId | string;
+    options?: DeleteOptions;
+    get?: Projection;
+  }) => {
+    const db = getDbClient();
+
+    const getAggregation = async () =>
+      await aggregationData({
+        collection,
+        pipline: [{ $match: { _id } }],
+        get,
+      });
+
+    const deletedData = await db.collection(collection).deleteOne(
+      { _id },
+      options,
+    );
+
+    return db
+      ? get
+        ? await getAggregation()
+        : deletedData
       : throwError("No database connection");
   };
 
@@ -239,6 +325,7 @@ export const odm = (schemasObj: ISchema) => {
     return {
       find: (query: Bson.Document, projection: Projection) =>
         findData(name, query, projection),
+
       findOne: (
         filter: Filter<Bson.Document>,
         get: Projection,
@@ -246,15 +333,60 @@ export const odm = (schemasObj: ISchema) => {
       ) => findOneData(name, filter, get, options),
 
       insertOne: (
-        query: Bson.Document,
-        relation?: Record<string, ObjectId | ObjectId[]>,
-      ) => insertOneData(name, query, relation),
+        { doc, relation, options, get }: {
+          doc: InsertDocument<Bson.Document>;
+          relation?: Record<string, ObjectId | ObjectId[]>;
+          options?: InsertOptions;
+          get: Projection;
+        },
+      ) => insertOneData({ collection: name, doc, relation, options, get }),
+
       updateOne: (
         filter: Filter<Bson.Document>,
         update: UpdateFilter<Bson.Document>,
         options?: UpdateOptions,
       ) => updateOneData(name, filter, update, options),
-      remove: (query: Bson.Document) => removeData(name, query),
+
+      updateById: (
+        {
+          _id,
+          update,
+          options,
+          get,
+        }: {
+          _id: string | ObjectId;
+          update: UpdateFilter<Bson.Document>;
+          options?: UpdateOptions;
+          get?: Projection;
+        },
+      ) =>
+        updateByIdData({
+          collection: name,
+          _id,
+          update,
+          options,
+          get,
+        }),
+
+      delete: (query: Bson.Document, options?: DeleteOptions) =>
+        deleteData(name, query, options),
+
+      deleteById: ({
+        _id,
+        options,
+        get,
+      }: {
+        _id: ObjectId | string;
+        options?: DeleteOptions;
+        get?: Projection;
+      }) =>
+        deleteByIdData({
+          collection: name,
+          _id,
+          options,
+          get,
+        }),
+
       aggregation: (
         {
           pipline,
@@ -275,7 +407,9 @@ export const odm = (schemasObj: ISchema) => {
     findData,
     insertOneData,
     updateOneData,
-    removeData,
+    updateByIdData,
+    deleteData,
+    deleteByIdData,
     setModel,
   };
 };
