@@ -16,10 +16,6 @@ export const runPlayground = (
 import { h, hydrate } from "https://esm.sh/preact@10.5.15";
 import { useState } from "https://esm.sh/preact@10.5.15/hooks";
 
-
-
-
-
  const App = ${Page};
   const props = {schemasObj:${JSON.stringify(schemasObj)}, actsObj: ${
     JSON.stringify(actsObj)

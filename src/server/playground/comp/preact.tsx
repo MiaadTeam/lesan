@@ -9,8 +9,30 @@ export const Page = (
   const [selectedMethod, setSelectedMethod] = useState("");
   const [selectedSchema, setSelectedSchema] = useState("");
   const [selectedAct, setSelectedAct] = useState("");
-  const [avalibaleSetFields, setAvalibaleSetFields] = useState([]);
-  const [avalibaleGetFields, setAvalibaleGetFields] = useState([]);
+  const [avalibaleSetFields, setAvalibaleSetFields] = useState({});
+  const [avalibaleGetFields, setAvalibaleGetFields] = useState({});
+
+  const renderGetFileds = (getField: any, keyName: string, margin: number) => {
+    return (
+      <div style={{ marginLeft: `${margin + 10}px` }}>
+        {keyName} :
+        {Object.keys(getField["schema"]).map(childKeys => {
+          return getField["schema"][childKeys].type === "enums"
+            ? (
+              <div style={{ marginLeft: `${margin + 10}px` }}>
+                {childKeys} :
+                <input placeholder={`${keyName}.${childKeys}`} />
+              </div>
+            )
+            : renderGetFileds(
+              getField["schema"][childKeys],
+              childKeys,
+              margin + 10,
+            );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -80,9 +102,6 @@ export const Page = (
             <select
               value={selectedAct}
               onChange={(event: any) => {
-                const setArr = [];
-                const getArr = [];
-
                 const actObj =
                   (actsObj as any)[selectedService][selectedMethod][
                     selectedSchema
@@ -90,69 +109,9 @@ export const Page = (
                     event.target.value
                   ]["validator"]["schema"];
 
-                /*
-                 *  @LOG @DEBUG @WARN
-                 *  This log written by ::==> {{ syd }}
-                 *
-                 *  Please remove your log after debugging
-                 */
-                console.warn(" ============= ");
-                console.group("setObj:  ------ ");
-                console.log();
-                console.warn({
-                  setObj: actObj,
-                }, " ------ ");
-                console.log();
-                console.groupEnd();
-                console.warn(" ============= ");
-
-                for (
-                  let setKey in actObj["set"]["schema"]
-                ) {
-                  /*
-                   *  @LOG @DEBUG @INFO
-                   *  This log written by ::==> {{ syd }}
-                   *
-                   *  Please remove your log after debugging
-                   */
-                  console.log(" ============= ");
-                  console.group("setKey ------ ");
-                  console.log();
-                  console.info({ setKey }, " ------ ");
-                  console.log();
-                  console.groupEnd();
-                  console.log(" ============= ");
-                  setArr.push({
-                    key: setKey,
-                    desc: actObj["set"]["schema"][setKey],
-                  });
-                }
-
-                for (
-                  let getKey in actObj["get"]["schema"]
-                ) {
-                  getArr.push({
-                    key: getKey,
-                    desc: actObj["get"]["schema"][getKey],
-                  });
-                }
-
                 setSelectedAct(event.target.value);
-                /*
-                 *  @LOG @DEBUG @INFO
-                 *  This log written by ::==> {{ syd }}
-                 *
-                 *  Please remove your log after debugging
-                 */
-                console.log(" ============= ");
-                console.group("getArr, setArr ------ ");
-                console.log();
-                console.info({ getArr, setArr }, " ------ ");
-                console.log();
-                console.groupEnd();
-                console.log(" ============= ");
-                setAvalibaleGetFields(getArr as any);
-                setAvalibaleSetFields(setArr as any);
+                setAvalibaleGetFields(actObj["get"]["schema"]);
+                setAvalibaleSetFields(actObj["set"]["schema"]);
               }}
             >
               <option value=""></option>
@@ -173,23 +132,50 @@ export const Page = (
         </div>
       )}
 
-      {avalibaleSetFields.length > 1 && (
-        <div>
-          set fields is :
-          {avalibaleSetFields.map(setFiled => (
-            <input placeholder={(setFiled as any).key} />
-          ))}
-        </div>
-      )}
+      {selectedService && selectedMethod && selectedSchema &&
+        avalibaleSetFields &&
+        (
+          <div>
+            set inputs :
+            {Object.keys(
+              avalibaleSetFields,
+            ).map(setField => (
+              <div>
+                {setField} :
+                <input placeholder={setField} />
+              </div>
+            ))}
+          </div>
+        )}
 
-      {avalibaleGetFields.length > 1 && (
-        <div>
-          get fields is :
-          {avalibaleGetFields.map(getFiled => (
-            <input placeholder={(getFiled as any).key} />
-          ))}
-        </div>
-      )}
+      <br />
+      <hr />
+      <br />
+
+      {selectedService && selectedMethod && selectedSchema &&
+        avalibaleGetFields &&
+        (
+          <div>
+            get inputs :
+            {Object.keys(
+              avalibaleGetFields,
+            ).map(getField => {
+              return ((avalibaleGetFields as any)[getField] as any).type ===
+                  "enums"
+                ? (
+                  <div>
+                    {getField} :
+                    <input placeholder={getField} />
+                  </div>
+                )
+                : renderGetFileds(
+                  (avalibaleGetFields as any)[getField],
+                  getField,
+                  0,
+                );
+            })}
+          </div>
+        )}
     </div>
   );
 };
