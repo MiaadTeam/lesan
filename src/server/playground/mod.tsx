@@ -23,20 +23,6 @@ import { useState } from "https://esm.sh/preact@10.5.15/hooks";
  hydrate(h(App, props), document.getElementById('root'));`;
 
   const getClientReact = () => {
-    /*
-     *  @LOG @DEBUG @INFO
-     *  This log written by ::==> {{ syd }}
-     *
-     *  Please remove your log after debugging
-     */
-    console.log(" ============= ");
-    console.group("js ------ ");
-    console.log();
-    console.info({ js }, " ------ ");
-    console.log();
-    console.groupEnd();
-    console.log(" ============= ");
-
     return new Response(js, {
       headers: { "content-type": "application/javascript" },
     });
@@ -63,19 +49,6 @@ import { useState } from "https://esm.sh/preact@10.5.15/hooks";
       headers: { "content-type": "text/html; charset=utf-8" },
     });
   };
-  /*
-   *  @LOG @DEBUG @INFO
-   *  This log written by ::==> {{ syd }}
-   *
-   *  Please remove your log after debugging
-   */
-  console.log(" ============= ");
-  console.group("request ------ ");
-  console.log();
-  console.info({ request }, " ------ ");
-  console.log();
-  console.groupEnd();
-  console.log(" ============= ");
   return request.url === "http://localhost:8000/static/client.js"
     ? getClientReact()
     : getSsrReact();
