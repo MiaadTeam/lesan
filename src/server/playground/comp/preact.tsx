@@ -9,8 +9,8 @@ export const Page = (
   const [selectedMethod, setSelectedMethod] = useState("");
   const [selectedSchema, setSelectedSchema] = useState("");
   const [selectedAct, setSelectedAct] = useState("");
-  const [avalibaleSetFields, setAvalibaleSetFields] = useState({});
-  const [avalibaleGetFields, setAvalibaleGetFields] = useState({});
+  const [avalibaleSetFields, setAvalibaleSetFields] = useState(null);
+  const [avalibaleGetFields, setAvalibaleGetFields] = useState(null);
 
   const renderGetFileds = (getField: any, keyName: string, margin: number) => {
     return (
@@ -42,7 +42,13 @@ export const Page = (
 
           <select
             value={selectedService}
-            onChange={(event: any) => setSelectedService(event.target.value)}
+            onChange={(event: any) => {
+              setSelectedService(event.target.value);
+              setSelectedMethod("");
+              setSelectedSchema("");
+              setAvalibaleGetFields(null);
+              setAvalibaleSetFields(null);
+            }}
           >
             <option value=""></option>
             {Object.keys(actsObj).map((service, index) => (
@@ -60,7 +66,12 @@ export const Page = (
 
           <select
             value={selectedMethod}
-            onChange={(event: any) => setSelectedMethod(event.target.value)}
+            onChange={(event: any) => {
+              setSelectedMethod(event.target.value);
+              setSelectedSchema("");
+              setAvalibaleGetFields(null);
+              setAvalibaleSetFields(null);
+            }}
           >
             <option value=""></option>
             <option value="dynamic">dynamic</option>
@@ -78,7 +89,11 @@ export const Page = (
 
             <select
               value={selectedSchema}
-              onChange={(event: any) => setSelectedSchema(event.target.value)}
+              onChange={(event: any) => {
+                setSelectedSchema(event.target.value);
+                setAvalibaleGetFields(null);
+                setAvalibaleSetFields(null);
+              }}
             >
               <option value=""></option>
               {Object.keys((actsObj as any)[selectedService][selectedMethod])
@@ -133,8 +148,8 @@ export const Page = (
       )}
 
       {selectedService && selectedMethod && selectedSchema &&
-        avalibaleSetFields &&
-        (
+        avalibaleSetFields && avalibaleGetFields && (
+        <div>
           <div>
             set inputs :
             {Object.keys(
@@ -146,15 +161,11 @@ export const Page = (
               </div>
             ))}
           </div>
-        )}
 
-      <br />
-      <hr />
-      <br />
+          <br />
+          <hr />
+          <br />
 
-      {selectedService && selectedMethod && selectedSchema &&
-        avalibaleGetFields &&
-        (
           <div>
             get inputs :
             {Object.keys(
@@ -175,7 +186,8 @@ export const Page = (
                 );
             })}
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };
