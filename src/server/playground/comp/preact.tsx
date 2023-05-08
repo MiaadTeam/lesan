@@ -12,32 +12,62 @@ export const Page = (
   const [avalibaleSetFields, setAvalibaleSetFields] = useState(null);
   const [avalibaleGetFields, setAvalibaleGetFields] = useState(null);
   const [formData, setFormData] = useState({});
+  const [response, setResponse] = useState(null);
 
   const handleChange = (event: any) => {
     const { name, value } = event.target;
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
   };
 
-  const handleSubmit = (event: any) => {
+  const deepen = (obj: Record<string, any>) => {
+    const result = {};
+
+    // For each object path (property key) in the object
+    for (const objectPath in obj) {
+      // Split path into component parts
+      const parts = objectPath.split(".");
+
+      // Create sub-objects along path as needed
+      let target = result;
+      while (parts.length > 1) {
+        const part = parts.shift();
+        target = (target as any)[part!] = (target as any)[part!] || {};
+      }
+
+      // Set value at end of path
+      (target as any)[parts[0]] = obj[objectPath];
+    }
+
+    return result;
+  };
+
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
+    const details = deepen(formData);
 
-    /*
-     *  @LOG @DEBUG @INFO
-     *  This log written by ::==> {{ syd }}
-     *
-     *  Please remove your log after debugging
-     */
-    console.log(" ============= ");
-    console.group("formData ------ ");
-    console.log();
-    console.info({ formData }, " ------ ");
-    console.log();
-    console.groupEnd();
-    console.log(" ============= ");
+    /* for (const key in formData) { */
+    /*   key.split(".").map((k, i, values) => { */
+    /*     body = (body as any)[k] = i == values.length - 1 */
+    /*       ? (formData as any)[key] */
+    /*       : {}; */
+    /*   }); */
+    /* } */
 
-    alert(
-      formData,
-    );
+    const sendedRequest = await fetch("http://localhost:8000/lesan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        service: selectedService,
+        contents: selectedMethod,
+        wants: { model: selectedSchema, act: selectedAct },
+        details,
+      }),
+    });
+
+    const jsonSendedRequest = await sendedRequest.json();
+    setResponse(jsonSendedRequest);
   };
 
   const renderGetFileds = (getField: any, keyName: string, margin: number) => {
@@ -235,6 +265,15 @@ export const Page = (
             </div>
             <button type="submit">Submit</button>
           </form>
+        </div>
+      )}
+
+      {response && (
+        <div>
+          <br />
+          <hr />
+          <br />
+          {JSON.stringify(response, null, 2)}
         </div>
       )}
     </div>
