@@ -11,6 +11,34 @@ export const Page = (
   const [selectedAct, setSelectedAct] = useState("");
   const [avalibaleSetFields, setAvalibaleSetFields] = useState(null);
   const [avalibaleGetFields, setAvalibaleGetFields] = useState(null);
+  const [formData, setFormData] = useState({});
+
+  const handleChange = (event: any) => {
+    const { name, value } = event.target;
+    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+  };
+
+  const handleSubmit = (event: any) => {
+    event.preventDefault();
+
+    /*
+     *  @LOG @DEBUG @INFO
+     *  This log written by ::==> {{ syd }}
+     *
+     *  Please remove your log after debugging
+     */
+    console.log(" ============= ");
+    console.group("formData ------ ");
+    console.log();
+    console.info({ formData }, " ------ ");
+    console.log();
+    console.groupEnd();
+    console.log(" ============= ");
+
+    alert(
+      formData,
+    );
+  };
 
   const renderGetFileds = (getField: any, keyName: string, margin: number) => {
     return (
@@ -20,13 +48,19 @@ export const Page = (
           return getField["schema"][childKeys].type === "enums"
             ? (
               <div style={{ marginLeft: `${margin + 10}px` }}>
-                {childKeys} :
-                <input placeholder={`${keyName}.${childKeys}`} />
+                <label htmlFor={childKeys}>{childKeys}:</label>
+                <input
+                  placeholder={`${keyName}.${childKeys}`}
+                  id={`${keyName}.${childKeys}`}
+                  value={(formData as any)[`get.${keyName}.${childKeys}`]}
+                  name={`get.${keyName}.${childKeys}`}
+                  onChange={handleChange}
+                />
               </div>
             )
             : renderGetFileds(
               getField["schema"][childKeys],
-              childKeys,
+              `${keyName}.${childKeys}`,
               margin + 10,
             );
         })}
@@ -150,42 +184,57 @@ export const Page = (
       {selectedService && selectedMethod && selectedSchema &&
         avalibaleSetFields && avalibaleGetFields && (
         <div>
-          <div>
-            set inputs :
-            {Object.keys(
-              avalibaleSetFields,
-            ).map(setField => (
-              <div>
-                {setField} :
-                <input placeholder={setField} />
-              </div>
-            ))}
-          </div>
+          <form onSubmit={handleSubmit}>
+            <div>
+              set inputs :
+              {Object.keys(
+                avalibaleSetFields,
+              ).map(setField => (
+                <div>
+                  <label htmlFor={setField}>{setField}:</label>
+                  <input
+                    placeholder={setField}
+                    id={setField}
+                    value={(formData as any)[`set.${setField}`]}
+                    name={`set.${setField}`}
+                    onChange={handleChange}
+                  />
+                </div>
+              ))}
+            </div>
 
-          <br />
-          <hr />
-          <br />
+            <br />
+            <hr />
+            <br />
 
-          <div>
-            get inputs :
-            {Object.keys(
-              avalibaleGetFields,
-            ).map(getField => {
-              return ((avalibaleGetFields as any)[getField] as any).type ===
-                  "enums"
-                ? (
-                  <div>
-                    {getField} :
-                    <input placeholder={getField} />
-                  </div>
-                )
-                : renderGetFileds(
-                  (avalibaleGetFields as any)[getField],
-                  getField,
-                  0,
-                );
-            })}
-          </div>
+            <div>
+              get inputs :
+              {Object.keys(
+                avalibaleGetFields,
+              ).map(getField => {
+                return ((avalibaleGetFields as any)[getField] as any).type ===
+                    "enums"
+                  ? (
+                    <div>
+                      <label htmlFor={getField}>{getField}:</label>
+                      <input
+                        placeholder={getField}
+                        id={getField}
+                        value={(formData as any)[`get.${getField}`]}
+                        name={`get.${getField}`}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  )
+                  : renderGetFileds(
+                    (avalibaleGetFields as any)[getField],
+                    getField,
+                    0,
+                  );
+              })}
+            </div>
+            <button type="submit">Submit</button>
+          </form>
         </div>
       )}
     </div>
