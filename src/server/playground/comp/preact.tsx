@@ -1,6 +1,6 @@
 /** @jsx h */
 import { h } from "https://esm.sh/preact@10.5.15";
-import { useState } from "https://esm.sh/preact@10.5.15/hooks";
+import { useRef, useState } from "https://esm.sh/preact@10.5.15/hooks";
 
 export const Page = (
   { schemasObj, actsObj } = { schemasObj: {}, actsObj: {} },
@@ -13,6 +13,8 @@ export const Page = (
   const [avalibaleGetFields, setAvalibaleGetFields] = useState(null);
   const [formData, setFormData] = useState({});
   const [response, setResponse] = useState(null);
+
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleChange = (event: any) => {
     const { name, value, type } = event.target;
@@ -71,6 +73,8 @@ export const Page = (
 
     const jsonSendedRequest = await sendedRequest.json();
     setResponse(jsonSendedRequest);
+    event.target.reset();
+    setFormData({});
   };
 
   const renderGetFileds = (getField: any, keyName: string, margin: number) => {
@@ -195,6 +199,7 @@ export const Page = (
                     event.target.value
                   ]["validator"]["schema"];
 
+                formRef && formRef.current && formRef.current.reset();
                 setSelectedAct(event.target.value);
                 setAvalibaleGetFields(actObj["get"]["schema"]);
                 setAvalibaleSetFields(actObj["set"]["schema"]);
@@ -222,7 +227,7 @@ export const Page = (
       {selectedService && selectedMethod && selectedSchema &&
         avalibaleSetFields && avalibaleGetFields && (
         <div>
-          <form onSubmit={handleSubmit}>
+          <form ref={formRef} onSubmit={handleSubmit}>
             <div>
               set inputs :
               {Object.keys(
@@ -235,6 +240,9 @@ export const Page = (
                     id={setField}
                     value={(formData as any)[`set.${setField}`]}
                     name={`set.${setField}`}
+                    type={avalibaleSetFields[setField]["type"] === "number"
+                      ? "number"
+                      : "string"}
                     onChange={handleChange}
                   />
                 </div>
