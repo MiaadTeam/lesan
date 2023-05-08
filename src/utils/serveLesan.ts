@@ -33,7 +33,10 @@ export const lesanFns = (actsObj: Services) => {
       body.wants.model,
       body.wants.act,
     );
-    assert(body.details, act.validator);
+    assert(
+      body.details,
+      act.validator,
+    );
 
     act.preAct && await runPreActs(act.preAct);
 
@@ -52,8 +55,14 @@ export const lesanFns = (actsObj: Services) => {
       body.contents,
       body.wants.model,
     );
-    const getedActs = enums(actKeys);
-    assert(body.wants.act, getedActs);
+    const getedActs = actKeys;
+    assert(
+      body.wants.act,
+      enums(getedActs),
+      `the wants.act key is incorrect we just have these acts: ${[
+        ...getedActs,
+      ]}`,
+    );
 
     return await runAct(body);
   };
@@ -67,9 +76,15 @@ export const lesanFns = (actsObj: Services) => {
   const checkModels = async (body: Body) => {
     const bodyService = body.service || "main";
     const models = body.contents === "static"
-      ? enums(acts(actsObj).getStaticKeys(bodyService))
-      : enums(acts(actsObj).getDynamicKeys(bodyService));
-    assert(body.wants.model, models);
+      ? (acts(actsObj).getStaticKeys(bodyService))
+      : (acts(actsObj).getDynamicKeys(bodyService));
+    assert(
+      body.wants.model,
+      enums(models),
+      `the wants.model key is incorrect we just have these models: ${[
+        ...models,
+      ]}`,
+    );
 
     return await checkActs(body);
   };
@@ -80,8 +95,14 @@ export const lesanFns = (actsObj: Services) => {
    * @returns if ContentType is true, it will run checkModels , else throwError
    */
   const checkContetType = async (body: Body) => {
-    const content = enums(["dynamic", "static"]);
-    assert(body.contents, content);
+    const content = ["dynamic", "static"];
+    assert(
+      body.contents,
+      enums(content),
+      `the contents key is incorrect we just have these contents: ${[
+        ...content,
+      ]}`,
+    );
 
     return await checkModels(body);
   };
@@ -141,10 +162,15 @@ export const lesanFns = (actsObj: Services) => {
    */
   const checkServices = async (req: Request, port: number) => {
     const body = (await parsBody(req, port)) as Body;
-    const serviceKeys = acts(actsObj).getServiceKeys();
-    const servic = enums(serviceKeys);
+    const services = acts(actsObj).getServiceKeys();
     const bodyService = body.service || "main";
-    assert(bodyService, servic);
+    assert(
+      bodyService,
+      enums(services),
+      `the service key is incorrect we just have these services: ${[
+        ...services,
+      ]}`,
+    );
     const serviceValue = acts(actsObj).getService(bodyService);
     return typeof serviceValue === "string"
       ? await fetchService(req.headers, body, serviceValue)
