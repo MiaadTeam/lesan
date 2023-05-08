@@ -33,10 +33,20 @@ export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
         // return await lesanFns(actsObj).serveLesan(request, port);
       } catch (e) {
         return new Response(
-          `Something gone wrong =>> :: ${
-            e.message || "We do not know anything about the issue!!! sorry"
-          }`,
-          { status: 501 },
+          JSON.stringify({
+            body: {
+              message: `Something gone wrong =>> :: ${
+                e.message || "We do not know anything about the issue!!! sorry"
+              }`,
+            },
+            success: false,
+          }),
+          {
+            status: e.status || 501,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
         );
       }
     };
