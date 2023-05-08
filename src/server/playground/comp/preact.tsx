@@ -15,8 +15,11 @@ export const Page = (
   const [response, setResponse] = useState(null);
 
   const handleChange = (event: any) => {
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+    const { name, value, type } = event.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: type === "number" ? Number(value) : value,
+    }));
   };
 
   const deepen = (obj: Record<string, any>) => {
@@ -81,6 +84,7 @@ export const Page = (
                 <label htmlFor={childKeys}>{childKeys}:</label>
                 <input
                   placeholder={`${keyName}.${childKeys}`}
+                  type="number"
                   id={`${keyName}.${childKeys}`}
                   value={(formData as any)[`get.${keyName}.${childKeys}`]}
                   name={`get.${keyName}.${childKeys}`}
@@ -112,6 +116,7 @@ export const Page = (
               setSelectedSchema("");
               setAvalibaleGetFields(null);
               setAvalibaleSetFields(null);
+              setFormData({});
             }}
           >
             <option value=""></option>
@@ -135,6 +140,7 @@ export const Page = (
               setSelectedSchema("");
               setAvalibaleGetFields(null);
               setAvalibaleSetFields(null);
+              setFormData({});
             }}
           >
             <option value=""></option>
@@ -157,6 +163,7 @@ export const Page = (
                 setSelectedSchema(event.target.value);
                 setAvalibaleGetFields(null);
                 setAvalibaleSetFields(null);
+                setFormData({});
               }}
             >
               <option value=""></option>
@@ -191,6 +198,7 @@ export const Page = (
                 setSelectedAct(event.target.value);
                 setAvalibaleGetFields(actObj["get"]["schema"]);
                 setAvalibaleSetFields(actObj["set"]["schema"]);
+                setFormData({});
               }}
             >
               <option value=""></option>
@@ -252,6 +260,7 @@ export const Page = (
                         id={getField}
                         value={(formData as any)[`get.${getField}`]}
                         name={`get.${getField}`}
+                        type="number"
                         onChange={handleChange}
                       />
                     </div>
