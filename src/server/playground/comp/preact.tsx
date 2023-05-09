@@ -12,15 +12,29 @@ export const Page = (
   const [avalibaleSetFields, setAvalibaleSetFields] = useState(null);
   const [avalibaleGetFields, setAvalibaleGetFields] = useState(null);
   const [formData, setFormData] = useState({});
+  const [headers, setHeaders] = useState<{ [key: string]: string }>({
+    Authorization: "",
+  });
+  const [history, setHistory] = useState<
+    { request: string; response: string; id: string }[]
+  >([]);
   const [response, setResponse] = useState(null);
 
   const formRef = useRef<HTMLFormElement>(null);
 
+  const uid = function() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  };
+
   const handleChange = (event: any) => {
-    const { name, value, type } = event.target;
+    const { name, value, type, alt } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: type === "number" ? Number(value) : value,
+      [name]: type === "number"
+        ? Number(value)
+        : alt === "array" || alt === "boolean"
+        ? JSON.parse(value)
+        : value,
     }));
   };
 
@@ -58,10 +72,11 @@ export const Page = (
     /*   }); */
     /* } */
 
-    const sendedRequest = await fetch("http://localhost:8000/lesan", {
+    const body = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...headers,
       },
       body: JSON.stringify({
         service: selectedService,
@@ -69,12 +84,22 @@ export const Page = (
         wants: { model: selectedSchema, act: selectedAct },
         details,
       }),
-    });
+    };
 
+    const sendedRequest = await fetch("http://localhost:8000/lesan", body);
     const jsonSendedRequest = await sendedRequest.json();
+
     setResponse(jsonSendedRequest);
-    event.target.reset();
-    setFormData({});
+    /* event.target.reset(); */
+    /* setFormData({}); */
+
+    setHistory((
+      prevHistory,
+    ) => [...prevHistory, {
+      request: JSON.stringify(body, null, 2),
+      response: JSON.stringify(jsonSendedRequest, null, 2),
+      id: uid(),
+    }]);
   };
 
   const renderGetFileds = (getField: any, keyName: string, margin: number) => {
@@ -109,6 +134,45 @@ export const Page = (
   return (
     <div>
       <div>
+        set headers :
+        {Object.entries(headers).map(([objKey, objValue]) => {
+          return (
+            <div>
+              <input
+                placeholder={objKey}
+                id={objKey}
+                value={objKey}
+                name={objKey}
+                onChange={(e: any) => {
+                  const { name, value } = e.target;
+                  objKey = value;
+                }}
+              />
+              <input
+                placeholder={objValue}
+                id={objValue}
+                value={objValue}
+                name={objValue}
+                onChange={(e: any) => {
+                  const { name, value } = e.target;
+                  objValue = value;
+                }}
+              />
+              <button
+                onClick={() => {
+                  setHeaders((prevHeaders) => ({
+                    ...prevHeaders,
+                    [objKey]: objValue,
+                  }));
+                }}
+              >
+                Apply
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <div>
         <label>
           select service?
 
@@ -129,8 +193,6 @@ export const Page = (
             ))}
           </select>
         </label>
-
-        <p>selected service is {selectedService}!</p>
       </div>
 
       <div>
@@ -152,8 +214,6 @@ export const Page = (
             <option value="static">static</option>
           </select>
         </label>
-
-        <p>selected method is {selectedMethod}!</p>
       </div>
 
       {selectedService && selectedMethod && (
@@ -179,8 +239,6 @@ export const Page = (
                 )}
             </select>
           </label>
-
-          <p>selected schema is {selectedSchema}!</p>
         </div>
       )}
 
@@ -199,6 +257,19 @@ export const Page = (
                     event.target.value
                   ]["validator"]["schema"];
 
+                /*
+                 *  @LOG @DEBUG @INFO
+                 *  This log written by ::==> {{ syd }}
+                 *
+                 *  Please remove your log after debugging
+                 */
+                console.log(" ============= ");
+                console.group("set:  ------ ");
+                console.log();
+                console.info({ set: actObj["set"]["schema"] }, " ------ ");
+                console.log();
+                console.groupEnd();
+                console.log(" ============= ");
                 formRef && formRef.current && formRef.current.reset();
                 setSelectedAct(event.target.value);
                 setAvalibaleGetFields(actObj["get"]["schema"]);
@@ -219,8 +290,6 @@ export const Page = (
                 )}
             </select>
           </label>
-
-          <p>selected atc is {selectedAct}!</p>
         </div>
       )}
 
@@ -243,6 +312,7 @@ export const Page = (
                     type={avalibaleSetFields[setField]["type"] === "number"
                       ? "number"
                       : "string"}
+                    alt={avalibaleSetFields[setField]["type"]}
                     onChange={handleChange}
                   />
                 </div>
@@ -290,7 +360,34 @@ export const Page = (
           <br />
           <hr />
           <br />
+          the response is :
+          <br />
           {JSON.stringify(response, null, 2)}
+        </div>
+      )}
+
+      {history.length > 0 && (
+        <div>
+          <br />
+          <hr />
+          <br />
+          the req history is :
+          <br />
+          {history.map(hi => (
+            <div key={hi.id}>
+              <section>
+                <span>the request is :</span>
+                <div>{hi.request}</div>
+              </section>
+              <section>
+                <span>the response is :</span>
+                <div>{hi.response}</div>
+              </section>
+              <br />
+              <hr />
+              <br />
+            </div>
+          ))}
         </div>
       )}
     </div>
