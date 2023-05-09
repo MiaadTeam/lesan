@@ -257,19 +257,6 @@ export const Page = (
                     event.target.value
                   ]["validator"]["schema"];
 
-                /*
-                 *  @LOG @DEBUG @INFO
-                 *  This log written by ::==> {{ syd }}
-                 *
-                 *  Please remove your log after debugging
-                 */
-                console.log(" ============= ");
-                console.group("set:  ------ ");
-                console.log();
-                console.info({ set: actObj["set"]["schema"] }, " ------ ");
-                console.log();
-                console.groupEnd();
-                console.log(" ============= ");
                 formRef && formRef.current && formRef.current.reset();
                 setSelectedAct(event.target.value);
                 setAvalibaleGetFields(actObj["get"]["schema"]);
