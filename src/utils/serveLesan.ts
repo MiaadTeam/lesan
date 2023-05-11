@@ -1,6 +1,6 @@
 import { acts, Services } from "../acts/mod.ts";
 import { contextFns } from "../context.ts";
-import { assert, enums } from "../deps.ts";
+import { assert, create, enums } from "../deps.ts";
 import { Body, parsBody } from "./mod.ts";
 
 const runPreActs = async (preActs: Function[]) => {
@@ -33,10 +33,10 @@ export const lesanFns = (actsObj: Services) => {
       body.wants.model,
       body.wants.act,
     );
-    assert(
-      body.details,
-      act.validator,
-    );
+
+    act.validationRunType === "create"
+      ? create(body.details, act.validator)
+      : assert(body.details, act.validator);
 
     act.preAct && await runPreActs(act.preAct);
 

@@ -3,6 +3,7 @@ import {
   AggregatePipeline,
   assert,
   Bson,
+  create,
   Database,
   DeleteOptions,
   enums,
@@ -165,7 +166,7 @@ export const odm = (schemasObj: ISchema) => {
       }
     }
 
-    assert(doc, object(pureInrelSchema));
+    create(doc, object(pureInrelSchema));
 
     doc = addOutrelation(collection, doc, foundedSchema);
 

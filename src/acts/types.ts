@@ -25,6 +25,7 @@ export interface Act {
   validator: Struct<any>;
   fn: ActFn;
   preAct?: Function[];
+  validationRunType?: "assert" | "create";
 }
 /**
  * Acts include tow features : dynamic and static
@@ -170,4 +171,9 @@ export interface ActInp {
    * these functions use to implement somthing in context before run fn
    */
   preAct?: Function[];
+
+  /**
+   * the type of validation shuold run
+   */
+  validationRunType?: "assert" | "create";
 }
