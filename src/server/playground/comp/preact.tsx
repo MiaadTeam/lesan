@@ -3,7 +3,7 @@ import { h } from "https://esm.sh/preact@10.5.15";
 import { useRef, useState } from "https://esm.sh/preact@10.5.15/hooks";
 
 export const Page = (
-  { schemasObj, actsObj } = { schemasObj: {}, actsObj: {} },
+  { schemasObj, actsObj } = { schemasObj: {}, actsObj: {} }
 ) => {
   const [selectedService, setSelectedService] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
@@ -22,7 +22,7 @@ export const Page = (
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const uid = function() {
+  const uid = function () {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
@@ -30,11 +30,12 @@ export const Page = (
     const { name, value, type, alt } = event.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: type === "number"
-        ? Number(value)
-        : alt === "array" || alt === "boolean"
-        ? JSON.parse(value)
-        : value,
+      [name]:
+        type === "number"
+          ? Number(value)
+          : alt === "array" || alt === "boolean"
+          ? JSON.parse(value)
+          : value,
     }));
   };
 
@@ -93,89 +94,94 @@ export const Page = (
     /* event.target.reset(); */
     /* setFormData({}); */
 
-    setHistory((
-      prevHistory,
-    ) => [...prevHistory, {
-      request: JSON.stringify(body, null, 2),
-      response: JSON.stringify(jsonSendedRequest, null, 2),
-      id: uid(),
-    }]);
+    setHistory((prevHistory) => [
+      ...prevHistory,
+      {
+        request: JSON.stringify(body, null, 2),
+        response: JSON.stringify(jsonSendedRequest, null, 2),
+        id: uid(),
+      },
+    ]);
   };
 
   const renderGetFileds = (getField: any, keyName: string, margin: number) => {
     return (
+      // style={{ marginLeft: `${margin + 10}px` }}
       <div style={{ marginLeft: `${margin + 10}px` }}>
-        {keyName} :
-        {Object.keys(getField["schema"]).map(childKeys => {
-          return getField["schema"][childKeys].type === "enums"
-            ? (
-              <div style={{ marginLeft: `${margin + 10}px` }}>
-                <label htmlFor={childKeys}>{childKeys}:</label>
-                <input
-                  placeholder={`${keyName}.${childKeys}`}
-                  type="number"
-                  id={`${keyName}.${childKeys}`}
-                  value={(formData as any)[`get.${keyName}.${childKeys}`]}
-                  name={`get.${keyName}.${childKeys}`}
-                  onChange={handleChange}
-                />
-              </div>
-            )
-            : renderGetFileds(
+        <h1 style={{ marginLeft: "0" }}>{keyName} :</h1>
+        {Object.keys(getField["schema"]).map((childKeys) => {
+          return getField["schema"][childKeys].type === "enums" ? (
+            <div
+              className="input-container"
+              style={{ marginLeft: `${margin + 10}px` }}
+            >
+              <label htmlFor={childKeys}>{childKeys}:</label>
+              <input
+                placeholder={`${keyName}.${childKeys}`}
+                type="number"
+                id={`${keyName}.${childKeys}`}
+                value={(formData as any)[`get.${keyName}.${childKeys}`]}
+                name={`get.${keyName}.${childKeys}`}
+                onChange={handleChange}
+              />
+            </div>
+          ) : (
+            renderGetFileds(
               getField["schema"][childKeys],
               `${keyName}.${childKeys}`,
-              margin + 10,
-            );
+              margin + 10
+            )
+          );
         })}
       </div>
     );
   };
 
   return (
-    <div>
-      <div>
-        set headers :
-        {Object.entries(headers).map(([objKey, objValue]) => {
-          return (
-            <div>
-              <input
-                placeholder={objKey}
-                id={objKey}
-                value={objKey}
-                name={objKey}
-                onChange={(e: any) => {
-                  const { name, value } = e.target;
-                  objKey = value;
-                }}
-              />
-              <input
-                placeholder={objValue}
-                id={objValue}
-                value={objValue}
-                name={objValue}
-                onChange={(e: any) => {
-                  const { name, value } = e.target;
-                  objValue = value;
-                }}
-              />
-              <button
-                onClick={() => {
-                  setHeaders((prevHeaders) => ({
-                    ...prevHeaders,
-                    [objKey]: objValue,
-                  }));
-                }}
-              >
-                Apply
-              </button>
-            </div>
-          );
-        })}
-      </div>
-      <div>
-        <label>
-          select service?
-
+    <div className="container">
+      <div className="sub-container">
+        <div className="headers">
+          <span> set headers : </span>
+          {Object.entries(headers).map(([objKey, objValue]) => {
+            return (
+              <div className="auth-input">
+                <input
+                  placeholder={objKey}
+                  id={objKey}
+                  value={objKey}
+                  name={objKey}
+                  onChange={(e: any) => {
+                    const { name, value } = e.target;
+                    objKey = value;
+                  }}
+                />
+                <input
+                  placeholder={objValue}
+                  id={objValue}
+                  value={objValue}
+                  name={objValue}
+                  onChange={(e: any) => {
+                    const { name, value } = e.target;
+                    objValue = value;
+                  }}
+                />
+                <button
+                  className="btn"
+                  onClick={() => {
+                    setHeaders((prevHeaders) => ({
+                      ...prevHeaders,
+                      [objKey]: objValue,
+                    }));
+                  }}
+                >
+                  Apply
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        <div className="service-container">
+          <label>select service?</label>
           <select
             value={selectedService}
             onChange={(event: any) => {
@@ -192,13 +198,10 @@ export const Page = (
               <option value={service}>{service}</option>
             ))}
           </select>
-        </label>
-      </div>
+        </div>
 
-      <div>
-        <label>
-          select dynamic or static?
-
+        <div className="service-container">
+          <label>select dynamic or static?</label>
           <select
             value={selectedMethod}
             onChange={(event: any) => {
@@ -213,14 +216,11 @@ export const Page = (
             <option value="dynamic">dynamic</option>
             <option value="static">static</option>
           </select>
-        </label>
-      </div>
+        </div>
 
-      {selectedService && selectedMethod && (
-        <div>
-          <label>
-            select schema?
-
+        {selectedService && selectedMethod && (
+          <div className="service-container">
+            <label>select schema?</label>
             <select
               value={selectedSchema}
               onChange={(event: any) => {
@@ -231,31 +231,24 @@ export const Page = (
               }}
             >
               <option value=""></option>
-              {Object.keys((actsObj as any)[selectedService][selectedMethod])
-                .map(
-                  (
-                    schema,
-                  ) => <option value={schema}>{schema}</option>,
-                )}
+              {Object.keys(
+                (actsObj as any)[selectedService][selectedMethod]
+              ).map((schema) => (
+                <option value={schema}>{schema}</option>
+              ))}
             </select>
-          </label>
-        </div>
-      )}
+          </div>
+        )}
 
-      {selectedService && selectedMethod && selectedSchema && (
-        <div>
-          <label>
-            select act?
-
+        {selectedService && selectedMethod && selectedSchema && (
+          <div className="service-container">
+            <label>select act?</label>
             <select
               value={selectedAct}
               onChange={(event: any) => {
-                const actObj =
-                  (actsObj as any)[selectedService][selectedMethod][
-                    selectedSchema
-                  ][
-                    event.target.value
-                  ]["validator"]["schema"];
+                const actObj = (actsObj as any)[selectedService][
+                  selectedMethod
+                ][selectedSchema][event.target.value]["validator"]["schema"];
 
                 formRef && formRef.current && formRef.current.reset();
                 setSelectedAct(event.target.value);
@@ -268,115 +261,114 @@ export const Page = (
               {Object.keys(
                 (actsObj as any)[selectedService][selectedMethod][
                   selectedSchema
-                ],
-              )
-                .map(
-                  (
-                    schema,
-                  ) => <option value={schema}>{schema}</option>,
-                )}
-            </select>
-          </label>
-        </div>
-      )}
-
-      {selectedService && selectedMethod && selectedSchema &&
-        avalibaleSetFields && avalibaleGetFields && (
-        <div>
-          <form ref={formRef} onSubmit={handleSubmit}>
-            <div>
-              set inputs :
-              {Object.keys(
-                avalibaleSetFields,
-              ).map(setField => (
-                <div>
-                  <label htmlFor={setField}>{setField}:</label>
-                  <input
-                    placeholder={setField}
-                    id={setField}
-                    value={(formData as any)[`set.${setField}`]}
-                    name={`set.${setField}`}
-                    type={avalibaleSetFields[setField]["type"] === "number"
-                      ? "number"
-                      : "string"}
-                    alt={avalibaleSetFields[setField]["type"]}
-                    onChange={handleChange}
-                  />
-                </div>
+                ]
+              ).map((schema) => (
+                <option value={schema}>{schema}</option>
               ))}
-            </div>
+            </select>
+          </div>
+        )}
+      </div>
 
-            <br />
-            <hr />
-            <br />
-
-            <div>
-              get inputs :
-              {Object.keys(
-                avalibaleGetFields,
-              ).map(getField => {
-                return ((avalibaleGetFields as any)[getField] as any).type ===
-                    "enums"
-                  ? (
-                    <div>
-                      <label htmlFor={getField}>{getField}:</label>
+      {selectedService &&
+        selectedMethod &&
+        selectedSchema &&
+        avalibaleSetFields &&
+        avalibaleGetFields && (
+          <div className="content">
+            <form ref={formRef} onSubmit={handleSubmit}>
+              <div className="">
+                <h1> set inputs :</h1>
+                <div className="get-container">
+                  {Object.keys(avalibaleSetFields).map((setField) => (
+                    <div className="input-container">
+                      <label htmlFor={setField}>{setField}:</label>
                       <input
-                        placeholder={getField}
-                        id={getField}
-                        value={(formData as any)[`get.${getField}`]}
-                        name={`get.${getField}`}
-                        type="number"
+                        placeholder={setField}
+                        id={setField}
+                        value={(formData as any)[`set.${setField}`]}
+                        name={`set.${setField}`}
+                        type={
+                          avalibaleSetFields[setField]["type"] === "number"
+                            ? "number"
+                            : "string"
+                        }
+                        alt={avalibaleSetFields[setField]["type"]}
                         onChange={handleChange}
                       />
                     </div>
-                  )
-                  : renderGetFileds(
-                    (avalibaleGetFields as any)[getField],
-                    getField,
-                    0,
-                  );
-              })}
-            </div>
-            <button type="submit">Submit</button>
-          </form>
-        </div>
-      )}
+                  ))}
+                </div>
 
-      {response && (
-        <div>
-          <br />
-          <hr />
-          <br />
-          the response is :
-          <br />
-          {JSON.stringify(response, null, 2)}
-        </div>
-      )}
+                <h1> get inputs :</h1>
+                <div className="set-container">
+                  {Object.keys(avalibaleGetFields).map((getField) => {
+                    return ((avalibaleGetFields as any)[getField] as any)
+                      .type === "enums" ? (
+                      <div className="input-container">
+                        <label htmlFor={getField}>{getField}:</label>
+                        <input
+                          placeholder={getField}
+                          id={getField}
+                          value={(formData as any)[`get.${getField}`]}
+                          name={`get.${getField}`}
+                          type="number"
+                          onChange={handleChange}
+                        />
+                      </div>
+                    ) : (
+                      renderGetFileds(
+                        (avalibaleGetFields as any)[getField],
+                        getField,
+                        0
+                      )
+                    );
+                  })}
+                </div>
+                <button className="btn btn-submit" type="submit">
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      <div className="response">
+        {response && (
+          <div>
+            <br />
+            <hr />
+            <br />
+            the response is :
+            <br />
+            {JSON.stringify(response, null, 2)}
+          </div>
+        )}
 
-      {history.length > 0 && (
-        <div>
-          <br />
-          <hr />
-          <br />
-          the req history is :
-          <br />
-          {history.map(hi => (
-            <div key={hi.id}>
-              <section>
-                <span>the request is :</span>
-                <div>{hi.request}</div>
-              </section>
-              <section>
-                <span>the response is :</span>
-                <div>{hi.response}</div>
-              </section>
-              <br />
-              <hr />
-              <br />
-            </div>
-          ))}
-        </div>
-      )}
+        {history.length > 0 && (
+          <div>
+            <br />
+            <hr />
+            <br />
+            the req history is :
+            <br />
+            {history.map((hi) => (
+              <div key={hi.id}>
+                <section>
+                  <span>the request is :</span>
+                  <div>{hi.request}</div>
+                </section>
+                <section>
+                  <span>the response is :</span>
+                  <div>{hi.response}</div>
+                </section>
+                <br />
+                <hr />
+                <br />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

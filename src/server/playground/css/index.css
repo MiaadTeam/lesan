@@ -1,3 +1,133 @@
 body {
-  background: rgb(0, 255, 255);
+  background-color: #eeeeee;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 24px;
+  color: gray;
+  margin-left: 2rem;
+}
+
+label {
+  color: #eeeeee;
+}
+
+input {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ffffff;
+  margin: 2rem 1rem;
+}
+
+.container {
+  display: flex;
+}
+
+.sub-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #9ba4b5;
+  width: 15%;
+}
+
+.headers {
+  padding: 2rem;
+}
+
+.headers span {
+  padding: 2rem 0px;
+  color: #fff;
+}
+
+.headers .auth-input {
+  display: flex;
+  flex-direction: column;
+}
+
+.headers .auth-input input {
+  width: 90%;
+  margin: 10px 0px;
+}
+
+.btn {
+  background-color: #2828f0;
+  border: none;
+  color: #fff;
+  padding: 5px 1rem;
+  border-radius: 5px;
+  width: 100%;
+}
+
+/* drop down */
+
+.service-container {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  padding: 0.5rem 0px;
+}
+
+select {
+  padding: 8px;
+  font-size: 16px;
+  border: none;
+  background-color: #3a98b9;
+  border-radius: 5px;
+  width: 100%;
+  color: #eeeeee;
+}
+
+.service-container label {
+  margin-top: 1rem;
+  margin-bottom: 5px;
+}
+
+option {
+  padding: 8px;
+  font-size: 16px;
+  background-color: #9ba4b5;
+}
+
+.content {
+  width: 20%;
+  background-color: #394867;
+  height: 100vh;
+  overflow-y: scroll;
+}
+
+.get-container,
+.set-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 0px 2rem;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.input-container input {
+  margin-top: 5px;
+  margin-left: 0;
+}
+
+.btn-submit {
+  background-color: #2828f0;
+  display: flex;
+  width: 75%;
+  margin: auto;
+  margin-bottom: 1rem;
+}
+
+.response {
+  display: flex;
+  flex-direction: column;
+  width: 65%;
 }
