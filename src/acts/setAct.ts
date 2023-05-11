@@ -13,7 +13,7 @@ import { ActInp, Services } from "./types.ts";
 
 export const setAct = (
   acts: Services,
-  { type, schema, actName, validator, fn, preAct }: ActInp,
+  { type, schema, actName, validator, fn, preAct, validationRunType }: ActInp,
 ) => {
   if (!acts.main[type]) {
     throw new Error(`Invalid type: ${type}`);
@@ -26,5 +26,6 @@ export const setAct = (
     validator,
     fn,
     preAct,
+    validationRunType: validationRunType || "assert",
   };
 };
