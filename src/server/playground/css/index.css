@@ -1,8 +1,118 @@
+:root {
+  /* ------------------------------------------------------------------------ */
+  /*                               Configuration                              */
+  /* ------------------------------------------------------------------------ */
+
+  /* -------------------------------- Colors -------------------------------- */
+  --color-bg-base: var(--color-colonial-100);
+  --color-bg-primary: var(--color-blue-950);
+
+  --color-text-base: var(--color-gray-950);
+
+  --color-success: #2a7e2e;
+  --color-error: #d92525;
+  --color-warning: #d92525;
+
+  --color-colonial-50: #fef9ee;
+  --color-colonial-100: #fdf0d5;
+  --color-colonial-200: #fadfae;
+  --color-colonial-300: #f7c77a;
+  --color-colonial-400: #f2a545;
+  --color-colonial-500: #ef8a20;
+  --color-colonial-600: #e07016;
+  --color-colonial-700: #ba5514;
+  --color-colonial-800: #944418;
+  --color-colonial-900: #773917;
+  --color-colonial-950: #401c0a;
+  --color-colonial-default: var(--color-colonial-100);
+
+
+  --color-maroon-50: #ffeeee;
+  --color-maroon-100: #ffdada;
+  --color-maroon-200: #ffbbbb;
+  --color-maroon-300: #ff8b8b;
+  --color-maroon-400: #ff4949;
+  --color-maroon-500: #ff1111;
+  --color-maroon-600: #ff0000;
+  --color-maroon-700: #e70000;
+  --color-maroon-800: #be0000;
+  --color-maroon-900: #780000;
+  --color-maroon-950: #560000;
+  --color-maroon-default: var(--color-maroon-900);
+
+  --color-thunderbird-50: #fff1f2;
+  --color-thunderbird-100: #ffe0e2;
+  --color-thunderbird-200: #ffc7cb;
+  --color-thunderbird-300: #ffa0a7;
+  --color-thunderbird-400: #ff6974;
+  --color-thunderbird-500: #fa3947;
+  --color-thunderbird-600: #e71b2a;
+  --color-thunderbird-700: #c1121f;
+  --color-thunderbird-800: #a1131e;
+  --color-thunderbird-900: #85171f;
+  --color-thunderbird-950: #49060b;
+  --color-thunderbird-default: var(--color-thunderbird-700);
+
+  --color-blue-50: #eefaff;
+  --color-blue-100: #dcf5ff;
+  --color-blue-200: #b2edff;
+  --color-blue-300: #6de1ff;
+  --color-blue-400: #20d3ff;
+  --color-blue-500: #00beff;
+  --color-blue-600: #0099df;
+  --color-blue-700: #0079b4;
+  --color-blue-800: #006795;
+  --color-blue-900: #00547a;
+  --color-blue-950: #003049;
+  --color-blue-default: var(--color-blue-950);
+
+  --color-blue-hippie-50: #f1f7fa;
+  --color-blue-hippie-100: #dceaf1;
+  --color-blue-hippie-200: #bdd6e4;
+  --color-blue-hippie-300: #8fb9d1;
+  --color-blue-hippie-400: #669bbc;
+  --color-blue-hippie-500: #3e769c;
+  --color-blue-hippie-600: #366184;
+  --color-blue-hippie-700: #31516d;
+  --color-blue-hippie-800: #2f455b;
+  --color-blue-hippie-900: #2b3b4e;
+  --color-blue-hippie-950: #182534;
+  --color-blue-hippie-default: var(--color-blue-hippie-400);
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+
+  /* --------------------------------- Fonts -------------------------------- */
+  --base-font-family: sans-serif;
+  --headers-font-family: serif;
+  --base-font-lineheight: 1.5em;
+}
+
+/* NORMALIZING HTML AND BODY */
+html,
 body {
-  background-color: #eeeeee;
+  color: var(--color-text-base);
+  font-family: var(--base-font-family);
+  background-color: var(--color-bg-base);
+  font-weight: 300;
+  line-height: var(--base-font-lineheight);
+  -webkit-font-smoothing: antialiased;
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
+
 
 h1 {
   font-size: 24px;
@@ -17,80 +127,74 @@ label {
 input {
   padding: 5px 10px;
   border-radius: 5px;
-  border: 1px solid #ffffff;
-  margin: 2rem 1rem;
+  border: 1px solid white;
+  margin: 10px 0;
+  font-size: 1rem;
 }
 
-.container {
+.cnt {
   display: flex;
 }
 
-.sub-container {
+.cnt .sidebar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
-  background-color: #9ba4b5;
+  max-height: 100vh;
+  background-color: var(--color-gray-800);
   width: 15%;
-}
-
-.headers {
   padding: 2rem;
 }
 
-.headers span {
-  padding: 2rem 0px;
-  color: #fff;
+.sidebar__section {
+  width: 100%;
+  margin-bottom: 10px;
 }
 
-.headers .auth-input {
+.sidebar__section-heading {
+  color: white;
+  text-transform: capitalize;
+  align-self: flex-start;
+  padding: 10px 0;
+  position: relative;
+}
+
+.sidebar__section-heading::after {
+  position: absolute;
+  right: 0;
+  bottom: 7px;
+  content: '';
+  height: 2px;
+  width: 100%;
+  background-color: white;
+}
+
+.sidebar__input-double {
   display: flex;
   flex-direction: column;
 }
 
-.headers .auth-input input {
-  width: 90%;
-  margin: 10px 0px;
+.btn--add {
+  background-color: var(--color-colonial-600);
+  border: none;
+  color: white;
+  padding: 8px;
+  border-radius: 5px;
+  width: 100%;
+  text-transform: capitalize;
+  margin: 10px 0;
 }
 
-.btn {
-  background-color: #2828f0;
+.sidebar__select {
+  padding: 5px 10px;
+  font-size: 1rem;
   border: none;
-  color: #fff;
-  padding: 5px 1rem;
+  background-color: white;
   border-radius: 5px;
   width: 100%;
 }
 
-/* drop down */
-
-.service-container {
-  display: flex;
-  flex-direction: column;
-  width: 80%;
-  padding: 0.5rem 0px;
-}
-
-select {
-  padding: 8px;
-  font-size: 16px;
-  border: none;
-  background-color: #3a98b9;
-  border-radius: 5px;
-  width: 100%;
-  color: #eeeeee;
-}
-
-.service-container label {
-  margin-top: 1rem;
-  margin-bottom: 5px;
-}
-
-option {
-  padding: 8px;
-  font-size: 16px;
-  background-color: #9ba4b5;
-}
+/* -------------------------------------------------------------------------- */
 
 .content {
   width: 20%;
@@ -119,7 +223,7 @@ option {
 }
 
 .btn-submit {
-  background-color: #2828f0;
+  background-color: var(--color-bg-primary);
   display: flex;
   width: 75%;
   margin: auto;
