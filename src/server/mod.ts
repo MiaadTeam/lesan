@@ -3,6 +3,7 @@ import { Services } from "../acts/mod.ts";
 import { ISchema } from "../models/mod.ts";
 import { generateSchemTypes } from "../types/mod.ts";
 import { lesanFns } from "../utils/mod.ts";
+import { addCors } from "./cors.ts";
 import { runPlayground } from "./playground/mod.tsx";
 
 /**
@@ -26,6 +27,15 @@ export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
     typeGeneration && (await generateSchemTypes(schemasObj));
     const handler = async (request: Request): Promise<Response> => {
       try {
+        // temporarly add cors to request
+        // TODO should export cors fn to user and add some custom input to that
+        if (request.method === "OPTIONS") {
+          return new Response(undefined, {
+            headers: addCors(),
+          });
+          // return;
+        }
+
         return request.method === "GET"
           // ? await serveStatic(request)
           ? await runPlayground(request, schemasObj, actsObj)
