@@ -1,11 +1,13 @@
 /** @jsx h */
 import { h } from "https://esm.sh/preact@10.5.15";
-import { useRef } from "https://esm.sh/preact@10.5.15/hooks";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "https://esm.sh/preact@10.5.15/hooks";
 import { useLesan } from "./ManagedLesanContext.tsx";
 
-export const Page = (
-  { schemasObj, actsObj } = { schemasObj: {}, actsObj: {} }
-) => {
+export const Page = () => {
   const {
     act,
     formData,
@@ -31,9 +33,21 @@ export const Page = (
     resetPostFields,
   } = useLesan();
 
+  const [actsObj, setActsObj] = useState({});
+  const [schemasObj, setSchemasObj] = useState({});
+
   const formRef = useRef<HTMLFormElement>(null);
 
-  const uid = function () {
+  useEffect(() => {
+    fetch("http://localhost:8000/static/get/schemas").then((value) => {
+      value.json().then(({ schemas, acts }) => {
+        setActsObj(acts);
+        setSchemasObj(schemas);
+      });
+    });
+  }, []);
+
+  const uid = function() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
@@ -41,12 +55,11 @@ export const Page = (
     const { name, value, type, alt } = event.target;
     setFormData(() => ({
       ...formData,
-      [name]:
-        type === "number"
-          ? Number(value)
-          : alt === "array" || alt === "boolean"
-          ? JSON.parse(value)
-          : value,
+      [name]: type === "number"
+        ? Number(value)
+        : alt === "array" || alt === "boolean"
+        ? JSON.parse(value)
+        : value,
     }));
   };
 
@@ -121,28 +134,30 @@ export const Page = (
       <div style={{ marginLeft: `${margin + 10}px` }}>
         <h1 style={{ marginLeft: "0" }}>{keyName} :</h1>
         {Object.keys(getField["schema"]).map((childKeys) => {
-          return getField["schema"][childKeys].type === "enums" ? (
-            <div
-              className="input-container"
-              style={{ marginLeft: `${margin + 10}px` }}
-            >
-              <label htmlFor={childKeys}>{childKeys}:</label>
-              <input
-                placeholder={`${keyName}.${childKeys}`}
-                type="number"
-                id={`${keyName}.${childKeys}`}
-                value={(formData as any)[`get.${keyName}.${childKeys}`]}
-                name={`get.${keyName}.${childKeys}`}
-                onChange={handleChange}
-              />
-            </div>
-          ) : (
-            renderGetFileds(
-              getField["schema"][childKeys],
-              `${keyName}.${childKeys}`,
-              margin + 10
+          return getField["schema"][childKeys].type === "enums"
+            ? (
+              <div
+                className="input-container"
+                style={{ marginLeft: `${margin + 10}px` }}
+              >
+                <label htmlFor={childKeys}>{childKeys}:</label>
+                <input
+                  placeholder={`${keyName}.${childKeys}`}
+                  type="number"
+                  id={`${keyName}.${childKeys}`}
+                  value={(formData as any)[`get.${keyName}.${childKeys}`]}
+                  name={`get.${keyName}.${childKeys}`}
+                  onChange={handleChange}
+                />
+              </div>
             )
-          );
+            : (
+              renderGetFileds(
+                getField["schema"][childKeys],
+                `${keyName}.${childKeys}`,
+                margin + 10,
+              )
+            );
         })}
       </div>
     );
@@ -152,7 +167,7 @@ export const Page = (
     <div className="container">
       <div className="sub-container">
         <div className="headers">
-          <span> set headers : </span>
+          <span>set headers :</span>
           {Object.entries(headers).map(([objKey, objValue]) => {
             return (
               <div className="auth-input">
@@ -268,9 +283,7 @@ export const Page = (
             >
               <option value=""></option>
               {Object.keys((actsObj as any)[service][method][schema]).map(
-                (schema) => (
-                  <option value={schema}>{schema}</option>
-                )
+                (schema) => <option value={schema}>{schema}</option>,
               )}
             </select>
           </div>
@@ -281,7 +294,7 @@ export const Page = (
         <div className="content">
           <form ref={formRef} onSubmit={handleSubmit}>
             <div className="">
-              <h1> set inputs :</h1>
+              <h1>set inputs :</h1>
               <div className="get-container">
                 {Object.keys(postFields).map((setField) => (
                   <div className="input-container">
@@ -291,11 +304,9 @@ export const Page = (
                       id={setField}
                       value={(formData as any)[`set.${setField}`]}
                       name={`set.${setField}`}
-                      type={
-                        postFields[setField]["type"] === "number"
-                          ? "number"
-                          : "string"
-                      }
+                      type={postFields[setField]["type"] === "number"
+                        ? "number"
+                        : "string"}
                       alt={postFields[setField]["type"]}
                       onChange={handleChange}
                     />
@@ -303,25 +314,27 @@ export const Page = (
                 ))}
               </div>
 
-              <h1> get inputs :</h1>
+              <h1>get inputs :</h1>
               <div className="set-container">
                 {Object.keys(getFields).map((getField) => {
                   return ((getFields as any)[getField] as any).type ===
-                    "enums" ? (
-                    <div className="input-container">
-                      <label htmlFor={getField}>{getField}:</label>
-                      <input
-                        placeholder={getField}
-                        id={getField}
-                        value={(formData as any)[`get.${getField}`]}
-                        name={`get.${getField}`}
-                        type="number"
-                        onChange={handleChange}
-                      />
-                    </div>
-                  ) : (
-                    renderGetFileds((getFields as any)[getField], getField, 0)
-                  );
+                      "enums"
+                    ? (
+                      <div className="input-container">
+                        <label htmlFor={getField}>{getField}:</label>
+                        <input
+                          placeholder={getField}
+                          id={getField}
+                          value={(formData as any)[`get.${getField}`]}
+                          name={`get.${getField}`}
+                          type="number"
+                          onChange={handleChange}
+                        />
+                      </div>
+                    )
+                    : (
+                      renderGetFileds((getFields as any)[getField], getField, 0)
+                    );
                 })}
               </div>
               <button className="btn btn-submit" type="submit">

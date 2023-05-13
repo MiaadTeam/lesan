@@ -2,6 +2,7 @@
 /** @jsx h */
 import { renderToString } from "https://esm.sh/preact-render-to-string@5.1.19?deps=preact@10.5.15";
 import { h } from "https://esm.sh/preact@10.5.15";
+import { bundle } from "../../deps.ts";
 import { Services } from "../../mod.ts";
 import { ISchema } from "../../models/mod.ts";
 import { Page } from "./comp/preact.tsx";
@@ -19,25 +20,30 @@ export const runPlayground = async (
   schemasObj: ISchema,
   actsObj: Services,
 ) => {
-  const js = `
-import { h, hydrate } from "https://esm.sh/preact@10.5.15";
-import { useState, useRef } from "https://esm.sh/preact@10.5.15/hooks";
+  const url = new URL("./hydrate.tsx", import.meta.url);
 
- const App = ${Page};
-  const props = {schemasObj:${JSON.stringify(schemasObj)}, actsObj: ${
-    JSON.stringify(actsObj)
-  }}
- hydrate(h(App, props), document.getElementById('root'));`;
+  const result = await bundle(url);
+
+  const { code } = result;
 
   const getClientReact = () => {
-    return new Response(js, {
+    return new Response(code, {
       headers: { "content-type": "application/javascript" },
     });
   };
 
+  const getSchemas = () => {
+    return new Response(
+      JSON.stringify({ schemas: schemasObj, acts: actsObj }),
+      {
+        headers: { "content-type": "application/json" },
+      },
+    );
+  };
+
   const getSsrReact = () => {
     const body = renderToString(
-      <Page schemasObj={schemasObj} actsObj={actsObj} />,
+      <Page />,
     );
 
     const html = `<!DOCTYPE html>
@@ -62,5 +68,7 @@ import { useState, useRef } from "https://esm.sh/preact@10.5.15/hooks";
     ? getClientReact()
     : request.url === "http://localhost:8000/static/index.css"
     ? await getCSSFile()
+    : request.url === "http://localhost:8000/static/get/schemas"
+    ? getSchemas()
     : getSsrReact();
 };
