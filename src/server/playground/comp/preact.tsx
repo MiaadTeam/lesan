@@ -1,26 +1,51 @@
 /** @jsx h */
 import { h } from "https://esm.sh/preact@10.5.15";
-import { useRef, useState } from "https://esm.sh/preact@10.5.15/hooks";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "https://esm.sh/preact@10.5.15/hooks";
+import { useLesan } from "./ManagedLesanContext.tsx";
 
-export const Page = (
-  { schemasObj, actsObj } = { schemasObj: {}, actsObj: {} }
-) => {
-  const [selectedService, setSelectedService] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState("");
-  const [selectedSchema, setSelectedSchema] = useState("");
-  const [selectedAct, setSelectedAct] = useState("");
-  const [availableSetFields, setAvailableSetFields] = useState(null);
-  const [availableGetFields, setAvailableGetFields] = useState(null);
-  const [formData, setFormData] = useState({});
-  const [headers, setHeaders] = useState<{ [key: string]: string }>({
-    Authorization: "",
-  });
-  const [history, setHistory] = useState<
-    { request: string; response: string; id: string }[]
-  >([]);
-  const [response, setResponse] = useState(null);
+export const Page = () => {
+  const {
+    act,
+    formData,
+    getFields,
+    headers,
+    history,
+    method,
+    postFields,
+    response,
+    schema,
+    service,
+    setService,
+    setMethod,
+    setSchema,
+    setAct,
+    setPostFields,
+    setGetFields,
+    setFormData,
+    setHeader,
+    setHistory,
+    setResponse,
+    resetGetFields,
+    resetPostFields,
+  } = useLesan();
+
+  const [actsObj, setActsObj] = useState({});
+  const [schemasObj, setSchemasObj] = useState({});
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/static/get/schemas").then((value) => {
+      value.json().then(({ schemas, acts }) => {
+        setActsObj(acts);
+        setSchemasObj(schemas);
+      });
+    });
+  }, []);
 
   const uid = function () {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -28,15 +53,15 @@ export const Page = (
 
   const handleChange = (event: any) => {
     const { name, value, type, alt } = event.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    setFormData({
+      ...formData,
       [name]:
         type === "number"
           ? Number(value)
           : alt === "array" || alt === "boolean"
           ? JSON.parse(value)
           : value,
-    }));
+    });
   };
 
   const deepen = (obj: Record<string, any>) => {
@@ -80,9 +105,9 @@ export const Page = (
         ...headers,
       },
       body: JSON.stringify({
-        service: selectedService,
-        contents: selectedMethod,
-        wants: { model: selectedSchema, act: selectedAct },
+        service: service,
+        contents: method,
+        wants: { model: schema, act: act },
         details,
       }),
     };
@@ -94,8 +119,8 @@ export const Page = (
     /* event.target.reset(); */
     /* setFormData({}); */
 
-    setHistory((prevHistory) => [
-      ...prevHistory,
+    setHistory([
+      ...(history ? history : []),
       {
         request: JSON.stringify(body, null, 2),
         response: JSON.stringify(jsonSendedRequest, null, 2),
@@ -136,16 +161,11 @@ export const Page = (
     );
   };
 
-  const canShowContent =
-    selectedService &&
-    selectedMethod &&
-    selectedSchema &&
-    availableSetFields &&
-    availableGetFields;
+  const canShowContent = service && method && schema && postFields && getFields;
 
-  const canShowSchema = selectedService && selectedMethod;
+  const canShowSchema = service && method;
 
-  const canShowAct = selectedService && selectedMethod && selectedSchema;
+  const canShowAct = service && method && schema;
 
   return (
     <div className="cnt">
@@ -175,10 +195,10 @@ export const Page = (
               <button
                 className="btn--add"
                 onClick={() => {
-                  setHeaders((prevHeaders) => ({
-                    ...prevHeaders,
+                  setHeader({
+                    ...headers,
                     [objKey]: objValue,
-                  }));
+                  });
                 }}
               >
                 add +
@@ -190,13 +210,13 @@ export const Page = (
           <div className="sidebar__section-heading">select services</div>
           <select
             className="sidebar__select"
-            value={selectedService}
+            value={service}
             onChange={(event: any) => {
-              setSelectedService(event.target.value);
-              setSelectedMethod("");
-              setSelectedSchema("");
-              setAvailableGetFields(null);
-              setAvailableSetFields(null);
+              setService(event.target.value);
+              setMethod("");
+              setSchema("");
+              resetGetFields();
+              resetPostFields();
               setFormData({});
             }}
           >
@@ -210,12 +230,12 @@ export const Page = (
           <div className="sidebar__section-heading">select method</div>
           <select
             className="sidebar__select"
-            value={selectedMethod}
+            value={method}
             onChange={(event: any) => {
-              setSelectedMethod(event.target.value);
-              setSelectedSchema("");
-              setAvailableGetFields(null);
-              setAvailableSetFields(null);
+              setMethod(event.target.value);
+              setSchema("");
+              resetGetFields();
+              resetPostFields();
               setFormData({});
             }}
           >
@@ -229,19 +249,19 @@ export const Page = (
           <select
             className="sidebar__select"
             disabled={!canShowSchema}
-            value={canShowSchema ? selectedSchema : undefined}
+            value={canShowSchema ? schema : undefined}
             onChange={(event: any) => {
-              setSelectedSchema(event.target.value);
-              setAvailableGetFields(null);
-              setAvailableSetFields(null);
+              setSchema(event.target.value);
+              resetGetFields();
+              resetPostFields();
               setFormData({});
             }}
           >
             <option value=""></option>
             {canShowSchema
-              ? Object.keys(
-                  (actsObj as any)[selectedService][selectedMethod]
-                ).map((schema) => <option value={schema}>{schema}</option>)
+              ? Object.keys((actsObj as any)[service][method]).map((schema) => (
+                  <option value={schema}>{schema}</option>
+                ))
               : null}
           </select>
         </div>
@@ -250,26 +270,24 @@ export const Page = (
           <select
             className="sidebar__select"
             disabled={!canShowAct}
-            value={canShowAct ? selectedAct : undefined}
+            value={canShowAct ? act : undefined}
             onChange={(event: any) => {
-              const actObj = (actsObj as any)[selectedService][selectedMethod][
-                selectedSchema
-              ][event.target.value]["validator"]["schema"];
+              const actObj = (actsObj as any)[service][method][schema][
+                event.target.value
+              ]["validator"]["schema"];
 
               formRef && formRef.current && formRef.current.reset();
-              setSelectedAct(event.target.value);
-              setAvailableGetFields(actObj["get"]["schema"]);
-              setAvailableSetFields(actObj["set"]["schema"]);
+              setAct(event.target.value);
+              setGetFields(actObj["get"]["schema"]);
+              setPostFields(actObj["set"]["schema"]);
               setFormData({});
             }}
           >
             <option value=""></option>
             {canShowAct
-              ? Object.keys(
-                  (actsObj as any)[selectedService][selectedMethod][
-                    selectedSchema
-                  ]
-                ).map((schema) => <option value={schema}>{schema}</option>)
+              ? Object.keys((actsObj as any)[service][method][schema]).map(
+                  (schema) => <option value={schema}>{schema}</option>
+                )
               : null}
           </select>
         </div>
@@ -282,7 +300,7 @@ export const Page = (
             <div className="">
               <h1> set inputs :</h1>
               <div className="get-container">
-                {Object.keys(availableSetFields).map((setField) => (
+                {Object.keys(postFields).map((setField) => (
                   <div className="input-container">
                     <label htmlFor={setField}>{setField}:</label>
                     <input
@@ -291,11 +309,11 @@ export const Page = (
                       value={(formData as any)[`set.${setField}`]}
                       name={`set.${setField}`}
                       type={
-                        availableSetFields[setField]["type"] === "number"
+                        postFields[setField]["type"] === "number"
                           ? "number"
                           : "string"
                       }
-                      alt={availableSetFields[setField]["type"]}
+                      alt={postFields[setField]["type"]}
                       onChange={handleChange}
                     />
                   </div>
@@ -304,8 +322,8 @@ export const Page = (
 
               <h1> get inputs :</h1>
               <div className="set-container">
-                {Object.keys(availableGetFields).map((getField) => {
-                  return ((availableGetFields as any)[getField] as any).type ===
+                {Object.keys(getFields).map((getField) => {
+                  return ((getFields as any)[getField] as any).type ===
                     "enums" ? (
                     <div className="input-container">
                       <label htmlFor={getField}>{getField}:</label>
@@ -319,11 +337,7 @@ export const Page = (
                       />
                     </div>
                   ) : (
-                    renderGetFields(
-                      (availableGetFields as any)[getField],
-                      getField,
-                      0
-                    )
+                    renderGetFields((getFields as any)[getField], getField, 0)
                   );
                 })}
               </div>
@@ -346,7 +360,7 @@ export const Page = (
           </div>
         )}
 
-        {history.length > 0 && (
+        {history && history?.length > 0 && (
           <div>
             <br />
             <hr />
