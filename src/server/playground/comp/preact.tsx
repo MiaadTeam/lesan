@@ -129,39 +129,35 @@ export const Page = () => {
     ]);
   };
 
-  const renderGetFields = (getField: any, keyName: string, margin: number) => {
-    return (
-      <div style={{ marginLeft: `${margin + 10}px` }}>
-        <h1 style={{ marginLeft: "0" }}>{keyName} :</h1>
-        {Object.keys(getField["schema"]).map((childKeys) => {
-          return getField["schema"][childKeys].type === "enums" ? (
-            <div
-              className="input-container"
-              style={{ marginLeft: `${margin + 10}px` }}
-            >
-              <label htmlFor={childKeys}>{childKeys}:</label>
-              <input
-                placeholder={`${keyName}.${childKeys}`}
-                type="number"
-                id={`${keyName}.${childKeys}`}
-                value={(formData as any)[`get.${keyName}.${childKeys}`]}
-                name={`get.${keyName}.${childKeys}`}
-                onChange={handleChange}
-              />
-            </div>
-          ) : (
-            renderGetFields(
-              getField["schema"][childKeys],
-              `${keyName}.${childKeys}`,
-              margin + 10
-            )
-          );
-        })}
-      </div>
-    );
-  };
+  const renderGetFields = (getField: any, keyName: string, margin: number) => (
+    <div style={{ marginLeft: `${margin + 10}px` }}>
+      <div className="sidebar__section-heading--subfields">{keyName}</div>
+      {Object.keys(getField["schema"]).map((item) =>
+        getField["schema"][item].type === "enums" ? (
+          <div className="input-cnt" key={item}>
+            <label htmlFor={item}>{item}:</label>
+            <input
+              placeholder={`${keyName}.${item}`}
+              type="number"
+              id={`${keyName}.${item}`}
+              value={formData[`get.${keyName}.${item}`]}
+              name={`get.${keyName}.${item}`}
+              onChange={handleChange}
+            />
+          </div>
+        ) : (
+          renderGetFields(
+            getField["schema"][item],
+            `${keyName}.${item}`,
+            margin + 10
+          )
+        )
+      )}
+    </div>
+  );
 
-  const canShowContent = service && method && schema && postFields && getFields;
+  const canShowContent =
+    service && method && schema && postFields && getFields && act;
 
   const canShowSchema = service && method;
 
@@ -193,7 +189,7 @@ export const Page = () => {
                 }}
               />
               <button
-                className="btn--add"
+                className="btn btn--add"
                 onClick={() => {
                   setHeader({
                     ...headers,
@@ -293,61 +289,57 @@ export const Page = () => {
         </div>
       </div>
 
-      {/* TODO: Content and Response Have to Refactor Like Sidebar Section */}
       {canShowContent && (
-        <div className="content">
-          <form ref={formRef} onSubmit={handleSubmit}>
-            <div className="">
-              <h1> set inputs :</h1>
-              <div className="get-container">
-                {Object.keys(postFields).map((setField) => (
-                  <div className="input-container">
-                    <label htmlFor={setField}>{setField}:</label>
-                    <input
-                      placeholder={setField}
-                      id={setField}
-                      value={(formData as any)[`set.${setField}`]}
-                      name={`set.${setField}`}
-                      type={
-                        postFields[setField]["type"] === "number"
-                          ? "number"
-                          : "string"
-                      }
-                      alt={postFields[setField]["type"]}
-                      onChange={handleChange}
-                    />
-                  </div>
-                ))}
+        <div className="sidebar sidebar--fields">
+          <form ref={formRef} onSubmit={handleSubmit} className="form--fields">
+            <div className="sidebar__section-heading sidebar__section-heading--fields">
+              set fields
+            </div>
+            {Object.keys(postFields).map((item) => (
+              <div className="input-cnt" key={item}>
+                <label htmlFor={item}>{item}:</label>
+                <input
+                  placeholder={item}
+                  id={item}
+                  value={formData[`set.${item}`]}
+                  name={`set.${item}`}
+                  type={
+                    postFields[item]["type"] === "number" ? "number" : "string"
+                  }
+                  alt={postFields[item]["type"]}
+                  onChange={handleChange}
+                />
               </div>
-
-              <h1> get inputs :</h1>
-              <div className="set-container">
-                {Object.keys(getFields).map((getField) => {
-                  return ((getFields as any)[getField] as any).type ===
-                    "enums" ? (
-                    <div className="input-container">
-                      <label htmlFor={getField}>{getField}:</label>
-                      <input
-                        placeholder={getField}
-                        id={getField}
-                        value={(formData as any)[`get.${getField}`]}
-                        name={`get.${getField}`}
-                        type="number"
-                        onChange={handleChange}
-                      />
-                    </div>
-                  ) : (
-                    renderGetFields((getFields as any)[getField], getField, 0)
-                  );
-                })}
-              </div>
-              <button className="btn btn-submit" type="submit">
-                Submit
+            ))}
+            <div className="sidebar__section-heading sidebar__section-heading--fields">
+              get fields
+            </div>
+            {Object.keys(getFields).map((item) =>
+              getFields[item].type === "enums" ? (
+                <div className="input-cnt">
+                  <label htmlFor={item}>{item}:</label>
+                  <input
+                    placeholder={item}
+                    id={item}
+                    value={formData[`get.${item}`]}
+                    name={`get.${item}`}
+                    type="number"
+                    onChange={handleChange}
+                  />
+                </div>
+              ) : (
+                renderGetFields(getFields[item], item, 0)
+              )
+            )}
+            <div className="cnt--btn-send">
+              <button className="btn btn--send" type="submit">
+                send
               </button>
             </div>
           </form>
         </div>
       )}
+
       <div className="response">
         {response && (
           <div>

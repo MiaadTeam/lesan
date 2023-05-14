@@ -4,97 +4,39 @@
   /* ------------------------------------------------------------------------ */
 
   /* -------------------------------- Colors -------------------------------- */
-  --color-bg-base: var(--color-colonial-100);
-  --color-bg-primary: var(--color-blue-950);
+  --color-bg-base: var(--color-colonial-1);
+  --color-bg-primary: var(--color-blue-1);
+  --color-bg-secondary: var(--color-blue-2);
 
-  --color-text-base: var(--color-gray-950);
+  --color-text-base: var(--color-gray-4);
 
   --color-success: #2a7e2e;
   --color-error: #d92525;
   --color-warning: #d92525;
 
-  --color-colonial-50: #fef9ee;
-  --color-colonial-100: #fdf0d5;
-  --color-colonial-200: #fadfae;
-  --color-colonial-300: #f7c77a;
-  --color-colonial-400: #f2a545;
-  --color-colonial-500: #ef8a20;
-  --color-colonial-600: #e07016;
-  --color-colonial-700: #ba5514;
-  --color-colonial-800: #944418;
-  --color-colonial-900: #773917;
-  --color-colonial-950: #401c0a;
-  --color-colonial-default: var(--color-colonial-100);
+  --color-colonial-1: #fdf0d5;
+  --color-colonial-2: #e07016;
 
+  --color-green-1: #06d6a0;
+  --color-green-2: #a5dc86;
 
-  --color-maroon-50: #ffeeee;
-  --color-maroon-100: #ffdada;
-  --color-maroon-200: #ffbbbb;
-  --color-maroon-300: #ff8b8b;
-  --color-maroon-400: #ff4949;
-  --color-maroon-500: #ff1111;
-  --color-maroon-600: #ff0000;
-  --color-maroon-700: #e70000;
-  --color-maroon-800: #be0000;
-  --color-maroon-900: #780000;
-  --color-maroon-950: #560000;
-  --color-maroon-default: var(--color-maroon-900);
+  --color-blue-1: #003049;
+  --color-blue-2: #2b3b4e;
+  --color-blue-3: #669bbc;
+  --color-blue-4: #03A9F4;
 
-  --color-thunderbird-50: #fff1f2;
-  --color-thunderbird-100: #ffe0e2;
-  --color-thunderbird-200: #ffc7cb;
-  --color-thunderbird-300: #ffa0a7;
-  --color-thunderbird-400: #ff6974;
-  --color-thunderbird-500: #fa3947;
-  --color-thunderbird-600: #e71b2a;
-  --color-thunderbird-700: #c1121f;
-  --color-thunderbird-800: #a1131e;
-  --color-thunderbird-900: #85171f;
-  --color-thunderbird-950: #49060b;
-  --color-thunderbird-default: var(--color-thunderbird-700);
-
-  --color-blue-50: #eefaff;
-  --color-blue-100: #dcf5ff;
-  --color-blue-200: #b2edff;
-  --color-blue-300: #6de1ff;
-  --color-blue-400: #20d3ff;
-  --color-blue-500: #00beff;
-  --color-blue-600: #0099df;
-  --color-blue-700: #0079b4;
-  --color-blue-800: #006795;
-  --color-blue-900: #00547a;
-  --color-blue-950: #003049;
-  --color-blue-default: var(--color-blue-950);
-
-  --color-blue-hippie-50: #f1f7fa;
-  --color-blue-hippie-100: #dceaf1;
-  --color-blue-hippie-200: #bdd6e4;
-  --color-blue-hippie-300: #8fb9d1;
-  --color-blue-hippie-400: #669bbc;
-  --color-blue-hippie-500: #3e769c;
-  --color-blue-hippie-600: #366184;
-  --color-blue-hippie-700: #31516d;
-  --color-blue-hippie-800: #2f455b;
-  --color-blue-hippie-900: #2b3b4e;
-  --color-blue-hippie-950: #182534;
-  --color-blue-hippie-default: var(--color-blue-hippie-400);
-
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
-  --color-gray-950: #030712;
+  --color-gray-1: #d1d5db;
+  --color-gray-2: #9E9E9E;
+  --color-gray-3: #1f2937;
+  --color-gray-4: #030712;
 
   /* --------------------------------- Fonts -------------------------------- */
   --base-font-family: sans-serif;
   --headers-font-family: serif;
   --base-font-lineheight: 1.5em;
+
+  /* ------------------------------- Constants ------------------------------ */
+  --height-cnt--btn-send: 55px;
 }
 
 /* NORMALIZING HTML AND BODY */
@@ -113,6 +55,9 @@ body {
   overflow-x: hidden;
 }
 
+* {
+  transition: all 0.2s ease;
+}
 
 h1 {
   font-size: 24px;
@@ -136,14 +81,15 @@ input {
   display: flex;
 }
 
-.cnt .sidebar {
+.sidebar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-height: 100vh;
-  background-color: var(--color-gray-800);
-  width: 15%;
-  padding: 2rem;
+  height: 100vh;
+  background-color: var(--color-gray-3);
+  width: 20%;
+  padding: 0.5% 1.5%;
+  box-sizing: border-box;
 }
 
 .sidebar__section {
@@ -167,6 +113,7 @@ input {
   height: 2px;
   width: 100%;
   background-color: white;
+  border-radius: 10px;
 }
 
 .sidebar__input-double {
@@ -174,14 +121,17 @@ input {
   flex-direction: column;
 }
 
-.btn--add {
-  background-color: var(--color-colonial-600);
+.btn {
   border: none;
-  color: white;
   padding: 8px;
   border-radius: 5px;
-  width: 100%;
   text-transform: capitalize;
+}
+
+.btn--add {
+  background-color: var(--color-colonial-2);
+  color: white;
+  width: 100%;
   margin: 10px 0;
 }
 
@@ -196,44 +146,76 @@ input {
 
 /* -------------------------------------------------------------------------- */
 
-.content {
-  width: 20%;
-  background-color: #394867;
+.sidebar--fields {
+  width: 23%;
+  background-color: var(--color-bg-secondary);
+  position: relative;
+}
+
+.sidebar__section-heading--fields {
+  color: var(--color-gray-1);
+}
+
+.sidebar__section-heading--fields::after {
+  background-color: var(--color-gray-1);
+}
+
+.sidebar__section-heading--subfields {
+  background-color: var(--color-gray-2);
+  margin: 15px 0 5px 0;
+  padding: 5px 10px;
+  border-radius: 0 13px;
+  color: black;
+  font-weight: 400;
+  text-transform: capitalize;
+  align-self: flex-start;
+}
+
+.form--fields {
+  width: 100%;
   height: 100vh;
   overflow-y: scroll;
+  padding-bottom: var(--height-cnt--btn-send);
 }
 
-.get-container,
-.set-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  margin: 0px 2rem;
-}
-
-.input-container {
+.input-cnt {
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.input-container input {
-  margin-top: 5px;
-  margin-left: 0;
+.label--big {
+  font-size: 1.2rem;
 }
 
-.btn-submit {
-  background-color: var(--color-bg-primary);
+.cnt--btn-send {
+  position: absolute;
   display: flex;
-  width: 75%;
-  margin: auto;
-  margin-bottom: 1rem;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  bottom: 0;
+  right: 0;
+  background-color: var(--color-bg-secondary);
+  height: var(--height-cnt--btn-send);
+  box-shadow: 0px -5px 12px 0px var(--color-bg-secondary);
+  overflow: hidden;
+}
+
+.btn--send {
+  background-color: var(--color-blue-4);
+  width: 80%;
+  font-weight: bold;
+  text-transform: capitalize;
+  font-size: 1.1rem;
 }
 
 .response {
   display: flex;
   flex-direction: column;
-  width: 65%;
   height: 100vh;
   overflow-y: scroll;
+  width: min-content;
+  flex-grow: 1;
+  padding: 0 20px;
 }
