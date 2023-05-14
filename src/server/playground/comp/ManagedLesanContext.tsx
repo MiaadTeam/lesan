@@ -48,7 +48,7 @@ interface IState {
   formData: any;
   headers: TObjectArray<string>;
   history: THistory[] | null;
-  response: [];
+  response: [] | null;
   setService: (payload: string) => void;
   setMethod: (payload: string) => void;
   setSchema: (payload: string) => void;
@@ -125,7 +125,7 @@ const initialState: IState = {
   formData: {},
   headers: { Authorization: "" },
   history: [],
-  response: [],
+  response: null,
   setService: () => ({}),
   setMethod: () => ({}),
   setSchema: () => ({}),

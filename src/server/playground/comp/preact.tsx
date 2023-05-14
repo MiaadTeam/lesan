@@ -47,20 +47,21 @@ export const Page = () => {
     });
   }, []);
 
-  const uid = function() {
+  const uid = function () {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
   const handleChange = (event: any) => {
     const { name, value, type, alt } = event.target;
-    setFormData(() => ({
+    setFormData({
       ...formData,
-      [name]: type === "number"
-        ? Number(value)
-        : alt === "array" || alt === "boolean"
-        ? JSON.parse(value)
-        : value,
-    }));
+      [name]:
+        type === "number"
+          ? Number(value)
+          : alt === "array" || alt === "boolean"
+          ? JSON.parse(value)
+          : value,
+    });
   };
 
   const deepen = (obj: Record<string, any>) => {
@@ -130,34 +131,31 @@ export const Page = () => {
 
   const renderGetFileds = (getField: any, keyName: string, margin: number) => {
     return (
-      // style={{ marginLeft: `${margin + 10}px` }}
       <div style={{ marginLeft: `${margin + 10}px` }}>
         <h1 style={{ marginLeft: "0" }}>{keyName} :</h1>
         {Object.keys(getField["schema"]).map((childKeys) => {
-          return getField["schema"][childKeys].type === "enums"
-            ? (
-              <div
-                className="input-container"
-                style={{ marginLeft: `${margin + 10}px` }}
-              >
-                <label htmlFor={childKeys}>{childKeys}:</label>
-                <input
-                  placeholder={`${keyName}.${childKeys}`}
-                  type="number"
-                  id={`${keyName}.${childKeys}`}
-                  value={(formData as any)[`get.${keyName}.${childKeys}`]}
-                  name={`get.${keyName}.${childKeys}`}
-                  onChange={handleChange}
-                />
-              </div>
+          return getField["schema"][childKeys].type === "enums" ? (
+            <div
+              className="input-container"
+              style={{ marginLeft: `${margin + 10}px` }}
+            >
+              <label htmlFor={childKeys}>{childKeys}:</label>
+              <input
+                placeholder={`${keyName}.${childKeys}`}
+                type="number"
+                id={`${keyName}.${childKeys}`}
+                value={(formData as any)[`get.${keyName}.${childKeys}`]}
+                name={`get.${keyName}.${childKeys}`}
+                onChange={handleChange}
+              />
+            </div>
+          ) : (
+            renderGetFileds(
+              getField["schema"][childKeys],
+              `${keyName}.${childKeys}`,
+              margin + 10
             )
-            : (
-              renderGetFileds(
-                getField["schema"][childKeys],
-                `${keyName}.${childKeys}`,
-                margin + 10,
-              )
-            );
+          );
         })}
       </div>
     );
@@ -283,7 +281,9 @@ export const Page = () => {
             >
               <option value=""></option>
               {Object.keys((actsObj as any)[service][method][schema]).map(
-                (schema) => <option value={schema}>{schema}</option>,
+                (schema) => (
+                  <option value={schema}>{schema}</option>
+                )
               )}
             </select>
           </div>
@@ -304,9 +304,11 @@ export const Page = () => {
                       id={setField}
                       value={(formData as any)[`set.${setField}`]}
                       name={`set.${setField}`}
-                      type={postFields[setField]["type"] === "number"
-                        ? "number"
-                        : "string"}
+                      type={
+                        postFields[setField]["type"] === "number"
+                          ? "number"
+                          : "string"
+                      }
                       alt={postFields[setField]["type"]}
                       onChange={handleChange}
                     />
@@ -318,23 +320,21 @@ export const Page = () => {
               <div className="set-container">
                 {Object.keys(getFields).map((getField) => {
                   return ((getFields as any)[getField] as any).type ===
-                      "enums"
-                    ? (
-                      <div className="input-container">
-                        <label htmlFor={getField}>{getField}:</label>
-                        <input
-                          placeholder={getField}
-                          id={getField}
-                          value={(formData as any)[`get.${getField}`]}
-                          name={`get.${getField}`}
-                          type="number"
-                          onChange={handleChange}
-                        />
-                      </div>
-                    )
-                    : (
-                      renderGetFileds((getFields as any)[getField], getField, 0)
-                    );
+                    "enums" ? (
+                    <div className="input-container">
+                      <label htmlFor={getField}>{getField}:</label>
+                      <input
+                        placeholder={getField}
+                        id={getField}
+                        value={(formData as any)[`get.${getField}`]}
+                        name={`get.${getField}`}
+                        type="number"
+                        onChange={handleChange}
+                      />
+                    </div>
+                  ) : (
+                    renderGetFileds((getFields as any)[getField], getField, 0)
+                  );
                 })}
               </div>
               <button className="btn btn-submit" type="submit">
