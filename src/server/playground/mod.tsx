@@ -6,6 +6,7 @@ import { bundle } from "../../deps.ts";
 import { Services } from "../../mod.ts";
 import { ISchema } from "../../models/mod.ts";
 import { Page } from "./comp/preact.tsx";
+import { ManagedLesanContext } from "./comp/ManagedLesanContext.tsx";
 
 const getCSSFile = async () => {
   const url = new URL("./css/index.css", import.meta.url);
@@ -18,7 +19,7 @@ const getCSSFile = async () => {
 export const runPlayground = async (
   request: Request,
   schemasObj: ISchema,
-  actsObj: Services,
+  actsObj: Services
 ) => {
   const url = new URL("./hydrate.tsx", import.meta.url);
 
@@ -37,13 +38,15 @@ export const runPlayground = async (
       JSON.stringify({ schemas: schemasObj, acts: actsObj }),
       {
         headers: { "content-type": "application/json" },
-      },
+      }
     );
   };
 
   const getSsrReact = () => {
     const body = renderToString(
-      <Page />,
+      <ManagedLesanContext>
+        <Page />
+      </ManagedLesanContext>
     );
 
     const html = `<!DOCTYPE html>
@@ -51,7 +54,7 @@ export const runPlayground = async (
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="http://localhost:8000/static/index.css"> 
+        <link rel="stylesheet" href="http://localhost:8000/static/index.css">
         <title>Lesan Playground</title>
       </head>
       <body >
