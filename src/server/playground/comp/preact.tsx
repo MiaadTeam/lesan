@@ -1,26 +1,51 @@
 /** @jsx h */
 import { h } from "https://esm.sh/preact@10.5.15";
-import { useRef, useState } from "https://esm.sh/preact@10.5.15/hooks";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "https://esm.sh/preact@10.5.15/hooks";
+import { useLesan } from "./ManagedLesanContext.tsx";
 
-export const Page = (
-  { schemasObj, actsObj } = { schemasObj: {}, actsObj: {} }
-) => {
-  const [selectedService, setSelectedService] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState("");
-  const [selectedSchema, setSelectedSchema] = useState("");
-  const [selectedAct, setSelectedAct] = useState("");
-  const [avalibaleSetFields, setAvalibaleSetFields] = useState(null);
-  const [avalibaleGetFields, setAvalibaleGetFields] = useState(null);
-  const [formData, setFormData] = useState({});
-  const [headers, setHeaders] = useState<{ [key: string]: string }>({
-    Authorization: "",
-  });
-  const [history, setHistory] = useState<
-    { request: string; response: string; id: string }[]
-  >([]);
-  const [response, setResponse] = useState(null);
+export const Page = () => {
+  const {
+    act,
+    formData,
+    getFields,
+    headers,
+    history,
+    method,
+    postFields,
+    response,
+    schema,
+    service,
+    setService,
+    setMethod,
+    setSchema,
+    setAct,
+    setPostFields,
+    setGetFields,
+    setFormData,
+    setHeader,
+    setHistory,
+    setResponse,
+    resetGetFields,
+    resetPostFields,
+  } = useLesan();
+
+  const [actsObj, setActsObj] = useState({});
+  const [schemasObj, setSchemasObj] = useState({});
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/static/get/schemas").then((value) => {
+      value.json().then(({ schemas, acts }) => {
+        setActsObj(acts);
+        setSchemasObj(schemas);
+      });
+    });
+  }, []);
 
   const uid = function () {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -28,15 +53,15 @@ export const Page = (
 
   const handleChange = (event: any) => {
     const { name, value, type, alt } = event.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    setFormData({
+      ...formData,
       [name]:
         type === "number"
           ? Number(value)
           : alt === "array" || alt === "boolean"
           ? JSON.parse(value)
           : value,
-    }));
+    });
   };
 
   const deepen = (obj: Record<string, any>) => {
@@ -80,9 +105,9 @@ export const Page = (
         ...headers,
       },
       body: JSON.stringify({
-        service: selectedService,
-        contents: selectedMethod,
-        wants: { model: selectedSchema, act: selectedAct },
+        service: service,
+        contents: method,
+        wants: { model: schema, act: act },
         details,
       }),
     };
@@ -94,8 +119,8 @@ export const Page = (
     /* event.target.reset(); */
     /* setFormData({}); */
 
-    setHistory((prevHistory) => [
-      ...prevHistory,
+    setHistory([
+      ...(history ? history : []),
       {
         request: JSON.stringify(body, null, 2),
         response: JSON.stringify(jsonSendedRequest, null, 2),
@@ -106,7 +131,6 @@ export const Page = (
 
   const renderGetFileds = (getField: any, keyName: string, margin: number) => {
     return (
-      // style={{ marginLeft: `${margin + 10}px` }}
       <div style={{ marginLeft: `${margin + 10}px` }}>
         <h1 style={{ marginLeft: "0" }}>{keyName} :</h1>
         {Object.keys(getField["schema"]).map((childKeys) => {
@@ -141,7 +165,7 @@ export const Page = (
     <div className="container">
       <div className="sub-container">
         <div className="headers">
-          <span> set headers : </span>
+          <span>set headers :</span>
           {Object.entries(headers).map(([objKey, objValue]) => {
             return (
               <div className="auth-input">
@@ -168,10 +192,10 @@ export const Page = (
                 <button
                   className="btn"
                   onClick={() => {
-                    setHeaders((prevHeaders) => ({
-                      ...prevHeaders,
+                    setHeader({
+                      ...headers,
                       [objKey]: objValue,
-                    }));
+                    });
                   }}
                 >
                   Apply
@@ -183,13 +207,13 @@ export const Page = (
         <div className="service-container">
           <label>select service?</label>
           <select
-            value={selectedService}
+            value={service}
             onChange={(event: any) => {
-              setSelectedService(event.target.value);
-              setSelectedMethod("");
-              setSelectedSchema("");
-              setAvalibaleGetFields(null);
-              setAvalibaleSetFields(null);
+              setService(event.target.value);
+              setMethod("");
+              setSchema("");
+              resetGetFields();
+              resetPostFields();
               setFormData({});
             }}
           >
@@ -203,12 +227,12 @@ export const Page = (
         <div className="service-container">
           <label>select dynamic or static?</label>
           <select
-            value={selectedMethod}
+            value={method}
             onChange={(event: any) => {
-              setSelectedMethod(event.target.value);
-              setSelectedSchema("");
-              setAvalibaleGetFields(null);
-              setAvalibaleSetFields(null);
+              setMethod(event.target.value);
+              setSchema("");
+              resetGetFields();
+              resetPostFields();
               setFormData({});
             }}
           >
@@ -218,120 +242,108 @@ export const Page = (
           </select>
         </div>
 
-        {selectedService && selectedMethod && (
+        {service && method && (
           <div className="service-container">
             <label>select schema?</label>
             <select
-              value={selectedSchema}
+              value={schema}
               onChange={(event: any) => {
-                setSelectedSchema(event.target.value);
-                setAvalibaleGetFields(null);
-                setAvalibaleSetFields(null);
+                setSchema(event.target.value);
+                resetGetFields();
+                resetPostFields();
                 setFormData({});
               }}
             >
               <option value=""></option>
-              {Object.keys(
-                (actsObj as any)[selectedService][selectedMethod]
-              ).map((schema) => (
+              {Object.keys((actsObj as any)[service][method]).map((schema) => (
                 <option value={schema}>{schema}</option>
               ))}
             </select>
           </div>
         )}
 
-        {selectedService && selectedMethod && selectedSchema && (
+        {service && method && schema && (
           <div className="service-container">
             <label>select act?</label>
             <select
-              value={selectedAct}
+              value={act}
               onChange={(event: any) => {
-                const actObj = (actsObj as any)[selectedService][
-                  selectedMethod
-                ][selectedSchema][event.target.value]["validator"]["schema"];
+                const actObj = (actsObj as any)[service][method][schema][
+                  event.target.value
+                ]["validator"]["schema"];
 
                 formRef && formRef.current && formRef.current.reset();
-                setSelectedAct(event.target.value);
-                setAvalibaleGetFields(actObj["get"]["schema"]);
-                setAvalibaleSetFields(actObj["set"]["schema"]);
+                setAct(event.target.value);
+                setGetFields(actObj["get"]["schema"]);
+                setPostFields(actObj["set"]["schema"]);
                 setFormData({});
               }}
             >
               <option value=""></option>
-              {Object.keys(
-                (actsObj as any)[selectedService][selectedMethod][
-                  selectedSchema
-                ]
-              ).map((schema) => (
-                <option value={schema}>{schema}</option>
-              ))}
+              {Object.keys((actsObj as any)[service][method][schema]).map(
+                (schema) => (
+                  <option value={schema}>{schema}</option>
+                )
+              )}
             </select>
           </div>
         )}
       </div>
 
-      {selectedService &&
-        selectedMethod &&
-        selectedSchema &&
-        avalibaleSetFields &&
-        avalibaleGetFields && (
-          <div className="content">
-            <form ref={formRef} onSubmit={handleSubmit}>
-              <div className="">
-                <h1> set inputs :</h1>
-                <div className="get-container">
-                  {Object.keys(avalibaleSetFields).map((setField) => (
+      {service && method && schema && postFields && getFields && (
+        <div className="content">
+          <form ref={formRef} onSubmit={handleSubmit}>
+            <div className="">
+              <h1>set inputs :</h1>
+              <div className="get-container">
+                {Object.keys(postFields).map((setField) => (
+                  <div className="input-container">
+                    <label htmlFor={setField}>{setField}:</label>
+                    <input
+                      placeholder={setField}
+                      id={setField}
+                      value={(formData as any)[`set.${setField}`]}
+                      name={`set.${setField}`}
+                      type={
+                        postFields[setField]["type"] === "number"
+                          ? "number"
+                          : "string"
+                      }
+                      alt={postFields[setField]["type"]}
+                      onChange={handleChange}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <h1>get inputs :</h1>
+              <div className="set-container">
+                {Object.keys(getFields).map((getField) => {
+                  return ((getFields as any)[getField] as any).type ===
+                    "enums" ? (
                     <div className="input-container">
-                      <label htmlFor={setField}>{setField}:</label>
+                      <label htmlFor={getField}>{getField}:</label>
                       <input
-                        placeholder={setField}
-                        id={setField}
-                        value={(formData as any)[`set.${setField}`]}
-                        name={`set.${setField}`}
-                        type={
-                          avalibaleSetFields[setField]["type"] === "number"
-                            ? "number"
-                            : "string"
-                        }
-                        alt={avalibaleSetFields[setField]["type"]}
+                        placeholder={getField}
+                        id={getField}
+                        value={(formData as any)[`get.${getField}`]}
+                        name={`get.${getField}`}
+                        type="number"
                         onChange={handleChange}
                       />
                     </div>
-                  ))}
-                </div>
-
-                <h1> get inputs :</h1>
-                <div className="set-container">
-                  {Object.keys(avalibaleGetFields).map((getField) => {
-                    return ((avalibaleGetFields as any)[getField] as any)
-                      .type === "enums" ? (
-                      <div className="input-container">
-                        <label htmlFor={getField}>{getField}:</label>
-                        <input
-                          placeholder={getField}
-                          id={getField}
-                          value={(formData as any)[`get.${getField}`]}
-                          name={`get.${getField}`}
-                          type="number"
-                          onChange={handleChange}
-                        />
-                      </div>
-                    ) : (
-                      renderGetFileds(
-                        (avalibaleGetFields as any)[getField],
-                        getField,
-                        0
-                      )
-                    );
-                  })}
-                </div>
-                <button className="btn btn-submit" type="submit">
-                  Submit
-                </button>
+                  ) : (
+                    renderGetFileds((getFields as any)[getField], getField, 0)
+                  );
+                })}
               </div>
-            </form>
-          </div>
-        )}
+              <button className="btn btn-submit" type="submit">
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       <div className="response">
         {response && (
           <div>
@@ -344,7 +356,7 @@ export const Page = (
           </div>
         )}
 
-        {history.length > 0 && (
+        {history && history?.length > 0 && (
           <div>
             <br />
             <hr />
