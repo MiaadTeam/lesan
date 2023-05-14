@@ -1,8 +1,6 @@
 /** @jsx h */
 import { createContext, h } from "https://esm.sh/preact@10.5.15";
 import {
-  useRef,
-  useState,
   useReducer,
   useMemo,
   useCallback,
