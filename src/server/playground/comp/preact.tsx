@@ -129,84 +129,83 @@ export const Page = () => {
     ]);
   };
 
-  const renderGetFileds = (getField: any, keyName: string, margin: number) => {
-    return (
-      <div style={{ marginLeft: `${margin + 10}px` }}>
-        <h1 style={{ marginLeft: "0" }}>{keyName} :</h1>
-        {Object.keys(getField["schema"]).map((childKeys) => {
-          return getField["schema"][childKeys].type === "enums" ? (
-            <div
-              className="input-container"
-              style={{ marginLeft: `${margin + 10}px` }}
-            >
-              <label htmlFor={childKeys}>{childKeys}:</label>
-              <input
-                placeholder={`${keyName}.${childKeys}`}
-                type="number"
-                id={`${keyName}.${childKeys}`}
-                value={(formData as any)[`get.${keyName}.${childKeys}`]}
-                name={`get.${keyName}.${childKeys}`}
-                onChange={handleChange}
-              />
-            </div>
-          ) : (
-            renderGetFileds(
-              getField["schema"][childKeys],
-              `${keyName}.${childKeys}`,
-              margin + 10
-            )
-          );
-        })}
-      </div>
-    );
-  };
+  const renderGetFields = (getField: any, keyName: string, margin: number) => (
+    <div style={{ marginLeft: `${margin + 10}px` }}>
+      <div className="sidebar__section-heading--subfields">{keyName}</div>
+      {Object.keys(getField["schema"]).map((item) =>
+        getField["schema"][item].type === "enums" ? (
+          <div className="input-cnt" key={item}>
+            <label htmlFor={item}>{item}:</label>
+            <input
+              placeholder={`${keyName}.${item}`}
+              type="number"
+              id={`${keyName}.${item}`}
+              value={formData[`get.${keyName}.${item}`]}
+              name={`get.${keyName}.${item}`}
+              onChange={handleChange}
+            />
+          </div>
+        ) : (
+          renderGetFields(
+            getField["schema"][item],
+            `${keyName}.${item}`,
+            margin + 10
+          )
+        )
+      )}
+    </div>
+  );
+
+  const canShowContent =
+    service && method && schema && postFields && getFields && act;
+
+  const canShowSchema = service && method;
+
+  const canShowAct = service && method && schema;
 
   return (
-    <div className="container">
-      <div className="sub-container">
-        <div className="headers">
-          <span>set headers :</span>
-          {Object.entries(headers).map(([objKey, objValue]) => {
-            return (
-              <div className="auth-input">
-                <input
-                  placeholder={objKey}
-                  id={objKey}
-                  value={objKey}
-                  name={objKey}
-                  onChange={(e: any) => {
-                    const { name, value } = e.target;
-                    objKey = value;
-                  }}
-                />
-                <input
-                  placeholder={objValue}
-                  id={objValue}
-                  value={objValue}
-                  name={objValue}
-                  onChange={(e: any) => {
-                    const { name, value } = e.target;
-                    objValue = value;
-                  }}
-                />
-                <button
-                  className="btn"
-                  onClick={() => {
-                    setHeader({
-                      ...headers,
-                      [objKey]: objValue,
-                    });
-                  }}
-                >
-                  Apply
-                </button>
-              </div>
-            );
-          })}
+    <div className="cnt">
+      <div className="sidebar">
+        <div className="sidebar__section sidebar__section--headers">
+          <div className="sidebar__section-heading">set headers</div>
+          {Object.entries(headers).map(([objKey, objValue]) => (
+            <div className="sidebar__input-double" key={objKey}>
+              <input
+                placeholder={objKey}
+                id={objKey}
+                value={objKey}
+                name={objKey}
+                onChange={(e: any) => {
+                  objKey = e.target.value;
+                }}
+              />
+              <input
+                placeholder={objValue}
+                id={objValue}
+                value={objValue}
+                name={objValue}
+                onChange={(e: any) => {
+                  objValue = e.target.value;
+                }}
+              />
+              <button
+                className="btn btn--add"
+                onClick={() => {
+                  setHeader({
+                    ...headers,
+                    [objKey]: objValue,
+                  });
+                }}
+              >
+                add +
+              </button>
+            </div>
+          ))}
         </div>
-        <div className="service-container">
-          <label>select service?</label>
+        <div className="sidebar__section sidebar__section--services">
+          <div className="sidebar__section-heading">select services</div>
           <select
+            className="sidebar__select"
             value={service}
             onChange={(event: any) => {
               setService(event.target.value);
@@ -223,10 +222,10 @@ export const Page = () => {
             ))}
           </select>
         </div>
-
-        <div className="service-container">
-          <label>select dynamic or static?</label>
+        <div className="sidebar__section sidebar__section--method">
+          <div className="sidebar__section-heading">select method</div>
           <select
+            className="sidebar__select"
             value={method}
             onChange={(event: any) => {
               setMethod(event.target.value);
@@ -241,109 +240,106 @@ export const Page = () => {
             <option value="static">static</option>
           </select>
         </div>
-
-        {service && method && (
-          <div className="service-container">
-            <label>select schema?</label>
-            <select
-              value={schema}
-              onChange={(event: any) => {
-                setSchema(event.target.value);
-                resetGetFields();
-                resetPostFields();
-                setFormData({});
-              }}
-            >
-              <option value=""></option>
-              {Object.keys((actsObj as any)[service][method]).map((schema) => (
-                <option value={schema}>{schema}</option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {service && method && schema && (
-          <div className="service-container">
-            <label>select act?</label>
-            <select
-              value={act}
-              onChange={(event: any) => {
-                const actObj = (actsObj as any)[service][method][schema][
-                  event.target.value
-                ]["validator"]["schema"];
-
-                formRef && formRef.current && formRef.current.reset();
-                setAct(event.target.value);
-                setGetFields(actObj["get"]["schema"]);
-                setPostFields(actObj["set"]["schema"]);
-                setFormData({});
-              }}
-            >
-              <option value=""></option>
-              {Object.keys((actsObj as any)[service][method][schema]).map(
-                (schema) => (
+        <div className="sidebar__section sidebar__section--schema">
+          <div className="sidebar__section-heading">select schema</div>
+          <select
+            className="sidebar__select"
+            disabled={!canShowSchema}
+            value={canShowSchema ? schema : undefined}
+            onChange={(event: any) => {
+              setSchema(event.target.value);
+              resetGetFields();
+              resetPostFields();
+              setFormData({});
+            }}
+          >
+            <option value=""></option>
+            {canShowSchema
+              ? Object.keys((actsObj as any)[service][method]).map((schema) => (
                   <option value={schema}>{schema}</option>
+                ))
+              : null}
+          </select>
+        </div>
+        <div className="sidebar__section sidebar__section--act">
+          <div className="sidebar__section-heading">select act</div>
+          <select
+            className="sidebar__select"
+            disabled={!canShowAct}
+            value={canShowAct ? act : undefined}
+            onChange={(event: any) => {
+              const actObj = (actsObj as any)[service][method][schema][
+                event.target.value
+              ]["validator"]["schema"];
+
+              formRef && formRef.current && formRef.current.reset();
+              setAct(event.target.value);
+              setGetFields(actObj["get"]["schema"]);
+              setPostFields(actObj["set"]["schema"]);
+              setFormData({});
+            }}
+          >
+            <option value=""></option>
+            {canShowAct
+              ? Object.keys((actsObj as any)[service][method][schema]).map(
+                  (schema) => <option value={schema}>{schema}</option>
                 )
-              )}
-            </select>
-          </div>
-        )}
+              : null}
+          </select>
+        </div>
       </div>
 
-      {service && method && schema && postFields && getFields && (
-        <div className="content">
-          <form ref={formRef} onSubmit={handleSubmit}>
-            <div className="">
-              <h1>set inputs :</h1>
-              <div className="get-container">
-                {Object.keys(postFields).map((setField) => (
-                  <div className="input-container">
-                    <label htmlFor={setField}>{setField}:</label>
-                    <input
-                      placeholder={setField}
-                      id={setField}
-                      value={(formData as any)[`set.${setField}`]}
-                      name={`set.${setField}`}
-                      type={
-                        postFields[setField]["type"] === "number"
-                          ? "number"
-                          : "string"
-                      }
-                      alt={postFields[setField]["type"]}
-                      onChange={handleChange}
-                    />
-                  </div>
-                ))}
+      {canShowContent && (
+        <div className="sidebar sidebar--fields">
+          <form ref={formRef} onSubmit={handleSubmit} className="form--fields">
+            <div className="sidebar__section-heading sidebar__section-heading--fields">
+              set fields
+            </div>
+            {Object.keys(postFields).map((item) => (
+              <div className="input-cnt" key={item}>
+                <label htmlFor={item}>{item}:</label>
+                <input
+                  placeholder={item}
+                  id={item}
+                  value={formData[`set.${item}`]}
+                  name={`set.${item}`}
+                  type={
+                    postFields[item]["type"] === "number" ? "number" : "string"
+                  }
+                  alt={postFields[item]["type"]}
+                  onChange={handleChange}
+                />
               </div>
-
-              <h1>get inputs :</h1>
-              <div className="set-container">
-                {Object.keys(getFields).map((getField) => {
-                  return ((getFields as any)[getField] as any).type ===
-                    "enums" ? (
-                    <div className="input-container">
-                      <label htmlFor={getField}>{getField}:</label>
-                      <input
-                        placeholder={getField}
-                        id={getField}
-                        value={(formData as any)[`get.${getField}`]}
-                        name={`get.${getField}`}
-                        type="number"
-                        onChange={handleChange}
-                      />
-                    </div>
-                  ) : (
-                    renderGetFileds((getFields as any)[getField], getField, 0)
-                  );
-                })}
-              </div>
-              <button className="btn btn-submit" type="submit">
-                Submit
+            ))}
+            <div className="sidebar__section-heading sidebar__section-heading--fields">
+              get fields
+            </div>
+            {Object.keys(getFields).map((item) =>
+              getFields[item].type === "enums" ? (
+                <div className="input-cnt">
+                  <label htmlFor={item}>{item}:</label>
+                  <input
+                    placeholder={item}
+                    id={item}
+                    value={formData[`get.${item}`]}
+                    name={`get.${item}`}
+                    type="number"
+                    onChange={handleChange}
+                  />
+                </div>
+              ) : (
+                renderGetFields(getFields[item], item, 0)
+              )
+            )}
+            <div className="cnt--btn-send">
+              <button className="btn btn--send" type="submit">
+                send
               </button>
             </div>
           </form>
         </div>
       )}
+
       <div className="response">
         {response && (
           <div>
