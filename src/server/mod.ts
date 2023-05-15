@@ -3,7 +3,7 @@ import { Services } from "../acts/mod.ts";
 import { ISchema } from "../models/mod.ts";
 import { generateSchemTypes } from "../types/mod.ts";
 import { lesanFns } from "../utils/mod.ts";
-import { addCors } from "./cors.ts";
+import { addCors, addCorsObj } from "./cors.ts";
 import { runPlayground } from "./playground/mod.tsx";
 
 /**
@@ -54,6 +54,7 @@ export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
           {
             status: e.status || 501,
             headers: {
+              ...addCorsObj(),
               "Content-Type": "application/json",
             },
           },

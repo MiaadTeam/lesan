@@ -1,7 +1,7 @@
 import { acts, Services } from "../acts/mod.ts";
 import { contextFns } from "../context.ts";
 import { assert, create, enums } from "../deps.ts";
-import { addCors } from "../server/cors.ts";
+import { addCors, addCorsObj } from "../server/cors.ts";
 import { Body, parsBody } from "./mod.ts";
 
 const runPreActs = async (preActs: Function[]) => {
@@ -193,10 +193,11 @@ export const lesanFns = (actsObj: Services) => {
       JSON.stringify({ body: await response(), success: true }),
       {
         headers: {
-          "Content-Type": "application/json",
           // temporarly add cors to request
           // TODO should export cors fn to user and add some custom input to that
-          ...addCors(),
+          ...addCorsObj(),
+
+          "Content-Type": "application/json",
         },
       },
     );
