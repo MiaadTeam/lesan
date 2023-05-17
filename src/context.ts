@@ -2,6 +2,7 @@
 //
 
 import { LesanContenxt } from "./types.ts";
+import { Body } from "./utils/checkWants.ts";
 
 /**
  *  variable of context
@@ -10,6 +11,7 @@ import { LesanContenxt } from "./types.ts";
  */
 let context: LesanContenxt = {
   Headers: new Headers(),
+  body: null,
 };
 
 /**
@@ -51,6 +53,13 @@ const addReqToContext = (con: Request) => context["Request"] = con;
 const addHeaderToContext = (con: Headers) => context["Headers"] = con;
 
 /**
+ * add Request Header to Context because the requeste may be required in later functions
+ *  @param con - Headers of user
+ * @returns nothing
+ */
+const addBodyToContext = (body: Body) => context["body"] = body;
+
+/**
  * this function is create for define all things in local scope
  *  and also  all functions of context define in this function
  * @returns - return objects of all functions that define in this function
@@ -62,4 +71,5 @@ export const contextFns = {
   addContext,
   addReqToContext,
   addHeaderToContext,
+  addBodyToContext,
 };

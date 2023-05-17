@@ -165,6 +165,9 @@ export const lesanFns = (actsObj: Services) => {
     const body = (await parsBody(req, port)) as Body;
     const services = acts(actsObj).getServiceKeys();
     const bodyService = body.service || "main";
+
+    contextFns.addBodyToContext(body);
+
     assert(
       bodyService,
       enums(services),
@@ -172,6 +175,7 @@ export const lesanFns = (actsObj: Services) => {
         ...services,
       ]}`,
     );
+
     const serviceValue = acts(actsObj).getService(bodyService);
     return typeof serviceValue === "string"
       ? await fetchService(req.headers, body, serviceValue)

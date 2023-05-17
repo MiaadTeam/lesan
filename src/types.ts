@@ -1,3 +1,5 @@
+import { Body } from "./utils/checkWants.ts";
+
 /**
  * Context Holds values and carries them in functions.
  * @example
@@ -13,4 +15,5 @@
 export interface LesanContenxt {
   [key: string]: any;
   Headers: Headers;
+  body: Body | null;
 }
