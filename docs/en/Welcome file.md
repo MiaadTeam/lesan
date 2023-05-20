@@ -1,14 +1,29 @@
 # In the name of God the compassionate the merciful
 
 ## Introduction
+Lesan is a collection of a [Web Server](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_web_server) and an ODM along with an idea to implement [microservices](https://www.ibm.com/cloud/learn/microservices).
+Lesan is a collection of a [Web Server](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_web_server) and an ODM along with an idea to implement [microservices](https://www.ibm.com/cloud/learn/microservices).
 
-Hi! I'm your first Markdown file in **StackEdit**. If you want to learn about StackEdit, you can read me. If you want to play with Markdown, you can edit me. Once you have finished with me, you can create new files by opening the **file explorer** on the left corner of the navigation bar.
+In this framework, we tried to leave the management of receiving data to the client, inspired by the idea of [​​GraphQL](https://graphql.org/) , without adding an additional layer (such as [GQL](https://en.wikipedia.org/wiki/Graph_Query_Language)) on the client or server side, in addition to using all the capabilities of [NoSQL](https://en.wikipedia.org/wiki/NoSQL) databases. To be able to embed all the relations of a schema within itself without involving the server-side programmer in managing the creation, reception, update and deletion of embedded duplicates.
 
+At the same time, we should have a regular structure (such as [SQL](https://en.wikipedia.org/wiki/SQL)) for the data models in the ODM so that we can always validate the data.
 
-# Files
+We have also simplified the understanding of the data structure for artificial intelligence so that we can manage the repetitions created in the data by this intelligence.
 
-StackEdit stores your files in your browser, which means all your files are automatically saved locally and are accessible **offline!**
+And then we tried the data structure along with the functions written on the server-side have the possibility to move. So that we can manage the microservices more easily.
 
+Also, this data structure (due to fewer requests sent to the database) will simplify the creation process of the [SSG](https://en.wikipedia.org/wiki/Static_site_generator) content.
+
+## Receive data
+One of the most critical challenges for implementing the ability to receive data in Lesan was when the client requested the dependencies of a table.
+
+Let us review the previous methods before explaining Lesan's method.
+
+### Previous methods and the main challenge
+Many of the current architectures for interacting with server-side applications require multiple requests to be sent to the server to receive a set of related information. Also, due to the incompatibility of the transmitted information with the customer's needs, much of the sent information will be unused and cause a waste of resources and bandwidth. The first problem is known as under-fetching, that is, the received information is less than what is needed, and the request needs to be re-sent to the server. This will reduce the number of requests that can be answered by the server per unit of time. And its processing load will increase.
+
+The second problem is known as over-fetching. That is, the client needs only a certain part of the information, but the server also sends other data in the same table regardless of its needs. This problem causes the occupation of additional bandwidth and increases the time of data exchange. To solve this problem, Facebook introduced a new concept called [GraphQL](https://graphql.org/), which solved the above problems. This idea was very creative and practical, but it also comes with problems.
+![over-fetching](https://github.com/MiaadTeam/lesan/assets/6236123/e8af9e19-850e-4a39-9e50-433e4a38a2e7)
 ## Create files and folders
 
 The file explorer is accessible using the button in left corner of the navigation bar. You can create a new file by clicking the **New file** button in the file explorer. You can also create folders by clicking the **New folder** button.
@@ -144,5 +159,5 @@ B --> D{Rhombus}
 C --> D
 ```
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTY3MjQxMjM0NF19
+eyJoaXN0b3J5IjpbLTE4MDQxNTg5MzldfQ==
 -->
