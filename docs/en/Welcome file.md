@@ -1,4 +1,6 @@
-# **** to jhfkjhfjklhf!
+# In the name of God the compassionate the merciful
+
+## Introduction
 
 Hi! I'm your first Markdown file in **StackEdit**. If you want to learn about StackEdit, you can read me. If you want to play with Markdown, you can edit me. Once you have finished with me, you can create new files by opening the **file explorer** on the left corner of the navigation bar.
 
@@ -142,5 +144,5 @@ B --> D{Rhombus}
 C --> D
 ```
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNDkxNzc3MjNdfQ==
+eyJoaXN0b3J5IjpbLTY3MjQxMjM0NF19
 -->
