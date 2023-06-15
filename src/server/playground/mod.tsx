@@ -1,12 +1,6 @@
-// import { renderToString } from "https://esm.sh/preact-render-to-string@6.0.2?deps=preact@10.13.2";
-/** @jsx h */
-import { renderToString } from "https://esm.sh/preact-render-to-string@5.1.19?deps=preact@10.5.15";
-import { h } from "https://esm.sh/preact@10.5.15";
 import { bundle } from "../../deps.ts";
 import { Services } from "../../mod.ts";
 import { ISchema } from "../../models/mod.ts";
-import { ManagedLesanContext } from "./comp/ManagedLesanContext.tsx";
-import { Page } from "./comp/preact.tsx";
 
 const getCSSFile = async () => {
   const url = new URL("./css/index.css", import.meta.url);
@@ -20,15 +14,18 @@ export const runPlayground = async (
   request: Request,
   schemasObj: ISchema,
   actsObj: Services,
+  port: number,
 ) => {
-  const url = new URL("./hydrate.tsx", import.meta.url);
+  const getClientReact = async () => {
+    const url = new URL("./hydrate.tsx", import.meta.url);
+    const result = await bundle(url);
+    const { code } = result;
 
-  const result = await bundle(url);
-
-  const { code } = result;
-
-  const getClientReact = () => {
-    return new Response(code, {
+    const replacedUrl = code.replace(
+      "Please replace me",
+      `http://localhost:${port}`,
+    );
+    return new Response(replacedUrl, {
       headers: { "content-type": "application/javascript" },
     });
   };
@@ -43,12 +40,6 @@ export const runPlayground = async (
   };
 
   const getSsrReact = () => {
-    /* const body = renderToString( */
-    /*   <ManagedLesanContext> */
-    /*     <Page /> */
-    /*   </ManagedLesanContext> */
-    /* ); */
-
     const html = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -68,7 +59,7 @@ export const runPlayground = async (
     });
   };
   return request.url === "http://localhost:8000/static/client.js"
-    ? getClientReact()
+    ? await getClientReact()
     : request.url === "http://localhost:8000/static/index.css"
     ? await getCSSFile()
     : request.url === "http://localhost:8000/static/get/schemas"

@@ -38,7 +38,7 @@ export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
 
         return request.method === "GET"
           // ? await serveStatic(request)
-          ? await runPlayground(request, schemasObj, actsObj)
+          ? await runPlayground(request, schemasObj, actsObj, port)
           : await lesanFns(actsObj).serveLesan(request, port);
         // return await lesanFns(actsObj).serveLesan(request, port);
       } catch (e) {

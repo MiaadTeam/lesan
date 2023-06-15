@@ -8,7 +8,11 @@ import {
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 
-export const Page = () => {
+export const Page = (
+  { url }: {
+    url?: string;
+  },
+) => {
   const {
     act,
     formData,
@@ -34,13 +38,15 @@ export const Page = () => {
     resetPostFields,
   } = useLesan();
 
+  const urlAddress = url ?? "http://localhost:8000";
+
   const [actsObj, setActsObj] = useState({});
   const [schemasObj, setSchemasObj] = useState({});
 
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    fetch("http://localhost:8000/static/get/schemas").then((value) => {
+    fetch(`${urlAddress}/static/get/schemas`).then((value) => {
       value.json().then(({ schemas, acts }) => {
         setActsObj(acts);
         setSchemasObj(schemas);
@@ -90,14 +96,6 @@ export const Page = () => {
     event.preventDefault();
     const details = deepen(formData);
 
-    /* for (const key in formData) { */
-    /*   key.split(".").map((k, i, values) => { */
-    /*     body = (body as any)[k] = i == values.length - 1 */
-    /*       ? (formData as any)[key] */
-    /*       : {}; */
-    /*   }); */
-    /* } */
-
     const body: TRequest = {
       method: "POST",
       headers: {
@@ -112,7 +110,7 @@ export const Page = () => {
       }),
     };
 
-    const sendedRequest = await fetch("http://localhost:8000/lesan", body);
+    const sendedRequest = await fetch(`${urlAddress}/lesan`, body);
     const jsonSendedRequest = await sendedRequest.json();
 
     setResponse(jsonSendedRequest);
@@ -220,7 +218,7 @@ export const Page = () => {
           >
             <option value=""></option>
             {Object.keys(actsObj).map((service, index) => (
-              <option value={service}>{service}</option>
+              <option key={index} value={service}>{service}</option>
             ))}
           </select>
         </div>
