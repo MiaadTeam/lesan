@@ -45,12 +45,12 @@ export const runPlayground = async (
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="http://localhost:8000/static/index.css">
+        <link rel="stylesheet" href="http://localhost:${port}/static/index.css">
         <title>Lesan Playground</title>
       </head>
       <body >
         <div id="root"></div>
-        <script type="module" src="http://localhost:8000/static/client.js" defer></script>
+        <script type="module" src="http://localhost:${port}/static/client.js" defer></script>
       </body>
       </html>`;
 
@@ -58,11 +58,11 @@ export const runPlayground = async (
       headers: { "content-type": "text/html; charset=utf-8" },
     });
   };
-  return request.url === "http://localhost:8000/static/client.js"
+  return request.url === `http://localhost:${port}/static/client.js`
     ? await getClientReact()
-    : request.url === "http://localhost:8000/static/index.css"
+    : request.url === `http://localhost:${port}/static/index.css`
     ? await getCSSFile()
-    : request.url === "http://localhost:8000/static/get/schemas"
+    : request.url === `http://localhost:${port}/static/get/schemas`
     ? getSchemas()
     : getSsrReact();
 };
