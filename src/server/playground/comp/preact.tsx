@@ -1,154 +1,12 @@
 /** @jsx h */
-import {
-  Fragment,
-  FunctionalComponent,
-  h,
-} from "https://esm.sh/preact@10.5.15";
+import { h } from "https://esm.sh/preact@10.5.15";
 import {
   useEffect,
   useRef,
   useState,
 } from "https://esm.sh/preact@10.5.15/hooks";
-import ReactJson from "https://esm.sh/react-json-view@1.21.3";
-import { useLesan } from "./ManagedLesanContext.tsx";
-
-interface TreeNodeProps {
-  data: any;
-  highlightedKeys: string[];
-}
-
-function isJSONParsableChecker(str: string): boolean {
-  try {
-    JSON.parse(str);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-const TreeNode: FunctionalComponent<TreeNodeProps> = ({
-  data,
-  highlightedKeys,
-}) => {
-  const [collapsed, setCollapsed] = useState(true);
-
-  const handleToggle = () => {
-    console.log(data);
-    setCollapsed((prevState) => !prevState);
-  };
-
-  const renderNode = (key: string, value: any) => {
-    const isObject = typeof value === "object" && value !== null;
-
-    const isJSONParsable = isJSONParsableChecker(value);
-
-    const temp: Object | null = isObject
-      ? value
-      : isJSONParsable
-      ? JSON.parse(value)
-      : null;
-
-    if (temp) {
-      return (
-        <li>
-          <span
-            class={`json-toggle ${collapsed ? "collapsed" : ""}`}
-            onClick={handleToggle}
-          ></span>
-          <span class="json-key">{key}:</span>
-          {!collapsed && (
-            <TreeNode data={temp} highlightedKeys={highlightedKeys} />
-          )}
-        </li>
-      );
-    } else {
-      const shouldHighlight = highlightedKeys.includes(key);
-      const valueClass = shouldHighlight
-        ? "json-highlighted"
-        : `json-${typeof value}`;
-
-      return (
-        <li>
-          <span class="json-key">{key}:</span>{" "}
-          <span class={valueClass}>{value}</span>
-        </li>
-      );
-    }
-  };
-
-  return (
-    <ul class="json-tree">
-      {Object.keys(data).map((item) => renderNode(item, data[item]))}
-    </ul>
-  );
-};
-
-interface JSONViewerProps {
-  jsonData: any;
-}
-
-const JSONViewer: FunctionalComponent<JSONViewerProps> = ({ jsonData }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [highlightedKeys, setHighlightedKeys] = useState<string[]>([]);
-
-  const handleSearch = (e: Event) => {
-    const query = (e.target as HTMLInputElement).value;
-    setSearchQuery(query);
-
-    if (query === "") {
-      setHighlightedKeys([]);
-    } else {
-      const keys = findMatchingKeys(jsonData, query);
-      setHighlightedKeys(keys);
-    }
-  };
-
-  const findMatchingKeys = (data: any, query: string): string[] => {
-    const keys: string[] = [];
-    const regex = new RegExp(query, "i");
-
-    const searchInNode = (node: any, path: string) => {
-      for (const key in node) {
-        if (node.hasOwnProperty(key)) {
-          const value = node[key];
-          const newPath = path ? `${path}.${key}` : key;
-
-          if (typeof value === "object" && value !== null) {
-            searchInNode(value, newPath);
-          } else {
-            const stringifiedValue = String(value);
-            if (regex.test(stringifiedValue)) {
-              keys.push(newPath);
-            }
-          }
-        }
-      }
-    };
-
-    searchInNode(data, "");
-    return keys;
-  };
-
-  const handleCopy = () => {
-    const jsonString = JSON.stringify(jsonData, null, 2);
-    navigator.clipboard.writeText(jsonString);
-  };
-
-  return (
-    <Fragment>
-      <div class="json-viewer-toolbar">
-        <input
-          type="text"
-          placeholder="Search"
-          value={searchQuery}
-          onInput={handleSearch}
-        />
-        <button onClick={handleCopy}>Copy JSON</button>
-      </div>
-      <TreeNode data={jsonData} highlightedKeys={highlightedKeys} />
-    </Fragment>
-  );
-};
+import { JSONViewer } from "./JSONVeiwer.tsx";
+import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 
 export const Page = () => {
   const {
@@ -190,7 +48,7 @@ export const Page = () => {
     });
   }, []);
 
-  const uid = function () {
+  const uid = function() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
@@ -198,12 +56,11 @@ export const Page = () => {
     const { name, value, type, alt } = event.target;
     setFormData({
       ...formData,
-      [name]:
-        type === "number"
-          ? Number(value)
-          : alt === "array" || alt === "boolean"
-          ? JSON.parse(value)
-          : value,
+      [name]: type === "number"
+        ? Number(value)
+        : alt === "array" || alt === "boolean"
+        ? JSON.parse(value)
+        : value,
     });
   };
 
@@ -241,7 +98,7 @@ export const Page = () => {
     /*   }); */
     /* } */
 
-    const body = {
+    const body: TRequest = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -263,10 +120,10 @@ export const Page = () => {
     /* setFormData({}); */
 
     setHistory([
-      ...(history ? history : []),
+      ...(history),
       {
-        request: JSON.stringify(body, null, 2),
-        response: JSON.stringify(jsonSendedRequest, null, 2),
+        request: body,
+        response: jsonSendedRequest,
         id: uid(),
       },
     ]);
@@ -276,31 +133,33 @@ export const Page = () => {
     <div style={{ marginLeft: `${margin + 10}px` }}>
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item) =>
-        getField["schema"][item].type === "enums" ? (
-          <div className="input-cnt" key={item}>
-            <label htmlFor={item}>{item}:</label>
-            <input
-              placeholder={`${keyName}.${item}`}
-              type="number"
-              id={`${keyName}.${item}`}
-              value={formData[`get.${keyName}.${item}`]}
-              name={`get.${keyName}.${item}`}
-              onChange={handleChange}
-            />
-          </div>
-        ) : (
-          renderGetFields(
-            getField["schema"][item],
-            `${keyName}.${item}`,
-            margin + 10
+        getField["schema"][item].type === "enums"
+          ? (
+            <div className="input-cnt" key={item}>
+              <label htmlFor={item}>{item}:</label>
+              <input
+                placeholder={`${keyName}.${item}`}
+                type="number"
+                id={`${keyName}.${item}`}
+                value={formData[`get.${keyName}.${item}`]}
+                name={`get.${keyName}.${item}`}
+                onChange={handleChange}
+              />
+            </div>
           )
-        )
+          : (
+            renderGetFields(
+              getField["schema"][item],
+              `${keyName}.${item}`,
+              margin + 10,
+            )
+          )
       )}
     </div>
   );
 
-  const canShowContent =
-    service && method && schema && postFields && getFields && act;
+  const canShowContent = service && method && schema && postFields &&
+    getFields && act;
 
   const canShowSchema = service && method;
 
@@ -399,8 +258,8 @@ export const Page = () => {
             <option value=""></option>
             {canShowSchema
               ? Object.keys((actsObj as any)[service][method]).map((schema) => (
-                  <option value={schema}>{schema}</option>
-                ))
+                <option value={schema}>{schema}</option>
+              ))
               : null}
           </select>
         </div>
@@ -425,8 +284,8 @@ export const Page = () => {
             <option value=""></option>
             {canShowAct
               ? Object.keys((actsObj as any)[service][method][schema]).map(
-                  (schema) => <option value={schema}>{schema}</option>
-                )
+                (schema) => <option value={schema}>{schema}</option>,
+              )
               : null}
           </select>
         </div>
@@ -446,9 +305,9 @@ export const Page = () => {
                   id={item}
                   value={formData[`set.${item}`]}
                   name={`set.${item}`}
-                  type={
-                    postFields[item]["type"] === "number" ? "number" : "string"
-                  }
+                  type={postFields[item]["type"] === "number"
+                    ? "number"
+                    : "string"}
                   alt={postFields[item]["type"]}
                   onChange={handleChange}
                 />
@@ -458,21 +317,23 @@ export const Page = () => {
               GET fields
             </div>
             {Object.keys(getFields).map((item) =>
-              getFields[item].type === "enums" ? (
-                <div className="input-cnt">
-                  <label htmlFor={item}>{item}:</label>
-                  <input
-                    placeholder={item}
-                    id={item}
-                    value={formData[`get.${item}`]}
-                    name={`get.${item}`}
-                    type="number"
-                    onChange={handleChange}
-                  />
-                </div>
-              ) : (
-                renderGetFields(getFields[item], item, 0)
-              )
+              getFields[item].type === "enums"
+                ? (
+                  <div className="input-cnt">
+                    <label htmlFor={item}>{item}:</label>
+                    <input
+                      placeholder={item}
+                      id={item}
+                      value={formData[`get.${item}`]}
+                      name={`get.${item}`}
+                      type="number"
+                      onChange={handleChange}
+                    />
+                  </div>
+                )
+                : (
+                  renderGetFields(getFields[item], item, 0)
+                )
             )}
             <div className="cnt--btn-send">
               <button className="btn btn--send" type="submit">
@@ -486,8 +347,8 @@ export const Page = () => {
       <div className="response">
         {response && (
           <div>
-            The JSON is:
-            <JSONViewer jsonData={JSON} />
+            The Response is:
+            <JSONViewer jsonData={response} />
             {/* {JSON.stringify(response, null, 2)} */}
           </div>
         )}
@@ -503,13 +364,12 @@ export const Page = () => {
               <div key={hi.id}>
                 <section>
                   <span>the request is :</span>
-                  <ReactJson src={JSON.parse(hi.request)} />
-                  <JSONViewer jsonData={JSON.parse(hi.request)} />
+                  <JSONViewer jsonData={hi.request} />
                   {/* <div>{hi.request}</div> */}
                 </section>
                 <section>
                   <span>the response is :</span>
-                  <JSONViewer jsonData={JSON.parse(hi.response)} />
+                  <JSONViewer jsonData={hi.response} />
                   {/* <div>{hi.response}</div> */}
                 </section>
                 <br />
