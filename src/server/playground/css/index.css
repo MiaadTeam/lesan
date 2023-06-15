@@ -176,6 +176,15 @@ input {
   height: 100vh;
   overflow-y: scroll;
   padding-bottom: var(--height-cnt--btn-send);
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.form--fields::-webkit-scrollbar {
+  display: none;
 }
 
 .input-cnt {
@@ -218,4 +227,72 @@ input {
   width: min-content;
   flex-grow: 1;
   padding: 0 20px;
+}
+
+/* ------------------------------- JSON Viewer ------------------------------ */
+.json-tree {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+.json-toggle {
+  cursor: pointer;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: solid 1px #ccc;
+  border-radius: 50%;
+  margin-right: 5px;
+  transition: transform 0.3s ease;
+}
+
+.json-toggle.collapsed {
+  transform: rotate(-90deg);
+}
+
+.json-key {
+  font-weight: bold;
+}
+
+.json-string {
+  color: blue;
+}
+
+.json-number {
+  color: orange;
+}
+
+.json-boolean {
+  color: green;
+}
+
+.json-null {
+  color: red;
+}
+
+.json-highlighted {
+  background-color: yellow;
+}
+
+.json-viewer-toolbar {
+  margin-bottom: 10px;
+}
+
+.json-viewer-toolbar input[type="text"] {
+  padding: 5px;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+}
+
+.json-viewer-toolbar button {
+  padding: 5px 10px;
+  background-color: #337ab7;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.json-viewer-toolbar button:hover {
+  background-color: #23527c;
 }

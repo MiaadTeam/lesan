@@ -1,10 +1,10 @@
 /** @jsx h */
 import { createContext, h } from "https://esm.sh/preact@10.5.15";
 import {
-  useReducer,
-  useMemo,
   useCallback,
   useContext,
+  useMemo,
+  useReducer,
 } from "https://esm.sh/preact@10.5.15/hooks";
 
 // A generic Type to handle customized Objects
@@ -30,11 +30,26 @@ enum ACTION_TYPE {
 /* --------------------------- Action Types End --------------------------- */
 
 /* ------------------------- Type Definitions Start ------------------------- */
+export type TRequest = {
+  method: "POST";
+  headers: {
+    "Content-Type": "application/json";
+    [key: string]: any;
+  };
+  body: string;
+};
+
+type TResponse = {
+  body: Record<string, any> | Record<string, any>[];
+  success: boolean;
+};
+
 type THistory = {
-  request: string;
-  response: string;
+  request: TRequest;
+  response: TResponse;
   id: string;
 };
+
 // TODO: The any Types have to remove and fix
 interface IState {
   service: string;
@@ -45,8 +60,8 @@ interface IState {
   getFields: any;
   formData: any;
   headers: TObjectArray<string>;
-  history: THistory[] | null;
-  response: [] | null;
+  history: THistory[];
+  response: TResponse | null;
   setService: (payload: string) => void;
   setMethod: (payload: string) => void;
   setSchema: (payload: string) => void;
@@ -58,58 +73,58 @@ interface IState {
   setFormData: (payload: any) => void;
   setHeader: (payload: TObjectArray<string>) => void;
   setHistory: (payload: THistory[]) => void;
-  setResponse: (payload: THistory[]) => void;
+  setResponse: (payload: TResponse) => void;
 }
 
 type TAction =
   | {
-      type: ACTION_TYPE.SET_SERVICE;
-      payload: string;
-    }
+    type: ACTION_TYPE.SET_SERVICE;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.SET_METHOD;
-      payload: string;
-    }
+    type: ACTION_TYPE.SET_METHOD;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.SET_SCHEMA;
-      payload: string;
-    }
+    type: ACTION_TYPE.SET_SCHEMA;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.SET_ACT;
-      payload: string;
-    }
+    type: ACTION_TYPE.SET_ACT;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.SET_POST_FIELDS;
-      payload: string;
-    }
+    type: ACTION_TYPE.SET_POST_FIELDS;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.RESET_POST_FIELDS;
-      payload: string;
-    }
+    type: ACTION_TYPE.RESET_POST_FIELDS;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.SET_GET_FIELDS;
-      payload: string;
-    }
+    type: ACTION_TYPE.SET_GET_FIELDS;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.RESET_GET_FIELDS;
-      payload: string;
-    }
+    type: ACTION_TYPE.RESET_GET_FIELDS;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.SET_FORM_DATA;
-      payload: string;
-    }
+    type: ACTION_TYPE.SET_FORM_DATA;
+    payload: string;
+  }
   | {
-      type: ACTION_TYPE.SET_HEADER;
-      payload: TObjectArray<string>;
-    }
+    type: ACTION_TYPE.SET_HEADER;
+    payload: TObjectArray<string>;
+  }
   | {
-      type: ACTION_TYPE.SET_HISTORY;
-      payload: THistory[];
-    }
+    type: ACTION_TYPE.SET_HISTORY;
+    payload: THistory[];
+  }
   | {
-      type: ACTION_TYPE.SET_RESPONSE;
-      payload: THistory[];
-    };
+    type: ACTION_TYPE.SET_RESPONSE;
+    payload: TResponse;
+  };
 /* -------------------------- Type Definitions End -------------------------- */
 
 // TODO: Have to Find Someway to Prevent from Rewriting Function Types
@@ -212,7 +227,7 @@ function lesanReducer(state: IState, action: TAction): IState {
     case ACTION_TYPE.SET_RESPONSE: {
       return {
         ...state,
-        history: payload,
+        response: payload,
       };
     }
     default:
@@ -225,68 +240,68 @@ const LesanProvider = (props: any) => {
 
   const setService = useCallback(
     (payload: string) => dispatch({ type: ACTION_TYPE.SET_SERVICE, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const setMethod = useCallback(
     (payload: string) => dispatch({ type: ACTION_TYPE.SET_METHOD, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const setSchema = useCallback(
     (payload: string) => dispatch({ type: ACTION_TYPE.SET_SCHEMA, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const setAct = useCallback(
     (payload: string) => dispatch({ type: ACTION_TYPE.SET_ACT, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const setPostFields = useCallback(
     (payload: string) =>
       dispatch({ type: ACTION_TYPE.SET_POST_FIELDS, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const resetPostFields = useCallback(
     (payload: string) =>
       dispatch({ type: ACTION_TYPE.RESET_POST_FIELDS, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const setGetFields = useCallback(
     (payload: string) =>
       dispatch({ type: ACTION_TYPE.SET_GET_FIELDS, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const resetGetFields = useCallback(
     (payload: string) =>
       dispatch({ type: ACTION_TYPE.RESET_GET_FIELDS, payload }),
-    [dispatch]
+    [dispatch],
   );
   const setFormData = useCallback(
     (payload: any) => dispatch({ type: ACTION_TYPE.SET_FORM_DATA, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const setHeader = useCallback(
     (payload: TObjectArray<string>) =>
       dispatch({ type: ACTION_TYPE.SET_HEADER, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const setHistory = useCallback(
     (payload: THistory[]) =>
       dispatch({ type: ACTION_TYPE.SET_HISTORY, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const setResponse = useCallback(
-    (payload: THistory[]) =>
+    (payload: TResponse) =>
       dispatch({ type: ACTION_TYPE.SET_RESPONSE, payload }),
-    [dispatch]
+    [dispatch],
   );
 
   const value = useMemo(
@@ -305,7 +320,7 @@ const LesanProvider = (props: any) => {
       setHistory,
       setResponse,
     }),
-    [state]
+    [state],
   );
 
   return <LesanContext.Provider value={value} {...props} />;

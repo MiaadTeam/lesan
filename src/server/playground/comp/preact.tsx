@@ -5,7 +5,8 @@ import {
   useRef,
   useState,
 } from "https://esm.sh/preact@10.5.15/hooks";
-import { useLesan } from "./ManagedLesanContext.tsx";
+import { JSONViewer } from "./JSONVeiwer.tsx";
+import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 
 export const Page = () => {
   const {
@@ -97,7 +98,7 @@ export const Page = () => {
     /*   }); */
     /* } */
 
-    const body = {
+    const body: TRequest = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -119,10 +120,10 @@ export const Page = () => {
     /* setFormData({}); */
 
     setHistory([
-      ...(history ? history : []),
+      ...(history),
       {
-        request: JSON.stringify(body, null, 2),
-        response: JSON.stringify(jsonSendedRequest, null, 2),
+        request: body,
+        response: jsonSendedRequest,
         id: uid(),
       },
     ]);
@@ -346,12 +347,9 @@ export const Page = () => {
       <div className="response">
         {response && (
           <div>
-            <br />
-            <hr />
-            <br />
-            the response is :
-            <br />
-            {JSON.stringify(response, null, 2)}
+            The Response is:
+            <JSONViewer jsonData={response} />
+            {/* {JSON.stringify(response, null, 2)} */}
           </div>
         )}
 
@@ -366,11 +364,13 @@ export const Page = () => {
               <div key={hi.id}>
                 <section>
                   <span>the request is :</span>
-                  <div>{hi.request}</div>
+                  <JSONViewer jsonData={hi.request} />
+                  {/* <div>{hi.request}</div> */}
                 </section>
                 <section>
                   <span>the response is :</span>
-                  <div>{hi.response}</div>
+                  <JSONViewer jsonData={hi.response} />
+                  {/* <div>{hi.response}</div> */}
                 </section>
                 <br />
                 <hr />
