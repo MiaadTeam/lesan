@@ -118,12 +118,12 @@ export const Page = (
     /* setFormData({}); */
 
     setHistory([
-      ...(history),
       {
-        request: body,
+        request: {...body, body: JSON.parse(body.body)},
         response: jsonSendedRequest,
         id: uid(),
       },
+      ...(history),
     ]);
   };
 
