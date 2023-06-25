@@ -8,11 +8,22 @@ import {
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 
-export const Page = (
-  { url }: {
-    url?: string;
-  },
-) => {
+import Modal from "./Modal.tsx";
+import useModal from "./useModal.tsx";
+
+export const Page = ({ url }: { url?: string }) => {
+  const { isOpen, toggle } = useModal();
+  const [success, setSuccess] = useState(false);
+  const [fail, setFail] = useState(false);
+
+  setTimeout(() => {
+    setSuccess(!success);
+  }, 500);
+
+  setTimeout(() => {
+    setFail(!fail);
+  }, 500);
+
   const {
     act,
     formData,
@@ -54,7 +65,7 @@ export const Page = (
     });
   }, []);
 
-  const uid = function() {
+  const uid = function () {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
@@ -62,11 +73,12 @@ export const Page = (
     const { name, value, type, alt } = event.target;
     setFormData({
       ...formData,
-      [name]: type === "number"
-        ? Number(value)
-        : alt === "array" || alt === "boolean"
-        ? JSON.parse(value)
-        : value,
+      [name]:
+        type === "number"
+          ? Number(value)
+          : alt === "array" || alt === "boolean"
+          ? JSON.parse(value)
+          : value,
     });
   };
 
@@ -119,11 +131,11 @@ export const Page = (
 
     setHistory([
       {
-        request: {...body, body: JSON.parse(body.body)},
+        request: { ...body, body: JSON.parse(body.body) },
         response: jsonSendedRequest,
         id: uid(),
       },
-      ...(history),
+      ...history,
     ]);
   };
 
@@ -131,33 +143,31 @@ export const Page = (
     <div style={{ marginLeft: `${margin + 10}px` }}>
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item) =>
-        getField["schema"][item].type === "enums"
-          ? (
-            <div className="input-cnt" key={item}>
-              <label htmlFor={item}>{item}:</label>
-              <input
-                placeholder={`${keyName}.${item}`}
-                type="number"
-                id={`${keyName}.${item}`}
-                value={formData[`get.${keyName}.${item}`]}
-                name={`get.${keyName}.${item}`}
-                onChange={handleChange}
-              />
-            </div>
+        getField["schema"][item].type === "enums" ? (
+          <div className="input-cnt" key={item}>
+            <label htmlFor={item}>{item}:</label>
+            <input
+              placeholder={`${keyName}.${item}`}
+              type="number"
+              id={`${keyName}.${item}`}
+              value={formData[`get.${keyName}.${item}`]}
+              name={`get.${keyName}.${item}`}
+              onChange={handleChange}
+            />
+          </div>
+        ) : (
+          renderGetFields(
+            getField["schema"][item],
+            `${keyName}.${item}`,
+            margin + 10
           )
-          : (
-            renderGetFields(
-              getField["schema"][item],
-              `${keyName}.${item}`,
-              margin + 10,
-            )
-          )
+        )
       )}
     </div>
   );
 
-  const canShowContent = service && method && schema && postFields &&
-    getFields && act;
+  const canShowContent =
+    service && method && schema && postFields && getFields && act;
 
   const canShowSchema = service && method;
 
@@ -218,7 +228,9 @@ export const Page = (
           >
             <option value=""></option>
             {Object.keys(actsObj).map((service, index) => (
-              <option key={index} value={service}>{service}</option>
+              <option key={index} value={service}>
+                {service}
+              </option>
             ))}
           </select>
         </div>
@@ -256,8 +268,8 @@ export const Page = (
             <option value=""></option>
             {canShowSchema
               ? Object.keys((actsObj as any)[service][method]).map((schema) => (
-                <option value={schema}>{schema}</option>
-              ))
+                  <option value={schema}>{schema}</option>
+                ))
               : null}
           </select>
         </div>
@@ -282,11 +294,15 @@ export const Page = (
             <option value=""></option>
             {canShowAct
               ? Object.keys((actsObj as any)[service][method][schema]).map(
-                (schema) => <option value={schema}>{schema}</option>,
-              )
+                  (schema) => <option value={schema}>{schema}</option>
+                )
               : null}
           </select>
         </div>
+        <button className="btn btn--send" onClick={toggle}>
+          {" "}
+          History{" "}
+        </button>
       </div>
 
       {canShowContent && (
@@ -303,9 +319,9 @@ export const Page = (
                   id={item}
                   value={formData[`set.${item}`]}
                   name={`set.${item}`}
-                  type={postFields[item]["type"] === "number"
-                    ? "number"
-                    : "string"}
+                  type={
+                    postFields[item]["type"] === "number" ? "number" : "string"
+                  }
                   alt={postFields[item]["type"]}
                   onChange={handleChange}
                 />
@@ -315,23 +331,21 @@ export const Page = (
               GET fields
             </div>
             {Object.keys(getFields).map((item) =>
-              getFields[item].type === "enums"
-                ? (
-                  <div className="input-cnt">
-                    <label htmlFor={item}>{item}:</label>
-                    <input
-                      placeholder={item}
-                      id={item}
-                      value={formData[`get.${item}`]}
-                      name={`get.${item}`}
-                      type="number"
-                      onChange={handleChange}
-                    />
-                  </div>
-                )
-                : (
-                  renderGetFields(getFields[item], item, 0)
-                )
+              getFields[item].type === "enums" ? (
+                <div className="input-cnt">
+                  <label htmlFor={item}>{item}:</label>
+                  <input
+                    placeholder={item}
+                    id={item}
+                    value={formData[`get.${item}`]}
+                    name={`get.${item}`}
+                    type="number"
+                    onChange={handleChange}
+                  />
+                </div>
+              ) : (
+                renderGetFields(getFields[item], item, 0)
+              )
             )}
             <div className="cnt--btn-send">
               <button className="btn btn--send" type="submit">
@@ -347,36 +361,50 @@ export const Page = (
           <div>
             The Response is:
             <JSONViewer jsonData={response} />
+            {response && response?.success === true ? (
+              <div className="success" data-success={success}></div>
+            ) : (
+              <div className="fail" data-fail={fail}></div>
+            )}
             {/* {JSON.stringify(response, null, 2)} */}
           </div>
         )}
-
-        {history && history?.length > 0 && (
-          <div>
-            <br />
-            <hr />
-            <br />
-            the req history is :
-            <br />
-            {history.map((hi) => (
-              <div key={hi.id}>
-                <section>
-                  <span>the request is :</span>
-                  <JSONViewer jsonData={hi.request} />
-                  {/* <div>{hi.request}</div> */}
-                </section>
-                <section>
-                  <span>the response is :</span>
-                  <JSONViewer jsonData={hi.response} />
-                  {/* <div>{hi.response}</div> */}
-                </section>
+        <div>
+          {/* {createPortal( */}
+          <Modal isOpen={isOpen} toggle={toggle}>
+            {history && history?.length > 0 ? (
+              <div>
                 <br />
                 <hr />
                 <br />
+                the req history is :
+                <br />
+                {history.map((hi) => (
+                  <div key={hi.id}>
+                    <section>
+                      <span>the request is :</span>
+                      <JSONViewer jsonData={hi.request} />
+                      {/* <div>{hi.request}</div> */}
+                    </section>
+                    <section>
+                      <span>the response is :</span>
+                      <JSONViewer jsonData={hi.response} />
+                      {/* <div>{hi.response}</div> */}
+                    </section>
+                    <br />
+                    <hr />
+                    <br />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            ) : (
+              <span className="no-history">
+                "There is no history to display"
+              </span>
+            )}
+          </Modal>
+          {/* ,document.body)} */}
+        </div>
       </div>
     </div>
   );
