@@ -109,7 +109,7 @@ input {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: '';
+  content: "";
   height: 2px;
   width: 100%;
   background-color: white;
@@ -227,6 +227,60 @@ input {
   width: min-content;
   flex-grow: 1;
   padding: 0 20px;
+}
+
+.modal-overlay {
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  display: block;
+  background: white;
+  width: 70%;
+  height: 70%;
+  padding: 1rem;
+  border-radius: 1rem;
+  overflow: scroll;
+}
+
+.no-history {
+  background-color: #06d6a0;
+  font-size: 1.5rem;
+  margin: 250px 10px;
+  display: flex;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.success {
+  border-radius: 10px;
+  background-color: rgb(51, 169, 77);
+  width: 15px;
+  height: 15px;
+}
+.success[data-success="true"] {
+  background-color: green;
+}
+
+.fail {
+  background-color: rgb(179, 38, 38);
+  border-radius: 10px;
+  width: 15px;
+  height: 15px;
+}
+
+.fail[data-fail="true"] {
+  background-color: red;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */
