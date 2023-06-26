@@ -10,6 +10,14 @@ const getCSSFile = async () => {
   });
 };
 
+const getJSFile = async () => {
+  const url = new URL("./dist/bundle.js", import.meta.url);
+  const data = await Deno.readTextFile(url);
+  return new Response(data, {
+    headers: { "content-type": "application/javascript" },
+  });
+};
+
 export const runPlayground = async (
   request: Request,
   schemasObj: ISchema,
@@ -21,11 +29,7 @@ export const runPlayground = async (
     const result = await bundle(url);
     const { code } = result;
 
-    const replacedUrl = code.replace(
-      "Please replace me",
-      `http://localhost:${port}`,
-    );
-    return new Response(replacedUrl, {
+    return new Response(code, {
       headers: { "content-type": "application/javascript" },
     });
   };
@@ -50,7 +54,7 @@ export const runPlayground = async (
       </head>
       <body >
         <div id="root"></div>
-        <script type="module" src="http://localhost:${port}/static/client.js" defer></script>
+        <script type="module" src="http://localhost:${port}/static/bundle.js" defer></script>
       </body>
       </html>`;
 
@@ -62,6 +66,8 @@ export const runPlayground = async (
     ? await getClientReact()
     : request.url === `http://localhost:${port}/static/index.css`
     ? await getCSSFile()
+    : request.url === `http://localhost:${port}/static/bundle.js`
+    ? await getJSFile()
     : request.url === `http://localhost:${port}/static/get/schemas`
     ? getSchemas()
     : getSsrReact();

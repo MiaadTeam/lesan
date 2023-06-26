@@ -5,7 +5,7 @@ import { Page } from "./comp/preact.tsx";
 
 hydrate(
   <ManagedLesanContext>
-    <Page url="Please replace me" />
+    <Page />
   </ManagedLesanContext>,
   document.getElementById("root")!,
 );
