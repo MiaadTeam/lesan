@@ -4,9 +4,12 @@ esbuild
   .build({
     entryPoints: ["./hydrate.tsx"],
     outfile: "./dist/bundle-es.js",
-    format: "esm",
+    jsxFactory: "h",
+    jsxFragment: "Fragment",
+    jsxImportSource: "preact",
     bundle: true,
     minify: true,
+    format: "esm",
     sourcemap: true,
   })
   .then((result) => {

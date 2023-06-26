@@ -10,14 +10,6 @@ const getCSSFile = async () => {
   });
 };
 
-const getJSFile = async () => {
-  const url = new URL("./dist/bundle.js", import.meta.url);
-  const data = await Deno.readTextFile(url);
-  return new Response(data, {
-    headers: { "content-type": "application/javascript" },
-  });
-};
-
 export const runPlayground = async (
   request: Request,
   schemasObj: ISchema,
@@ -26,12 +18,28 @@ export const runPlayground = async (
 ) => {
   const getClientReact = async () => {
     const url = new URL("./hydrate.tsx", import.meta.url);
-    const result = await bundle(url);
+    const result = await bundle(url, {
+      compilerOptions: { sourceMap: false },
+    });
     const { code } = result;
 
     return new Response(code, {
       headers: { "content-type": "application/javascript" },
     });
+  };
+
+  const getJSFile = async () => {
+    const getBundle = async () => {
+      const url = new URL("./dist/bundle.js", import.meta.url);
+      const data = await Deno.readTextFile(url);
+      return new Response(data, {
+        headers: { "content-type": "application/javascript" },
+      });
+    };
+
+    return Deno.env.get("PLAYEND") === "development"
+      ? await getBundle()
+      : await getClientReact();
   };
 
   const getSchemas = () => {
