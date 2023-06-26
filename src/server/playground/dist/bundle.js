@@ -636,10 +636,11 @@ const pre = {
     display: "inline-block",
     borderRadius: 3,
     padding: "10px 15px",
-    background: "#272822",
     color: "#f8f8f2",
     textShadow: "1px 1px black",
-    overflow: "auto"
+    overflow: "auto",
+    whiteSpace: 'pre-wrap',
+    width: '100%'
 };
 const regEx = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g;
 const syntaxHighlight = (json)=>{
@@ -714,6 +715,7 @@ const Page = ()=>{
     const { isOpen , toggle  } = useModal();
     const [success, setSuccess] = F1(false);
     const [fail, setFail] = F1(false);
+    const [show, setShow] = F1(false);
     setTimeout(()=>{
         setSuccess(!success);
     }, 500);
@@ -970,7 +972,9 @@ const Page = ()=>{
         type: "submit"
     }, "send")))), Z("div", {
         className: "response"
-    }, response && Z("div", null, "The Response is:", Z(JSONViewer, {
+    }, response && Z("div", {
+        class: "response-response"
+    }, "The Response is:", Z(JSONViewer, {
         jsonData: response
     }), response && response?.success === true ? Z("div", {
         className: "success",
@@ -981,13 +985,34 @@ const Page = ()=>{
     })), Z("div", null, Z(Modal, {
         isOpen: isOpen,
         toggle: toggle
-    }, history && history?.length > 0 ? Z("div", null, Z("br", null), Z("hr", null), Z("br", null), "the req history is :", Z("br", null), history.map((hi)=>Z("div", {
+    }, history && history?.length > 0 ? Z("div", {
+        className: "history"
+    }, Z("span", {
+        className: "history-title"
+    }, " HISTORY :"), Z("br", null), history.map((hi)=>Z("div", {
+            className: "history-detail",
             key: hi.id
-        }, Z("section", null, Z("span", null, "the request is :"), Z(JSONViewer, {
+        }, Z("section", {
+            className: "history-re"
+        }, Z("span", {
+            className: "history-re-title"
+        }, " REQUEST :"), Z("div", {
+            className: "history-re-detail",
+            onClick: ()=>setShow(!show)
+        }, " ", Z(JSONViewer, {
+            jsonData: hi.request.body.wants.act
+        })), Z("div", {
+            className: "history-re-detail-complete",
+            "data-show": show
+        }, " ", Z(JSONViewer, {
             jsonData: hi.request
-        })), Z("section", null, Z("span", null, "the response is :"), Z(JSONViewer, {
+        }))), Z("section", {
+            className: "history-re history-response"
+        }, Z("span", {
+            className: "history-re-title"
+        }, " RESPONSE :"), Z(JSONViewer, {
             jsonData: hi.response
-        })), Z("br", null), Z("hr", null), Z("br", null)))) : Z("span", {
+        }))))) : Z("span", {
         className: "no-history"
     }, '"There is no history to display"')))));
 };

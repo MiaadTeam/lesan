@@ -252,6 +252,56 @@ input {
   overflow: scroll;
 }
 
+.response-response{
+  background-color: #272822;
+}
+
+.history-detail{
+  display: flex;
+  /* gap: 50px; */
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.history-re{
+  width: 50%;
+  background-color: #030712;
+}
+
+
+.history-re-detail-complete{
+  display: none;
+}
+
+.history-re-detail-complete[data-show=true]{
+  display: block;
+}
+
+.history-response{
+  background-color: #272822;
+}
+
+.history-re-title{
+  text-align: center;
+  background-color: #11567b;
+  width: 100%;
+  border: solid 1px black;
+  border-radius: 5px;
+  display: inline-block;
+  color: white;
+}
+
+.history-title{
+  display: inline-block;
+  background-color: #003049;
+  width: 100%;
+  color: white;
+  border: solid 1px black;
+  border-radius: 5px;
+  text-align: center;
+}
+
 .no-history {
   background-color: #06d6a0;
   font-size: 1.5rem;

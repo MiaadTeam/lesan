@@ -15,6 +15,7 @@ export const Page = () => {
   const { isOpen, toggle } = useModal();
   const [success, setSuccess] = useState(false);
   const [fail, setFail] = useState(false);
+  const [show, setShow] = useState(false);
 
   setTimeout(() => {
     setSuccess(!success);
@@ -52,7 +53,7 @@ export const Page = () => {
   const [actsObj, setActsObj] = useState({});
   const [schemasObj, setSchemasObj] = useState({});
   const [urlAddress, setUrlAddress] = useState(
-    window && window.location ? window.location.href : "http://localhost:1366",
+    window && window.location ? window.location.href : "http://localhost:1366"
   );
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -68,7 +69,7 @@ export const Page = () => {
     });
   }, []);
 
-  const uid = function() {
+  const uid = function () {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
@@ -76,11 +77,12 @@ export const Page = () => {
     const { name, value, type, alt } = event.target;
     setFormData({
       ...formData,
-      [name]: type === "number"
-        ? Number(value)
-        : alt === "array" || alt === "boolean"
-        ? JSON.parse(value)
-        : value,
+      [name]:
+        type === "number"
+          ? Number(value)
+          : alt === "array" || alt === "boolean"
+          ? JSON.parse(value)
+          : value,
     });
   };
 
@@ -145,33 +147,31 @@ export const Page = () => {
     <div style={{ marginLeft: `${margin + 10}px` }}>
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item) =>
-        getField["schema"][item].type === "enums"
-          ? (
-            <div className="input-cnt" key={item}>
-              <label htmlFor={item}>{item}:</label>
-              <input
-                placeholder={`${keyName}.${item}`}
-                type="number"
-                id={`${keyName}.${item}`}
-                value={formData[`get.${keyName}.${item}`]}
-                name={`get.${keyName}.${item}`}
-                onChange={handleChange}
-              />
-            </div>
+        getField["schema"][item].type === "enums" ? (
+          <div className="input-cnt" key={item}>
+            <label htmlFor={item}>{item}:</label>
+            <input
+              placeholder={`${keyName}.${item}`}
+              type="number"
+              id={`${keyName}.${item}`}
+              value={formData[`get.${keyName}.${item}`]}
+              name={`get.${keyName}.${item}`}
+              onChange={handleChange}
+            />
+          </div>
+        ) : (
+          renderGetFields(
+            getField["schema"][item],
+            `${keyName}.${item}`,
+            margin + 10
           )
-          : (
-            renderGetFields(
-              getField["schema"][item],
-              `${keyName}.${item}`,
-              margin + 10,
-            )
-          )
+        )
       )}
     </div>
   );
 
-  const canShowContent = service && method && schema && postFields &&
-    getFields && act;
+  const canShowContent =
+    service && method && schema && postFields && getFields && act;
 
   const canShowSchema = service && method;
 
@@ -272,8 +272,8 @@ export const Page = () => {
             <option value=""></option>
             {canShowSchema
               ? Object.keys((actsObj as any)[service][method]).map((schema) => (
-                <option value={schema}>{schema}</option>
-              ))
+                  <option value={schema}>{schema}</option>
+                ))
               : null}
           </select>
         </div>
@@ -298,8 +298,8 @@ export const Page = () => {
             <option value=""></option>
             {canShowAct
               ? Object.keys((actsObj as any)[service][method][schema]).map(
-                (schema) => <option value={schema}>{schema}</option>,
-              )
+                  (schema) => <option value={schema}>{schema}</option>
+                )
               : null}
           </select>
         </div>
@@ -323,9 +323,9 @@ export const Page = () => {
                   id={item}
                   value={formData[`set.${item}`]}
                   name={`set.${item}`}
-                  type={postFields[item]["type"] === "number"
-                    ? "number"
-                    : "string"}
+                  type={
+                    postFields[item]["type"] === "number" ? "number" : "string"
+                  }
                   alt={postFields[item]["type"]}
                   onChange={handleChange}
                 />
@@ -335,23 +335,21 @@ export const Page = () => {
               GET fields
             </div>
             {Object.keys(getFields).map((item) =>
-              getFields[item].type === "enums"
-                ? (
-                  <div className="input-cnt">
-                    <label htmlFor={item}>{item}:</label>
-                    <input
-                      placeholder={item}
-                      id={item}
-                      value={formData[`get.${item}`]}
-                      name={`get.${item}`}
-                      type="number"
-                      onChange={handleChange}
-                    />
-                  </div>
-                )
-                : (
-                  renderGetFields(getFields[item], item, 0)
-                )
+              getFields[item].type === "enums" ? (
+                <div className="input-cnt">
+                  <label htmlFor={item}>{item}:</label>
+                  <input
+                    placeholder={item}
+                    id={item}
+                    value={formData[`get.${item}`]}
+                    name={`get.${item}`}
+                    type="number"
+                    onChange={handleChange}
+                  />
+                </div>
+              ) : (
+                renderGetFields(getFields[item], item, 0)
+              )
             )}
             <div className="cnt--btn-send">
               <button className="btn btn--send" type="submit">
@@ -364,52 +362,66 @@ export const Page = () => {
 
       <div className="response">
         {response && (
-          <div>
+          <div class="response-response">
             The Response is:
             <JSONViewer jsonData={response} />
-            {response && response?.success === true
-              ? <div className="success" data-success={success}></div>
-              : <div className="fail" data-fail={fail}></div>}
+            {response && response?.success === true ? (
+              <div className="success" data-success={success}></div>
+            ) : (
+              <div className="fail" data-fail={fail}></div>
+            )}
             {/* {JSON.stringify(response, null, 2)} */}
           </div>
         )}
         <div>
-          {/* {createPortal( */}
           <Modal isOpen={isOpen} toggle={toggle}>
-            {history && history?.length > 0
-              ? (
-                <div>
-                  <br />
-                  <hr />
-                  <br />
-                  the req history is :
-                  <br />
-                  {history.map((hi) => (
-                    <div key={hi.id}>
-                      <section>
-                        <span>the request is :</span>
+            {history && history?.length > 0 ? (
+              <div className="history">
+                {/* <br />
+                <hr />
+                <br /> */}
+                <span className="history-title"> HISTORY :</span>
+                <br />
+                {history.map((hi) => (
+                  <div className="history-detail" key={hi.id}>
+                    <section className="history-re">
+                      <span className="history-re-title"> REQUEST :</span>
+                      <div
+                        className="history-re-detail"
+                        onClick={() => setShow(!show)}
+                      >
+                        {" "}
+                        <JSONViewer
+                          jsonData={(hi.request.body as any).wants.act}
+                        />
+                      </div>
+
+                      <div
+                        className="history-re-detail-complete"
+                        data-show={show}
+                      >
+                        {" "}
                         <JSONViewer jsonData={hi.request} />
-                        {/* <div>{hi.request}</div> */}
-                      </section>
-                      <section>
-                        <span>the response is :</span>
-                        <JSONViewer jsonData={hi.response} />
-                        {/* <div>{hi.response}</div> */}
-                      </section>
-                      <br />
+                      </div>
+                      {/* <div>{hi.request}</div> */}
+                    </section>
+                    <section className="history-re history-response">
+                      <span className="history-re-title"> RESPONSE :</span>
+                      <JSONViewer jsonData={hi.response} />
+                      {/* <div>{hi.response}</div> */}
+                    </section>
+                    {/* <br />
                       <hr />
-                      <br />
-                    </div>
-                  ))}
-                </div>
-              )
-              : (
-                <span className="no-history">
-                  "There is no history to display"
-                </span>
-              )}
+                      <br /> */}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <span className="no-history">
+                "There is no history to display"
+              </span>
+            )}
           </Modal>
-          {/* ,document.body)} */}
         </div>
       </div>
     </div>

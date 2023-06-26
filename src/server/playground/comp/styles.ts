@@ -17,8 +17,10 @@ export const pre = {
   display: "inline-block",
   borderRadius: 3,
   padding: "10px 15px",
-  background: "#272822",
+  // background: "#272822",
   color: "#f8f8f2",
   textShadow: "1px 1px black",
   overflow: "auto",
+  whiteSpace:'pre-wrap',
+  width:'100%'
 };
