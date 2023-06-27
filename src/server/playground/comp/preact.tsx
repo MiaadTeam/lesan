@@ -380,20 +380,29 @@ export const Page = () => {
                 {/* <br />
                 <hr />
                 <br /> */}
-                <span className="history-title"> HISTORY :</span>
+                <span className="history-title"> HISTORY </span>
                 <br />
                 {history.map((hi) => (
                   <div className="history-detail" key={hi.id}>
                     <section className="history-re">
-                      <span className="history-re-title"> REQUEST :</span>
+                      <span className="history-re-title"> REQUEST </span>
                       <div
                         className="history-re-detail"
                         onClick={() => setShow(!show)}
                       >
-                        {" "}
-                        <JSONViewer
-                          jsonData={(hi.request.body as any).wants.act}
-                        />
+                        <div>
+                          {" "}
+                          <JSONViewer
+                            jsonData={(hi.request.body as any).wants.model}
+                          />
+                        </div>
+                        <span>/</span>
+                        <div>
+                          <JSONViewer
+                            jsonData={(hi.request.body as any).wants.act}
+                          />
+                        </div>
+                        {show==false ? <span>+</span> : <span>-</span>}
                       </div>
 
                       <div
@@ -406,9 +415,26 @@ export const Page = () => {
                       {/* <div>{hi.request}</div> */}
                     </section>
                     <section className="history-re history-response">
-                      <span className="history-re-title"> RESPONSE :</span>
-                      <JSONViewer jsonData={hi.response} />
-                      {/* <div>{hi.response}</div> */}
+                      <span className="history-re-title"> RESPONSE </span>
+                      <div
+                        className="history-re-detail"
+                        onClick={() => setShow(!show)}
+                      >
+                        <div className="history-re-response-title">
+                          {" "}
+                          <span className="history-re-response-title-status">success:</span>
+                          <div className="history-re-response-info">
+                            <JSONViewer jsonData={hi.response.success} />
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        className="history-re-detail-complete"
+                        data-show={show}
+                      >
+                        {" "}
+                        <JSONViewer jsonData={hi.response} />
+                      </div>
                     </section>
                     {/* <br />
                       <hr />

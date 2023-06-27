@@ -9,7 +9,7 @@ interface ModalType {
 }
 
 export default function Modal(props: ModalType) {
-  return(
+  return (
     <Fragment>
       {props.isOpen && (
         <div className="modal-overlay" onClick={props.toggle}>
@@ -18,7 +18,6 @@ export default function Modal(props: ModalType) {
           </div>
         </div>
       )}
-    </Fragment>)
-   
-
+    </Fragment>
+  );
 }

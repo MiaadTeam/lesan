@@ -236,20 +236,21 @@ input {
   position: absolute;
   top: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.79);
   display: flex;
   justify-content: center;
   align-items: center;
-}
+ }
 
 .modal-box {
   display: block;
-  background: white;
+  background: rgb(80, 80, 80,.5);
   width: 70%;
   height: 70%;
   padding: 1rem;
-  border-radius: 1rem;
+  border-radius: .8rem;
   overflow: scroll;
+  backdrop-filter: 10px;
 }
 
 .response-response{
@@ -269,6 +270,27 @@ input {
   background-color: #030712;
 }
 
+.history-re-detail{
+  display: flex;
+  color: white;
+  /* justify-content: center; */
+  align-items: center;
+}
+
+.history-re-response-title{
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+}
+
+/* .history-re-response-info{
+  padding: 10px 0 6px 10px;
+} */
+
+.history-re-response-title-status{
+  position: relative;
+  bottom: 2px;
+}
 
 .history-re-detail-complete{
   display: none;
@@ -287,7 +309,8 @@ input {
   background-color: #11567b;
   width: 100%;
   border: solid 1px black;
-  border-radius: 5px;
+  box-sizing: border-box;
+  /* border-radius: 5px; */
   display: inline-block;
   color: white;
 }
@@ -298,7 +321,8 @@ input {
   width: 100%;
   color: white;
   border: solid 1px black;
-  border-radius: 5px;
+  box-sizing: border-box;
+  /* border-radius: 5px; */
   text-align: center;
 }
 

@@ -20,7 +20,9 @@ export const pre = {
   // background: "#272822",
   color: "#f8f8f2",
   textShadow: "1px 1px black",
-  overflow: "auto",
+  // overflow: "auto",
   whiteSpace:'pre-wrap',
-  width:'100%'
+  // margin:'0'
+  // width:'100%',
+  
 };
