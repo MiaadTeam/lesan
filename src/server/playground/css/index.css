@@ -223,10 +223,65 @@ input {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  overflow-y: scroll;
-  width: min-content;
+  /* overflow-y: scroll; */
+  /* width: min-content; */
   flex-grow: 1;
-  padding: 0 20px;
+  /* padding: 0 20px; */
+    background-color: #272822;
+}
+
+.response-detail {
+  background-color: #272822;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+  margin: 30px;
+  border: 1px solid white;
+  border-radius: 10px;
+}
+
+.response-detail-title {
+  color: white;
+  background-color: #105a86;
+  /* display: inline-block;
+  width: 100%; */
+  position: relative;
+  margin: 0;
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 10px 10px 0 0;
+}
+
+.response-detail-title-info{
+  padding: 0 10px;
+}
+
+.success {
+  border-radius: 10px;
+  background-color: rgb(51, 169, 77);
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  right: 55px;
+  top: 45px;
+}
+.success[data-success="true"] {
+  background-color: green;
+}
+
+.fail {
+  background-color: rgb(179, 38, 38);
+  border-radius: 10px;
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  right: 55px;
+  top: 45px;
+}
+
+.fail[data-fail="true"] {
+  background-color: red;
 }
 
 .modal-overlay {
@@ -240,24 +295,23 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
- }
+  backdrop-filter: blur(1px);
+}
 
 .modal-box {
   display: block;
-  background: rgb(80, 80, 80,.5);
+  background: rgb(80, 80, 80, 0.5);
   width: 70%;
   height: 70%;
   padding: 1rem;
-  border-radius: .8rem;
+  border-radius: 0.8rem;
   overflow: scroll;
-  backdrop-filter: 10px;
+  backdrop-filter: blur(10px);
+  border: 1px solid white;
+  box-sizing: border-box;
 }
 
-.response-response{
-  background-color: #272822;
-}
-
-.history-detail{
+.history-detail {
   display: flex;
   /* gap: 50px; */
   justify-content: space-between;
@@ -265,19 +319,54 @@ input {
   margin-bottom: 10px;
 }
 
-.history-re{
+.history-re {
   width: 50%;
   background-color: #030712;
 }
 
-.history-re-detail{
+.history-re-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  color: white;
+}
+
+/* .history-re-request-detail{
+  cursor: pointer;
+} */
+
+.history-re-detail-title {
   display: flex;
   color: white;
   /* justify-content: center; */
+  align-items: baseline;
+}
+.history-re-detail-collapse {
+  padding-right: 2.5rem;
+  /* cursor: pointer; */
+}
+.history-re-detail-button {
+  margin-right: 2.5rem;
+  background-color: #2a7e2e;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 5px 10px;
+  display: flex;
+  justify-content: center;
   align-items: center;
+  gap: 10px;
+  cursor: pointer;
 }
 
-.history-re-response-title{
+.history-re-detail-button-icon {
+  width: 10px;
+  display: inline-block;
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+.history-re-response-title {
   display: flex;
   align-items: center;
   padding-left: 15px;
@@ -287,24 +376,24 @@ input {
   padding: 10px 0 6px 10px;
 } */
 
-.history-re-response-title-status{
+.history-re-response-title-status {
   position: relative;
   bottom: 2px;
 }
 
-.history-re-detail-complete{
+.history-re-detail-complete {
   display: none;
 }
 
-.history-re-detail-complete[data-show=true]{
+.history-re-detail-complete[data-show="true"] {
   display: block;
 }
 
-.history-response{
+.history-response {
   background-color: #272822;
 }
 
-.history-re-title{
+.history-re-title {
   text-align: center;
   background-color: #11567b;
   width: 100%;
@@ -315,15 +404,17 @@ input {
   color: white;
 }
 
-.history-title{
+.history-title {
   display: inline-block;
   background-color: #003049;
-  width: 100%;
+  /* width: 100%; */
+  /* position: absolute; */
   color: white;
   border: solid 1px black;
   box-sizing: border-box;
   /* border-radius: 5px; */
   text-align: center;
+  align-self: flex-end;
 }
 
 .no-history {
@@ -334,27 +425,6 @@ input {
   justify-content: center;
   border-radius: 10px;
   padding: 10px;
-}
-
-.success {
-  border-radius: 10px;
-  background-color: rgb(51, 169, 77);
-  width: 15px;
-  height: 15px;
-}
-.success[data-success="true"] {
-  background-color: green;
-}
-
-.fail {
-  background-color: rgb(179, 38, 38);
-  border-radius: 10px;
-  width: 15px;
-  height: 15px;
-}
-
-.fail[data-fail="true"] {
-  background-color: red;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */

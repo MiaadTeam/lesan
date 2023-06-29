@@ -638,9 +638,7 @@ const pre = {
     padding: "10px 15px",
     color: "#f8f8f2",
     textShadow: "1px 1px black",
-    overflow: "auto",
-    whiteSpace: 'pre-wrap',
-    width: '100%'
+    whiteSpace: 'pre-wrap'
 };
 const regEx = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g;
 const syntaxHighlight = (json)=>{
@@ -711,11 +709,77 @@ function useModal() {
         toggle
     };
 }
+function History() {
+    const { history , response , setHistory  } = useLesan();
+    const [show, setShow] = F1("");
+    return Z("div", null, history && history?.length > 0 ? Z("div", {
+        className: "history"
+    }, Z("span", {
+        className: "history-title"
+    }, " HISTORY "), Z("br", null), history.map((hi)=>Z("div", {
+            className: "history-detail",
+            key: hi.id
+        }, Z("section", {
+            className: "history-re"
+        }, Z("span", {
+            className: "history-re-title"
+        }, " REQUEST "), Z("div", {
+            className: "history-re-detail"
+        }, Z("div", {
+            className: "history-re-detail-title"
+        }, Z("div", null, " ", Z(JSONViewer, {
+            jsonData: hi.request.body.wants.model
+        })), Z("span", null, "|"), Z("div", null, Z(JSONViewer, {
+            jsonData: hi.request.body.wants.act
+        }))), show === hi.id ? Z("button", {
+            onClick: ()=>setShow(""),
+            className: "history-re-detail-button"
+        }, "Hide Detail", Z("span", {
+            className: "history-re-detail-button-icon"
+        }, "–")) : Z("button", {
+            onClick: ()=>setShow(hi.id),
+            className: "history-re-detail-button"
+        }, "Show Detail", " ", Z("span", {
+            className: "history-re-detail-button-icon"
+        }, "+"))), Z("div", {
+            className: "history-re-detail-complete",
+            "data-show": show === hi.id
+        }, " ", Z(JSONViewer, {
+            jsonData: hi.request
+        }))), Z("section", {
+            className: "history-re history-response"
+        }, Z("span", {
+            className: "history-re-title"
+        }, " RESPONSE "), Z("div", {
+            className: "history-re-detail"
+        }, Z("div", {
+            className: "history-re-detail-title"
+        }, Z("div", {
+            className: "history-re-response-title"
+        }, " ", Z("span", {
+            className: "history-re-response-title-status"
+        }, "success:"), Z("div", {
+            className: "history-re-response-info"
+        }, Z(JSONViewer, {
+            jsonData: hi.response.success
+        })))), Z("button", {
+            className: "history-re-detail-button"
+        }, "Use", " ", Z("span", {
+            className: "history-re-detail-button-icon"
+        }, "➜", " "))), Z("div", {
+            className: "history-re-detail-complete",
+            "data-show": show
+        }, " ", Z(JSONViewer, {
+            jsonData: hi.response
+        })))))) : Z("span", {
+        className: "no-history"
+    }, '"There is no history to display"'));
+}
 const Page = ()=>{
     const { isOpen , toggle  } = useModal();
     const [success, setSuccess] = F1(false);
     const [fail, setFail] = F1(false);
-    const [show, setShow] = F1(false);
+    const [show, setShow] = F1("");
     setTimeout(()=>{
         setSuccess(!success);
     }, 500);
@@ -973,8 +1037,12 @@ const Page = ()=>{
     }, "send")))), Z("div", {
         className: "response"
     }, response && Z("div", {
-        class: "response-response"
-    }, "The Response is:", Z(JSONViewer, {
+        class: "response-detail"
+    }, Z("p", {
+        className: "response-detail-title"
+    }, "Response"), Z("div", {
+        className: "response-detail-info"
+    }, Z(JSONViewer, {
         jsonData: response
     }), response && response?.success === true ? Z("div", {
         className: "success",
@@ -982,38 +1050,9 @@ const Page = ()=>{
     }) : Z("div", {
         className: "fail",
         "data-fail": fail
-    })), Z("div", null, Z(Modal, {
+    }))), Z(Modal, {
         isOpen: isOpen,
         toggle: toggle
-    }, history && history?.length > 0 ? Z("div", {
-        className: "history"
-    }, Z("span", {
-        className: "history-title"
-    }, " HISTORY :"), Z("br", null), history.map((hi)=>Z("div", {
-            className: "history-detail",
-            key: hi.id
-        }, Z("section", {
-            className: "history-re"
-        }, Z("span", {
-            className: "history-re-title"
-        }, " REQUEST :"), Z("div", {
-            className: "history-re-detail",
-            onClick: ()=>setShow(!show)
-        }, " ", Z(JSONViewer, {
-            jsonData: hi.request.body.wants.act
-        })), Z("div", {
-            className: "history-re-detail-complete",
-            "data-show": show
-        }, " ", Z(JSONViewer, {
-            jsonData: hi.request
-        }))), Z("section", {
-            className: "history-re history-response"
-        }, Z("span", {
-            className: "history-re-title"
-        }, " RESPONSE :"), Z(JSONViewer, {
-            jsonData: hi.response
-        }))))) : Z("span", {
-        className: "no-history"
-    }, '"There is no history to display"')))));
+    }, Z(History, null))));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));

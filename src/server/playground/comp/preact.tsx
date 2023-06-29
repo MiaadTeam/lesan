@@ -10,12 +10,13 @@ import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 
 import Modal from "./Modal.tsx";
 import useModal from "./useModal.tsx";
+import { History } from "./History.tsx";
 
 export const Page = () => {
   const { isOpen, toggle } = useModal();
   const [success, setSuccess] = useState(false);
   const [fail, setFail] = useState(false);
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState("");
 
   setTimeout(() => {
     setSuccess(!success);
@@ -362,93 +363,21 @@ export const Page = () => {
 
       <div className="response">
         {response && (
-          <div class="response-response">
-            The Response is:
-            <JSONViewer jsonData={response} />
-            {response && response?.success === true ? (
-              <div className="success" data-success={success}></div>
-            ) : (
-              <div className="fail" data-fail={fail}></div>
-            )}
-            {/* {JSON.stringify(response, null, 2)} */}
+          <div class="response-detail">
+            <p className="response-detail-title">Response</p>
+            <div className="response-detail-info">
+              <JSONViewer jsonData={response} />
+              {response && response?.success === true ? (
+                <div className="success" data-success={success}></div>
+              ) : (
+                <div className="fail" data-fail={fail}></div>
+              )}
+            </div>
           </div>
         )}
-        <div>
-          <Modal isOpen={isOpen} toggle={toggle}>
-            {history && history?.length > 0 ? (
-              <div className="history">
-                {/* <br />
-                <hr />
-                <br /> */}
-                <span className="history-title"> HISTORY </span>
-                <br />
-                {history.map((hi) => (
-                  <div className="history-detail" key={hi.id}>
-                    <section className="history-re">
-                      <span className="history-re-title"> REQUEST </span>
-                      <div
-                        className="history-re-detail"
-                        onClick={() => setShow(!show)}
-                      >
-                        <div>
-                          {" "}
-                          <JSONViewer
-                            jsonData={(hi.request.body as any).wants.model}
-                          />
-                        </div>
-                        <span>/</span>
-                        <div>
-                          <JSONViewer
-                            jsonData={(hi.request.body as any).wants.act}
-                          />
-                        </div>
-                        {show==false ? <span>+</span> : <span>-</span>}
-                      </div>
-
-                      <div
-                        className="history-re-detail-complete"
-                        data-show={show}
-                      >
-                        {" "}
-                        <JSONViewer jsonData={hi.request} />
-                      </div>
-                      {/* <div>{hi.request}</div> */}
-                    </section>
-                    <section className="history-re history-response">
-                      <span className="history-re-title"> RESPONSE </span>
-                      <div
-                        className="history-re-detail"
-                        onClick={() => setShow(!show)}
-                      >
-                        <div className="history-re-response-title">
-                          {" "}
-                          <span className="history-re-response-title-status">success:</span>
-                          <div className="history-re-response-info">
-                            <JSONViewer jsonData={hi.response.success} />
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        className="history-re-detail-complete"
-                        data-show={show}
-                      >
-                        {" "}
-                        <JSONViewer jsonData={hi.response} />
-                      </div>
-                    </section>
-                    {/* <br />
-                      <hr />
-                      <br /> */}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <span className="no-history">
-                "There is no history to display"
-              </span>
-            )}
-          </Modal>
-        </div>
+        <Modal isOpen={isOpen} toggle={toggle}>
+          <History />
+        </Modal>
       </div>
     </div>
   );
