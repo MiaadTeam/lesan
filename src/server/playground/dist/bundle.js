@@ -690,25 +690,6 @@ const JSONViewer = ({ jsonData  })=>{
         }
     }));
 };
-function Modal(props) {
-    return Z(N, null, props.isOpen && Z("div", {
-        className: "modal-overlay",
-        onClick: props.toggle
-    }, Z("div", {
-        className: "modal-box",
-        onClick: (e)=>e.stopPropagation()
-    }, props.children)));
-}
-function useModal() {
-    const [isOpen, setisOpen] = F1(false);
-    const toggle = ()=>{
-        setisOpen(!isOpen);
-    };
-    return {
-        isOpen,
-        toggle
-    };
-}
 function History() {
     const { history , response , setHistory  } = useLesan();
     const [show, setShow] = F1("");
@@ -775,17 +756,30 @@ function History() {
         className: "no-history"
     }, '"There is no history to display"'));
 }
+function Modal(props) {
+    return Z(N, null, props.isOpen && Z("div", {
+        className: "modal-overlay",
+        onClick: props.toggle
+    }, Z("div", {
+        className: "modal-box",
+        onClick: (e)=>e.stopPropagation()
+    }, props.children)));
+}
+function useModal() {
+    const [isOpen, setisOpen] = F1(false);
+    const toggle = ()=>{
+        setisOpen(!isOpen);
+    };
+    return {
+        isOpen,
+        toggle
+    };
+}
 const Page = ()=>{
     const { isOpen , toggle  } = useModal();
     const [success, setSuccess] = F1(false);
     const [fail, setFail] = F1(false);
     const [show, setShow] = F1("");
-    setTimeout(()=>{
-        setSuccess(!success);
-    }, 500);
-    setTimeout(()=>{
-        setFail(!fail);
-    }, 500);
     const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHeader , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
     const [actsObj, setActsObj] = F1({});
     const [schemasObj, setSchemasObj] = F1({});

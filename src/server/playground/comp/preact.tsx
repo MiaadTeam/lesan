@@ -8,9 +8,9 @@ import {
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 
+import { History } from "./History.tsx";
 import Modal from "./Modal.tsx";
 import useModal from "./useModal.tsx";
-import { History } from "./History.tsx";
 
 export const Page = () => {
   const { isOpen, toggle } = useModal();
@@ -18,13 +18,13 @@ export const Page = () => {
   const [fail, setFail] = useState(false);
   const [show, setShow] = useState("");
 
-  setTimeout(() => {
-    setSuccess(!success);
-  }, 500);
-
-  setTimeout(() => {
-    setFail(!fail);
-  }, 500);
+  /* setTimeout(() => { */
+  /*   setSuccess(!success); */
+  /* }, 500); */
+  /**/
+  /* setTimeout(() => { */
+  /*   setFail(!fail); */
+  /* }, 500); */
 
   const {
     act,
@@ -54,7 +54,7 @@ export const Page = () => {
   const [actsObj, setActsObj] = useState({});
   const [schemasObj, setSchemasObj] = useState({});
   const [urlAddress, setUrlAddress] = useState(
-    window && window.location ? window.location.href : "http://localhost:1366"
+    window && window.location ? window.location.href : "http://localhost:1366",
   );
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -70,7 +70,7 @@ export const Page = () => {
     });
   }, []);
 
-  const uid = function () {
+  const uid = function() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
@@ -78,12 +78,11 @@ export const Page = () => {
     const { name, value, type, alt } = event.target;
     setFormData({
       ...formData,
-      [name]:
-        type === "number"
-          ? Number(value)
-          : alt === "array" || alt === "boolean"
-          ? JSON.parse(value)
-          : value,
+      [name]: type === "number"
+        ? Number(value)
+        : alt === "array" || alt === "boolean"
+        ? JSON.parse(value)
+        : value,
     });
   };
 
@@ -148,31 +147,33 @@ export const Page = () => {
     <div style={{ marginLeft: `${margin + 10}px` }}>
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item) =>
-        getField["schema"][item].type === "enums" ? (
-          <div className="input-cnt" key={item}>
-            <label htmlFor={item}>{item}:</label>
-            <input
-              placeholder={`${keyName}.${item}`}
-              type="number"
-              id={`${keyName}.${item}`}
-              value={formData[`get.${keyName}.${item}`]}
-              name={`get.${keyName}.${item}`}
-              onChange={handleChange}
-            />
-          </div>
-        ) : (
-          renderGetFields(
-            getField["schema"][item],
-            `${keyName}.${item}`,
-            margin + 10
+        getField["schema"][item].type === "enums"
+          ? (
+            <div className="input-cnt" key={item}>
+              <label htmlFor={item}>{item}:</label>
+              <input
+                placeholder={`${keyName}.${item}`}
+                type="number"
+                id={`${keyName}.${item}`}
+                value={formData[`get.${keyName}.${item}`]}
+                name={`get.${keyName}.${item}`}
+                onChange={handleChange}
+              />
+            </div>
           )
-        )
+          : (
+            renderGetFields(
+              getField["schema"][item],
+              `${keyName}.${item}`,
+              margin + 10,
+            )
+          )
       )}
     </div>
   );
 
-  const canShowContent =
-    service && method && schema && postFields && getFields && act;
+  const canShowContent = service && method && schema && postFields &&
+    getFields && act;
 
   const canShowSchema = service && method;
 
@@ -273,8 +274,8 @@ export const Page = () => {
             <option value=""></option>
             {canShowSchema
               ? Object.keys((actsObj as any)[service][method]).map((schema) => (
-                  <option value={schema}>{schema}</option>
-                ))
+                <option value={schema}>{schema}</option>
+              ))
               : null}
           </select>
         </div>
@@ -299,8 +300,8 @@ export const Page = () => {
             <option value=""></option>
             {canShowAct
               ? Object.keys((actsObj as any)[service][method][schema]).map(
-                  (schema) => <option value={schema}>{schema}</option>
-                )
+                (schema) => <option value={schema}>{schema}</option>,
+              )
               : null}
           </select>
         </div>
@@ -324,9 +325,9 @@ export const Page = () => {
                   id={item}
                   value={formData[`set.${item}`]}
                   name={`set.${item}`}
-                  type={
-                    postFields[item]["type"] === "number" ? "number" : "string"
-                  }
+                  type={postFields[item]["type"] === "number"
+                    ? "number"
+                    : "string"}
                   alt={postFields[item]["type"]}
                   onChange={handleChange}
                 />
@@ -336,21 +337,23 @@ export const Page = () => {
               GET fields
             </div>
             {Object.keys(getFields).map((item) =>
-              getFields[item].type === "enums" ? (
-                <div className="input-cnt">
-                  <label htmlFor={item}>{item}:</label>
-                  <input
-                    placeholder={item}
-                    id={item}
-                    value={formData[`get.${item}`]}
-                    name={`get.${item}`}
-                    type="number"
-                    onChange={handleChange}
-                  />
-                </div>
-              ) : (
-                renderGetFields(getFields[item], item, 0)
-              )
+              getFields[item].type === "enums"
+                ? (
+                  <div className="input-cnt">
+                    <label htmlFor={item}>{item}:</label>
+                    <input
+                      placeholder={item}
+                      id={item}
+                      value={formData[`get.${item}`]}
+                      name={`get.${item}`}
+                      type="number"
+                      onChange={handleChange}
+                    />
+                  </div>
+                )
+                : (
+                  renderGetFields(getFields[item], item, 0)
+                )
             )}
             <div className="cnt--btn-send">
               <button className="btn btn--send" type="submit">
@@ -367,11 +370,9 @@ export const Page = () => {
             <p className="response-detail-title">Response</p>
             <div className="response-detail-info">
               <JSONViewer jsonData={response} />
-              {response && response?.success === true ? (
-                <div className="success" data-success={success}></div>
-              ) : (
-                <div className="fail" data-fail={fail}></div>
-              )}
+              {response && response?.success === true
+                ? <div className="success" data-success={success}></div>
+                : <div className="fail" data-fail={fail}></div>}
             </div>
           </div>
         )}
