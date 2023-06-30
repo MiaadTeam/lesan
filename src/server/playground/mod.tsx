@@ -10,38 +10,38 @@ const getCSSFile = async () => {
   });
 };
 
+const getClientReact = async () => {
+  const url = new URL("./hydrate.tsx", import.meta.url);
+  const result = await bundle(url, {
+    compilerOptions: { sourceMap: false },
+  });
+  const { code } = result;
+
+  return new Response(code, {
+    headers: { "content-type": "application/javascript" },
+  });
+};
+
+const getJSFile = async () => {
+  const getBundle = async () => {
+    const url = new URL("./dist/bundle.js", import.meta.url);
+    const data = await Deno.readTextFile(url);
+    return new Response(data, {
+      headers: { "content-type": "application/javascript" },
+    });
+  };
+
+  return Deno.env.get("PLAYENV") === "development"
+    ? await getClientReact()
+    : await getBundle();
+};
+
 export const runPlayground = async (
   request: Request,
   schemasObj: ISchema,
   actsObj: Services,
   port: number,
 ) => {
-  const getClientReact = async () => {
-    const url = new URL("./hydrate.tsx", import.meta.url);
-    const result = await bundle(url, {
-      compilerOptions: { sourceMap: false },
-    });
-    const { code } = result;
-
-    return new Response(code, {
-      headers: { "content-type": "application/javascript" },
-    });
-  };
-
-  const getJSFile = async () => {
-    const getBundle = async () => {
-      const url = new URL("./dist/bundle.js", import.meta.url);
-      const data = await Deno.readTextFile(url);
-      return new Response(data, {
-        headers: { "content-type": "application/javascript" },
-      });
-    };
-
-    return Deno.env.get("PLAYEND") === "development"
-      ? await getBundle()
-      : await getClientReact();
-  };
-
   const getSchemas = () => {
     return new Response(
       JSON.stringify({ schemas: schemasObj, acts: actsObj }),
