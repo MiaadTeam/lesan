@@ -367,8 +367,7 @@ export const Page = () => {
         )}
 
         {isOpen && (
-          <Modal toggle={toggle}>
-            <span className="modal-title">HISTORY</span>
+          <Modal toggle={toggle} title="HISTORY">
             <History />
           </Modal>
         )}

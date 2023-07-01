@@ -720,7 +720,7 @@ function History() {
         }, "–")) : Z("button", {
             onClick: ()=>setShow(hi.id),
             className: "history-re-detail-button"
-        }, "Show ", " ", Z("span", {
+        }, "Show", " ", Z("span", {
             className: "history-re-detail-button-icon"
         }, "+"))), Z("div", {
             className: "history-re-detail-complete",
@@ -1038,8 +1038,7 @@ const Page = ()=>{
     }), response && response?.success === true ? Z("div", {
         className: "success"
     }) : Z("div", {
-        className: "fail",
-        "data-fail": fail
+        className: "fail"
     }))), isOpen && Z(Modal, {
         toggle: toggle
     }, Z("span", {
