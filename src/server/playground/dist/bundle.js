@@ -715,12 +715,12 @@ function History() {
         }))), show === hi.id ? Z("button", {
             onClick: ()=>setShow(""),
             className: "history-re-detail-button"
-        }, "Hide Detail", Z("span", {
+        }, "Hide", Z("span", {
             className: "history-re-detail-button-icon"
         }, "–")) : Z("button", {
             onClick: ()=>setShow(hi.id),
             className: "history-re-detail-button"
-        }, "Show Detail", " ", Z("span", {
+        }, "Show ", " ", Z("span", {
             className: "history-re-detail-button-icon"
         }, "+"))), Z("div", {
             className: "history-re-detail-complete",
@@ -749,7 +749,7 @@ function History() {
             className: "history-re-detail-button-icon"
         }, "➜", " "))), Z("div", {
             className: "history-re-detail-complete",
-            "data-show": show
+            "data-show": show === hi.id
         }, " ", Z(JSONViewer, {
             jsonData: hi.response
         })))))) : Z("span", {
@@ -777,9 +777,6 @@ function useModal() {
 }
 const Page = ()=>{
     const { isOpen , toggle  } = useModal();
-    const [success, setSuccess] = F1(false);
-    const [fail, setFail] = F1(false);
-    const [show, setShow] = F1("");
     const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHeader , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
     const [actsObj, setActsObj] = F1({});
     const [schemasObj, setSchemasObj] = F1({});
@@ -1039,11 +1036,9 @@ const Page = ()=>{
     }, Z(JSONViewer, {
         jsonData: response
     }), response && response?.success === true ? Z("div", {
-        className: "success",
-        "data-success": success
+        className: "success"
     }) : Z("div", {
-        className: "fail",
-        "data-fail": fail
+        className: "fail"
     }))), Z(Modal, {
         isOpen: isOpen,
         toggle: toggle

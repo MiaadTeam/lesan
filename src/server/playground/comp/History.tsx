@@ -39,7 +39,7 @@ export function History() {
                       onClick={() => setShow("")}
                       className="history-re-detail-button"
                     >
-                      Hide Detail
+                      Hide 
                       <span className="history-re-detail-button-icon">
                         &#8211;
                       </span>
@@ -49,7 +49,7 @@ export function History() {
                       onClick={() => setShow(hi.id)}
                       className="history-re-detail-button"
                     >
-                      Show Detail{" "}
+                      Show {" "}
                       <span className="history-re-detail-button-icon">
                         &#43;
                       </span>
@@ -85,7 +85,7 @@ export function History() {
                     </span>
                   </button>
                 </div>
-                <div className="history-re-detail-complete" data-show={show}>
+                <div className="history-re-detail-complete" data-show={show===hi.id}>
                   {" "}
                   <JSONViewer jsonData={hi.response} />
                 </div>

@@ -14,18 +14,7 @@ import useModal from "./useModal.tsx";
 
 export const Page = () => {
   const { isOpen, toggle } = useModal();
-  const [success, setSuccess] = useState(false);
-  const [fail, setFail] = useState(false);
-  const [show, setShow] = useState("");
-
-  /* setTimeout(() => { */
-  /*   setSuccess(!success); */
-  /* }, 500); */
-  /**/
-  /* setTimeout(() => { */
-  /*   setFail(!fail); */
-  /* }, 500); */
-
+  
   const {
     act,
     formData,
@@ -371,8 +360,8 @@ export const Page = () => {
             <div className="response-detail-info">
               <JSONViewer jsonData={response} />
               {response && response?.success === true
-                ? <div className="success" data-success={success}></div>
-                : <div className="fail" data-fail={fail}></div>}
+                ? <div className="success"></div>
+                : <div className="fail"></div>}
             </div>
           </div>
         )}

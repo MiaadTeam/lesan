@@ -265,24 +265,35 @@ input {
   position: absolute;
   right: 55px;
   top: 45px;
-}
-.success[data-success="true"] {
-  background-color: green;
+  animation-name: success;
+  animation-duration: 800ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
 }
 
+  @keyframes success {
+    from {background-color: rgb(51, 169, 77)}
+    to {background-color:rgb(255, 255, 255)}
+  }
+
 .fail {
-  background-color: rgb(179, 38, 38);
+  background-color: rgb(255, 255, 255);
   border-radius: 10px;
   width: 15px;
   height: 15px;
   position: absolute;
   right: 55px;
   top: 45px;
+  animation-name: fail;
+  animation-duration: 800ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
 }
 
-.fail[data-fail="true"] {
-  background-color: red;
-}
+  @keyframes fail {
+    from {background-color:rgb(255, 255, 255)}
+    to {background-color: red}
+  }
 
 .modal-overlay {
   z-index: 9999;
