@@ -693,18 +693,18 @@ const JSONViewer = ({ jsonData  })=>{
 function History() {
     const { history , response , setHistory  } = useLesan();
     const [show, setShow] = F1("");
-    return Z("div", null, history && history?.length > 0 ? Z("div", {
+    return Z("div", {
+        className: "modal-content"
+    }, history && history?.length > 0 ? Z("div", {
         className: "history"
-    }, Z("span", {
-        className: "history-title"
-    }, " HISTORY "), Z("br", null), history.map((hi)=>Z("div", {
+    }, Z("br", null), history.map((hi)=>Z("div", {
             className: "history-detail",
             key: hi.id
         }, Z("section", {
             className: "history-re"
         }, Z("span", {
             className: "history-re-title"
-        }, " REQUEST "), Z("div", {
+        }, "REQUEST"), Z("div", {
             className: "history-re-detail"
         }, Z("div", {
             className: "history-re-detail-title"
@@ -731,7 +731,7 @@ function History() {
             className: "history-re history-response"
         }, Z("span", {
             className: "history-re-title"
-        }, " RESPONSE "), Z("div", {
+        }, "RESPONSE"), Z("div", {
             className: "history-re-detail"
         }, Z("div", {
             className: "history-re-detail-title"
@@ -757,13 +757,13 @@ function History() {
     }, '"There is no history to display"'));
 }
 function Modal(props) {
-    return Z(N, null, props.isOpen && Z("div", {
+    return Z("div", {
         className: "modal-overlay",
         onClick: props.toggle
     }, Z("div", {
         className: "modal-box",
         onClick: (e)=>e.stopPropagation()
-    }, props.children)));
+    }, props.children));
 }
 function useModal() {
     const [isOpen, setisOpen] = F1(false);
@@ -1038,10 +1038,12 @@ const Page = ()=>{
     }), response && response?.success === true ? Z("div", {
         className: "success"
     }) : Z("div", {
-        className: "fail"
-    }))), Z(Modal, {
-        isOpen: isOpen,
+        className: "fail",
+        "data-fail": fail
+    }))), isOpen && Z(Modal, {
         toggle: toggle
-    }, Z(History, null))));
+    }, Z("span", {
+        className: "modal-title"
+    }, "HISTORY"), Z(History, null))));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));
