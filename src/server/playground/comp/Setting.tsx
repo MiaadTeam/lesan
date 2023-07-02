@@ -33,8 +33,12 @@ export function Setting() {
     <div className="setting">
       <div className="url">
         <p className="url-title">Set Url</p>
-        <input className="url-input" type="text" placeholder="Add Url"  />
-        <button className=" btn url-button">Apply</button>
+        <input
+          className="url-input"
+          placeholder="Set URL"
+
+        />
+        <button className="btn url-button">Apply</button>
       </div>
       <div className="sidebar__section sidebar__section--headers">
         <div className="sidebar__section-heading">set headers</div>

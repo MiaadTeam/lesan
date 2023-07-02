@@ -90,6 +90,7 @@ input {
   width: 20%;
   padding: 0.5% 1.5%;
   box-sizing: border-box;
+  border-right: 1px solid slategrey;
 }
 
 .sidebar__section {
@@ -163,6 +164,13 @@ input {
   margin-left: 15px;
   background-color: var(--color-colonial-2);
   color: white;
+}
+
+.btn-modal{
+  width: 100%;
+  margin-bottom:10px ;
+  /* background-color: ; */
+  font-size: 17px;
 }
 /* -------------------------------------------------------------------------- */
 

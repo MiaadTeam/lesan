@@ -259,10 +259,10 @@ export const Page = () => {
               : null}
           </select>
         </div>
-        <div>
+        <div className="">
           {" "}
           <button
-            className="btn btn--send"
+            className="btn btn-modal"
             onClick={() => {
               setActive("History"), toggle();
             }}
@@ -271,7 +271,7 @@ export const Page = () => {
             History{" "}
           </button>
           <button
-            className="btn btn--send"
+            className="btn btn-modal"
             onClick={() => {
               setActive("Setting"), toggle();
             }}
@@ -279,10 +279,20 @@ export const Page = () => {
             {/* {console.log(active)} */}
             Setting
           </button>
-          <button className="btn btn--send" onClick={()=>{setActive('Graph'),toggle()}}>
+          <button
+            className="btn btn-modal"
+            onClick={() => {
+              setActive("Graph"), toggle();
+            }}
+          >
             Graph
           </button>
-          <button className="btn btn--send" onClick={()=>{setActive('E2E Test'),toggle()}}>
+          <button
+            className="btn btn-modal"
+            onClick={() => {
+              setActive("E2E Test"), toggle();
+            }}
+          >
             E2E Test
           </button>
         </div>
@@ -363,9 +373,7 @@ export const Page = () => {
             ) : (
               ""
             )}
-            {/* section1 */}
 
-            {/* section2 */}
             {/* <div className="sidebar__section sidebar__section--headers">
               <div className="sidebar__section-heading">set headers</div>
               {Object.entries(headers).map(([objKey, objValue]) => (
