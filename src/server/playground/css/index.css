@@ -97,7 +97,6 @@ input {
   margin-bottom: 10px;
 }
 
-
 .sidebar__section-heading {
   color: white;
   text-transform: capitalize;
@@ -145,6 +144,26 @@ input {
   width: 100%;
 }
 
+.url{
+  margin-bottom: 15px;
+}
+
+.url-title{
+  color: white;
+  border-bottom: 1px solid white;
+}
+
+.url-input{
+  width: 75%;
+}
+
+.url-button{
+  width: 20%;
+  height: 31px;
+  margin-left: 15px;
+  background-color: var(--color-colonial-2);
+  color: white;
+}
 /* -------------------------------------------------------------------------- */
 
 .sidebar--fields {
@@ -434,7 +453,7 @@ input {
 }
 
 .no-history {
-  background-color: #06d6a0;
+  background-color: lightslategrey;
   font-size: 1.5rem;
   margin: 250px 10px;
   display: flex;

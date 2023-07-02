@@ -279,6 +279,12 @@ export const Page = () => {
             {/* {console.log(active)} */}
             Setting
           </button>
+          <button className="btn btn--send" onClick={()=>{setActive('Graph'),toggle()}}>
+            Graph
+          </button>
+          <button className="btn btn--send" onClick={()=>{setActive('E2E Test'),toggle()}}>
+            E2E Test
+          </button>
         </div>
       </div>
 
