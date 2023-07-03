@@ -72,9 +72,16 @@ label {
 input {
   padding: 5px 10px;
   border-radius: 5px;
-  border: 1px solid white;
+  border: 2px solid white;
   margin: 10px 0;
   font-size: 1rem;
+  box-sizing: border-box;
+}
+
+input:focus{
+  outline: none;
+  border: 2px solid rgb(16, 182, 182);
+  border-radius: 5px;
 }
 
 .cnt {
@@ -85,6 +92,7 @@ input {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   height: 100vh;
   background-color: var(--color-gray-3);
   width: 20%;
@@ -93,8 +101,12 @@ input {
   border-right: 1px solid slategrey;
 }
 
-.sidebar__section {
+.sections {
   width: 100%;
+}
+
+.sidebar__section {
+  /* width: 100%; */
   margin-bottom: 10px;
 }
 
@@ -110,7 +122,7 @@ input {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: '';
+  content: "";
   height: 2px;
   width: 100%;
   background-color: white;
@@ -145,20 +157,25 @@ input {
   width: 100%;
 }
 
-.url{
+.url {
   margin-bottom: 15px;
 }
 
-.url-title{
+.url-title {
   color: white;
   border-bottom: 1px solid white;
 }
 
-.url-input{
+.url-detail {
+  display: flex;
+  align-items: center;
+}
+
+.url-input {
   width: 75%;
 }
 
-.url-button{
+.url-button {
   width: 20%;
   height: 31px;
   margin-left: 15px;
@@ -166,11 +183,24 @@ input {
   color: white;
 }
 
-.btn-modal{
+.btn-modal {
   width: 100%;
-  margin-bottom:10px ;
+  margin-bottom: 10px;
   /* background-color: ; */
   font-size: 17px;
+  background-color: teal;
+}
+
+.btn-modal-2 {
+  background-color: steelblue;
+}
+
+.btn-modal-3 {
+  background-color: lightseagreen;
+}
+
+.btn-modal-4 {
+  background-color: cadetblue;
 }
 /* -------------------------------------------------------------------------- */
 
@@ -287,25 +317,32 @@ input {
 
 .success {
   border-radius: 10px;
-  background-color: rgb(51, 169, 77);
+background-color: rgb(255, 255, 255);
+  /* background-color: rgb(51, 169, 77); */
   width: 15px;
   height: 15px;
   position: absolute;
   right: 55px;
   top: 45px;
   animation-name: success;
-  animation-duration: 800ms;
+  animation-duration: 1s;
   animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
+  animation-timing-function: cubic-bezier(.45, .05, .55, .95);
 }
 
-  @keyframes success {
-    from {background-color: rgb(51, 169, 77)}
-    to {background-color:rgb(255, 255, 255)}
+@keyframes success {
+     0% {
+    background-color:  rgb(255, 255, 255);
   }
 
+  50% {
+    background-color: green;
+  }
+
+}
+
 .fail {
-  background-color: rgb(255, 255, 255);
+  background-color:  rgb(255, 255, 255);
   border-radius: 10px;
   width: 15px;
   height: 15px;
@@ -315,13 +352,27 @@ input {
   animation-name: fail;
   animation-duration: 800ms;
   animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
+  animation-timing-function: cubic-bezier(.45, .05, .55, .95);
 }
 
-  @keyframes fail {
-    from {background-color:rgb(255, 255, 255)}
-    to {background-color: red}
+@keyframes fail {
+
+     0% {
+    background-color:  rgb(255, 255, 255);
   }
+
+  50% {
+    background-color: red;
+  }
+     70% {
+    background-color:  rgb(255, 255, 255);
+  } 
+   100% {
+    background-color:  rgb(255, 255, 255);
+  } 
+
+
+}
 
 .modal-overlay {
   z-index: 9999;
@@ -427,7 +478,7 @@ input {
   display: none;
 }
 
-.history-re-detail-complete[data-show='true'] {
+.history-re-detail-complete[data-show="true"] {
   display: block;
 }
 
