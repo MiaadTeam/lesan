@@ -1,33 +1,15 @@
 /** @jsx h */
 import { h } from "https://esm.sh/preact@10.5.15";
-import { Fragment } from "https://esm.sh/preact@10.5.15";
-import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
+import { useState } from "https://esm.sh/preact@10.5.15/hooks";
+import { useLesan } from "./ManagedLesanContext.tsx";
 
-export function Setting() {
-  const {
-    act,
-    formData,
-    getFields,
-    headers,
-    history,
-    method,
-    postFields,
-    response,
-    schema,
-    service,
-    setService,
-    setMethod,
-    setSchema,
-    setAct,
-    setPostFields,
-    setGetFields,
-    setFormData,
-    setHeader,
-    setHistory,
-    setResponse,
-    resetGetFields,
-    resetPostFields,
-  } = useLesan();
+export function Setting({
+  configUrl,
+}: {
+  configUrl: (address: string) => void;
+}) {
+  const { headers, setHeader } = useLesan();
+  const [urlAddress, setUrlAddress] = useState("");
 
   return (
     <div className="setting">
