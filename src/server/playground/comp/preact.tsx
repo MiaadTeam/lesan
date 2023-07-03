@@ -14,7 +14,7 @@ import { Setting } from "./Setting.tsx";
 import useModal from "./useModal.tsx";
 
 export const Page = () => {
-  const { isOpen, toggle } = useModal();
+  const { isOpen, toggleModal } = useModal();
 
   const {
     act,
@@ -34,7 +34,6 @@ export const Page = () => {
     setPostFields,
     setGetFields,
     setFormData,
-    setHeader,
     setHistory,
     setResponse,
     resetGetFields,
@@ -50,15 +49,47 @@ export const Page = () => {
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    setUrlAddress(window.location.href);
+  const configUrl = (address: string) => {
+    setUrlAddress(address);
 
-    fetch(`${urlAddress}static/get/schemas`).then((value) => {
+    setService("");
+    setMethod("");
+    setSchema("");
+    resetGetFields();
+    resetPostFields();
+    setFormData({});
+
+    fetch(`${address}static/get/schemas`).then((value) => {
       value.json().then(({ schemas, acts }) => {
         setActsObj(acts);
         setSchemasObj(schemas);
       });
     });
+  };
+
+  const setFormFromHistory = (request: any) => {
+    setService(request.body.service);
+    setMethod(request.body.contents);
+    setSchema(request.body.wants.model);
+    setAct(request.body.wants.act);
+
+    const actObj =
+      (actsObj as any)[request.body.service][request.body.contents][
+        request.body.wants.model
+      ][
+        request.body.wants.act
+      ]["validator"]["schema"];
+
+    setGetFields(actObj["get"]["schema"]);
+    setPostFields(actObj["set"]["schema"]);
+
+    setResponse(null);
+
+    toggleModal();
+  };
+
+  useEffect(() => {
+    configUrl(window.location.href);
   }, []);
 
   const uid = function() {
@@ -260,25 +291,45 @@ export const Page = () => {
               : null}
           </select>
         </div>
-        <div>
+        <div className="">
           {" "}
           <button
-            className="btn btn--send"
+            className="btn btn-modal"
             onClick={() => {
-              setActive("History"), toggle();
+              setActive("History");
+              toggleModal();
             }}
           >
             {" "}
             History{" "}
           </button>
           <button
-            className="btn btn--send"
+            className="btn btn-modal"
             onClick={() => {
-              setActive("Setting"), toggle();
+              setActive("Setting");
+              toggleModal();
             }}
           >
             {/* {console.log(active)} */}
             Setting
+          </button>
+          <button
+            className="btn btn-modal"
+            onClick={() => {
+              setActive("Graph");
+              toggleModal();
+            }}
+          >
+            Graph
+          </button>
+          <button
+            className="btn btn-modal"
+            onClick={() => {
+              setActive("E2E Test");
+              toggleModal();
+            }}
+          >
+            E2E Test
           </button>
         </div>
       </div>
@@ -305,10 +356,9 @@ export const Page = () => {
                       }}
                     >
                       <option value=""></option>
-                      {Object.keys((postFields)[item]["schema"])
-                        .map(
-                          (schema) => <option value={schema}>{schema}</option>,
-                        )}
+                      {Object.keys(postFields[item]["schema"]).map((schema) => (
+                        <option value={schema}>{schema}</option>
+                      ))}
                     </select>
                   )
                   : (
@@ -371,55 +421,14 @@ export const Page = () => {
         )}
 
         {isOpen && (
-          <Modal toggle={toggle} title={active}>
+          <Modal toggle={toggleModal} title={active}>
             {active === "History"
-              ? <History />
+              ? <History setFormFromHistory={setFormFromHistory} />
               : active === "Setting"
-              ? <Setting />
+              ? <Setting configUrl={configUrl} />
               : (
                 ""
               )}
-            {/* section1 */}
-
-            {/* section2 */}
-            {
-              /* <div className="sidebar__section sidebar__section--headers">
-              <div className="sidebar__section-heading">set headers</div>
-              {Object.entries(headers).map(([objKey, objValue]) => (
-                <div className="sidebar__input-double" key={objKey}>
-                  <input
-                    placeholder={objKey}
-                    id={objKey}
-                    value={objKey}
-                    name={objKey}
-                    onChange={(e: any) => {
-                      objKey = e.target.value;
-                    }}
-                  />
-                  <input
-                    placeholder={objValue}
-                    id={objValue}
-                    value={objValue}
-                    name={objValue}
-                    onChange={(e: any) => {
-                      objValue = e.target.value;
-                    }}
-                  />
-                  <button
-                    className="btn btn--add"
-                    onClick={() => {
-                      setHeader({
-                        ...headers,
-                        [objKey]: objValue,
-                      });
-                    }}
-                  >
-                    add +
-                  </button>
-                </div>
-              ))}
-            </div> */
-            }
           </Modal>
         )}
       </div>

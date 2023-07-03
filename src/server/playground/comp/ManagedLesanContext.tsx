@@ -73,7 +73,7 @@ interface IState {
   setFormData: (payload: any) => void;
   setHeader: (payload: TObjectArray<string>) => void;
   setHistory: (payload: THistory[]) => void;
-  setResponse: (payload: TResponse) => void;
+  setResponse: (payload: TResponse | null) => void;
 }
 
 type TAction =
@@ -123,7 +123,7 @@ type TAction =
   }
   | {
     type: ACTION_TYPE.SET_RESPONSE;
-    payload: TResponse;
+    payload: TResponse | null;
   };
 /* -------------------------- Type Definitions End -------------------------- */
 
