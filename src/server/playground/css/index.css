@@ -189,6 +189,7 @@ input:focus{
   /* background-color: ; */
   font-size: 17px;
   background-color: teal;
+  cursor: pointer;
 }
 
 .btn-modal-2 {
