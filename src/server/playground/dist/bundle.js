@@ -690,7 +690,7 @@ const JSONViewer = ({ jsonData  })=>{
         }
     }));
 };
-function History() {
+function History({ setFormFromHistory  }) {
     const { history , response , setHistory  } = useLesan();
     const [show, setShow] = F1("");
     return Z("div", {
@@ -744,6 +744,7 @@ function History() {
         }, Z(JSONViewer, {
             jsonData: hi.response.success
         })))), Z("button", {
+            onClick: ()=>setFormFromHistory(hi.request),
             className: "history-re-detail-button"
         }, "Use", " ", Z("span", {
             className: "history-re-detail-button-icon"
@@ -769,18 +770,9 @@ function Modal(props) {
         className: "modal-content"
     }, props.children)));
 }
-function useModal() {
-    const [isOpen, setisOpen] = F1(false);
-    const toggle = ()=>{
-        setisOpen(!isOpen);
-    };
-    return {
-        isOpen,
-        toggle
-    };
-}
-function Setting() {
-    const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHeader , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
+function Setting({ configUrl  }) {
+    const { headers , setHeader  } = useLesan();
+    const [urlAddress, setUrlAddress] = F1("");
     return Z("div", {
         className: "setting"
     }, Z("div", {
@@ -827,22 +819,52 @@ function Setting() {
             }
         }, "add +")))));
 }
+function useModal() {
+    const [isOpen, setisOpen] = F1(false);
+    const toggleModal = ()=>{
+        setisOpen(!isOpen);
+    };
+    return {
+        isOpen,
+        toggleModal
+    };
+}
 const Page = ()=>{
-    const { isOpen , toggle  } = useModal();
-    const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHeader , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
+    const { isOpen , toggleModal  } = useModal();
+    const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
     const [active, setActive] = F1("");
     const [actsObj, setActsObj] = F1({});
     const [schemasObj, setSchemasObj] = F1({});
     const [urlAddress, setUrlAddress] = F1(window && window.location ? window.location.href : "http://localhost:1366");
     const formRef = V1(null);
-    T1(()=>{
-        setUrlAddress(window.location.href);
-        fetch(`${urlAddress}static/get/schemas`).then((value)=>{
+    const configUrl = (address)=>{
+        setUrlAddress(address);
+        setService("");
+        setMethod("");
+        setSchema("");
+        resetGetFields();
+        resetPostFields();
+        setFormData({});
+        fetch(`${address}static/get/schemas`).then((value)=>{
             value.json().then(({ schemas , acts  })=>{
                 setActsObj(acts);
                 setSchemasObj(schemas);
             });
         });
+    };
+    const setFormFromHistory = (request)=>{
+        setService(request.body.service);
+        setMethod(request.body.contents);
+        setSchema(request.body.wants.model);
+        setAct(request.body.wants.act);
+        const actObj = actsObj[request.body.service][request.body.contents][request.body.wants.model][request.body.wants.act]["validator"]["schema"];
+        setGetFields(actObj["get"]["schema"]);
+        setPostFields(actObj["set"]["schema"]);
+        setResponse(null);
+        toggleModal();
+    };
+    T1(()=>{
+        configUrl(window.location.href);
     }, []);
     const uid = function() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -855,7 +877,10 @@ const Page = ()=>{
         });
     };
     const deepen = (obj)=>{
-        const result = {};
+        const result = {
+            get: {},
+            set: {}
+        };
         for(const objectPath in obj){
             const parts = objectPath.split(".");
             let target = result;
@@ -1012,22 +1037,26 @@ const Page = ()=>{
     }, " ", Z("button", {
         className: "btn btn-modal",
         onClick: ()=>{
-            setActive("History"), toggle();
+            setActive("History");
+            toggleModal();
         }
     }, " ", "History", " "), Z("button", {
         className: "btn btn-modal btn-modal-2",
         onClick: ()=>{
-            setActive("Setting"), toggle();
+            setActive("Setting");
+            toggleModal();
         }
     }, "Setting"), Z("button", {
         className: "btn btn-modal btn-modal-3",
         onClick: ()=>{
-            setActive("Graph"), toggle();
+            setActive("Graph");
+            toggleModal();
         }
     }, "Graph"), Z("button", {
         className: "btn btn-modal btn-modal-4",
         onClick: ()=>{
-            setActive("E2E Test"), toggle();
+            setActive("E2E Test");
+            toggleModal();
         }
     }, "E2E Test"))), canShowContent && Z("div", {
         className: "sidebar sidebar--fields"
@@ -1042,7 +1071,20 @@ const Page = ()=>{
             key: item
         }, Z("label", {
             htmlFor: item
-        }, item, ":"), Z("input", {
+        }, item, ":"), postFields[item]["type"] === "enums" ? Z("select", {
+            className: "sidebar__select",
+            value: formData[`set.${item}`],
+            onChange: (event)=>{
+                setFormData({
+                    ...formData,
+                    [`set.${item}`]: event.target.value
+                });
+            }
+        }, Z("option", {
+            value: ""
+        }), Object.keys(postFields[item]["schema"]).map((schema)=>Z("option", {
+                value: schema
+            }, schema))) : Z("input", {
             placeholder: item,
             id: item,
             value: formData[`set.${item}`],
@@ -1083,8 +1125,12 @@ const Page = ()=>{
     }) : Z("div", {
         className: "fail"
     }))), isOpen && Z(Modal, {
-        toggle: toggle,
+        toggle: toggleModal,
         title: active
-    }, active === "History" ? Z(History, null) : active === "Setting" ? Z(Setting, null) : "")));
+    }, active === "History" ? Z(History, {
+        setFormFromHistory: setFormFromHistory
+    }) : active === "Setting" ? Z(Setting, {
+        configUrl: configUrl
+    }) : "")));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));
