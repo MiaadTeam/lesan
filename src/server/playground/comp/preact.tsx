@@ -172,92 +172,94 @@ export const Page = () => {
   return (
     <div className="cnt">
       <div className="sidebar">
-        <div className="sidebar__section sidebar__section--services">
-          <div className="sidebar__section-heading">select services</div>
-          <select
-            className="sidebar__select"
-            value={service}
-            onChange={(event: any) => {
-              setService(event.target.value);
-              setMethod("");
-              setSchema("");
-              resetGetFields();
-              resetPostFields();
-              setFormData({});
-            }}
-          >
-            <option value=""></option>
-            {Object.keys(actsObj).map((service, index) => (
-              <option key={index} value={service}>
-                {service}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="sidebar__section sidebar__section--method">
-          <div className="sidebar__section-heading">select content</div>
-          <select
-            className="sidebar__select"
-            value={method}
-            onChange={(event: any) => {
-              setMethod(event.target.value);
-              setSchema("");
-              resetGetFields();
-              resetPostFields();
-              setFormData({});
-            }}
-          >
-            <option value=""></option>
-            <option value="dynamic">dynamic</option>
-            <option value="static">static</option>
-          </select>
-        </div>
-        <div className="sidebar__section sidebar__section--schema">
-          <div className="sidebar__section-heading">select schema</div>
-          <select
-            className="sidebar__select"
-            disabled={!canShowSchema}
-            value={canShowSchema ? schema : undefined}
-            onChange={(event: any) => {
-              setSchema(event.target.value);
-              resetGetFields();
-              resetPostFields();
-              setFormData({});
-            }}
-          >
-            <option value=""></option>
-            {canShowSchema
-              ? Object.keys((actsObj as any)[service][method]).map((schema) => (
-                  <option value={schema}>{schema}</option>
-                ))
-              : null}
-          </select>
-        </div>
-        <div className="sidebar__section sidebar__section--act">
-          <div className="sidebar__section-heading">select action</div>
-          <select
-            className="sidebar__select"
-            disabled={!canShowAct}
-            value={canShowAct ? act : undefined}
-            onChange={(event: any) => {
-              const actObj = (actsObj as any)[service][method][schema][
-                event.target.value
-              ]["validator"]["schema"];
+        <div className="sections">
+          <div className="sidebar__section sidebar__section--services">
+            <div className="sidebar__section-heading">select services</div>
+            <select
+              className="sidebar__select"
+              value={service}
+              onChange={(event: any) => {
+                setService(event.target.value);
+                setMethod("");
+                setSchema("");
+                resetGetFields();
+                resetPostFields();
+                setFormData({});
+              }}
+            >
+              <option value=""></option>
+              {Object.keys(actsObj).map((service, index) => (
+                <option key={index} value={service}>
+                  {service}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="sidebar__section sidebar__section--method">
+            <div className="sidebar__section-heading">select content</div>
+            <select
+              className="sidebar__select"
+              value={method}
+              onChange={(event: any) => {
+                setMethod(event.target.value);
+                setSchema("");
+                resetGetFields();
+                resetPostFields();
+                setFormData({});
+              }}
+            >
+              <option value=""></option>
+              <option value="dynamic">dynamic</option>
+              <option value="static">static</option>
+            </select>
+          </div>
+          <div className="sidebar__section sidebar__section--schema">
+            <div className="sidebar__section-heading">select schema</div>
+            <select
+              className="sidebar__select"
+              disabled={!canShowSchema}
+              value={canShowSchema ? schema : undefined}
+              onChange={(event: any) => {
+                setSchema(event.target.value);
+                resetGetFields();
+                resetPostFields();
+                setFormData({});
+              }}
+            >
+              <option value=""></option>
+              {canShowSchema
+                ? Object.keys((actsObj as any)[service][method]).map(
+                    (schema) => <option value={schema}>{schema}</option>
+                  )
+                : null}
+            </select>
+          </div>
+          <div className="sidebar__section sidebar__section--act">
+            <div className="sidebar__section-heading">select action</div>
+            <select
+              className="sidebar__select"
+              disabled={!canShowAct}
+              value={canShowAct ? act : undefined}
+              onChange={(event: any) => {
+                const actObj = (actsObj as any)[service][method][schema][
+                  event.target.value
+                ]["validator"]["schema"];
 
-              formRef && formRef.current && formRef.current.reset();
-              setAct(event.target.value);
-              setGetFields(actObj["get"]["schema"]);
-              setPostFields(actObj["set"]["schema"]);
-              setFormData({});
-            }}
-          >
-            <option value=""></option>
-            {canShowAct
-              ? Object.keys((actsObj as any)[service][method][schema]).map(
-                  (schema) => <option value={schema}>{schema}</option>
-                )
-              : null}
-          </select>
+                formRef && formRef.current && formRef.current.reset();
+                setAct(event.target.value);
+                setGetFields(actObj["get"]["schema"]);
+                setPostFields(actObj["set"]["schema"]);
+                setFormData({});
+              }}
+            >
+              <option value=""></option>
+              {canShowAct
+                ? Object.keys((actsObj as any)[service][method][schema]).map(
+                    (schema) => <option value={schema}>{schema}</option>
+                  )
+                : null}
+            </select>
+          </div>
         </div>
         <div className="">
           {" "}
@@ -271,7 +273,7 @@ export const Page = () => {
             History{" "}
           </button>
           <button
-            className="btn btn-modal"
+            className="btn btn-modal btn-modal-2"
             onClick={() => {
               setActive("Setting"), toggle();
             }}
@@ -280,7 +282,7 @@ export const Page = () => {
             Setting
           </button>
           <button
-            className="btn btn-modal"
+            className="btn btn-modal btn-modal-3"
             onClick={() => {
               setActive("Graph"), toggle();
             }}
@@ -288,7 +290,7 @@ export const Page = () => {
             Graph
           </button>
           <button
-            className="btn btn-modal"
+            className="btn btn-modal btn-modal-4"
             onClick={() => {
               setActive("E2E Test"), toggle();
             }}
