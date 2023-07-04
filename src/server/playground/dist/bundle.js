@@ -933,18 +933,37 @@ const Page = ()=>{
         }, Z("div", {
             className: "sidebar__section-heading--subfields"
         }, keyName), Object.keys(getField["schema"]).map((item)=>getField["schema"][item].type === "enums" ? Z("div", {
-                className: "input-cnt",
+                className: "input-cnt get-items",
                 key: item
             }, Z("label", {
                 htmlFor: item
-            }, item, ":"), Z("input", {
-                placeholder: `${keyName}.${item}`,
-                type: "number",
-                id: `${keyName}.${item}`,
-                value: formData[`get.${keyName}.${item}`],
-                name: `get.${keyName}.${item}`,
-                onChange: handleChange
-            })) : renderGetFields(getField["schema"][item], `${keyName}.${item}`, margin + 10)));
+            }, keyName, ".", item, ":"), Z("div", {
+                className: "get-values"
+            }, Z("span", {
+                onClick: ()=>{
+                    const copy = {
+                        ...formData
+                    };
+                    delete copy[`get.${keyName}.${item}`];
+                    setFormData(copy);
+                }
+            }), Z("span", {
+                className: formData[`get.${keyName}.${item}`] === 0 ? "active" : "",
+                onClick: ()=>{
+                    setFormData({
+                        ...formData,
+                        [`get.${keyName}.${item}`]: 0
+                    });
+                }
+            }, "0"), Z("span", {
+                className: formData[`get.${keyName}.${item}`] === 1 ? "active" : "",
+                onClick: ()=>{
+                    setFormData({
+                        ...formData,
+                        [`get.${keyName}.${item}`]: 1
+                    });
+                }
+            }, "1"))) : renderGetFields(getField["schema"][item], `${keyName}.${item}`, margin + 10)));
     const canShowContent = service && method && schema && postFields && getFields && act;
     const canShowSchema = service && method;
     const canShowAct = service && method && schema;
@@ -1095,17 +1114,36 @@ const Page = ()=>{
         }))), Z("div", {
         className: "sidebar__section-heading sidebar__section-heading--fields"
     }, "GET fields"), Object.keys(getFields).map((item)=>getFields[item].type === "enums" ? Z("div", {
-            className: "input-cnt"
+            className: "input-cnt get-items"
         }, Z("label", {
             htmlFor: item
-        }, item, ":"), Z("input", {
-            placeholder: item,
-            id: item,
-            value: formData[`get.${item}`],
-            name: `get.${item}`,
-            type: "number",
-            onChange: handleChange
-        })) : renderGetFields(getFields[item], item, 0)), Z("div", {
+        }, item, ":"), Z("div", {
+            className: "get-values"
+        }, Z("span", {
+            onClick: ()=>{
+                const copy = {
+                    ...formData
+                };
+                delete copy[`get.${item}`];
+                setFormData(copy);
+            }
+        }), Z("span", {
+            className: formData[`get.${item}`] === 0 ? "active" : "",
+            onClick: ()=>{
+                setFormData({
+                    ...formData,
+                    [`get.${item}`]: 0
+                });
+            }
+        }, "0"), Z("span", {
+            className: formData[`get.${item}`] === 1 ? "active" : "",
+            onClick: ()=>{
+                setFormData({
+                    ...formData,
+                    [`get.${item}`]: 1
+                });
+            }
+        }, "1"))) : renderGetFields(getFields[item], item, 0)), Z("div", {
         className: "cnt--btn-send"
     }, Z("button", {
         className: "btn btn--send",

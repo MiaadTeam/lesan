@@ -78,7 +78,7 @@ input {
   box-sizing: border-box;
 }
 
-input:focus{
+input:focus {
   outline: none;
   border: 2px solid rgb(16, 182, 182);
   border-radius: 5px;
@@ -122,7 +122,7 @@ input:focus{
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: "";
+  content: '';
   height: 2px;
   width: 100%;
   background-color: white;
@@ -318,7 +318,7 @@ input:focus{
 
 .success {
   border-radius: 10px;
-background-color: rgb(255, 255, 255);
+  background-color: rgb(255, 255, 255);
   /* background-color: rgb(51, 169, 77); */
   width: 15px;
   height: 15px;
@@ -328,22 +328,21 @@ background-color: rgb(255, 255, 255);
   animation-name: success;
   animation-duration: 1s;
   animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(.45, .05, .55, .95);
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }
 
 @keyframes success {
-     0% {
-    background-color:  rgb(255, 255, 255);
+  0% {
+    background-color: rgb(255, 255, 255);
   }
 
   50% {
     background-color: green;
   }
-
 }
 
 .fail {
-  background-color:  rgb(255, 255, 255);
+  background-color: rgb(255, 255, 255);
   border-radius: 10px;
   width: 15px;
   height: 15px;
@@ -353,26 +352,23 @@ background-color: rgb(255, 255, 255);
   animation-name: fail;
   animation-duration: 800ms;
   animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(.45, .05, .55, .95);
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }
 
 @keyframes fail {
-
-     0% {
-    background-color:  rgb(255, 255, 255);
+  0% {
+    background-color: rgb(255, 255, 255);
   }
 
   50% {
     background-color: red;
   }
-     70% {
-    background-color:  rgb(255, 255, 255);
-  } 
-   100% {
-    background-color:  rgb(255, 255, 255);
-  } 
-
-
+  70% {
+    background-color: rgb(255, 255, 255);
+  }
+  100% {
+    background-color: rgb(255, 255, 255);
+  }
 }
 
 .modal-overlay {
@@ -479,7 +475,7 @@ background-color: rgb(255, 255, 255);
   display: none;
 }
 
-.history-re-detail-complete[data-show="true"] {
+.history-re-detail-complete[data-show='true'] {
   display: block;
 }
 
@@ -548,4 +544,36 @@ background-color: rgb(255, 255, 255);
 .cute-colon {
   color: #f8f8f2;
   margin-left: 1px;
+}
+
+.get-items {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  padding: 0.3rem 0;
+}
+
+.get-values {
+  display: flex;
+}
+
+.get-values span {
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  background-color: var(--color-bg-base);
+  padding: 0.2rem;
+  text-align: center;
+}
+
+.get-values span:nth-child(2) {
+  background-color: var(--color-blue-4);
+}
+
+.get-values span:nth-child(3) {
+  background-color: var(--color-colonial-2);
+}
+
+.get-values span.active {
+  background-color: var(--color-success);
 }

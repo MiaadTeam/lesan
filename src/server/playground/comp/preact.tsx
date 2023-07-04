@@ -168,16 +168,44 @@ export const Page = () => {
       {Object.keys(getField["schema"]).map((item) =>
         getField["schema"][item].type === "enums"
           ? (
-            <div className="input-cnt" key={item}>
-              <label htmlFor={item}>{item}:</label>
-              <input
-                placeholder={`${keyName}.${item}`}
-                type="number"
-                id={`${keyName}.${item}`}
-                value={formData[`get.${keyName}.${item}`]}
-                name={`get.${keyName}.${item}`}
-                onChange={handleChange}
-              />
+            <div className="input-cnt get-items" key={item}>
+              <label htmlFor={item}>{keyName}.{item}:</label>
+              <div className="get-values">
+                <span
+                  onClick={() => {
+                    const copy = { ...formData };
+                    delete copy[`get.${keyName}.${item}`];
+                    setFormData(copy);
+                  }}
+                >
+                </span>
+                <span
+                  className={formData[`get.${keyName}.${item}`] === 0
+                    ? "active"
+                    : ""}
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      [`get.${keyName}.${item}`]: 0,
+                    });
+                  }}
+                >
+                  0
+                </span>
+                <span
+                  className={formData[`get.${keyName}.${item}`] === 1
+                    ? "active"
+                    : ""}
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      [`get.${keyName}.${item}`]: 1,
+                    });
+                  }}
+                >
+                  1
+                </span>
+              </div>
             </div>
           )
           : (
@@ -381,16 +409,45 @@ export const Page = () => {
             {Object.keys(getFields).map((item) =>
               getFields[item].type === "enums"
                 ? (
-                  <div className="input-cnt">
+                  <div className="input-cnt get-items">
                     <label htmlFor={item}>{item}:</label>
-                    <input
-                      placeholder={item}
-                      id={item}
-                      value={formData[`get.${item}`]}
-                      name={`get.${item}`}
-                      type="number"
-                      onChange={handleChange}
-                    />
+
+                    <div className="get-values">
+                      <span
+                        onClick={() => {
+                          const copy = { ...formData };
+                          delete copy[`get.${item}`];
+                          setFormData(copy);
+                        }}
+                      >
+                      </span>
+                      <span
+                        className={formData[`get.${item}`] === 0
+                          ? "active"
+                          : ""}
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            [`get.${item}`]: 0,
+                          });
+                        }}
+                      >
+                        0
+                      </span>
+                      <span
+                        className={formData[`get.${item}`] === 1
+                          ? "active"
+                          : ""}
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            [`get.${item}`]: 1,
+                          });
+                        }}
+                      >
+                        1
+                      </span>
+                    </div>
                   </div>
                 )
                 : (
