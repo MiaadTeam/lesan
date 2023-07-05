@@ -631,8 +631,6 @@ var ClassNames;
 })(ClassNames || (ClassNames = {}));
 const pre = {
     fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial",
-    fontSize: 15,
-    lineHeight: "20px",
     display: "inline-block",
     borderRadius: 3,
     padding: "10px 15px",
@@ -888,13 +886,15 @@ const Page = ()=>{
             set: {}
         };
         for(const objectPath in obj){
-            const parts = objectPath.split(".");
-            let target = result;
-            while(parts.length > 1){
-                const part = parts.shift();
-                target = target[part] = target[part] || {};
+            if (obj[objectPath] || obj[objectPath] === 0) {
+                const parts = objectPath.split(".");
+                let target = result;
+                while(parts.length > 1){
+                    const part = parts.shift();
+                    target = target[part] = target[part] || {};
+                }
+                target[parts[0]] = obj[objectPath];
             }
-            target[parts[0]] = obj[objectPath];
         }
         return result;
     };
@@ -1126,17 +1126,27 @@ const Page = ()=>{
         className: "get-values"
     }, Z("span", {
         onClick: ()=>{
-            setFormData({});
+            const copy = changeGetValue(null, "get", getFields, {});
+            setFormData({
+                ...formData,
+                ...copy
+            });
         }
     }), Z("span", {
         onClick: ()=>{
             const copy = changeGetValue(0, "get", getFields, {});
-            setFormData(copy);
+            setFormData({
+                ...formData,
+                ...copy
+            });
         }
     }, "0"), Z("span", {
         onClick: ()=>{
             const copy = changeGetValue(1, "get", getFields, {});
-            setFormData(copy);
+            setFormData({
+                ...formData,
+                ...copy
+            });
         }
     }, "1"))), Object.keys(getFields).map((item)=>getFields[item].type === "enums" ? Z("div", {
             className: "input-cnt get-items"
@@ -1187,13 +1197,13 @@ const Page = ()=>{
         className: "success"
     }) : Z("div", {
         className: "fail"
-    }))), isOpen && Z(Modal, {
+    })))), isOpen && Z(Modal, {
         toggle: toggleModal,
         title: active
     }, active === "History" ? Z(History, {
         setFormFromHistory: setFormFromHistory
     }) : active === "Setting" ? Z(Setting, {
         configUrl: configUrl
-    }) : "")));
+    }) : ""));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));

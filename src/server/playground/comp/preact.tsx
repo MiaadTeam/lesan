@@ -68,7 +68,7 @@ export const Page = () => {
   };
 
   const changeGetValue = (
-    value: 0 | 1,
+    value: 0 | 1 | null,
     keyname: string,
     getObj: Record<string, any>,
     returnObj: Record<string, any>,
@@ -129,18 +129,18 @@ export const Page = () => {
 
     // For each object path (property key) in the object
     for (const objectPath in obj) {
-      // Split path into component parts
-      const parts = objectPath.split(".");
-
-      // Create sub-objects along path as needed
-      let target = result;
-      while (parts.length > 1) {
-        const part = parts.shift();
-        target = (target as any)[part!] = (target as any)[part!] || {};
+      if (obj[objectPath] || obj[objectPath] === 0) {
+        // Split path into component parts
+        const parts = objectPath.split(".");
+        // Create sub-objects along path as needed
+        let target = result;
+        while (parts.length > 1) {
+          const part = parts.shift();
+          target = (target as any)[part!] = (target as any)[part!] || {};
+        }
+        // Set value at end of path
+        (target as any)[parts[0]] = obj[objectPath];
       }
-
-      // Set value at end of path
-      (target as any)[parts[0]] = obj[objectPath];
     }
 
     return result;
@@ -434,14 +434,18 @@ export const Page = () => {
               <div className="get-values">
                 <span
                   onClick={() => {
-                    setFormData({});
+                    const copy = changeGetValue(null, "get", getFields, {});
+                    setFormData({ ...formData, ...copy });
                   }}
                 >
                 </span>
                 <span
                   onClick={() => {
                     const copy = changeGetValue(0, "get", getFields, {});
-                    setFormData(copy);
+                    setFormData({
+                      ...formData,
+                      ...copy,
+                    });
                   }}
                 >
                   0
@@ -449,7 +453,10 @@ export const Page = () => {
                 <span
                   onClick={() => {
                     const copy = changeGetValue(1, "get", getFields, {});
-                    setFormData(copy);
+                    setFormData({
+                      ...formData,
+                      ...copy,
+                    });
                   }}
                 >
                   1
@@ -528,13 +535,13 @@ export const Page = () => {
       </div>
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === "History" ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : active === "Setting" ? (
-            <Setting configUrl={configUrl} />
-          ) : (
-            ""
-          )}
+          {active === "History"
+            ? <History setFormFromHistory={setFormFromHistory} />
+            : active === "Setting"
+            ? <Setting configUrl={configUrl} />
+            : (
+              ""
+            )}
         </Modal>
       )}
     </div>
