@@ -535,13 +535,13 @@ export const Page = () => {
       </div>
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === "History"
-            ? <History setFormFromHistory={setFormFromHistory} />
-            : active === "Setting"
-            ? <Setting configUrl={configUrl} />
-            : (
-              ""
-            )}
+          {active === "History" ? (
+            <History setFormFromHistory={setFormFromHistory} />
+          ) : active === "Setting" ? (
+            <Setting configUrl={configUrl} />
+          ) : (
+            ""
+          )}
         </Modal>
       )}
     </div>

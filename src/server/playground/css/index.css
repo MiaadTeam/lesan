@@ -101,6 +101,18 @@ input:focus {
   border-right: 1px solid slategrey;
 }
 
+@media (min-width: 769px) and (max-width: 1025px) {
+  .sidebar {
+    width: 30%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .sidebar {
+    width: 20%;
+  }
+}
+
 .sections {
   width: 100%;
 }
@@ -122,7 +134,7 @@ input:focus {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: '';
+  content: "";
   height: 2px;
   width: 100%;
   background-color: white;
@@ -209,6 +221,18 @@ input:focus {
   width: 23%;
   background-color: var(--color-bg-secondary);
   position: relative;
+}
+
+@media (min-width: 769px) and (max-width: 1025px) {
+  .sidebar--fields {
+    width: 30%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .sidebar--fields {
+    width: 30%;
+  }
 }
 
 .sidebar__section-heading--fields {
@@ -301,6 +325,12 @@ input:focus {
   background-color: #272822;
 }
 
+@media (min-width: 769px){
+  .response {
+    width: 60%;
+  }
+}
+
 .response-detail {
   background-color: #272822;
   display: flex;
@@ -310,6 +340,7 @@ input:focus {
   margin: 30px;
   border: 1px solid white;
   border-radius: 10px;
+  height: 90%;
 }
 
 .response-detail-title {
@@ -324,8 +355,10 @@ input:focus {
   border-radius: 10px 10px 0 0;
 }
 
-.response-detail-title-info {
+.response-detail-info {
   padding: 0 10px;
+  height: 100vh;
+  overflow: scroll;
 }
 
 .success {
@@ -487,7 +520,7 @@ input:focus {
   display: none;
 }
 
-.history-re-detail-complete[data-show='true'] {
+.history-re-detail-complete[data-show="true"] {
   display: block;
 }
 
