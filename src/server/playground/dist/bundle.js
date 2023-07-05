@@ -865,6 +865,14 @@ const Page = ()=>{
         setGetFields(actObj["get"]["schema"]);
         setPostFields(actObj["set"]["schema"]);
         setResponse(null);
+        const generateFormData = (formData, returnFormData, keyname)=>{
+            for(const key in formData){
+                typeof formData[key] === "object" ? generateFormData(formData[key], returnFormData, keyname ? `${keyname}.${key}` : key) : returnFormData[`${keyname}.${key}`] = formData[key];
+            }
+            return returnFormData;
+        };
+        const historyFromData = generateFormData(request.body.details, {}, "");
+        setFormData(historyFromData);
         toggleModal();
     };
     T1(()=>{
