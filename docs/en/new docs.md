@@ -4,9 +4,9 @@
 ---
 
 <h2 id="introduction">Introduction</h2>
-<p>Lesan is a collection of a <a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_web_server">Web Server</a> and an ODM along with an idea to implement <a href="https://www.ibm.com/cloud/learn/microservices">microservices</a>.</p>
+<p>Lesan is a collection of a <a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_web_server">Web Server</a> and an <code>ODM</code> along with an idea to implement <a href="https://www.ibm.com/cloud/learn/microservices">microservices</a>.</p>
 <p>In this framework, we tried to delegate data retrieval management to the client, inspired by the idea of <a href="https://graphql.org/">​​GraphQL</a>, without adding an extra layer (such as <a href="https://en.wikipedia.org/wiki/Graph_Query_Language">GQL</a> language processors) on the client and server side. In addition, we use all the capabilities of <a href="https://en.wikipedia.org/wiki/NoSQL">NoSQL</a> databases so that we can embed all the relationships of a schema within itself without involving the server-side programmer in managing the creation, retrieval, updating, and deletion of duplicated embeddings.</p>
-<p>Meanwhile, we should have a regular structure (such as <a href="https://en.wikipedia.org/wiki/SQL">SQL</a>) for data models in the ODM layer so that we can always validate the data.</p>
+<p>Meanwhile, we should have a regular structure (such as <a href="https://en.wikipedia.org/wiki/SQL">SQL</a>) for data models in the <code>ODM</code> layer so that we can always validate the data.</p>
 <p>We have also simplified the understanding of data structures for artificial intelligence so that we can manage the creation of duplicates in data by this intelligence.</p>
 <p>Furthermore, we tried to provide the possibility of being movable for the data structure along with the functions written on the server side so that we can manage microservices more easily.</p>
 <p>Finally, this data structure ( by the favor of fewer requests sent to the database) will also simplify the way <a href="https://en.wikipedia.org/wiki/Static_site_generator">SSG</a> content is created.</p>
@@ -129,93 +129,81 @@ provinces
 cities
 </code></pre>
 <p>The amount of pure fields is known. And the value of the fields that are of the relation type of schemas will be in the form of objects of the pure type of that relation. That is, for example, for the country:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>  
-id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token string">"iran"</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token string">"ir"</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token string">"a big country in asia"</span><span class="token punctuation">,</span>  
-geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>  
-capital <span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token string">"tehran"</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token string">"th"</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token string">"the beautiful city in middle of iran"</span><span class="token punctuation">,</span>  
-geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-provinces <span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>  
-id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token string">"tehran"</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token string">"th"</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token string">"one of the irans provinces"</span><span class="token punctuation">,</span>  
-geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-  
-id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token string">"hamedan"</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token string">"hm"</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token string">"one of the irans provinces"</span><span class="token punctuation">,</span>  
-geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token operator">...</span> til to end <span class="token keyword">of</span> the provinces  
-<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>  
-cities <span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>  
-id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token string">"tehran"</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token string">"th"</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token string">"the beautiful city in middle of iran"</span><span class="token punctuation">,</span>  
-geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-Id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token string">"hamedan"</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token string">"hm"</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token string">"one of the irans cities"</span><span class="token punctuation">,</span>  
-geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token operator">...</span> til to end <span class="token keyword">of</span> the <span class="token keyword">number</span> limit <span class="token keyword">for</span> the first paginate  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>
+id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>
+name<span class="token punctuation">:</span> <span class="token string">"iran"</span><span class="token punctuation">,</span>
+abb<span class="token punctuation">:</span> <span class="token string">"ir"</span><span class="token punctuation">,</span>
+description<span class="token punctuation">:</span> <span class="token string">"a big country in asia"</span><span class="token punctuation">,</span>
+geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+capital <span class="token punctuation">:</span> <span class="token punctuation">{</span>
+	id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>
+	name<span class="token punctuation">:</span> <span class="token string">"tehran"</span><span class="token punctuation">,</span>
+	abb<span class="token punctuation">:</span> <span class="token string">"th"</span><span class="token punctuation">,</span>
+	description<span class="token punctuation">:</span> <span class="token string">"the beautiful city in middle of iran"</span><span class="token punctuation">,</span>
+	geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+provinces <span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+	id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>
+	name<span class="token punctuation">:</span> <span class="token string">"tehran"</span><span class="token punctuation">,</span>
+	abb<span class="token punctuation">:</span> <span class="token string">"th"</span><span class="token punctuation">,</span>
+	description<span class="token punctuation">:</span> <span class="token string">"one of the irans provinces"</span><span class="token punctuation">,</span>
+	geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+	<span class="token punctuation">{</span>
+
+	id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>
+	name<span class="token punctuation">:</span> <span class="token string">"hamedan"</span><span class="token punctuation">,</span>
+	abb<span class="token punctuation">:</span> <span class="token string">"hm"</span><span class="token punctuation">,</span>
+	description<span class="token punctuation">:</span> <span class="token string">"one of the irans provinces"</span><span class="token punctuation">,</span>
+	geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token operator">...</span> til to end <span class="token keyword">of</span> the provinces
+<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+cities <span class="token punctuation">:</span>  <span class="token punctuation">[</span><span class="token punctuation">{</span>
+		id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>
+	name<span class="token punctuation">:</span> <span class="token string">"tehran"</span><span class="token punctuation">,</span>
+	abb<span class="token punctuation">:</span> <span class="token string">"th"</span><span class="token punctuation">,</span>
+	description<span class="token punctuation">:</span> <span class="token string">"the beautiful city in middle of iran"</span><span class="token punctuation">,</span>
+	geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+	<span class="token punctuation">{</span>
+		Id<span class="token punctuation">:</span> <span class="token string">"234fwee656"</span><span class="token punctuation">,</span>
+	name<span class="token punctuation">:</span> <span class="token string">"hamedan"</span><span class="token punctuation">,</span>
+	abb<span class="token punctuation">:</span> <span class="token string">"hm"</span><span class="token punctuation">,</span>
+	description<span class="token punctuation">:</span> <span class="token string">"one of the irans cities"</span><span class="token punctuation">,</span>
+	geoLocation <span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">32</span><span class="token punctuation">,</span><span class="token number">45</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">...</span> <span class="token punctuation">]</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token operator">...</span> til to end <span class="token keyword">of</span> the <span class="token keyword">number</span> limit <span class="token keyword">for</span> the first paginate
 <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
 </code></pre>
 <p>Now the user can filter and receive all the fields of a schema along with the first depth of its relations by sending only one request to the database.</p>
 <p>This request is performed based on the process of projection in MongoDB according to the values of fields being one or zero. Without our framework having any involvement in this process. And without us writing an additional layer to filter the requested fields in it. (The process and form of this request will be explained later.)</p>
 <p>If the lower fields of a country’s schema are requested in a request, not only all the requested information will be received and returned to the user with one request to the server but also with one request to the database.</p>
 <p>If the following fields are requested from the schema of a country in a request. Not only with a single request to the server but also with a single request to the database, all requested information will be received and returned to the user:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">getCountry → id<span class="token punctuation">:</span> <span class="token number">1</span>  
-Name<span class="token punctuation">:</span> <span class="token number">1</span>  
-abb<span class="token punctuation">:</span> <span class="token number">1</span>  
-decsription<span class="token punctuation">:</span> <span class="token number">1</span>  
-capital → id<span class="token punctuation">:</span> <span class="token number">1</span>  
-name<span class="token punctuation">:</span> <span class="token number">1</span>  
-abb <span class="token punctuation">:</span> <span class="token number">1</span>  
-provinces → id <span class="token punctuation">:</span><span class="token number">1</span>  
-name <span class="token punctuation">:</span>  
-description <span class="token punctuation">:</span> <span class="token number">1</span>  
-cities → id <span class="token punctuation">:</span> <span class="token number">1</span>  
-name <span class="token punctuation">:</span> <span class="token number">1</span>  
-abb <span class="token punctuation">:</span> <span class="token number">1</span>
+<pre class=" language-typescript"><code class="prism  language-typescript">getCountry → id<span class="token punctuation">:</span> <span class="token number">1</span>
+              Name<span class="token punctuation">:</span> <span class="token number">1</span>
+		  abb<span class="token punctuation">:</span> <span class="token number">1</span>
+		  decsription<span class="token punctuation">:</span> <span class="token number">1</span>
+		  capital → id<span class="token punctuation">:</span> <span class="token number">1</span>
+                  name<span class="token punctuation">:</span> <span class="token number">1</span>
+			abb <span class="token punctuation">:</span> <span class="token number">1</span>
+		  provinces → id <span class="token punctuation">:</span><span class="token number">1</span>
+                  name <span class="token punctuation">:</span> 
+			description <span class="token punctuation">:</span> <span class="token number">1</span>
+		  cities → id <span class="token punctuation">:</span> <span class="token number">1</span>
+                  name <span class="token punctuation">:</span> <span class="token number">1</span>
+			abb <span class="token punctuation">:</span> <span class="token number">1</span>
 </code></pre>
 <p>If a user penetrates more than one level of depth, what should be done? For example, if they request provinces for a country, they may also want its cities from within the provinces.</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">getCountry → id<span class="token punctuation">:</span> <span class="token number">1</span>  
-name <span class="token punctuation">:</span> <span class="token number">1</span>  
-abb <span class="token punctuation">:</span> <span class="token number">1</span>  
-description <span class="token punctuation">:</span> <span class="token number">1</span>  
-capital → id <span class="token punctuation">:</span> <span class="token number">1</span>  
-name <span class="token punctuation">:</span> <span class="token number">1</span>  
-abb <span class="token punctuation">:</span> <span class="token number">1</span>  
-provinces → id <span class="token punctuation">:</span><span class="token number">1</span>  
-name <span class="token punctuation">:</span> <span class="token number">1</span>  
-description <span class="token punctuation">:</span> <span class="token number">1</span>  
-cities → id <span class="token punctuation">:</span> <span class="token number">1</span>  
-name <span class="token punctuation">:</span> <span class="token number">1</span>  
-description <span class="token punctuation">:</span> <span class="token number">1</span>  
-cities → id <span class="token punctuation">:</span> <span class="token number">1</span>  
-name <span class="token punctuation">:</span> <span class="token number">1</span>  
-abb <span class="token punctuation">:</span> <span class="token number">1</span>
+<pre class=" language-typescript"><code class="prism  language-typescript">
 </code></pre>
 <p>Let’s examine what happens in SQL databases before we explain the Lisan framework solution:</p>
 <ul>
 <li>
 <p>First of all, we run a query to find the country, because we have the country ID, we run an indexed query.</p>
+</li>
+<li>
+<p>After that, we run a query to find the capital, because we have its ID stored in the country, we run an indexed query.</p>
 </li>
 <li>
 <p>Then we send a query to find the first paginate of provinces. If we have stored the ID of all the provinces of a country inside it, we run an indexed query. Otherwise, we must send an unindexed query with the country ID filter found.</p>
@@ -268,122 +256,124 @@ abb <span class="token punctuation">:</span> <span class="token number">1</span>
 </ol>
 <p>Let’s examine how to create a Pipeline for filtering and selecting data in Mongodb aggregations with an example:</p>
 <p>Consider the schemas we had for the country, province, and city tables, and now we want to receive a list of 25 provinces along with the country and cities of that province with one request. The Pipeline we create will be like this (the Pipeline that needs to be created for Lesan will be slightly different, which we will discuss later):</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">provinces<span class="token punctuation">.</span><span class="token function">aggregation</span><span class="token punctuation">(</span><span class="token punctuation">[</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>  
-localField<span class="token punctuation">:</span> <span class="token string">"country._id"</span><span class="token punctuation">,</span>  
-foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>  
-<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"country"</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span> <span class="token string">"$unwind"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> path<span class="token punctuation">:</span> <span class="token string">"$country"</span><span class="token punctuation">,</span> preserveNullAndEmptyArrays<span class="token punctuation">:</span> <span class="token keyword">true</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"city"</span><span class="token punctuation">,</span>  
-localField<span class="token punctuation">:</span> <span class="token string">"cities._id"</span><span class="token punctuation">,</span>  
-foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>  
-<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"cities"</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$project"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-cities<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<pre class=" language-typescript"><code class="prism  language-typescript">provinces<span class="token punctuation">.</span><span class="token function">aggregation</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>
+        	localField<span class="token punctuation">:</span> <span class="token string">"country._id"</span><span class="token punctuation">,</span>
+        	foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>
+        	<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"country"</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span> <span class="token string">"$unwind"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> path<span class="token punctuation">:</span> <span class="token string">"$country"</span><span class="token punctuation">,</span> preserveNullAndEmptyArrays<span class="token punctuation">:</span> <span class="token keyword">true</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"city"</span><span class="token punctuation">,</span>
+        	localField<span class="token punctuation">:</span> <span class="token string">"cities._id"</span><span class="token punctuation">,</span>
+        	foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>
+        	<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"cities"</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$project"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+             cities<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span>
+  	<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
 </code></pre>
 <p>Now if we create the same Pipeline for a project that has been created with Lesan, it will be as follows:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">states<span class="token punctuation">.</span><span class="token function">aggregation</span><span class="token punctuation">(</span><span class="token punctuation">[</span>  
-<span class="token string">"$project"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-cities<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript">states<span class="token punctuation">.</span><span class="token function">aggregation</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+      	<span class="token string">"$project"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+             cities<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span>
+      	<span class="token punctuation">}</span>
 <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>Yes, we send an empty Pipeline because all relationships are embedded in Lesan and we only send the projection to select the requested fields. But what happens if we penetrate one more level deeper into the relationships? For example, let’s request the provinces of countries again from within the countries and request the country of that city again from within the cities (it is true that this example is unrealistically funny, but we implement it only for comparison so that the concept can be easily conveyed). In the usual case, the Pipeline will be like this:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">states<span class="token punctuation">.</span><span class="token function">aggregation</span><span class="token punctuation">(</span><span class="token punctuation">[</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>  
-localField<span class="token punctuation">:</span> <span class="token string">"country._id"</span><span class="token punctuation">,</span>  
-foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>  
-<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"country"</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span> <span class="token string">"$unwind"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> path<span class="token punctuation">:</span> <span class="token string">"$country"</span><span class="token punctuation">,</span> preserveNullAndEmptyArrays<span class="token punctuation">:</span> <span class="token keyword">true</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"state"</span><span class="token punctuation">,</span>  
-localField<span class="token punctuation">:</span> <span class="token string">"country.states._id"</span><span class="token punctuation">,</span>  
-foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>  
-<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"country.states"</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"city"</span><span class="token punctuation">,</span>  
-localField<span class="token punctuation">:</span> <span class="token string">"cities._id"</span><span class="token punctuation">,</span>  
-foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>  
-<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"cities"</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>  
-localField<span class="token punctuation">:</span> <span class="token string">"cities.country._id"</span><span class="token punctuation">,</span>  
-foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>  
-<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"cities.country"</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span> <span class="token string">"$unwind"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> path<span class="token punctuation">:</span> <span class="token string">"$cities.country"</span><span class="token punctuation">,</span> preserveNullAndEmptyArrays<span class="token punctuation">:</span> <span class="token keyword">true</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$project"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> states<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-cities<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<pre class=" language-typescript"><code class="prism  language-typescript">states<span class="token punctuation">.</span><span class="token function">aggregation</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>
+        	localField<span class="token punctuation">:</span> <span class="token string">"country._id"</span><span class="token punctuation">,</span>
+        	foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>
+        	<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"country"</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span> <span class="token string">"$unwind"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> path<span class="token punctuation">:</span> <span class="token string">"$country"</span><span class="token punctuation">,</span> preserveNullAndEmptyArrays<span class="token punctuation">:</span> <span class="token keyword">true</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"state"</span><span class="token punctuation">,</span>
+        	localField<span class="token punctuation">:</span> <span class="token string">"country.states._id"</span><span class="token punctuation">,</span>
+        	foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>
+        	<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"country.states"</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"city"</span><span class="token punctuation">,</span>
+        	localField<span class="token punctuation">:</span> <span class="token string">"cities._id"</span><span class="token punctuation">,</span>
+        	foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>
+        	<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"cities"</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>
+        	localField<span class="token punctuation">:</span> <span class="token string">"cities.country._id"</span><span class="token punctuation">,</span>
+        	foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>
+        	<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"cities.country"</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token punctuation">{</span> <span class="token string">"$unwind"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> path<span class="token punctuation">:</span> <span class="token string">"$cities.country"</span><span class="token punctuation">,</span> preserveNullAndEmptyArrays<span class="token punctuation">:</span> <span class="token keyword">true</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$project"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> states<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+             cities<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span>
+  	<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>But the project created with Lesan will create a Pipeline as follows:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">states<span class="token punctuation">.</span><span class="token function">aggregation</span><span class="token punctuation">(</span><span class="token punctuation">[</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>  
-localField<span class="token punctuation">:</span> <span class="token string">"country._id"</span><span class="token punctuation">,</span>  
-foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>  
-<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"country"</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span> <span class="token string">"$unwind"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> path<span class="token punctuation">:</span> <span class="token string">"$country"</span><span class="token punctuation">,</span> preserveNullAndEmptyArrays<span class="token punctuation">:</span> <span class="token keyword">true</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"city"</span><span class="token punctuation">,</span>  
-localField<span class="token punctuation">:</span> <span class="token string">"cities._id"</span><span class="token punctuation">,</span>  
-foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>  
-<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"cities"</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-<span class="token string">"$project"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> states<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-cities<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<pre class=" language-typescript"><code class="prism  language-typescript">states<span class="token punctuation">.</span><span class="token function">aggregation</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>
+        	localField<span class="token punctuation">:</span> <span class="token string">"country._id"</span><span class="token punctuation">,</span>
+        	foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>
+        	<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"country"</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span> <span class="token string">"$unwind"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> path<span class="token punctuation">:</span> <span class="token string">"$country"</span><span class="token punctuation">,</span> preserveNullAndEmptyArrays<span class="token punctuation">:</span> <span class="token keyword">true</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$lookup"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	<span class="token keyword">from</span><span class="token punctuation">:</span> <span class="token string">"city"</span><span class="token punctuation">,</span>
+        	localField<span class="token punctuation">:</span> <span class="token string">"cities._id"</span><span class="token punctuation">,</span>
+        	foreignField<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span>
+        	<span class="token keyword">as</span><span class="token punctuation">:</span> <span class="token string">"cities"</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">{</span>
+      	<span class="token string">"$project"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        	_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        	country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> states<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+             cities<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> country<span class="token punctuation">:</span> <span class="token punctuation">{</span> _id<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> name<span class="token punctuation">:</span><span class="token number">1</span><span class="token punctuation">,</span> abb<span class="token punctuation">:</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+      	<span class="token punctuation">}</span>
+    	<span class="token punctuation">}</span>
+  	<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>If you notice, we have no Pipeline to get the provinces inside the country because we know that in Lesan all relationships are stored in an embedded way and if we have the country with its relationships, we have definitely stored the last 50 provinces of each country inside it in an embedded way. So while we store the country as Pure and without relationships in the axis of each province and have it, we receive it again with a Pipeline.Now, instead of 50 * 50 + 50 documents (if we have requested 50 provinces per country by default), we only receive 50 documents (the country where the provinces are embedded). Now imagine that if, for example, the last registered restaurants in each country were also requested in this query, usually 50 * 50 + 50 * 50 + 50 documents would have to be requested, but with Lesan, the same document received for each country will also have a list of the last 50 restaurants and we only request those 50 documents instead of 5050 documents. And as each relationship is added, these numbers will get further apart from each other.</p>
 <p>The same policy applies to cities in relation to the country. The only difference is that here 50 provinces are requested, each province wants the last 50 cities and each city has a relationship with a country that has been requested and we have to receive 50 * 50 + 2500 documents which with Lesan we have reduced this number to 50 * 50 documents.</p>
@@ -411,81 +401,77 @@ cities<span class="token punctuation">:</span> <span class="token punctuation">{
 <ul>
 <li>We write the model we want for the software using the pure - inrelation - outrelation method and add it to our ODM application. Like this (consider the same information we mentioned in the above example for country and cities):</li>
 </ul>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> statePureObj <span class="token operator">=</span> <span class="token punctuation">{</span>  
-id<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">any</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-geometries<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-coordinates<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> stateInRel <span class="token operator">=</span> <span class="token punctuation">{</span>  
-country<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span><span class="token punctuation">,</span>  
-optional<span class="token punctuation">:</span> <span class="token keyword">false</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-cities<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"city"</span><span class="token punctuation">,</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"many"</span><span class="token punctuation">,</span>  
-optional<span class="token punctuation">:</span> <span class="token keyword">true</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> stateOutRel <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> <span class="token function-variable function">states</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span>  
-ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>  
-<span class="token string">"state"</span><span class="token punctuation">,</span>  
-statePureObj<span class="token punctuation">,</span>  
-stateInRel <span class="token keyword">as</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span><span class="token punctuation">,</span>  
-stateOutRel <span class="token keyword">as</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span><span class="token punctuation">,</span>  
-<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> statePureObj <span class="token operator">=</span> <span class="token punctuation">{</span>
+	id<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">any</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	geometries<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    	<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    	coordinates<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+abb<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+description<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> stateInRel <span class="token operator">=</span> <span class="token punctuation">{</span>
+	country<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    	schemaName<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>
+    	<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span><span class="token punctuation">,</span>
+    	optional<span class="token punctuation">:</span> <span class="token keyword">false</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+	cities<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    	schemaName<span class="token punctuation">:</span> <span class="token string">"city"</span><span class="token punctuation">,</span>
+    	<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"many"</span><span class="token punctuation">,</span>
+    	optional<span class="token punctuation">:</span> <span class="token keyword">true</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> stateOutRel <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">states</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+	    ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>
+    	    <span class="token string">"state"</span><span class="token punctuation">,</span>
+    	    statePureObj<span class="token punctuation">,</span>
+    	    stateInRel <span class="token keyword">as</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+    	    stateOutRel <span class="token keyword">as</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+	<span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <ul>
 <li>Now we create a function for this model and add it to our application actions (in fact, this action is available to the customer side user to call it) like this:</li>
 </ul>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> addStateFn<span class="token punctuation">:</span> ActFn <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span>body<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">const</span> <span class="token punctuation">{</span>  
-<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> name<span class="token punctuation">,</span> enName<span class="token punctuation">,</span> countryId<span class="token punctuation">,</span> geometries <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token keyword">get</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span> <span class="token operator">=</span> body<span class="token punctuation">.</span>details<span class="token punctuation">;</span>  
-  
-<span class="token keyword">return</span>  <span class="token keyword">await</span> <span class="token function">states</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> addStateFn<span class="token punctuation">:</span> ActFn <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span>body<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+	<span class="token keyword">const</span> <span class="token punctuation">{</span>
+    	    <span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> name<span class="token punctuation">,</span> enName<span class="token punctuation">,</span> countryId<span class="token punctuation">,</span> geometries <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    	    <span class="token keyword">get</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span> <span class="token operator">=</span> body<span class="token punctuation">.</span>details<span class="token punctuation">;</span>
 
-doc<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-name<span class="token punctuation">,</span>  
-enName<span class="token punctuation">,</span>  
-geometries<span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>
-
-relation<span class="token punctuation">:</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token keyword">new</span> <span class="token class-name">ObjectId</span><span class="token punctuation">(</span>countryId<span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
-
-<span class="token keyword">get</span>
-
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+	<span class="token keyword">return</span> <span class="token keyword">await</span> <span class="token function">states</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+          doc<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    	        name<span class="token punctuation">,</span>
+    	        enName<span class="token punctuation">,</span>
+    	        geometries<span class="token punctuation">,</span>
+	    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+          relation<span class="token punctuation">:</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token keyword">new</span> <span class="token class-name">ObjectId</span><span class="token punctuation">(</span>countryId<span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+          <span class="token keyword">get</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <h6 id="in-the-method-written-for-insertone-in-lesan’s-odm-the-input-get-is-also-received-and-returned-using-the-aggregation-method.-the-input-relation-also-receives-the-relationships-of-the-selected-model-and-finds-the-pure-information-of-all-relationships-based-on-the-information-we-have-given-it-before-and-stores-them-in-an-embedded-form.">In the Method written for insertOne in Lesan’s ODM, the input get is also received and returned using the aggregation method. The input relation also receives the relationships of the selected model and finds the pure information of all relationships based on the information we have given it before and stores them in an embedded form.</h6>
 <ul>
 <li>Now we write a validator for this function as follows:</li>
 </ul>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> <span class="token function-variable function">addStateValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-countryId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-enName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-geometries<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-coordinates<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token keyword">get</span><span class="token punctuation">:</span> <span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"state"</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> <span class="token function-variable function">addStateValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+	<span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    	<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+        	countryId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        	name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        	enName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        	geometries<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+            	<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            	coordinates<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    	<span class="token keyword">get</span><span class="token punctuation">:</span> <span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"state"</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <ul>
@@ -494,36 +480,37 @@ coordinates<span class="token punctuation">:</span> <span class="token function"
 <pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span> country <span class="token punctuation">:</span> <span class="token punctuation">{</span> state<span class="token punctuation">:</span> <span class="token number">2</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> cities<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span>
 </code></pre>
 <p>As a result, an object will be produced as follows :</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>  
-id<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-geoLocation<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-country<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-id<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-geoLocation<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-cities<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-id<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-abb<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-geoLocation<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>
+    id<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    name<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    abb<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    description<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    geoLocation<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    country<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        id<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        name<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        abb<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        description<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        geoLocation<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    cities<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        id<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        name<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        abb<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        description<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        geoLocation<span class="token punctuation">:</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>This object is used for validating the data sent from the client to the server. With this method, we have accurately and separately determined the depth of penetration for each function. If you notice, the key “get” is exactly similar to “projection” in MongoDB and after validating this object, we send it to the database without any changes to receive the data. Besides, we can inform the customer side of all the details of the written requests on the server. As a result, even before sending a request on the customer’s side, we can understand what information needs to be sent and what information we can receive. Finally, we add this function and validator to our software with the setAct function.</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">ecommerceApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-schema<span class="token punctuation">:</span> <span class="token string">"state"</span><span class="token punctuation">,</span>  
-fn<span class="token punctuation">:</span> addStateFn<span class="token punctuation">,</span>  
-actName<span class="token punctuation">:</span> <span class="token string">"addState"</span><span class="token punctuation">,</span>  
-validator<span class="token punctuation">:</span> <span class="token function">addStateValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<pre class=" language-typescript"><code class="prism  language-typescript">ecommerceApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    	<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+    	schema<span class="token punctuation">:</span> <span class="token string">"state"</span><span class="token punctuation">,</span>
+    	fn<span class="token punctuation">:</span> addStateFn<span class="token punctuation">,</span>
+    	actName<span class="token punctuation">:</span> <span class="token string">"addState"</span><span class="token punctuation">,</span>
+    	validator<span class="token punctuation">:</span> <span class="token function">addStateValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
 </code></pre>
 <h2 id="microservice">Microservice</h2>
 <h3 id="microservice-process-implementation">Microservice process implementation</h3>
@@ -546,117 +533,117 @@ validator<span class="token punctuation">:</span> <span class="token function">a
 <h3 id="a-suggestion-for-microservices-an-architecture-between-microservices-and-monolith">A suggestion for microservices (an architecture between microservices and monolith)</h3>
 <p>To create a model in Lesan, it can be expanded based on another extensive model so that it has nothing more than that and can only have some of its keys. Therefore, we can create a database for all services along with all models that have all the necessary keys in all services. Then each service defines its own model separately based on the integrated database model and takes some of its required keys from that main model. Given the way models are written in Lesan (model implementation based on a schema validator), we can have a common database and at the same time each service can validate its own data based on the expanded model of the comprehensive and original model. Also, it is possible to move models and actions written in Lesan, and we can easily have each service’s database separately or simultaneously with other services. On the other hand, NoSQL databases are usually schemaless and any shape or form can be given to data in the database. Lesan is currently developed based on MongoDB. If we can put all service models in a comprehensive database, we can prevent data duplication and we no longer need to write parallel logic to manage this duplication. In addition, we do not need any tools for synchronization or writing separate logic to standardize data. Finally, we can also take advantage of the ease of horizontal distribution of NoSQL databases without worrying about data consistency. Consider the following example:</p>
 <p>Suppose we have several services named core - ecommerce - blog and so on, all of which have a model for users named user. We can create a model of the user that has all the fields of all these services and share it among all services, like this:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>  
-<span class="token keyword">any</span><span class="token punctuation">,</span>  
-array<span class="token punctuation">,</span>  
-<span class="token keyword">boolean</span><span class="token punctuation">,</span>  
-date<span class="token punctuation">,</span>  
-enums<span class="token punctuation">,</span>  
-InRelation<span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">,</span>  
-object<span class="token punctuation">,</span>  
-optional<span class="token punctuation">,</span>  
-OutRelation<span class="token punctuation">,</span>  
-<span class="token keyword">string</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"../../../deps.ts"</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">export</span>  <span class="token keyword">const</span> level <span class="token operator">=</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">"Admin"</span><span class="token punctuation">,</span> <span class="token string">"Editor"</span><span class="token punctuation">,</span> <span class="token string">"Author"</span><span class="token punctuation">,</span> <span class="token string">"Ghost"</span><span class="token punctuation">,</span> <span class="token string">"Normal"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token keyword">export</span>  <span class="token keyword">const</span> gender <span class="token operator">=</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">"Male"</span><span class="token punctuation">,</span> <span class="token string">"Female"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">export</span>  <span class="token keyword">const</span> addressObj <span class="token operator">=</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-addressId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-countryId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-stateId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-cityId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-addressText<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-location<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-coordinates<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">export</span>  <span class="token keyword">const</span> pureUserObj <span class="token operator">=</span> <span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">any</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-age<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-lastName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-phone<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-gender<span class="token punctuation">:</span> gender<span class="token punctuation">,</span>  
-birthDate<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-postalCode<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-level<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span>level<span class="token punctuation">)</span><span class="token punctuation">,</span>  
-email<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-isActive<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">boolean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-creditCardNumber<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-address<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span>addressObj<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">export</span>  <span class="token keyword">const</span> userInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-<span class="token comment">// TODO how c  </span>
-<span class="token keyword">export</span>  <span class="token keyword">const</span> userOutRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-blogPosts<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"blogPosts"</span><span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>  
-sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span><span class="token punctuation">,</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-orders<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"order"</span><span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>  
-sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span><span class="token punctuation">,</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>
+	<span class="token keyword">any</span><span class="token punctuation">,</span>
+	array<span class="token punctuation">,</span>
+	<span class="token keyword">boolean</span><span class="token punctuation">,</span>
+	date<span class="token punctuation">,</span>
+	enums<span class="token punctuation">,</span>
+	InRelation<span class="token punctuation">,</span>
+	<span class="token keyword">number</span><span class="token punctuation">,</span>
+	object<span class="token punctuation">,</span>
+	optional<span class="token punctuation">,</span>
+	OutRelation<span class="token punctuation">,</span>
+	<span class="token keyword">string</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"../../../deps.ts"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">const</span> level <span class="token operator">=</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">"Admin"</span><span class="token punctuation">,</span> <span class="token string">"Editor"</span><span class="token punctuation">,</span> <span class="token string">"Author"</span><span class="token punctuation">,</span> <span class="token string">"Ghost"</span><span class="token punctuation">,</span> <span class="token string">"Normal"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> gender <span class="token operator">=</span> <span class="token function">enums</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">"Male"</span><span class="token punctuation">,</span> <span class="token string">"Female"</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">const</span> addressObj <span class="token operator">=</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+	addressId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	countryId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	stateId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	cityId<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	addressText<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	location<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    	<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    	coordinates<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">const</span> pureUserObj <span class="token operator">=</span> <span class="token punctuation">{</span>
+	_id<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">any</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	age<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	lastName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	phone<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	gender<span class="token punctuation">:</span> gender<span class="token punctuation">,</span>
+	birthDate<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	postalCode<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	level<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span>level<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	email<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	isActive<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">boolean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	creditCardNumber<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	address<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span>addressObj<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">const</span> userInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment">// TODO how c</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> userOutRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+	blogPosts<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    	    schemaName<span class="token punctuation">:</span> <span class="token string">"blogPosts"</span><span class="token punctuation">,</span>
+    	    <span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+    	    sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span><span class="token punctuation">,</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+	orders<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    	    schemaName<span class="token punctuation">:</span> <span class="token string">"order"</span><span class="token punctuation">,</span>
+    	    <span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+    	    sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span><span class="token punctuation">,</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>Now, for example, we create a model of the user for ecommerce as well and write its fields in such a way that it does not have anything more than the shared user model, like this:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span> ecommerceApp <span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"../../../../../apps/ecommerce/mod.ts"</span><span class="token punctuation">;</span>  
-<span class="token keyword">import</span> <span class="token punctuation">{</span> <span class="token keyword">any</span><span class="token punctuation">,</span> array<span class="token punctuation">,</span> <span class="token keyword">boolean</span><span class="token punctuation">,</span> date<span class="token punctuation">,</span> InRelation<span class="token punctuation">,</span> <span class="token keyword">number</span><span class="token punctuation">,</span> optional<span class="token punctuation">,</span> OutRelation<span class="token punctuation">,</span> <span class="token keyword">string</span> <span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"../../../deps.ts"</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">import</span> <span class="token punctuation">{</span>  
-addressObj<span class="token punctuation">,</span>  
-gender<span class="token punctuation">,</span>  
-level<span class="token punctuation">,</span>  
-pureUserObj <span class="token keyword">as</span> sharedPureUserObj<span class="token punctuation">,</span>  
-userInRel <span class="token keyword">as</span> sharedUserInRel<span class="token punctuation">,</span>  
-userOutRel <span class="token keyword">as</span> sharedUserOutRel<span class="token punctuation">,</span>  
-<span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"../../shared/mod.ts"</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> userPureObj<span class="token punctuation">:</span> Partial<span class="token operator">&lt;</span><span class="token keyword">typeof</span> sharedPureUserObj<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">any</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-age<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-lastName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-phone<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-gender<span class="token punctuation">:</span> gender<span class="token punctuation">,</span>  
-birthDate<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-postalCode<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-level<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span>level<span class="token punctuation">)</span><span class="token punctuation">,</span>  
-email<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-isActive<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">boolean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-creditCardNumber<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-address<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span>addressObj<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> userInRel<span class="token punctuation">:</span> Partial<span class="token operator">&lt;</span><span class="token keyword">typeof</span> sharedUserInRel<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> userOutRel<span class="token punctuation">:</span> Partial<span class="token operator">&lt;</span><span class="token keyword">typeof</span> sharedUserOutRel<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-<span class="token comment">// blogPosts: {  </span>
-<span class="token comment">// schemaName: "blogPosts",  </span>
-<span class="token comment">// number: 50,  </span>
-<span class="token comment">// sort: { type: "objectId", field: "_id", order: "desc" },  </span>
-<span class="token comment">// },  </span>
-orders<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"order"</span><span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>  
-sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span><span class="token punctuation">,</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">export</span>  <span class="token keyword">const</span> <span class="token function-variable function">users</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span>  
-ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>  
-<span class="token string">"user"</span><span class="token punctuation">,</span>  
-userPureObj<span class="token punctuation">,</span>  
-userInRel <span class="token keyword">as</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span><span class="token punctuation">,</span>  
-userOutRel <span class="token keyword">as</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span><span class="token punctuation">,</span>  
-<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span> ecommerceApp <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"../../../../../apps/ecommerce/mod.ts"</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> <span class="token keyword">any</span><span class="token punctuation">,</span> array<span class="token punctuation">,</span> <span class="token keyword">boolean</span><span class="token punctuation">,</span> date<span class="token punctuation">,</span> InRelation<span class="token punctuation">,</span> <span class="token keyword">number</span><span class="token punctuation">,</span> optional<span class="token punctuation">,</span> OutRelation<span class="token punctuation">,</span> <span class="token keyword">string</span> <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"../../../deps.ts"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token punctuation">{</span>
+	addressObj<span class="token punctuation">,</span>
+	gender<span class="token punctuation">,</span>
+	level<span class="token punctuation">,</span>
+	pureUserObj <span class="token keyword">as</span> sharedPureUserObj<span class="token punctuation">,</span>
+	userInRel <span class="token keyword">as</span> sharedUserInRel<span class="token punctuation">,</span>
+	userOutRel <span class="token keyword">as</span> sharedUserOutRel<span class="token punctuation">,</span>
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"../../shared/mod.ts"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> userPureObj<span class="token punctuation">:</span> Partial<span class="token operator">&lt;</span><span class="token keyword">typeof</span> sharedPureUserObj<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+	_id<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">any</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	age<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	lastName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	phone<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	gender<span class="token punctuation">:</span> gender<span class="token punctuation">,</span>
+	birthDate<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	postalCode<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	level<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span>level<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	email<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	isActive<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">boolean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	creditCardNumber<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	address<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span>addressObj<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> userInRel<span class="token punctuation">:</span> Partial<span class="token operator">&lt;</span><span class="token keyword">typeof</span> sharedUserInRel<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> userOutRel<span class="token punctuation">:</span> Partial<span class="token operator">&lt;</span><span class="token keyword">typeof</span> sharedUserOutRel<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+	<span class="token comment">// blogPosts: {</span>
+	<span class="token comment">// 	schemaName: "blogPosts",</span>
+	<span class="token comment">// 	number: 50,</span>
+	<span class="token comment">// 	sort: { type: "objectId", field: "_id", order: "desc" },</span>
+	<span class="token comment">// },</span>
+	orders<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    	    schemaName<span class="token punctuation">:</span> <span class="token string">"order"</span><span class="token punctuation">,</span>
+    	    <span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+    	    sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span><span class="token punctuation">,</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">const</span> <span class="token function-variable function">users</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span>
+	ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>
+    	    <span class="token string">"user"</span><span class="token punctuation">,</span>
+    	    userPureObj<span class="token punctuation">,</span>
+    	    userInRel <span class="token keyword">as</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+    	    userOutRel <span class="token keyword">as</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+	<span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>Now we can connect them to a common database while several services continue their work independently, provided that the data validation of the schemas works independently for each service and only understands its own data. You can see a complete example of this type of microservice implementation here.</p>
 <h2 id="artificial-intelligence">Artificial intelligence</h2>
@@ -686,61 +673,61 @@ userOutRel <span class="token keyword">as</span> Record<span class="token operat
 <p>We should set up the ODM with a new database instance:</p>
 <pre class=" language-typescript"><code class="prism  language-typescript">coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setDb</span><span class="token punctuation">(</span>db<span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
-<p>As we have said before, to create a model, we need to define its pure fields with the name of pure and the relations of that model in two types of inrelation and outrelation.<br>
-pure is merely a simple object with key of string and a value similar to <a href="https://github.com/ianstormtaylor/superstruct">SuperStruct</a> structure.</p>
+<p>As we have said before, to create a model, we need to define its pure fields with the name of pure and the relations of that model in two types of inrelation and outrelation.</p>
+<p>pure is merely a simple object with key of string and a value similar to <a href="https://github.com/ianstormtaylor/superstruct">SuperStruct</a> structure.</p>
 <p>inrelation represents an <strong>array</strong> or a <strong>single</strong> pure object of another MongoDb collection, we want to embed in the current document. In SQL modeling, for every relation we save the key or id which we call inrelation. As an example, we have a blogPost which has a creator from the user collection and we save the pure model of the user in the blogPost collection.</p>
 <p>outrelation specifies a relation for a specific collection but it could contain an unbound set of data that could outgrow the <strong>16MB</strong> limit size of a document in MongoDB. Thus we do not even save its key or id in SQL modeling. For example, we have a user entity who writes many blog posts and we save for example an array of pure objects of blogPost in order of the date published for the first pagination in the user collection containing the latest 50 blog posts.</p>
 <p>Now let’s get our hands dirty and create the user and country schemas:</p>
 <p>First import string number optional InRelation and OutRelation from lesan :</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>  
-InRelation<span class="token punctuation">,</span>  
-lesan<span class="token punctuation">,</span>  
-MongoClient<span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">,</span>  
-optional<span class="token punctuation">,</span>  
-OutRelation<span class="token punctuation">,</span>  
-<span class="token keyword">string</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"https://deno.land/x/lesan@vx.xx/mod.ts"</span><span class="token punctuation">;</span>
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>
+  InRelation<span class="token punctuation">,</span>
+  lesan<span class="token punctuation">,</span>
+  MongoClient<span class="token punctuation">,</span>
+  <span class="token keyword">number</span><span class="token punctuation">,</span>
+  optional<span class="token punctuation">,</span>
+  OutRelation<span class="token punctuation">,</span>
+  <span class="token keyword">string</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"https://deno.land/x/lesan@vx.xx/mod.ts"</span><span class="token punctuation">;</span>
 </code></pre>
 <p>and then create the schema shapes:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> userPure <span class="token operator">=</span> <span class="token punctuation">{</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-address<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-age<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> countryPure <span class="token operator">=</span> <span class="token punctuation">{</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> userInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-country<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span><span class="token punctuation">,</span>  
-optional<span class="token punctuation">:</span> <span class="token keyword">false</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> userOutRel <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> countryInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> countryOutRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-users<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>  
-sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span><span class="token punctuation">,</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> userPure <span class="token operator">=</span> <span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  address<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  age<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> countryPure <span class="token operator">=</span> <span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  description<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> userInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  country<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    schemaName<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>
+    <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span><span class="token punctuation">,</span>
+    optional<span class="token punctuation">:</span> <span class="token keyword">false</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> userOutRel <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> countryInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> countryOutRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  users<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    schemaName<span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>
+    <span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+    sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span><span class="token punctuation">,</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>We should set the schema in coreApp:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> users <span class="token operator">=</span> coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> userPure<span class="token punctuation">,</span> userInRel<span class="token punctuation">,</span> userOutRel<span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token keyword">const</span> countries <span class="token operator">=</span> coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>  
-<span class="token string">"country"</span><span class="token punctuation">,</span>  
-countryPure<span class="token punctuation">,</span>  
-countryInRel<span class="token punctuation">,</span>  
-countryOutRel<span class="token punctuation">,</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> users <span class="token operator">=</span> coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> userPure<span class="token punctuation">,</span> userInRel<span class="token punctuation">,</span> userOutRel<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> countries <span class="token operator">=</span> coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>
+  <span class="token string">"country"</span><span class="token punctuation">,</span>
+  countryPure<span class="token punctuation">,</span>
+  countryInRel<span class="token punctuation">,</span>
+  countryOutRel<span class="token punctuation">,</span>
 <span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>At this point, we need to have some endpoints to call from an HTTP request, so let’s write some endpoints.</p>
@@ -767,40 +754,37 @@ countryOutRel<span class="token punctuation">,</span>
 </ul>
 <p>The following is an one example of act:</p>
 <p>Before creating act, import object and ActFn from lesan:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>  
-ActFn<span class="token punctuation">,</span>  
-InRelation<span class="token punctuation">,</span>  
-lesan<span class="token punctuation">,</span>  
-MongoClient<span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">,</span>  
-object<span class="token punctuation">,</span>  
-optional<span class="token punctuation">,</span>  
-OutRelation<span class="token punctuation">,</span>  
-<span class="token keyword">string</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"https://deno.land/x/lesan@vx.xx/mod.ts"</span><span class="token punctuation">;</span>
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>
+  ActFn<span class="token punctuation">,</span>
+  InRelation<span class="token punctuation">,</span>
+  lesan<span class="token punctuation">,</span>
+  MongoClient<span class="token punctuation">,</span>
+  <span class="token keyword">number</span><span class="token punctuation">,</span>
+  object<span class="token punctuation">,</span>
+  optional<span class="token punctuation">,</span>
+  OutRelation<span class="token punctuation">,</span>
+  <span class="token keyword">string</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"https://deno.land/x/lesan@vx.xx/mod.ts"</span><span class="token punctuation">;</span>
 </code></pre>
 <p>and the act will be in the following form:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> <span class="token function-variable function">addUserValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>userPure<span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token keyword">get</span><span class="token punctuation">:</span> coreApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">const</span> <span class="token function-variable function">addUserValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>userPure<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token keyword">get</span><span class="token punctuation">:</span> coreApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
 <span class="token keyword">const</span> addUser<span class="token punctuation">:</span> ActFn <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span>body<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token keyword">await</span> users<span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    doc<span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">,</span> 
+    <span class="token keyword">get</span><span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-doc<span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">,</span>
-
-<span class="token keyword">get</span><span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span>
-
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-coreApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-schema<span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>  
-actName<span class="token punctuation">:</span> <span class="token string">"addUser"</span><span class="token punctuation">,</span>  
-validator<span class="token punctuation">:</span> <span class="token function">addUserValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-fn<span class="token punctuation">:</span> addUser<span class="token punctuation">,</span>  
+coreApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+  schema<span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>
+  actName<span class="token punctuation">:</span> <span class="token string">"addUser"</span><span class="token punctuation">,</span>
+  validator<span class="token punctuation">:</span> <span class="token function">addUserValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  fn<span class="token punctuation">:</span> addUser<span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>The last thing we need is just to run the web server:</p>
@@ -812,257 +796,248 @@ fn<span class="token punctuation">:</span> addUser<span class="token punctuation
 </code></pre>
 <p>If the web server comes up correctly, you will see the following message:</p>
 <p>We are all set and now we can send a POST HTTP request to <a href="http://localhost:8080/lesan">http://localhost:8080/lesan</a>, include the following in JSON format inside the body in order to retrieve the desired data:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>  
-<span class="token string">"contents"</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-<span class="token string">"wants"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"model"</span><span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>  
-<span class="token string">"act"</span><span class="token punctuation">:</span> <span class="token string">"addUser"</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token string">"details"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"set"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"Seyyedeh Sare Hosseini"</span><span class="token punctuation">,</span>  
-<span class="token string">"address"</span><span class="token punctuation">:</span> <span class="token string">"Iran, Hamedan"</span><span class="token punctuation">,</span>  
-<span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">5</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token string">"get"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-<span class="token string">"address"</span><span class="token punctuation">:</span> <span class="token number">1</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>
+  <span class="token string">"contents"</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+  <span class="token string">"wants"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"model"</span><span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>
+    <span class="token string">"act"</span><span class="token punctuation">:</span> <span class="token string">"addUser"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"details"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"set"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"Seyyedeh Sare Hosseini"</span><span class="token punctuation">,</span>
+      <span class="token string">"address"</span><span class="token punctuation">:</span> <span class="token string">"Iran, Hamedan"</span><span class="token punctuation">,</span>
+      <span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">5</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"get"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"age"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+      <span class="token string">"address"</span><span class="token punctuation">:</span> <span class="token number">1</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The working of projection for retrieving data is fundamentally based on <a href="https://www.mongodb.com/docs/manual/tutorial/project-fields-from-query-results/">MongoDb Projection</a>.</p>
 <p>The coreApp.schemas.selectStruct function can limit the projection based on your schema relationships and prevent an infinite loop in retrieving data.</p>
 <p>After running the server with typeGeneration set to true, the declarations folder is created and you can import userInp from generated type and make coreApp.schemas.selectStruct(“user”, { country: 1 }) type safe:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span> userInp <span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"./declarations/selectInp.ts"</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> <span class="token function-variable function">addUserValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>userPure<span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token keyword">get</span><span class="token punctuation">:</span> coreApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span>selectStruct<span class="token operator">&lt;</span>userInp<span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span> userInp <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"./declarations/selectInp.ts"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">addUserValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>userPure<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token keyword">get</span><span class="token punctuation">:</span> coreApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span>selectStruct<span class="token operator">&lt;</span>userInp<span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <p>The following is the full example of what we have discussed so far:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>  
-ActFn<span class="token punctuation">,</span>  
-InRelation<span class="token punctuation">,</span>  
-lesan<span class="token punctuation">,</span>  
-MongoClient<span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">,</span>  
-object<span class="token punctuation">,</span>  
-optional<span class="token punctuation">,</span>  
-OutRelation<span class="token punctuation">,</span>  
-<span class="token keyword">string</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"https://deno.land/x/lesan@vx.xx/mod.ts"</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> coreApp <span class="token operator">=</span> <span class="token function">lesan</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> client <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">await</span> client<span class="token punctuation">.</span><span class="token function">connect</span><span class="token punctuation">(</span><span class="token string">"mongodb://localhost:27017/arc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token keyword">const</span> db <span class="token operator">=</span> client<span class="token punctuation">.</span><span class="token function">database</span><span class="token punctuation">(</span><span class="token string">"core"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setDb</span><span class="token punctuation">(</span>db<span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> userPure <span class="token operator">=</span> <span class="token punctuation">{</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-address<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-age<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> countryPure <span class="token operator">=</span> <span class="token punctuation">{</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> userInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-country<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span><span class="token punctuation">,</span>  
-optional<span class="token punctuation">:</span> <span class="token keyword">false</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> userOutRel <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> countryInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> countryOutRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-users<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>  
-sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span><span class="token punctuation">,</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> users <span class="token operator">=</span> coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> userPure<span class="token punctuation">,</span> userInRel<span class="token punctuation">,</span> userOutRel<span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token keyword">const</span> countries <span class="token operator">=</span> coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>  
-<span class="token string">"country"</span><span class="token punctuation">,</span>  
-countryPure<span class="token punctuation">,</span>  
-countryInRel<span class="token punctuation">,</span>  
-countryOutRel<span class="token punctuation">,</span>  
-<span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> <span class="token function-variable function">addUserValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>userPure<span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token keyword">get</span><span class="token punctuation">:</span> coreApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>
+  ActFn<span class="token punctuation">,</span>
+  InRelation<span class="token punctuation">,</span>
+  lesan<span class="token punctuation">,</span>
+  MongoClient<span class="token punctuation">,</span>
+  <span class="token keyword">number</span><span class="token punctuation">,</span>
+  object<span class="token punctuation">,</span>
+  optional<span class="token punctuation">,</span>
+  OutRelation<span class="token punctuation">,</span>
+  <span class="token keyword">string</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"https://deno.land/x/lesan@vx.xx/mod.ts"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> coreApp <span class="token operator">=</span> <span class="token function">lesan</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> client <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">await</span> client<span class="token punctuation">.</span><span class="token function">connect</span><span class="token punctuation">(</span><span class="token string">"mongodb://localhost:27017/arc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> db <span class="token operator">=</span> client<span class="token punctuation">.</span><span class="token function">database</span><span class="token punctuation">(</span><span class="token string">"core"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setDb</span><span class="token punctuation">(</span>db<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> userPure <span class="token operator">=</span> <span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  address<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  age<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> countryPure <span class="token operator">=</span> <span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  description<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> userInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  country<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    schemaName<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>
+    <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span><span class="token punctuation">,</span>
+    optional<span class="token punctuation">:</span> <span class="token keyword">false</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> userOutRel <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> countryInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> countryOutRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  users<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    schemaName<span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>
+    <span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+    sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span><span class="token punctuation">,</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"objectId"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> users <span class="token operator">=</span> coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> userPure<span class="token punctuation">,</span> userInRel<span class="token punctuation">,</span> userOutRel<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> countries <span class="token operator">=</span> coreApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>
+  <span class="token string">"country"</span><span class="token punctuation">,</span>
+  countryPure<span class="token punctuation">,</span>
+  countryInRel<span class="token punctuation">,</span>
+  countryOutRel<span class="token punctuation">,</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">addUserValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>userPure<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token keyword">get</span><span class="token punctuation">:</span> coreApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
 <span class="token keyword">const</span> addUser<span class="token punctuation">:</span> ActFn <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span>body<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token keyword">await</span> users<span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    doc<span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">,</span> 
+    <span class="token keyword">get</span><span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-doc<span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">,</span>
+coreApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+  schema<span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>
+  actName<span class="token punctuation">:</span> <span class="token string">"addUser"</span><span class="token punctuation">,</span>
+  validator<span class="token punctuation">:</span> <span class="token function">addUserValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  fn<span class="token punctuation">:</span> addUser<span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-<span class="token keyword">get</span><span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span>
+<span class="token keyword">const</span> <span class="token function-variable function">addCountryValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>countryPure<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token keyword">get</span><span class="token punctuation">:</span> coreApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"country"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> users<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-coreApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-schema<span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span>  
-actName<span class="token punctuation">:</span> <span class="token string">"addUser"</span><span class="token punctuation">,</span>  
-validator<span class="token punctuation">:</span> <span class="token function">addUserValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-fn<span class="token punctuation">:</span> addUser<span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> <span class="token function-variable function">addCountryValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>countryPure<span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token keyword">get</span><span class="token punctuation">:</span> coreApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"country"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> users<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> addCountry<span class="token punctuation">:</span> ActFn <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span>body<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">const</span> createdCountry <span class="token operator">=</span> <span class="token keyword">await</span> countries<span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span>body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token keyword">return</span>  <span class="token keyword">await</span> countries<span class="token punctuation">.</span><span class="token function">findOne</span><span class="token punctuation">(</span><span class="token punctuation">{</span> _id<span class="token punctuation">:</span> createdCountry <span class="token punctuation">}</span><span class="token punctuation">,</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-coreApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-schema<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>  
-actName<span class="token punctuation">:</span> <span class="token string">"addCountry"</span><span class="token punctuation">,</span>  
-validator<span class="token punctuation">:</span> <span class="token function">addCountryValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-fn<span class="token punctuation">:</span> addCountry<span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
+<span class="token keyword">const</span> addCountry<span class="token punctuation">:</span> ActFn <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span>body<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> createdCountry <span class="token operator">=</span> <span class="token keyword">await</span> countries<span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span>body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token keyword">await</span> countries<span class="token punctuation">.</span><span class="token function">findOne</span><span class="token punctuation">(</span><span class="token punctuation">{</span> _id<span class="token punctuation">:</span> createdCountry <span class="token punctuation">}</span><span class="token punctuation">,</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+coreApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+  schema<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span>
+  actName<span class="token punctuation">:</span> <span class="token string">"addCountry"</span><span class="token punctuation">,</span>
+  validator<span class="token punctuation">:</span> <span class="token function">addCountryValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  fn<span class="token punctuation">:</span> addCountry<span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
 coreApp<span class="token punctuation">.</span><span class="token function">runServer</span><span class="token punctuation">(</span><span class="token punctuation">{</span> port<span class="token punctuation">:</span> <span class="token number">8080</span><span class="token punctuation">,</span> typeGeneration<span class="token punctuation">:</span> <span class="token keyword">true</span><span class="token punctuation">,</span> playground<span class="token punctuation">:</span> <span class="token keyword">false</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <h3 id="microservice-architecture-with-lesan">Microservice Architecture with Lesan:</h3>
 <p>Lesan provides the capability to create independent services which follow the distributed architecture for your system.</p>
 <p>Follow the below instructions in order to create a microservice example:</p>
 <p>Move the mod.ts file to core/mod.ts and create another file in ecommerce/mod.ts and place the following code in it:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>  
-ActFn<span class="token punctuation">,</span>  
-InRelation<span class="token punctuation">,</span>  
-lesan<span class="token punctuation">,</span>  
-MongoClient<span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">,</span>  
-object<span class="token punctuation">,</span>  
-optional<span class="token punctuation">,</span>  
-OutRelation<span class="token punctuation">,</span>  
-<span class="token keyword">string</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span> <span class="token keyword">from</span>  <span class="token string">"https://deno.land/x/lesan@vx.xx/mod.ts"</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> ecommerceApp <span class="token operator">=</span> <span class="token function">lesan</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> client <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">await</span> client<span class="token punctuation">.</span><span class="token function">connect</span><span class="token punctuation">(</span><span class="token string">"mongodb://localhost:27017/arc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token keyword">const</span> db <span class="token operator">=</span> client<span class="token punctuation">.</span><span class="token function">database</span><span class="token punctuation">(</span><span class="token string">"core"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setDb</span><span class="token punctuation">(</span>db<span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> warePure <span class="token operator">=</span> <span class="token punctuation">{</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-brand<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-price<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> wareTypePure <span class="token operator">=</span> <span class="token punctuation">{</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-description<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> wareInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-wareType<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"wareType"</span><span class="token punctuation">,</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> wareOutRel <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> wareTypeInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> wareTypeOutRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>  
-wares<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"ware"</span><span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>  
-sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> wares <span class="token operator">=</span> ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>  
-<span class="token string">"ware"</span><span class="token punctuation">,</span>  
-warePure<span class="token punctuation">,</span>  
-wareInRel<span class="token punctuation">,</span>  
-wareOutRel<span class="token punctuation">,</span>  
-<span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token keyword">const</span> wareTypes <span class="token operator">=</span> ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>  
-<span class="token string">"wareType"</span><span class="token punctuation">,</span>  
-wareTypePure<span class="token punctuation">,</span>  
-wareTypeInRel<span class="token punctuation">,</span>  
-wareTypeOutRel<span class="token punctuation">,</span>  
-<span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> <span class="token function-variable function">addWareValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>warePure<span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token keyword">get</span><span class="token punctuation">:</span> ecommerceApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"ware"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span>
+  ActFn<span class="token punctuation">,</span>
+  InRelation<span class="token punctuation">,</span>
+  lesan<span class="token punctuation">,</span>
+  MongoClient<span class="token punctuation">,</span>
+  <span class="token keyword">number</span><span class="token punctuation">,</span>
+  object<span class="token punctuation">,</span>
+  optional<span class="token punctuation">,</span>
+  OutRelation<span class="token punctuation">,</span>
+  <span class="token keyword">string</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"https://deno.land/x/lesan@vx.xx/mod.ts"</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> ecommerceApp <span class="token operator">=</span> <span class="token function">lesan</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> client <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MongoClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">await</span> client<span class="token punctuation">.</span><span class="token function">connect</span><span class="token punctuation">(</span><span class="token string">"mongodb://localhost:27017/arc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> db <span class="token operator">=</span> client<span class="token punctuation">.</span><span class="token function">database</span><span class="token punctuation">(</span><span class="token string">"core"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setDb</span><span class="token punctuation">(</span>db<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> warePure <span class="token operator">=</span> <span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  brand<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  price<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> wareTypePure <span class="token operator">=</span> <span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  description<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> wareInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  wareType<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    schemaName<span class="token punctuation">:</span> <span class="token string">"wareType"</span><span class="token punctuation">,</span>
+    <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> wareOutRel <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> wareTypeInRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> InRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> wareTypeOutRel<span class="token punctuation">:</span> Record<span class="token operator">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> OutRelation<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  wares<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    schemaName<span class="token punctuation">:</span> <span class="token string">"ware"</span><span class="token punctuation">,</span>
+    <span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+    sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> field<span class="token punctuation">:</span> <span class="token string">"_id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> wares <span class="token operator">=</span> ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>
+  <span class="token string">"ware"</span><span class="token punctuation">,</span>
+  warePure<span class="token punctuation">,</span>
+  wareInRel<span class="token punctuation">,</span>
+  wareOutRel<span class="token punctuation">,</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> wareTypes <span class="token operator">=</span> ecommerceApp<span class="token punctuation">.</span>odm<span class="token punctuation">.</span><span class="token function">setModel</span><span class="token punctuation">(</span>
+  <span class="token string">"wareType"</span><span class="token punctuation">,</span>
+  wareTypePure<span class="token punctuation">,</span>
+  wareTypeInRel<span class="token punctuation">,</span>
+  wareTypeOutRel<span class="token punctuation">,</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">addWareValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>warePure<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token keyword">get</span><span class="token punctuation">:</span> ecommerceApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"ware"</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> country<span class="token punctuation">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
 <span class="token keyword">const</span> addWare<span class="token punctuation">:</span> ActFn <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span>body<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token keyword">await</span> wares<span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    doc<span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">,</span> 
+    <span class="token keyword">get</span><span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-doc<span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">,</span>
+ecommerceApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+  schema<span class="token punctuation">:</span> <span class="token string">"ware"</span><span class="token punctuation">,</span>
+  actName<span class="token punctuation">:</span> <span class="token string">"addWare"</span><span class="token punctuation">,</span>
+  validator<span class="token punctuation">:</span> <span class="token function">addWareValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  fn<span class="token punctuation">:</span> addWare<span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-<span class="token keyword">get</span><span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span>
+<span class="token keyword">const</span> <span class="token function-variable function">addWareTypeValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>wareTypePure<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token keyword">get</span><span class="token punctuation">:</span> ecommerceApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"wareType"</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-ecommerceApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-schema<span class="token punctuation">:</span> <span class="token string">"ware"</span><span class="token punctuation">,</span>  
-actName<span class="token punctuation">:</span> <span class="token string">"addWare"</span><span class="token punctuation">,</span>  
-validator<span class="token punctuation">:</span> <span class="token function">addWareValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-fn<span class="token punctuation">:</span> addWare<span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-<span class="token keyword">const</span> <span class="token function-variable function">addWareTypeValidator</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>  
-<span class="token keyword">return</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">set</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span>wareTypePure<span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token keyword">get</span><span class="token punctuation">:</span> ecommerceApp<span class="token punctuation">.</span>schemas<span class="token punctuation">.</span><span class="token function">selectStruct</span><span class="token punctuation">(</span><span class="token string">"wareType"</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
-  
 <span class="token keyword">const</span> addWareType<span class="token punctuation">:</span> ActFn <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span>body<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token keyword">await</span> wareTypes<span class="token punctuation">.</span><span class="token function">insertOne</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    doc<span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">,</span> 
+    <span class="token keyword">get</span><span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-doc<span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">set</span><span class="token punctuation">,</span>
+ecommerceApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+  schema<span class="token punctuation">:</span> <span class="token string">"wareType"</span><span class="token punctuation">,</span>
+  actName<span class="token punctuation">:</span> <span class="token string">"addWareType"</span><span class="token punctuation">,</span>
+  validator<span class="token punctuation">:</span> <span class="token function">addWareTypeValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  fn<span class="token punctuation">:</span> addWareType<span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-<span class="token keyword">get</span><span class="token punctuation">:</span> body<span class="token punctuation">.</span>details<span class="token punctuation">.</span><span class="token keyword">get</span>
-
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
-ecommerceApp<span class="token punctuation">.</span>acts<span class="token punctuation">.</span><span class="token function">setAct</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-schema<span class="token punctuation">:</span> <span class="token string">"wareType"</span><span class="token punctuation">,</span>  
-actName<span class="token punctuation">:</span> <span class="token string">"addWareType"</span><span class="token punctuation">,</span>  
-validator<span class="token punctuation">:</span> <span class="token function">addWareTypeValidator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-fn<span class="token punctuation">:</span> addWareType<span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
-  
 ecommerceApp<span class="token punctuation">.</span><span class="token function">runServer</span><span class="token punctuation">(</span><span class="token punctuation">{</span> port<span class="token punctuation">:</span> <span class="token number">8282</span><span class="token punctuation">,</span> typeGeneration<span class="token punctuation">:</span> <span class="token keyword">true</span><span class="token punctuation">,</span> playground<span class="token punctuation">:</span> <span class="token keyword">false</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <p>Now we have to create servers, one for the core on port: 8080 and another server for ecommerce on port: 8585.</p>
@@ -1077,40 +1052,40 @@ ecommerceApp<span class="token punctuation">.</span><span class="token function"
 <pre class=" language-typescript"><code class="prism  language-typescript">HTTP webserver running<span class="token punctuation">.</span> Access it at<span class="token punctuation">:</span> http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>localhost<span class="token punctuation">:</span><span class="token number">8282</span><span class="token operator">/</span>
 </code></pre>
 <p>You can now send an HTTP POST request for adding wareType which belongs to the ecommerce service on the <a href="http://localhost:8585/lesan">http://localhost:8585/lesan</a> endpoint with the following JSON in the request body:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>  
-<span class="token string">"contents"</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-<span class="token string">"wants"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"model"</span><span class="token punctuation">:</span> <span class="token string">"wareType"</span><span class="token punctuation">,</span>  
-<span class="token string">"act"</span><span class="token punctuation">:</span> <span class="token string">"addWareType"</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token string">"details"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"set"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"digital"</span><span class="token punctuation">,</span>  
-<span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"digital products include phone and ..."</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token string">"get"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token number">1</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>
+  <span class="token string">"contents"</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+  <span class="token string">"wants"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"model"</span><span class="token punctuation">:</span> <span class="token string">"wareType"</span><span class="token punctuation">,</span>
+    <span class="token string">"act"</span><span class="token punctuation">:</span> <span class="token string">"addWareType"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"details"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"set"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"digital"</span><span class="token punctuation">,</span>
+      <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"digital products include phone and ..."</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"get"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token number">1</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>And even add wareType by sending an HTTP POST request to <a href="http://localhost:8080/lesan">http://localhost:8080/lesan</a> which is for core service with this JSON on request body :</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>  
-<span class="token string">"service"</span><span class="token punctuation">:</span> <span class="token string">"ecommerce"</span><span class="token punctuation">,</span>  
-<span class="token string">"contents"</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>  
-<span class="token string">"wants"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"model"</span><span class="token punctuation">:</span> <span class="token string">"wareType"</span><span class="token punctuation">,</span>  
-<span class="token string">"act"</span><span class="token punctuation">:</span> <span class="token string">"addWareType"</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token string">"details"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"set"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"digital"</span><span class="token punctuation">,</span>  
-<span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"digital products include phone and ..."</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token string">"get"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token number">1</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">}</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>
+  <span class="token string">"service"</span><span class="token punctuation">:</span> <span class="token string">"ecommerce"</span><span class="token punctuation">,</span>
+  <span class="token string">"contents"</span><span class="token punctuation">:</span> <span class="token string">"dynamic"</span><span class="token punctuation">,</span>
+  <span class="token string">"wants"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"model"</span><span class="token punctuation">:</span> <span class="token string">"wareType"</span><span class="token punctuation">,</span>
+    <span class="token string">"act"</span><span class="token punctuation">:</span> <span class="token string">"addWareType"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"details"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"set"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"digital"</span><span class="token punctuation">,</span>
+      <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"digital products include phone and ..."</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"get"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token number">1</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>and even better you can export all ecommerce actions with just one line of code. Thus, add the below code before <code>ecommerceApp.runServer(...)</code> in <code>ecommerce/mod.ts</code> and comment the runServer line.</p>
@@ -1141,34 +1116,34 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p>As mentioned in the previous section, pure include the pure features of a schema. In fact, the features that are specific to the schema itself, not the relationships it has.</p>
 <p>For example, the schema of a city has pure features: city ID, city name, its geographical location, and so on.</p>
 <p>The structure of a pure schema is as follows, which includes a key and its type of feature.</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">export</span>  <span class="token keyword">interface</span> <span class="token class-name">PureModel</span> <span class="token punctuation">{</span>  
-<span class="token punctuation">[</span>key<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">]</span><span class="token punctuation">:</span> Struct<span class="token operator">&lt;</span><span class="token keyword">any</span><span class="token operator">&gt;</span><span class="token punctuation">;</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">export</span> <span class="token keyword">interface</span> <span class="token class-name">PureModel</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">[</span>key<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">]</span><span class="token punctuation">:</span> Struct<span class="token operator">&lt;</span><span class="token keyword">any</span><span class="token operator">&gt;</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>for example, the pure features of the city schema are defined as follows:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>  
-name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-enName<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-geometries<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-coordinates<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token punctuation">{</span>
+  name<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  enName<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  geometries<span class="token punctuation">:</span> <span class="token function">optional</span><span class="token punctuation">(</span><span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+	<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	coordinates<span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token function">array</span><span class="token punctuation">(</span><span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
 </code></pre>
 <h3 id="the-inrelation-structure-in-schema">The InRelation Structure In Schema</h3>
 <p>As mentioned in the proposed method section, when schema A has a relationship with schema B, we store the pure values of schema B in the form of embed in schema A.</p>
 <p>The relationship inrelation is divided into two types of single and multiple. If it is single, inrelation will be an object. If it is multiple, it will be an array of objects. The important issue is how many pure objects we can store in relation as embed? We have no limitation for this issue in Lesan but MongoDB database has a limitation of <strong>16 megabytes</strong> for each BSON document. Since the number of our relations may not end up with one relation, it is better to consider a limitation ourselves. For example, if the total number of documents we want to embed is less than 100, we consider this relationship as inrelation. If the number is more than 100, we define this relationship as outrelation. The outrelation will be explained later.</p>
 <p>The structure of the inrelation relationship is as follows:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">export</span>  <span class="token keyword">interface</span> <span class="token class-name">InRelation</span> <span class="token punctuation">{</span>  
-<span class="token comment">/**  
-* name of schema that this schema has relation with  
-*/</span>  
-schemaName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">;</span>  
-<span class="token comment">/**  
-* type of relation if equal to one: this schema record one object from other schema else  
-* this schema record array of object from other schema  
-*/</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span> <span class="token operator">|</span> <span class="token string">"many"</span><span class="token punctuation">;</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">export</span> <span class="token keyword">interface</span> <span class="token class-name">InRelation</span> <span class="token punctuation">{</span>
+  <span class="token comment">/**
+   * name of schema that this schema has relation with
+   */</span>
+  schemaName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">;</span>
+  <span class="token comment">/**
+   * type of relation if equal to one: this schema record one object from other schema else
+   * this schema record array of object from other schema
+   */</span>
+  <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"one"</span> <span class="token operator">|</span> <span class="token string">"many"</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>In this structure, SchemaName is the name of the schema that schema ‘A’ is associated with. Type can also have the values one or many. If the relationship is single, type takes the value of one and if it is more, it receives the value of many.</p>
@@ -1179,23 +1154,23 @@ schemaName<span class="token punctuation">:</span> <span class="token keyword">s
 <p>The outerRelation structure is a relationship that has more than the limitation that we have considered by default for the inrelation relationship. In this type of relationship, we try to store a limited number that may be requested in the first request in an embedded way with a special algorithm. The important point is that for the next user request, they can easily send their request to the main schema and receive the rest of the list from there. Ultimately, this will significantly reduce the number of requests sent to the server.</p>
 <p>For example, the number of cities in a country is usually more than a few hundred cities. Our limitation for the inrelation relationship was one hundred, so we store a limited number of cities within the country as an embedded outrelation relationship. By default, we have considered this limited number to be fifty and have sorted these fifty cities by their creation date and in DESC order. Or in another example, if we consider the user schema and the order schema in a shopping program, each order has a customer who is of the user schema type. Therefore, the user is stored in the order schema as an inrelation relationship of type one and embedded. On the other hand, the user schema is also related to the order schema. The user’s orders may be very large, so we store a limited number of each user’s orders as an outRelation relationship embedded in the user schema. We can even store orders multiple times as an outrelation relationship in the user schema. Once sorted by order registration date and once sorted by order price and …</p>
 <p>The structure of the outrelation relationship is as follows:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">export</span>  <span class="token keyword">interface</span> <span class="token class-name">OutRelation</span> <span class="token punctuation">{</span>  
-<span class="token comment">/**  
-* name of schema that this schema has relation with  
-*/</span>  
-schemaName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">;</span>  
-<span class="token comment">/**  
-* number of value that we want to keep  
-*/</span>  
-<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">;</span>  
-<span class="token comment">/**  
-* sort : {field , order} - field of sort , and order of sort  
-*/</span>  
-sort<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-field<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">;</span>  
-order<span class="token punctuation">:</span> <span class="token string">"asc"</span> <span class="token operator">|</span> <span class="token string">"desc"</span><span class="token punctuation">;</span>  
-<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"number"</span> <span class="token operator">|</span> <span class="token string">"date"</span> <span class="token operator">|</span> <span class="token string">"objectId"</span><span class="token punctuation">;</span>  
-<span class="token punctuation">}</span><span class="token punctuation">;</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">export</span> <span class="token keyword">interface</span> <span class="token class-name">OutRelation</span> <span class="token punctuation">{</span>
+  <span class="token comment">/**
+   * name of schema that this schema has relation with
+   */</span>
+  schemaName<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">;</span>
+  <span class="token comment">/**
+   * number of value that we want to keep
+   */</span>
+  <span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">;</span>
+  <span class="token comment">/**
+   * sort : {field , order} - field of sort , and order of sort
+   */</span>
+  sort<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+	field<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">;</span>
+	order<span class="token punctuation">:</span> <span class="token string">"asc"</span> <span class="token operator">|</span> <span class="token string">"desc"</span><span class="token punctuation">;</span>
+	<span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"number"</span> <span class="token operator">|</span> <span class="token string">"date"</span> <span class="token operator">|</span> <span class="token string">"objectId"</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>In this structure, schemaName is the name of the schema that schema A is related to. Number is the number of fields we want to keep in this schema, and an object called sort that includes three values:</p>
@@ -1205,74 +1180,75 @@ order<span class="token punctuation">:</span> <span class="token string">"asc"</
 <h3 id="the-structure-of-embed-in-the-schema">The structure of embed in the schema</h3>
 <p>The embed structure is created at runtime and when the createEmbeded function is executed, it finds all the inrelation and outrelation relationships of all schemas from other schemas and replaces the pure relationship values.</p>
 <p>If we consider the relationships of a schema as follows:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">inrelation<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"country"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> schemaName<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"many"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-outrelation<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"orders"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-schemaName<span class="token punctuation">:</span> <span class="token string">"order"</span><span class="token punctuation">,</span>  
-<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>  
-sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> filed<span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript">inrelation<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+<span class="token string">"country"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> schemaName<span class="token punctuation">:</span> <span class="token string">"country"</span><span class="token punctuation">,</span> <span class="token keyword">type</span><span class="token punctuation">:</span> <span class="token string">"many"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+ <span class="token punctuation">}</span><span class="token punctuation">,</span>
+outrelation<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+   	<span class="token string">"orders"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+     	schemaName<span class="token punctuation">:</span> <span class="token string">"order"</span><span class="token punctuation">,</span>
+     	<span class="token keyword">number</span><span class="token punctuation">:</span> <span class="token number">50</span><span class="token punctuation">,</span>
+     	sort<span class="token punctuation">:</span> <span class="token punctuation">{</span> filed<span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">,</span> order<span class="token punctuation">:</span> <span class="token string">"desc"</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+   	<span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">,</span>
 </code></pre>
 <p>The structure of the embedded will be as follows:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">embedded<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"country"</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token string">"orders"</span><span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token string">"price"</span><span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<pre class=" language-typescript"><code class="prism  language-typescript">embedded<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+   	<span class="token string">"country"</span><span class="token punctuation">:</span> <span class="token function">object</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+     	    <span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+     	    <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+ 	<span class="token string">"orders"</span><span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+     	    <span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+     	    <span class="token string">"price"</span><span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+ <span class="token punctuation">}</span><span class="token punctuation">,</span>
 </code></pre>
 <h3 id="the-structure-of-struct-in-the-schema">The structure of Struct in the schema</h3>
 <p>The Struct is also created at runtime and when the createStruct function is executed, it is used to fully validate that schema. The Struct contains the pure properties of a schema and the embedded properties extracted above. For example, the struct for the user schema that has a relationship with country and order is as follows:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">struct<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-name<span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-lastName<span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token string">"country"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-<span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token string">"orders"</span><span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token punctuation">{</span>  
-<span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token string">"price"</span><span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<pre class=" language-typescript"><code class="prism  language-typescript">struct<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+	name<span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	lastName<span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+   	<span class="token string">"country"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+     	    <span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+     	    <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+ 	<span class="token string">"orders"</span><span class="token punctuation">:</span> <span class="token function">array</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+     	    <span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+     	    <span class="token string">"price"</span><span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  	<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+ <span class="token punctuation">}</span><span class="token punctuation">,</span>
 </code></pre>
 <p>You can read all the features of the superstruct library <a href="https://docs.superstructjs.org/api-reference/types">here</a>.</p>
 <h3 id="odm-acts-structure">ODM (Acts structure)</h3>
 <p>Given the schema structure in the lesan (inrelations and outrelations), we will need a document object mapper in particular, as explained above, we only store the pure values of each relationship inside the document in the database. In fact, the database is not aware of the inrelation and outrelation relationships. Therefore, we had to manage the creation, retrieval, update, and deletion of embedded information based on the information we had previously received at a higher layer than the database.<br>
 For example, suppose we want to add a blog post to the database that has an inrelation relationship with the user schema. Like the document below:</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">post<span class="token punctuation">:</span> <span class="token punctuation">{</span>  
-content<span class="token punctuation">:</span> <span class="token string">"set fire to the rain"</span><span class="token punctuation">,</span>  
-title<span class="token punctuation">:</span><span class="token string">"second"</span><span class="token punctuation">,</span>  
-user<span class="token punctuation">:</span><span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token string">"12312jhdjnfas"</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token string">"amir"</span><span class="token punctuation">,</span>  
-lastName<span class="token punctuation">:</span> <span class="token string">"hshm"</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript">post<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    content<span class="token punctuation">:</span> <span class="token string">"set fire to the rain"</span><span class="token punctuation">,</span>
+    title<span class="token punctuation">:</span><span class="token string">"second"</span><span class="token punctuation">,</span>
+    user<span class="token punctuation">:</span><span class="token punctuation">{</span>
+        _id<span class="token punctuation">:</span> <span class="token string">"12312jhdjnfas"</span><span class="token punctuation">,</span>
+        name<span class="token punctuation">:</span> <span class="token string">"amir"</span><span class="token punctuation">,</span>
+        lastName<span class="token punctuation">:</span> <span class="token string">"hshm"</span>
+    <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
+
 </code></pre>
 <p>Against the user schema, it also has an outrelation relationship with the blog post, so we must also add the added post to the user schema.</p>
-<pre class=" language-typescript"><code class="prism  language-typescript">_id<span class="token punctuation">:</span> <span class="token string">"12312jhdjnfas"</span><span class="token punctuation">,</span>  
-name<span class="token punctuation">:</span> <span class="token string">"amir"</span><span class="token punctuation">,</span>  
-lastName<span class="token punctuation">:</span> <span class="token string">"hshm"</span><span class="token punctuation">,</span>  
-posts<span class="token punctuation">:</span> <span class="token punctuation">[</span>  
-<span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>  
-content<span class="token punctuation">:</span> <span class="token string">"good day"</span><span class="token punctuation">,</span>  
-title<span class="token punctuation">:</span><span class="token string">"first"</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span><span class="token punctuation">,</span>  
-<span class="token punctuation">{</span>  
-_id<span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span>  
-content<span class="token punctuation">:</span> <span class="token string">"set fire to the rain"</span><span class="token punctuation">,</span>  
-title<span class="token punctuation">:</span><span class="token string">"second"</span><span class="token punctuation">,</span>  
-<span class="token punctuation">}</span>  
-<span class="token punctuation">]</span><span class="token punctuation">,</span>  
+<pre class=" language-typescript"><code class="prism  language-typescript">_id<span class="token punctuation">:</span> <span class="token string">"12312jhdjnfas"</span><span class="token punctuation">,</span>
+name<span class="token punctuation">:</span> <span class="token string">"amir"</span><span class="token punctuation">,</span>
+lastName<span class="token punctuation">:</span> <span class="token string">"hshm"</span><span class="token punctuation">,</span>
+posts<span class="token punctuation">:</span> <span class="token punctuation">[</span>
+<span class="token punctuation">{</span>
+   _id<span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+   content<span class="token punctuation">:</span> <span class="token string">"good day"</span><span class="token punctuation">,</span>
+   title<span class="token punctuation">:</span><span class="token string">"first"</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">{</span>
+  _id<span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+ content<span class="token punctuation">:</span> <span class="token string">"set fire to the rain"</span><span class="token punctuation">,</span>
+ title<span class="token punctuation">:</span><span class="token string">"second"</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>As we said, the database itself does not do this for us. We check these relationships by writing an ODM that includes functions such as insertOne, findOne, update, delete, etc., and send an optimized query to the database to meet all our needs (…, insert, find) based on the depth given.</p>
