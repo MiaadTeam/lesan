@@ -67,6 +67,25 @@ export const Page = () => {
     });
   };
 
+  const changeGetValue = (
+    value: 0 | 1,
+    keyname: string,
+    getObj: Record<string, any>,
+    returnObj: Record<string, any>,
+  ) => {
+    for (const key in getObj) {
+      getObj[key].type === "enums"
+        ? returnObj[`${keyname}.${key}`] = value
+        : changeGetValue(
+          value,
+          `${keyname}.${key}`,
+          getObj[key].schema,
+          returnObj,
+        );
+    }
+    return returnObj;
+  };
+
   const setFormFromHistory = (request: any) => {
     setService(request.body.service);
     setMethod(request.body.contents);
@@ -163,7 +182,10 @@ export const Page = () => {
   };
 
   const renderGetFields = (getField: any, keyName: string, margin: number) => (
-    <div style={{ marginLeft: `${margin + 10}px` }}>
+    <div
+      style={{ marginLeft: `${margin + 1}px` }}
+      className="sidebar__section_container"
+    >
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item) =>
         getField["schema"][item].type === "enums"
@@ -212,7 +234,7 @@ export const Page = () => {
             renderGetFields(
               getField["schema"][item],
               `${keyName}.${item}`,
-              margin + 10,
+              margin + 1,
             )
           )
       )}
@@ -406,12 +428,40 @@ export const Page = () => {
             <div className="sidebar__section-heading sidebar__section-heading--fields">
               GET fields
             </div>
+
+            <div className="input-cnt get-items border-bottom">
+              <label>All Items :</label>
+              <div className="get-values">
+                <span
+                  onClick={() => {
+                    setFormData({});
+                  }}
+                >
+                </span>
+                <span
+                  onClick={() => {
+                    const copy = changeGetValue(0, "get", getFields, {});
+                    setFormData(copy);
+                  }}
+                >
+                  0
+                </span>
+                <span
+                  onClick={() => {
+                    const copy = changeGetValue(1, "get", getFields, {});
+                    setFormData(copy);
+                  }}
+                >
+                  1
+                </span>
+              </div>
+            </div>
+
             {Object.keys(getFields).map((item) =>
               getFields[item].type === "enums"
                 ? (
                   <div className="input-cnt get-items">
                     <label htmlFor={item}>{item}:</label>
-
                     <div className="get-values">
                       <span
                         onClick={() => {

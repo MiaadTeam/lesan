@@ -220,14 +220,26 @@ input:focus {
 }
 
 .sidebar__section-heading--subfields {
-  background-color: var(--color-gray-2);
-  margin: 15px 0 5px 0;
-  padding: 5px 10px;
-  border-radius: 0 13px;
-  color: black;
+  /* background-color: var(--color-gray-2); */
+  padding: 0.2rem 0.2rem 0.2rem 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-colonial-1);
   font-weight: 400;
   text-transform: capitalize;
   align-self: flex-start;
+  border-bottom: 1px solid slategray;
+}
+
+.sidebar__section_container {
+  border: 1px solid slategray;
+  border-radius: 0.5rem;
+  margin-bottom: 0.3rem;
+  padding: 0.5rem;
+}
+
+.border-bottom {
+  border-bottom: 1px solid slategray;
+  margin-bottom: 0.5rem;
 }
 
 .form--fields {
@@ -551,6 +563,7 @@ input:focus {
   justify-content: space-between;
   flex-direction: row;
   padding: 0.3rem 0;
+  flex-flow: row wrap;
 }
 
 .get-values {

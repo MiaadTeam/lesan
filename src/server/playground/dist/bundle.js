@@ -852,6 +852,12 @@ const Page = ()=>{
             });
         });
     };
+    const changeGetValue = (value, keyname, getObj, returnObj)=>{
+        for(const key in getObj){
+            getObj[key].type === "enums" ? returnObj[`${keyname}.${key}`] = value : changeGetValue(value, `${keyname}.${key}`, getObj[key].schema, returnObj);
+        }
+        return returnObj;
+    };
     const setFormFromHistory = (request)=>{
         setService(request.body.service);
         setMethod(request.body.contents);
@@ -928,8 +934,9 @@ const Page = ()=>{
     };
     const renderGetFields = (getField, keyName, margin)=>Z("div", {
             style: {
-                marginLeft: `${margin + 10}px`
-            }
+                marginLeft: `${margin + 1}px`
+            },
+            className: "sidebar__section_container"
         }, Z("div", {
             className: "sidebar__section-heading--subfields"
         }, keyName), Object.keys(getField["schema"]).map((item)=>getField["schema"][item].type === "enums" ? Z("div", {
@@ -963,7 +970,7 @@ const Page = ()=>{
                         [`get.${keyName}.${item}`]: 1
                     });
                 }
-            }, "1"))) : renderGetFields(getField["schema"][item], `${keyName}.${item}`, margin + 10)));
+            }, "1"))) : renderGetFields(getField["schema"][item], `${keyName}.${item}`, margin + 1)));
     const canShowContent = service && method && schema && postFields && getFields && act;
     const canShowSchema = service && method;
     const canShowAct = service && method && schema;
@@ -1113,7 +1120,25 @@ const Page = ()=>{
             onChange: handleChange
         }))), Z("div", {
         className: "sidebar__section-heading sidebar__section-heading--fields"
-    }, "GET fields"), Object.keys(getFields).map((item)=>getFields[item].type === "enums" ? Z("div", {
+    }, "GET fields"), Z("div", {
+        className: "input-cnt get-items border-bottom"
+    }, Z("label", null, "All Items :"), Z("div", {
+        className: "get-values"
+    }, Z("span", {
+        onClick: ()=>{
+            setFormData({});
+        }
+    }), Z("span", {
+        onClick: ()=>{
+            const copy = changeGetValue(0, "get", getFields, {});
+            setFormData(copy);
+        }
+    }, "0"), Z("span", {
+        onClick: ()=>{
+            const copy = changeGetValue(1, "get", getFields, {});
+            setFormData(copy);
+        }
+    }, "1"))), Object.keys(getFields).map((item)=>getFields[item].type === "enums" ? Z("div", {
             className: "input-cnt get-items"
         }, Z("label", {
             htmlFor: item
