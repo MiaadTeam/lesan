@@ -631,8 +631,6 @@ var ClassNames;
 })(ClassNames || (ClassNames = {}));
 const pre = {
     fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial",
-    fontSize: 15,
-    lineHeight: "20px",
     display: "inline-block",
     borderRadius: 3,
     padding: "10px 15px",
@@ -690,13 +688,13 @@ const JSONViewer = ({ jsonData  })=>{
         }
     }));
 };
-function History() {
+function History({ setFormFromHistory  }) {
     const { history , response , setHistory  } = useLesan();
     const [show, setShow] = F1("");
     return Z("div", {
-        className: "modal-content"
-    }, history && history?.length > 0 ? Z("div", {
         className: "history"
+    }, history && history?.length > 0 ? Z("div", {
+        className: ""
     }, Z("br", null), history.map((hi)=>Z("div", {
             className: "history-detail",
             key: hi.id
@@ -744,6 +742,7 @@ function History() {
         }, Z(JSONViewer, {
             jsonData: hi.response.success
         })))), Z("button", {
+            onClick: ()=>setFormFromHistory(hi.request),
             className: "history-re-detail-button"
         }, "Use", " ", Z("span", {
             className: "history-re-detail-button-icon"
@@ -763,33 +762,121 @@ function Modal(props) {
     }, Z("div", {
         className: "modal-box",
         onClick: (e)=>e.stopPropagation()
-    }, props.children));
+    }, Z("span", {
+        className: "modal-title"
+    }, props.title), Z("div", {
+        className: "modal-content"
+    }, props.children)));
+}
+function Setting({ configUrl  }) {
+    const { headers , setHeader  } = useLesan();
+    const [urlAddress, setUrlAddress] = F1("");
+    return Z("div", {
+        className: "setting"
+    }, Z("div", {
+        className: "url"
+    }, Z("p", {
+        className: "url-title"
+    }, "Set Url"), Z("div", {
+        className: "url-detail"
+    }, " ", Z("input", {
+        className: "url-input",
+        placeholder: "Set URL"
+    }), Z("button", {
+        className: "btn url-button"
+    }, "Apply"))), Z("div", {
+        className: "sidebar__section sidebar__section--headers"
+    }, Z("div", {
+        className: "sidebar__section-heading"
+    }, "set headers"), Object.entries(headers).map(([objKey, objValue])=>Z("div", {
+            className: "sidebar__input-double",
+            key: objKey
+        }, Z("input", {
+            placeholder: objKey,
+            id: objKey,
+            value: objKey,
+            name: objKey,
+            onChange: (e)=>{
+                objKey = e.target.value;
+            }
+        }), Z("input", {
+            placeholder: objValue,
+            id: objValue,
+            value: objValue,
+            name: objValue,
+            onChange: (e)=>{
+                objValue = e.target.value;
+            }
+        }), Z("button", {
+            className: "btn btn--add",
+            onClick: ()=>{
+                setHeader({
+                    ...headers,
+                    [objKey]: objValue
+                });
+            }
+        }, "add +")))));
 }
 function useModal() {
     const [isOpen, setisOpen] = F1(false);
-    const toggle = ()=>{
+    const toggleModal = ()=>{
         setisOpen(!isOpen);
     };
     return {
         isOpen,
-        toggle
+        toggleModal
     };
 }
 const Page = ()=>{
-    const { isOpen , toggle  } = useModal();
-    const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHeader , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
+    const { isOpen , toggleModal  } = useModal();
+    const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
+    const [active, setActive] = F1("");
     const [actsObj, setActsObj] = F1({});
     const [schemasObj, setSchemasObj] = F1({});
     const [urlAddress, setUrlAddress] = F1(window && window.location ? window.location.href : "http://localhost:1366");
     const formRef = V1(null);
-    T1(()=>{
-        setUrlAddress(window.location.href);
-        fetch(`${urlAddress}static/get/schemas`).then((value)=>{
+    const configUrl = (address)=>{
+        setUrlAddress(address);
+        setService("");
+        setMethod("");
+        setSchema("");
+        resetGetFields();
+        resetPostFields();
+        setFormData({});
+        fetch(`${address}static/get/schemas`).then((value)=>{
             value.json().then(({ schemas , acts  })=>{
                 setActsObj(acts);
                 setSchemasObj(schemas);
             });
         });
+    };
+    const changeGetValue = (value, keyname, getObj, returnObj)=>{
+        for(const key in getObj){
+            getObj[key].type === "enums" ? returnObj[`${keyname}.${key}`] = value : changeGetValue(value, `${keyname}.${key}`, getObj[key].schema, returnObj);
+        }
+        return returnObj;
+    };
+    const setFormFromHistory = (request)=>{
+        setService(request.body.service);
+        setMethod(request.body.contents);
+        setSchema(request.body.wants.model);
+        setAct(request.body.wants.act);
+        const actObj = actsObj[request.body.service][request.body.contents][request.body.wants.model][request.body.wants.act]["validator"]["schema"];
+        setGetFields(actObj["get"]["schema"]);
+        setPostFields(actObj["set"]["schema"]);
+        setResponse(null);
+        const generateFormData = (formData, returnFormData, keyname)=>{
+            for(const key in formData){
+                typeof formData[key] === "object" ? generateFormData(formData[key], returnFormData, keyname ? `${keyname}.${key}` : key) : returnFormData[`${keyname}.${key}`] = formData[key];
+            }
+            return returnFormData;
+        };
+        const historyFromData = generateFormData(request.body.details, {}, "");
+        setFormData(historyFromData);
+        toggleModal();
+    };
+    T1(()=>{
+        configUrl(window.location.href);
     }, []);
     const uid = function() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -802,15 +889,20 @@ const Page = ()=>{
         });
     };
     const deepen = (obj)=>{
-        const result = {};
+        const result = {
+            get: {},
+            set: {}
+        };
         for(const objectPath in obj){
-            const parts = objectPath.split(".");
-            let target = result;
-            while(parts.length > 1){
-                const part = parts.shift();
-                target = target[part] = target[part] || {};
+            if (obj[objectPath] || obj[objectPath] === 0) {
+                const parts = objectPath.split(".");
+                let target = result;
+                while(parts.length > 1){
+                    const part = parts.shift();
+                    target = target[part] = target[part] || {};
+                }
+                target[parts[0]] = obj[objectPath];
             }
-            target[parts[0]] = obj[objectPath];
         }
         return result;
     };
@@ -850,23 +942,43 @@ const Page = ()=>{
     };
     const renderGetFields = (getField, keyName, margin)=>Z("div", {
             style: {
-                marginLeft: `${margin + 10}px`
-            }
+                marginLeft: `${margin + 1}px`
+            },
+            className: "sidebar__section_container"
         }, Z("div", {
             className: "sidebar__section-heading--subfields"
         }, keyName), Object.keys(getField["schema"]).map((item)=>getField["schema"][item].type === "enums" ? Z("div", {
-                className: "input-cnt",
+                className: "input-cnt get-items",
                 key: item
             }, Z("label", {
                 htmlFor: item
-            }, item, ":"), Z("input", {
-                placeholder: `${keyName}.${item}`,
-                type: "number",
-                id: `${keyName}.${item}`,
-                value: formData[`get.${keyName}.${item}`],
-                name: `get.${keyName}.${item}`,
-                onChange: handleChange
-            })) : renderGetFields(getField["schema"][item], `${keyName}.${item}`, margin + 10)));
+            }, keyName, ".", item, ":"), Z("div", {
+                className: "get-values"
+            }, Z("span", {
+                onClick: ()=>{
+                    const copy = {
+                        ...formData
+                    };
+                    delete copy[`get.${keyName}.${item}`];
+                    setFormData(copy);
+                }
+            }), Z("span", {
+                className: formData[`get.${keyName}.${item}`] === 0 ? "active" : "",
+                onClick: ()=>{
+                    setFormData({
+                        ...formData,
+                        [`get.${keyName}.${item}`]: 0
+                    });
+                }
+            }, "0"), Z("span", {
+                className: formData[`get.${keyName}.${item}`] === 1 ? "active" : "",
+                onClick: ()=>{
+                    setFormData({
+                        ...formData,
+                        [`get.${keyName}.${item}`]: 1
+                    });
+                }
+            }, "1"))) : renderGetFields(getField["schema"][item], `${keyName}.${item}`, margin + 1)));
     const canShowContent = service && method && schema && postFields && getFields && act;
     const canShowSchema = service && method;
     const canShowAct = service && method && schema;
@@ -875,37 +987,8 @@ const Page = ()=>{
     }, Z("div", {
         className: "sidebar"
     }, Z("div", {
-        className: "sidebar__section sidebar__section--headers"
+        className: "sections"
     }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "set headers"), Object.entries(headers).map(([objKey, objValue])=>Z("div", {
-            className: "sidebar__input-double",
-            key: objKey
-        }, Z("input", {
-            placeholder: objKey,
-            id: objKey,
-            value: objKey,
-            name: objKey,
-            onChange: (e)=>{
-                objKey = e.target.value;
-            }
-        }), Z("input", {
-            placeholder: objValue,
-            id: objValue,
-            value: objValue,
-            name: objValue,
-            onChange: (e)=>{
-                objValue = e.target.value;
-            }
-        }), Z("button", {
-            className: "btn btn--add",
-            onClick: ()=>{
-                setHeader({
-                    ...headers,
-                    [objKey]: objValue
-                });
-            }
-        }, "add +")))), Z("div", {
         className: "sidebar__section sidebar__section--services"
     }, Z("div", {
         className: "sidebar__section-heading"
@@ -983,10 +1066,33 @@ const Page = ()=>{
         value: ""
     }), canShowAct ? Object.keys(actsObj[service][method][schema]).map((schema)=>Z("option", {
             value: schema
-        }, schema)) : null)), Z("button", {
-        className: "btn btn--send",
-        onClick: toggle
-    }, " ", "History", " ")), canShowContent && Z("div", {
+        }, schema)) : null))), Z("div", {
+        className: ""
+    }, " ", Z("button", {
+        className: "btn btn-modal",
+        onClick: ()=>{
+            setActive("History");
+            toggleModal();
+        }
+    }, " ", "History", " "), Z("button", {
+        className: "btn btn-modal btn-modal-2",
+        onClick: ()=>{
+            setActive("Setting");
+            toggleModal();
+        }
+    }, "Setting"), Z("button", {
+        className: "btn btn-modal btn-modal-3",
+        onClick: ()=>{
+            setActive("Graph");
+            toggleModal();
+        }
+    }, "Graph"), Z("button", {
+        className: "btn btn-modal btn-modal-4",
+        onClick: ()=>{
+            setActive("E2E Test");
+            toggleModal();
+        }
+    }, "E2E Test"))), canShowContent && Z("div", {
         className: "sidebar sidebar--fields"
     }, Z("form", {
         ref: formRef,
@@ -999,7 +1105,20 @@ const Page = ()=>{
             key: item
         }, Z("label", {
             htmlFor: item
-        }, item, ":"), Z("input", {
+        }, item, ":"), postFields[item]["type"] === "enums" ? Z("select", {
+            className: "sidebar__select",
+            value: formData[`set.${item}`],
+            onChange: (event)=>{
+                setFormData({
+                    ...formData,
+                    [`set.${item}`]: event.target.value
+                });
+            }
+        }, Z("option", {
+            value: ""
+        }), Object.keys(postFields[item]["schema"]).map((schema)=>Z("option", {
+                value: schema
+            }, schema))) : Z("input", {
             placeholder: item,
             id: item,
             value: formData[`set.${item}`],
@@ -1009,18 +1128,65 @@ const Page = ()=>{
             onChange: handleChange
         }))), Z("div", {
         className: "sidebar__section-heading sidebar__section-heading--fields"
-    }, "GET fields"), Object.keys(getFields).map((item)=>getFields[item].type === "enums" ? Z("div", {
-            className: "input-cnt"
+    }, "GET fields"), Z("div", {
+        className: "input-cnt get-items border-bottom"
+    }, Z("label", null, "All Items :"), Z("div", {
+        className: "get-values"
+    }, Z("span", {
+        onClick: ()=>{
+            const copy = changeGetValue(null, "get", getFields, {});
+            setFormData({
+                ...formData,
+                ...copy
+            });
+        }
+    }), Z("span", {
+        onClick: ()=>{
+            const copy = changeGetValue(0, "get", getFields, {});
+            setFormData({
+                ...formData,
+                ...copy
+            });
+        }
+    }, "0"), Z("span", {
+        onClick: ()=>{
+            const copy = changeGetValue(1, "get", getFields, {});
+            setFormData({
+                ...formData,
+                ...copy
+            });
+        }
+    }, "1"))), Object.keys(getFields).map((item)=>getFields[item].type === "enums" ? Z("div", {
+            className: "input-cnt get-items"
         }, Z("label", {
             htmlFor: item
-        }, item, ":"), Z("input", {
-            placeholder: item,
-            id: item,
-            value: formData[`get.${item}`],
-            name: `get.${item}`,
-            type: "number",
-            onChange: handleChange
-        })) : renderGetFields(getFields[item], item, 0)), Z("div", {
+        }, item, ":"), Z("div", {
+            className: "get-values"
+        }, Z("span", {
+            onClick: ()=>{
+                const copy = {
+                    ...formData
+                };
+                delete copy[`get.${item}`];
+                setFormData(copy);
+            }
+        }), Z("span", {
+            className: formData[`get.${item}`] === 0 ? "active" : "",
+            onClick: ()=>{
+                setFormData({
+                    ...formData,
+                    [`get.${item}`]: 0
+                });
+            }
+        }, "0"), Z("span", {
+            className: formData[`get.${item}`] === 1 ? "active" : "",
+            onClick: ()=>{
+                setFormData({
+                    ...formData,
+                    [`get.${item}`]: 1
+                });
+            }
+        }, "1"))) : renderGetFields(getFields[item], item, 0)), Z("div", {
         className: "cnt--btn-send"
     }, Z("button", {
         className: "btn btn--send",
@@ -1039,10 +1205,13 @@ const Page = ()=>{
         className: "success"
     }) : Z("div", {
         className: "fail"
-    }))), isOpen && Z(Modal, {
-        toggle: toggle
-    }, Z("span", {
-        className: "modal-title"
-    }, "HISTORY"), Z(History, null))));
+    })))), isOpen && Z(Modal, {
+        toggle: toggleModal,
+        title: active
+    }, active === "History" ? Z(History, {
+        setFormFromHistory: setFormFromHistory
+    }) : active === "Setting" ? Z(Setting, {
+        configUrl: configUrl
+    }) : ""));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));

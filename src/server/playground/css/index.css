@@ -101,6 +101,18 @@ input:focus {
   border-right: 1px solid slategrey;
 }
 
+@media (min-width: 769px) and (max-width: 1025px) {
+  .sidebar {
+    width: 30%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .sidebar {
+    width: 20%;
+  }
+}
+
 .sidebar__sections-wrapper {
   width: 100%;
 }
@@ -187,6 +199,7 @@ input:focus {
   margin-bottom: 10px;
   font-size: 17px;
   background-color: teal;
+  cursor: pointer;
 }
 
 .btn-modal--2 {
@@ -208,6 +221,18 @@ input:focus {
   position: relative;
 }
 
+@media (min-width: 769px) and (max-width: 1025px) {
+  .sidebar--fields {
+    width: 30%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .sidebar--fields {
+    width: 30%;
+  }
+}
+
 .sidebar__section-heading--fields {
   color: var(--color-gray-1);
 }
@@ -217,14 +242,26 @@ input:focus {
 }
 
 .sidebar__section-heading--subfields {
-  background-color: var(--color-gray-2);
-  margin: 15px 0 5px 0;
-  padding: 5px 10px;
-  border-radius: 0 13px;
-  color: black;
+  /* background-color: var(--color-gray-2); */
+  padding: 0.2rem 0.2rem 0.2rem 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-colonial-1);
   font-weight: 400;
   text-transform: capitalize;
   align-self: flex-start;
+  border-bottom: 1px solid slategray;
+}
+
+.sidebar__section_container {
+  border: 1px solid slategray;
+  border-radius: 0.5rem;
+  margin-bottom: 0.3rem;
+  padding: 0.5rem;
+}
+
+.border-bottom {
+  border-bottom: 1px solid slategray;
+  margin-bottom: 0.5rem;
 }
 
 .form--fields {
@@ -286,6 +323,12 @@ input:focus {
   background-color: #272822;
 }
 
+@media (min-width: 769px){
+  .response {
+    width: 60%;
+  }
+}
+
 .response-detail {
   background-color: #272822;
   display: flex;
@@ -295,6 +338,7 @@ input:focus {
   margin: 30px;
   border: 1px solid white;
   border-radius: 10px;
+  height: 90%;
 }
 
 .response-detail-title {
@@ -309,8 +353,10 @@ input:focus {
   border-radius: 10px 10px 0 0;
 }
 
-.response-detail-title-info {
+.response-detail-info {
   padding: 0 10px;
+  height: 100vh;
+  overflow: scroll;
 }
 
 .success {
@@ -537,4 +583,37 @@ input:focus {
 .cute-colon {
   color: #f8f8f2;
   margin-left: 1px;
+}
+
+.get-items {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  padding: 0.3rem 0;
+  flex-flow: row wrap;
+}
+
+.get-values {
+  display: flex;
+}
+
+.get-values span {
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  background-color: var(--color-bg-base);
+  padding: 0.2rem;
+  text-align: center;
+}
+
+.get-values span:nth-child(2) {
+  background-color: var(--color-blue-4);
+}
+
+.get-values span:nth-child(3) {
+  background-color: var(--color-colonial-2);
+}
+
+.get-values span.active {
+  background-color: var(--color-success);
 }

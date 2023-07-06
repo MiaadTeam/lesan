@@ -83,6 +83,25 @@ export const Page = () => {
     });
   };
 
+  const changeGetValue = (
+    value: 0 | 1 | null,
+    keyname: string,
+    getObj: Record<string, any>,
+    returnObj: Record<string, any>
+  ) => {
+    for (const key in getObj) {
+      getObj[key].type === "enums"
+        ? (returnObj[`${keyname}.${key}`] = value)
+        : changeGetValue(
+            value,
+            `${keyname}.${key}`,
+            getObj[key].schema,
+            returnObj
+          );
+    }
+    return returnObj;
+  };
+
   const setFormFromHistory = (request: any) => {
     setService(request.body.service);
     setMethod(request.body.contents);
@@ -97,6 +116,27 @@ export const Page = () => {
     setPostFields(actObj["set"]["schema"]);
 
     setResponse(null);
+
+    const generateFormData = (
+      formData: Record<string, any>,
+      returnFormData: Record<string, any>,
+      keyname: string
+    ) => {
+      for (const key in formData) {
+        typeof formData[key] === "object"
+          ? generateFormData(
+              formData[key],
+              returnFormData,
+              keyname ? `${keyname}.${key}` : key
+            )
+          : (returnFormData[`${keyname}.${key}`] = formData[key]);
+      }
+      return returnFormData;
+    };
+
+    const historyFromData = generateFormData(request.body.details, {}, "");
+
+    setFormData(historyFromData);
 
     toggleModal();
   };
@@ -125,7 +165,6 @@ export const Page = () => {
       [name]: updatedValue,
     });
   };
-
   const renderGetFields = ({
     getField,
     keyName,
@@ -135,26 +174,58 @@ export const Page = () => {
     keyName: string;
     margin: number;
   }) => (
-    <div style={{ marginLeft: `${margin + 10}px` }}>
+    <div
+      style={{ marginLeft: `${margin + 1}px` }}
+      className="sidebar__section_container"
+    >
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item) =>
         getField["schema"][item].type === "enums" ? (
-          <div className="input-cnt" key={item}>
-            <label htmlFor={item}>{item}:</label>
-            <input
-              placeholder={`${keyName}.${item}`}
-              type="number"
-              id={`${keyName}.${item}`}
-              value={formData[`get.${keyName}.${item}`]}
-              name={`get.${keyName}.${item}`}
-              onChange={handleChange}
-            />
+          <div className="input-cnt get-items" key={item}>
+            <label htmlFor={item}>
+              {keyName}.{item}:
+            </label>
+            <div className="get-values">
+              <span
+                onClick={() => {
+                  const copy = { ...formData };
+                  delete copy[`get.${keyName}.${item}`];
+                  setFormData(copy);
+                }}
+              ></span>
+              <span
+                className={
+                  formData[`get.${keyName}.${item}`] === 0 ? "active" : ""
+                }
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    [`get.${keyName}.${item}`]: 0,
+                  });
+                }}
+              >
+                0
+              </span>
+              <span
+                className={
+                  formData[`get.${keyName}.${item}`] === 1 ? "active" : ""
+                }
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    [`get.${keyName}.${item}`]: 1,
+                  });
+                }}
+              >
+                1
+              </span>
+            </div>
           </div>
         ) : (
           renderGetFields({
             getField: getField["schema"][item],
             keyName: `${keyName}.${item}`,
-            margin: margin + 10,
+            margin: margin + 1,
           })
         )
       )}
@@ -400,18 +471,76 @@ export const Page = () => {
             <div className="sidebar__section-heading sidebar__section-heading--fields">
               GET fields
             </div>
+
+            <div className="input-cnt get-items border-bottom">
+              <label>All Items :</label>
+              <div className="get-values">
+                <span
+                  onClick={() => {
+                    const copy = changeGetValue(null, "get", getFields, {});
+                    setFormData({ ...formData, ...copy });
+                  }}
+                ></span>
+                <span
+                  onClick={() => {
+                    const copy = changeGetValue(0, "get", getFields, {});
+                    setFormData({
+                      ...formData,
+                      ...copy,
+                    });
+                  }}
+                >
+                  0
+                </span>
+                <span
+                  onClick={() => {
+                    const copy = changeGetValue(1, "get", getFields, {});
+                    setFormData({
+                      ...formData,
+                      ...copy,
+                    });
+                  }}
+                >
+                  1
+                </span>
+              </div>
+            </div>
+
             {Object.keys(getFields).map((item) =>
               getFields[item].type === "enums" ? (
-                <div className="input-cnt">
+                <div className="input-cnt get-items">
                   <label htmlFor={item}>{item}:</label>
-                  <input
-                    placeholder={item}
-                    id={item}
-                    value={formData[`get.${item}`]}
-                    name={`get.${item}`}
-                    type="number"
-                    onChange={handleChange}
-                  />
+                  <div className="get-values">
+                    <span
+                      onClick={() => {
+                        const copy = { ...formData };
+                        delete copy[`get.${item}`];
+                        setFormData(copy);
+                      }}
+                    ></span>
+                    <span
+                      className={formData[`get.${item}`] === 0 ? "active" : ""}
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          [`get.${item}`]: 0,
+                        });
+                      }}
+                    >
+                      0
+                    </span>
+                    <span
+                      className={formData[`get.${item}`] === 1 ? "active" : ""}
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          [`get.${item}`]: 1,
+                        });
+                      }}
+                    >
+                      1
+                    </span>
+                  </div>
                 </div>
               ) : (
                 renderGetFields({

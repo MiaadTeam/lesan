@@ -12,8 +12,8 @@ export enum ClassNames {
 export const pre = {
   fontFamily:
     "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial",
-  fontSize: 15,
-  lineHeight: "20px",
+  // fontSize: 15,
+  // lineHeight: "20px",
   display: "inline-block",
   borderRadius: 3,
   padding: "10px 15px",
