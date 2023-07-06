@@ -49,8 +49,8 @@ export const Page = () => {
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const configUrl = (address: string) => {
-    setUrlAddress(address);
+  const configUrl = (address?: string) => {
+    address && setUrlAddress(address);
 
     setService("");
     setMethod("");
@@ -59,12 +59,14 @@ export const Page = () => {
     resetPostFields();
     setFormData({});
 
-    fetch(`${address}static/get/schemas`).then((value) => {
-      value.json().then(({ schemas, acts }) => {
-        setActsObj(acts);
-        setSchemasObj(schemas);
-      });
-    });
+    fetch(`${address ? address : urlAddress}static/get/schemas`).then(
+      (value) => {
+        value.json().then(({ schemas, acts }) => {
+          setActsObj(acts);
+          setSchemasObj(schemas);
+        });
+      },
+    );
   };
 
   const changeGetValue = (
@@ -556,13 +558,13 @@ export const Page = () => {
       </div>
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === "History" ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : active === "Setting" ? (
-            <Setting configUrl={configUrl} />
-          ) : (
-            ""
-          )}
+          {active === "History"
+            ? <History setFormFromHistory={setFormFromHistory} />
+            : active === "Setting"
+            ? <Setting configUrl={configUrl} />
+            : (
+              ""
+            )}
         </Modal>
       )}
     </div>
