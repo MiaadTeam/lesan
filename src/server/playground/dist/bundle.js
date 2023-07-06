@@ -755,8 +755,7 @@ function History({ setFormFromHistory  }) {
         className: "no-history"
     }, '"There is no history to display"'));
 }
-function Modal(props) {
-    return Z("div", {
+const Modal = (props)=>Z("div", {
         className: "modal-overlay",
         onClick: props.toggle
     }, Z("div", {
@@ -767,7 +766,6 @@ function Modal(props) {
     }, props.title), Z("div", {
         className: "modal-content"
     }, props.children)));
-}
 function Setting({ configUrl  }) {
     const { headers , setHeader  } = useLesan();
     const [urlAddress, setUrlAddress] = F1("");
@@ -777,13 +775,20 @@ function Setting({ configUrl  }) {
         className: "url"
     }, Z("p", {
         className: "url-title"
-    }, "Set Url"), Z("div", {
+    }, "Fetch Config"), Z("div", {
+        className: "url-detail"
+    }, Z("button", {
+        className: "btn url-button",
+        onClick: ()=>configUrl()
+    }, "Refetch Config")), Z("div", {
         className: "url-detail"
     }, " ", Z("input", {
         className: "url-input",
-        placeholder: "Set URL"
+        placeholder: "Set URL",
+        onChange: (e)=>setUrlAddress(e.target.value)
     }), Z("button", {
-        className: "btn url-button"
+        className: "btn url-button",
+        onClick: ()=>configUrl(urlAddress)
     }, "Apply"))), Z("div", {
         className: "sidebar__section sidebar__section--headers"
     }, Z("div", {
@@ -827,6 +832,15 @@ function useModal() {
         toggleModal
     };
 }
+const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}static/get/schemas`).then((res)=>res.json());
+const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
+var MODAL_TYPES;
+(function(MODAL_TYPES) {
+    MODAL_TYPES["HISTORY"] = "HISTORY";
+    MODAL_TYPES["GRAPH"] = "GRAPH";
+    MODAL_TYPES["SETTING"] = "SETTING";
+    MODAL_TYPES["E2E_TEST"] = "E2E_TEST";
+})(MODAL_TYPES || (MODAL_TYPES = {}));
 const Page = ()=>{
     const { isOpen , toggleModal  } = useModal();
     const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
@@ -836,18 +850,18 @@ const Page = ()=>{
     const [urlAddress, setUrlAddress] = F1(window && window.location ? window.location.href : "http://localhost:1366");
     const formRef = V1(null);
     const configUrl = (address)=>{
-        setUrlAddress(address);
+        address && setUrlAddress(address);
         setService("");
         setMethod("");
         setSchema("");
         resetGetFields();
         resetPostFields();
         setFormData({});
-        fetch(`${address}static/get/schemas`).then((value)=>{
-            value.json().then(({ schemas , acts  })=>{
-                setActsObj(acts);
-                setSchemasObj(schemas);
-            });
+        getSchemasAPI({
+            baseUrl: address ? address : urlAddress
+        }).then(({ schemas , acts  })=>{
+            setActsObj(acts);
+            setSchemasObj(schemas);
         });
     };
     const changeGetValue = (value, keyname, getObj, returnObj)=>{
@@ -878,69 +892,23 @@ const Page = ()=>{
     T1(()=>{
         configUrl(window.location.href);
     }, []);
-    const uid = function() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    };
+    const uid = ()=>Date.now().toString(36) + Math.random().toString(36).substr(2);
     const handleChange = (event)=>{
         const { name , value , type , alt  } = event.target;
+        let updatedValue;
+        if (type === "number") {
+            updatedValue = Number(value);
+        } else if (alt === "array" || alt === "boolean") {
+            updatedValue = JSON.parse(value);
+        } else {
+            updatedValue = value;
+        }
         setFormData({
             ...formData,
-            [name]: type === "number" ? Number(value) : alt === "array" || alt === "boolean" ? JSON.parse(value) : value
+            [name]: updatedValue
         });
     };
-    const deepen = (obj)=>{
-        const result = {
-            get: {},
-            set: {}
-        };
-        for(const objectPath in obj){
-            if (obj[objectPath] || obj[objectPath] === 0) {
-                const parts = objectPath.split(".");
-                let target = result;
-                while(parts.length > 1){
-                    const part = parts.shift();
-                    target = target[part] = target[part] || {};
-                }
-                target[parts[0]] = obj[objectPath];
-            }
-        }
-        return result;
-    };
-    const handleSubmit = async (event)=>{
-        event.preventDefault();
-        const details = deepen(formData);
-        const body = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...headers
-            },
-            body: JSON.stringify({
-                service: service,
-                contents: method,
-                wants: {
-                    model: schema,
-                    act: act
-                },
-                details
-            })
-        };
-        const sendedRequest = await fetch(`${urlAddress}lesan`, body);
-        const jsonSendedRequest = await sendedRequest.json();
-        setResponse(jsonSendedRequest);
-        setHistory([
-            {
-                request: {
-                    ...body,
-                    body: JSON.parse(body.body)
-                },
-                response: jsonSendedRequest,
-                id: uid()
-            },
-            ...history
-        ]);
-    };
-    const renderGetFields = (getField, keyName, margin)=>Z("div", {
+    const renderGetFields = ({ getField , keyName , margin  })=>Z("div", {
             style: {
                 marginLeft: `${margin + 1}px`
             },
@@ -978,16 +946,74 @@ const Page = ()=>{
                         [`get.${keyName}.${item}`]: 1
                     });
                 }
-            }, "1"))) : renderGetFields(getField["schema"][item], `${keyName}.${item}`, margin + 1)));
-    const canShowContent = service && method && schema && postFields && getFields && act;
+            }, "1"))) : renderGetFields({
+                getField: getField["schema"][item],
+                keyName: `${keyName}.${item}`,
+                margin: margin + 1
+            })));
+    const createNestedObjectsFromKeys = (obj)=>{
+        const result = {};
+        for(const objectPath in obj){
+            const parts = objectPath.split(".");
+            let target = result;
+            while(parts.length > 1){
+                const part = parts.shift();
+                target[part] = target[part] || {};
+                target = target[part];
+            }
+            target[parts[0]] = obj[objectPath];
+        }
+        return result;
+    };
+    const handleSubmit = async (event)=>{
+        event.preventDefault();
+        const details = createNestedObjectsFromKeys(formData);
+        const body = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...headers
+            },
+            body: JSON.stringify({
+                service: service,
+                contents: method,
+                wants: {
+                    model: schema,
+                    act: act
+                },
+                details
+            })
+        };
+        const jsonSendedRequest = await lesanAPI({
+            baseUrl: urlAddress,
+            options: body
+        });
+        setResponse(jsonSendedRequest);
+        setHistory([
+            {
+                request: {
+                    ...body,
+                    body: JSON.parse(body.body)
+                },
+                response: jsonSendedRequest,
+                id: uid()
+            },
+            ...history
+        ]);
+    };
+    const canShowRequestFields = service && method && schema && postFields && getFields && act;
     const canShowSchema = service && method;
     const canShowAct = service && method && schema;
+    const modalBtnClickHandler = (type)=>{
+        setActive(type);
+        toggleModal();
+    };
     return Z("div", {
         className: "cnt"
     }, Z("div", {
         className: "sidebar"
     }, Z("div", {
-        className: "sections"
+        className: "sidebar__sections-wrapper"
     }, Z("div", {
         className: "sidebar__section sidebar__section--services"
     }, Z("div", {
@@ -1067,32 +1093,20 @@ const Page = ()=>{
     }), canShowAct ? Object.keys(actsObj[service][method][schema]).map((schema)=>Z("option", {
             value: schema
         }, schema)) : null))), Z("div", {
-        className: ""
-    }, " ", Z("button", {
+        className: "sidebar__btns-wrapper"
+    }, Z("button", {
         className: "btn btn-modal",
-        onClick: ()=>{
-            setActive("History");
-            toggleModal();
-        }
-    }, " ", "History", " "), Z("button", {
-        className: "btn btn-modal btn-modal-2",
-        onClick: ()=>{
-            setActive("Setting");
-            toggleModal();
-        }
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.HISTORY)
+    }, "History"), Z("button", {
+        className: "btn btn-modal btn-modal--2",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SETTING)
     }, "Setting"), Z("button", {
-        className: "btn btn-modal btn-modal-3",
-        onClick: ()=>{
-            setActive("Graph");
-            toggleModal();
-        }
+        className: "btn btn-modal btn-modal--3",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.GRAPH)
     }, "Graph"), Z("button", {
-        className: "btn btn-modal btn-modal-4",
-        onClick: ()=>{
-            setActive("E2E Test");
-            toggleModal();
-        }
-    }, "E2E Test"))), canShowContent && Z("div", {
+        className: "btn btn-modal btn-modal--4",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.E2E_TEST)
+    }, "E2E Test"))), canShowRequestFields && Z("div", {
         className: "sidebar sidebar--fields"
     }, Z("form", {
         ref: formRef,
@@ -1186,7 +1200,11 @@ const Page = ()=>{
                     [`get.${item}`]: 1
                 });
             }
-        }, "1"))) : renderGetFields(getFields[item], item, 0)), Z("div", {
+        }, "1"))) : renderGetFields({
+            getField: getFields[item],
+            keyName: item,
+            margin: 0
+        })), Z("div", {
         className: "cnt--btn-send"
     }, Z("button", {
         className: "btn btn--send",
@@ -1205,13 +1223,13 @@ const Page = ()=>{
         className: "success"
     }) : Z("div", {
         className: "fail"
-    })))), isOpen && Z(Modal, {
+    }))), isOpen && Z(Modal, {
         toggle: toggleModal,
         title: active
-    }, active === "History" ? Z(History, {
+    }, active === MODAL_TYPES.HISTORY ? Z(History, {
         setFormFromHistory: setFormFromHistory
-    }) : active === "Setting" ? Z(Setting, {
+    }) : active === MODAL_TYPES.SETTING ? Z(Setting, {
         configUrl: configUrl
-    }) : ""));
+    }) : Z(N, null))));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));
