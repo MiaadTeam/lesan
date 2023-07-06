@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h } from "https://esm.sh/preact@10.5.15";
+import { h, Fragment } from "https://esm.sh/preact@10.5.15";
 import {
   useEffect,
   useRef,
@@ -12,6 +12,24 @@ import { History } from "./History.tsx";
 import Modal from "./Modal.tsx";
 import { Setting } from "./Setting.tsx";
 import useModal from "./useModal.tsx";
+
+const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
+  fetch(`${baseUrl}static/get/schemas`).then((res) => res.json());
+
+const lesanAPI = ({
+  baseUrl,
+  options,
+}: {
+  baseUrl: string;
+  options: TRequest;
+}) => fetch(`${baseUrl}lesan`, options).then((res) => res.json());
+
+enum MODAL_TYPES {
+  HISTORY = "HISTORY",
+  GRAPH = "GRAPH",
+  SETTING = "SETTING",
+  E2E_TEST = "E2E_TEST",
+}
 
 export const Page = () => {
   const { isOpen, toggleModal } = useModal();
@@ -59,11 +77,9 @@ export const Page = () => {
     resetPostFields();
     setFormData({});
 
-    fetch(`${address}static/get/schemas`).then((value) => {
-      value.json().then(({ schemas, acts }) => {
-        setActsObj(acts);
-        setSchemasObj(schemas);
-      });
+    getSchemasAPI({ baseUrl: address }).then(({ schemas, acts }) => {
+      setActsObj(acts);
+      setSchemasObj(schemas);
     });
   };
 
@@ -89,81 +105,36 @@ export const Page = () => {
     configUrl(window.location.href);
   }, []);
 
-  const uid = function () {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  };
+  const uid = () =>
+    Date.now().toString(36) + Math.random().toString(36).substr(2);
 
   const handleChange = (event: any) => {
     const { name, value, type, alt } = event.target;
+    let updatedValue: string | number | boolean | any[];
+
+    if (type === "number") {
+      updatedValue = Number(value);
+    } else if (alt === "array" || alt === "boolean") {
+      updatedValue = JSON.parse(value);
+    } else {
+      updatedValue = value;
+    }
+
     setFormData({
       ...formData,
-      [name]:
-        type === "number"
-          ? Number(value)
-          : alt === "array" || alt === "boolean"
-          ? JSON.parse(value)
-          : value,
+      [name]: updatedValue,
     });
   };
 
-  const deepen = (obj: Record<string, any>) => {
-    const result = {};
-
-    // For each object path (property key) in the object
-    for (const objectPath in obj) {
-      // Split path into component parts
-      const parts = objectPath.split(".");
-
-      // Create sub-objects along path as needed
-      let target = result;
-      while (parts.length > 1) {
-        const part = parts.shift();
-        target = (target as any)[part!] = (target as any)[part!] || {};
-      }
-
-      // Set value at end of path
-      (target as any)[parts[0]] = obj[objectPath];
-    }
-
-    return result;
-  };
-
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    const details = deepen(formData);
-
-    const body: TRequest = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
-      body: JSON.stringify({
-        service: service,
-        contents: method,
-        wants: { model: schema, act: act },
-        details,
-      }),
-    };
-
-    const sendedRequest = await fetch(`${urlAddress}lesan`, body);
-    const jsonSendedRequest = await sendedRequest.json();
-
-    setResponse(jsonSendedRequest);
-    /* event.target.reset(); */
-    /* setFormData({}); */
-
-    setHistory([
-      {
-        request: { ...body, body: JSON.parse(body.body) },
-        response: jsonSendedRequest,
-        id: uid(),
-      },
-      ...history,
-    ]);
-  };
-
-  const renderGetFields = (getField: any, keyName: string, margin: number) => (
+  const renderGetFields = ({
+    getField,
+    keyName,
+    margin,
+  }: {
+    getField: any;
+    keyName: string;
+    margin: number;
+  }) => (
     <div style={{ marginLeft: `${margin + 10}px` }}>
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item) =>
@@ -180,27 +151,94 @@ export const Page = () => {
             />
           </div>
         ) : (
-          renderGetFields(
-            getField["schema"][item],
-            `${keyName}.${item}`,
-            margin + 10
-          )
+          renderGetFields({
+            getField: getField["schema"][item],
+            keyName: `${keyName}.${item}`,
+            margin: margin + 10,
+          })
         )
       )}
     </div>
   );
 
-  const canShowContent =
+  const createNestedObjectsFromKeys = (
+    obj: Record<string, any>
+  ): Record<string, any> => {
+    const result: Record<string, any> = {};
+
+    // For each object path (property key) in the object
+    for (const objectPath in obj) {
+      // Split path into component parts
+      const parts = objectPath.split(".");
+
+      // Create sub-objects along path as needed
+      let target: Record<string, any> = result;
+      while (parts.length > 1) {
+        const part = parts.shift()!;
+        target[part] = target[part] || {};
+        target = target[part];
+      }
+
+      // Set value at end of path
+      target[parts[0]] = obj[objectPath];
+    }
+
+    return result;
+  };
+
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    const details = createNestedObjectsFromKeys(formData);
+
+    const body: TRequest = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: JSON.stringify({
+        service: service,
+        contents: method,
+        wants: { model: schema, act: act },
+        details,
+      }),
+    };
+
+    const jsonSendedRequest = await lesanAPI({
+      baseUrl: urlAddress,
+      options: body,
+    });
+
+    setResponse(jsonSendedRequest);
+    /* event.target.reset(); */
+    /* setFormData({}); */
+
+    setHistory([
+      {
+        request: { ...body, body: JSON.parse(body.body) },
+        response: jsonSendedRequest,
+        id: uid(),
+      },
+      ...history,
+    ]);
+  };
+
+  const canShowRequestFields =
     service && method && schema && postFields && getFields && act;
 
   const canShowSchema = service && method;
 
   const canShowAct = service && method && schema;
 
+  const modalBtnClickHandler = (type: MODAL_TYPES) => {
+    setActive(type);
+    toggleModal();
+  };
+
   return (
     <div className="cnt">
       <div className="sidebar">
-        <div className="sections">
+        <div className="sidebar__sections-wrapper">
           <div className="sidebar__section sidebar__section--services">
             <div className="sidebar__section-heading">select services</div>
             <select
@@ -289,50 +327,35 @@ export const Page = () => {
             </select>
           </div>
         </div>
-        <div className="">
-          {" "}
+        <div className="sidebar__btns-wrapper">
           <button
             className="btn btn-modal"
-            onClick={() => {
-              setActive("History");
-              toggleModal();
-            }}
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
           >
-            {" "}
-            History{" "}
+            History
           </button>
           <button
-            className="btn btn-modal btn-modal-2"
-            onClick={() => {
-              setActive("Setting");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--2"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
           >
-            {/* {console.log(active)} */}
             Setting
           </button>
           <button
-            className="btn btn-modal btn-modal-3"
-            onClick={() => {
-              setActive("Graph");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--3"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.GRAPH)}
           >
             Graph
           </button>
           <button
-            className="btn btn-modal btn-modal-4"
-            onClick={() => {
-              setActive("E2E Test");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--4"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.E2E_TEST)}
           >
             E2E Test
           </button>
         </div>
       </div>
 
-      {canShowContent && (
+      {canShowRequestFields && (
         <div className="sidebar sidebar--fields">
           <form ref={formRef} onSubmit={handleSubmit} className="form--fields">
             <div className="sidebar__section-heading sidebar__section-heading--fields">
@@ -391,7 +414,11 @@ export const Page = () => {
                   />
                 </div>
               ) : (
-                renderGetFields(getFields[item], item, 0)
+                renderGetFields({
+                  getField: getFields[item],
+                  keyName: item,
+                  margin: 0,
+                })
               )
             )}
             <div className="cnt--btn-send">
@@ -420,12 +447,12 @@ export const Page = () => {
 
         {isOpen && (
           <Modal toggle={toggleModal} title={active}>
-            {active === "History" ? (
+            {active === MODAL_TYPES.HISTORY ? (
               <History setFormFromHistory={setFormFromHistory} />
-            ) : active === "Setting" ? (
+            ) : active === MODAL_TYPES.SETTING ? (
               <Setting configUrl={configUrl} />
             ) : (
-              ""
+              <Fragment></Fragment>
             )}
           </Modal>
         )}
