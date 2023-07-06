@@ -113,12 +113,11 @@ input:focus {
   }
 }
 
-.sections {
+.sidebar__sections-wrapper {
   width: 100%;
 }
 
 .sidebar__section {
-  /* width: 100%; */
   margin-bottom: 10px;
 }
 
@@ -198,21 +197,20 @@ input:focus {
 .btn-modal {
   width: 100%;
   margin-bottom: 10px;
-  /* background-color: ; */
   font-size: 17px;
   background-color: teal;
   cursor: pointer;
 }
 
-.btn-modal-2 {
+.btn-modal--2 {
   background-color: steelblue;
 }
 
-.btn-modal-3 {
+.btn-modal--3 {
   background-color: lightseagreen;
 }
 
-.btn-modal-4 {
+.btn-modal--4 {
   background-color: cadetblue;
 }
 /* -------------------------------------------------------------------------- */
@@ -472,13 +470,13 @@ input:focus {
 .history-re-detail-title {
   display: flex;
   color: white;
-  /* justify-content: center; */
   align-items: baseline;
 }
+
 .history-re-detail-collapse {
   padding-right: 2.5rem;
-  /* cursor: pointer; */
 }
+
 .history-re-detail-button {
   margin-right: 2.5rem;
   background-color: #2a7e2e;
@@ -506,10 +504,6 @@ input:focus {
   align-items: center;
   padding-left: 15px;
 }
-
-/* .history-re-response-info{
-  padding: 10px 0 6px 10px;
-} */
 
 .history-re-response-title-status {
   position: relative;

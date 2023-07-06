@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h } from "https://esm.sh/preact@10.5.15";
+import { h, Fragment } from "https://esm.sh/preact@10.5.15";
 import {
   useEffect,
   useRef,
@@ -12,6 +12,24 @@ import { History } from "./History.tsx";
 import Modal from "./Modal.tsx";
 import { Setting } from "./Setting.tsx";
 import useModal from "./useModal.tsx";
+
+const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
+  fetch(`${baseUrl}static/get/schemas`).then((res) => res.json());
+
+const lesanAPI = ({
+  baseUrl,
+  options,
+}: {
+  baseUrl: string;
+  options: TRequest;
+}) => fetch(`${baseUrl}lesan`, options).then((res) => res.json());
+
+enum MODAL_TYPES {
+  HISTORY = "HISTORY",
+  GRAPH = "GRAPH",
+  SETTING = "SETTING",
+  E2E_TEST = "E2E_TEST",
+}
 
 export const Page = () => {
   const { isOpen, toggleModal } = useModal();
@@ -44,7 +62,7 @@ export const Page = () => {
   const [actsObj, setActsObj] = useState({});
   const [schemasObj, setSchemasObj] = useState({});
   const [urlAddress, setUrlAddress] = useState(
-    window && window.location ? window.location.href : "http://localhost:1366",
+    window && window.location ? window.location.href : "http://localhost:1366"
   );
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -59,11 +77,9 @@ export const Page = () => {
     resetPostFields();
     setFormData({});
 
-    fetch(`${address}static/get/schemas`).then((value) => {
-      value.json().then(({ schemas, acts }) => {
-        setActsObj(acts);
-        setSchemasObj(schemas);
-      });
+    getSchemasAPI({ baseUrl: address }).then(({ schemas, acts }) => {
+      setActsObj(acts);
+      setSchemasObj(schemas);
     });
   };
 
@@ -71,17 +87,17 @@ export const Page = () => {
     value: 0 | 1 | null,
     keyname: string,
     getObj: Record<string, any>,
-    returnObj: Record<string, any>,
+    returnObj: Record<string, any>
   ) => {
     for (const key in getObj) {
       getObj[key].type === "enums"
-        ? returnObj[`${keyname}.${key}`] = value
+        ? (returnObj[`${keyname}.${key}`] = value)
         : changeGetValue(
-          value,
-          `${keyname}.${key}`,
-          getObj[key].schema,
-          returnObj,
-        );
+            value,
+            `${keyname}.${key}`,
+            getObj[key].schema,
+            returnObj
+          );
     }
     return returnObj;
   };
@@ -104,15 +120,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string,
+      keyname: string
     ) => {
       for (const key in formData) {
-        typeof (formData[key]) === "object"
+        typeof formData[key] === "object"
           ? generateFormData(
-            formData[key],
-            returnFormData,
-            keyname ? `${keyname}.${key}` : key,
-          )
+              formData[key],
+              returnFormData,
+              keyname ? `${keyname}.${key}` : key
+            )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -129,39 +145,113 @@ export const Page = () => {
     configUrl(window.location.href);
   }, []);
 
-  const uid = function() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  };
+  const uid = () =>
+    Date.now().toString(36) + Math.random().toString(36).substr(2);
 
   const handleChange = (event: any) => {
     const { name, value, type, alt } = event.target;
+    let updatedValue: string | number | boolean | any[];
+
+    if (type === "number") {
+      updatedValue = Number(value);
+    } else if (alt === "array" || alt === "boolean") {
+      updatedValue = JSON.parse(value);
+    } else {
+      updatedValue = value;
+    }
+
     setFormData({
       ...formData,
-      [name]: type === "number"
-        ? Number(value)
-        : alt === "array" || alt === "boolean"
-        ? JSON.parse(value)
-        : value,
+      [name]: updatedValue,
     });
   };
+  const renderGetFields = ({
+    getField,
+    keyName,
+    margin,
+  }: {
+    getField: any;
+    keyName: string;
+    margin: number;
+  }) => (
+    <div
+      style={{ marginLeft: `${margin + 1}px` }}
+      className="sidebar__section_container"
+    >
+      <div className="sidebar__section-heading--subfields">{keyName}</div>
+      {Object.keys(getField["schema"]).map((item) =>
+        getField["schema"][item].type === "enums" ? (
+          <div className="input-cnt get-items" key={item}>
+            <label htmlFor={item}>
+              {keyName}.{item}:
+            </label>
+            <div className="get-values">
+              <span
+                onClick={() => {
+                  const copy = { ...formData };
+                  delete copy[`get.${keyName}.${item}`];
+                  setFormData(copy);
+                }}
+              ></span>
+              <span
+                className={
+                  formData[`get.${keyName}.${item}`] === 0 ? "active" : ""
+                }
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    [`get.${keyName}.${item}`]: 0,
+                  });
+                }}
+              >
+                0
+              </span>
+              <span
+                className={
+                  formData[`get.${keyName}.${item}`] === 1 ? "active" : ""
+                }
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    [`get.${keyName}.${item}`]: 1,
+                  });
+                }}
+              >
+                1
+              </span>
+            </div>
+          </div>
+        ) : (
+          renderGetFields({
+            getField: getField["schema"][item],
+            keyName: `${keyName}.${item}`,
+            margin: margin + 1,
+          })
+        )
+      )}
+    </div>
+  );
 
-  const deepen = (obj: Record<string, any>) => {
-    const result = { get: {}, set: {} };
+  const createNestedObjectsFromKeys = (
+    obj: Record<string, any>
+  ): Record<string, any> => {
+    const result: Record<string, any> = {};
 
     // For each object path (property key) in the object
     for (const objectPath in obj) {
-      if (obj[objectPath] || obj[objectPath] === 0) {
-        // Split path into component parts
-        const parts = objectPath.split(".");
-        // Create sub-objects along path as needed
-        let target = result;
-        while (parts.length > 1) {
-          const part = parts.shift();
-          target = (target as any)[part!] = (target as any)[part!] || {};
-        }
-        // Set value at end of path
-        (target as any)[parts[0]] = obj[objectPath];
+      // Split path into component parts
+      const parts = objectPath.split(".");
+
+      // Create sub-objects along path as needed
+      let target: Record<string, any> = result;
+      while (parts.length > 1) {
+        const part = parts.shift()!;
+        target[part] = target[part] || {};
+        target = target[part];
       }
+
+      // Set value at end of path
+      target[parts[0]] = obj[objectPath];
     }
 
     return result;
@@ -169,7 +259,7 @@ export const Page = () => {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    const details = deepen(formData);
+    const details = createNestedObjectsFromKeys(formData);
 
     const body: TRequest = {
       method: "POST",
@@ -185,8 +275,10 @@ export const Page = () => {
       }),
     };
 
-    const sendedRequest = await fetch(`${urlAddress}lesan`, body);
-    const jsonSendedRequest = await sendedRequest.json();
+    const jsonSendedRequest = await lesanAPI({
+      baseUrl: urlAddress,
+      options: body,
+    });
 
     setResponse(jsonSendedRequest);
     /* event.target.reset(); */
@@ -202,77 +294,22 @@ export const Page = () => {
     ]);
   };
 
-  const renderGetFields = (getField: any, keyName: string, margin: number) => (
-    <div
-      style={{ marginLeft: `${margin + 1}px` }}
-      className="sidebar__section_container"
-    >
-      <div className="sidebar__section-heading--subfields">{keyName}</div>
-      {Object.keys(getField["schema"]).map((item) =>
-        getField["schema"][item].type === "enums"
-          ? (
-            <div className="input-cnt get-items" key={item}>
-              <label htmlFor={item}>{keyName}.{item}:</label>
-              <div className="get-values">
-                <span
-                  onClick={() => {
-                    const copy = { ...formData };
-                    delete copy[`get.${keyName}.${item}`];
-                    setFormData(copy);
-                  }}
-                >
-                </span>
-                <span
-                  className={formData[`get.${keyName}.${item}`] === 0
-                    ? "active"
-                    : ""}
-                  onClick={() => {
-                    setFormData({
-                      ...formData,
-                      [`get.${keyName}.${item}`]: 0,
-                    });
-                  }}
-                >
-                  0
-                </span>
-                <span
-                  className={formData[`get.${keyName}.${item}`] === 1
-                    ? "active"
-                    : ""}
-                  onClick={() => {
-                    setFormData({
-                      ...formData,
-                      [`get.${keyName}.${item}`]: 1,
-                    });
-                  }}
-                >
-                  1
-                </span>
-              </div>
-            </div>
-          )
-          : (
-            renderGetFields(
-              getField["schema"][item],
-              `${keyName}.${item}`,
-              margin + 1,
-            )
-          )
-      )}
-    </div>
-  );
-
-  const canShowContent = service && method && schema && postFields &&
-    getFields && act;
+  const canShowRequestFields =
+    service && method && schema && postFields && getFields && act;
 
   const canShowSchema = service && method;
 
   const canShowAct = service && method && schema;
 
+  const modalBtnClickHandler = (type: MODAL_TYPES) => {
+    setActive(type);
+    toggleModal();
+  };
+
   return (
     <div className="cnt">
       <div className="sidebar">
-        <div className="sections">
+        <div className="sidebar__sections-wrapper">
           <div className="sidebar__section sidebar__section--services">
             <div className="sidebar__section-heading">select services</div>
             <select
@@ -329,8 +366,8 @@ export const Page = () => {
               <option value=""></option>
               {canShowSchema
                 ? Object.keys((actsObj as any)[service][method]).map(
-                  (schema) => <option value={schema}>{schema}</option>,
-                )
+                    (schema) => <option value={schema}>{schema}</option>
+                  )
                 : null}
             </select>
           </div>
@@ -355,56 +392,41 @@ export const Page = () => {
               <option value=""></option>
               {canShowAct
                 ? Object.keys((actsObj as any)[service][method][schema]).map(
-                  (schema) => <option value={schema}>{schema}</option>,
-                )
+                    (schema) => <option value={schema}>{schema}</option>
+                  )
                 : null}
             </select>
           </div>
         </div>
-        <div className="">
-          {" "}
+        <div className="sidebar__btns-wrapper">
           <button
             className="btn btn-modal"
-            onClick={() => {
-              setActive("History");
-              toggleModal();
-            }}
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
           >
-            {" "}
-            History{" "}
+            History
           </button>
           <button
-            className="btn btn-modal btn-modal-2"
-            onClick={() => {
-              setActive("Setting");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--2"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
           >
-            {/* {console.log(active)} */}
             Setting
           </button>
           <button
-            className="btn btn-modal btn-modal-3"
-            onClick={() => {
-              setActive("Graph");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--3"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.GRAPH)}
           >
             Graph
           </button>
           <button
-            className="btn btn-modal btn-modal-4"
-            onClick={() => {
-              setActive("E2E Test");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--4"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.E2E_TEST)}
           >
             E2E Test
           </button>
         </div>
       </div>
 
-      {canShowContent && (
+      {canShowRequestFields && (
         <div className="sidebar sidebar--fields">
           <form ref={formRef} onSubmit={handleSubmit} className="form--fields">
             <div className="sidebar__section-heading sidebar__section-heading--fields">
@@ -413,37 +435,37 @@ export const Page = () => {
             {Object.keys(postFields).map((item) => (
               <div className="input-cnt" key={item}>
                 <label htmlFor={item}>{item}:</label>
-                {postFields[item]["type"] === "enums"
-                  ? (
-                    <select
-                      className="sidebar__select"
-                      value={formData[`set.${item}`]}
-                      onChange={(event: any) => {
-                        setFormData({
-                          ...formData,
-                          [`set.${item}`]: event.target.value,
-                        });
-                      }}
-                    >
-                      <option value=""></option>
-                      {Object.keys(postFields[item]["schema"]).map((schema) => (
-                        <option value={schema}>{schema}</option>
-                      ))}
-                    </select>
-                  )
-                  : (
-                    <input
-                      placeholder={item}
-                      id={item}
-                      value={formData[`set.${item}`]}
-                      name={`set.${item}`}
-                      type={postFields[item]["type"] === "number"
+                {postFields[item]["type"] === "enums" ? (
+                  <select
+                    className="sidebar__select"
+                    value={formData[`set.${item}`]}
+                    onChange={(event: any) => {
+                      setFormData({
+                        ...formData,
+                        [`set.${item}`]: event.target.value,
+                      });
+                    }}
+                  >
+                    <option value=""></option>
+                    {Object.keys(postFields[item]["schema"]).map((schema) => (
+                      <option value={schema}>{schema}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    placeholder={item}
+                    id={item}
+                    value={formData[`set.${item}`]}
+                    name={`set.${item}`}
+                    type={
+                      postFields[item]["type"] === "number"
                         ? "number"
-                        : "string"}
-                      alt={postFields[item]["type"]}
-                      onChange={handleChange}
-                    />
-                  )}
+                        : "string"
+                    }
+                    alt={postFields[item]["type"]}
+                    onChange={handleChange}
+                  />
+                )}
               </div>
             ))}
             <div className="sidebar__section-heading sidebar__section-heading--fields">
@@ -458,8 +480,7 @@ export const Page = () => {
                     const copy = changeGetValue(null, "get", getFields, {});
                     setFormData({ ...formData, ...copy });
                   }}
-                >
-                </span>
+                ></span>
                 <span
                   onClick={() => {
                     const copy = changeGetValue(0, "get", getFields, {});
@@ -486,51 +507,48 @@ export const Page = () => {
             </div>
 
             {Object.keys(getFields).map((item) =>
-              getFields[item].type === "enums"
-                ? (
-                  <div className="input-cnt get-items">
-                    <label htmlFor={item}>{item}:</label>
-                    <div className="get-values">
-                      <span
-                        onClick={() => {
-                          const copy = { ...formData };
-                          delete copy[`get.${item}`];
-                          setFormData(copy);
-                        }}
-                      >
-                      </span>
-                      <span
-                        className={formData[`get.${item}`] === 0
-                          ? "active"
-                          : ""}
-                        onClick={() => {
-                          setFormData({
-                            ...formData,
-                            [`get.${item}`]: 0,
-                          });
-                        }}
-                      >
-                        0
-                      </span>
-                      <span
-                        className={formData[`get.${item}`] === 1
-                          ? "active"
-                          : ""}
-                        onClick={() => {
-                          setFormData({
-                            ...formData,
-                            [`get.${item}`]: 1,
-                          });
-                        }}
-                      >
-                        1
-                      </span>
-                    </div>
+              getFields[item].type === "enums" ? (
+                <div className="input-cnt get-items">
+                  <label htmlFor={item}>{item}:</label>
+                  <div className="get-values">
+                    <span
+                      onClick={() => {
+                        const copy = { ...formData };
+                        delete copy[`get.${item}`];
+                        setFormData(copy);
+                      }}
+                    ></span>
+                    <span
+                      className={formData[`get.${item}`] === 0 ? "active" : ""}
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          [`get.${item}`]: 0,
+                        });
+                      }}
+                    >
+                      0
+                    </span>
+                    <span
+                      className={formData[`get.${item}`] === 1 ? "active" : ""}
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          [`get.${item}`]: 1,
+                        });
+                      }}
+                    >
+                      1
+                    </span>
                   </div>
-                )
-                : (
-                  renderGetFields(getFields[item], item, 0)
-                )
+                </div>
+              ) : (
+                renderGetFields({
+                  getField: getFields[item],
+                  keyName: item,
+                  margin: 0,
+                })
+              )
             )}
             <div className="cnt--btn-send">
               <button className="btn btn--send" type="submit">
@@ -547,24 +565,27 @@ export const Page = () => {
             <p className="response-detail-title">Response</p>
             <div className="response-detail-info">
               <JSONViewer jsonData={response} />
-              {response && response?.success === true
-                ? <div className="success"></div>
-                : <div className="fail"></div>}
+              {response && response?.success === true ? (
+                <div className="success"></div>
+              ) : (
+                <div className="fail"></div>
+              )}
             </div>
           </div>
         )}
+
+        {isOpen && (
+          <Modal toggle={toggleModal} title={active}>
+            {active === MODAL_TYPES.HISTORY ? (
+              <History setFormFromHistory={setFormFromHistory} />
+            ) : active === MODAL_TYPES.SETTING ? (
+              <Setting configUrl={configUrl} />
+            ) : (
+              <Fragment></Fragment>
+            )}
+          </Modal>
+        )}
       </div>
-      {isOpen && (
-        <Modal toggle={toggleModal} title={active}>
-          {active === "History" ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : active === "Setting" ? (
-            <Setting configUrl={configUrl} />
-          ) : (
-            ""
-          )}
-        </Modal>
-      )}
     </div>
   );
 };
