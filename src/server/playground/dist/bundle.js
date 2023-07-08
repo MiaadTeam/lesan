@@ -952,16 +952,21 @@ const Page = ()=>{
                 margin: margin + 1
             })));
     const createNestedObjectsFromKeys = (obj)=>{
-        const result = {};
+        const result = {
+            get: {},
+            set: {}
+        };
         for(const objectPath in obj){
-            const parts = objectPath.split(".");
-            let target = result;
-            while(parts.length > 1){
-                const part = parts.shift();
-                target[part] = target[part] || {};
-                target = target[part];
+            if (obj[objectPath] || obj[objectPath] === 0) {
+                const parts = objectPath.split(".");
+                let target = result;
+                while(parts.length > 1){
+                    const part = parts.shift();
+                    target[part] = target[part] || {};
+                    target = target[part];
+                }
+                target[parts[0]] = obj[objectPath];
             }
-            target[parts[0]] = obj[objectPath];
         }
         return result;
     };
