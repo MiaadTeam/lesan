@@ -168,8 +168,8 @@ export const Page = () => {
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const configUrl = (address: string) => {
-    setUrlAddress(address);
+  const configUrl = (address?: string) => {
+    address && setUrlAddress(address);
 
     setService("");
     setMethod("");
@@ -178,10 +178,12 @@ export const Page = () => {
     resetPostFields();
     setFormData({});
 
-    getSchemasAPI({ baseUrl: address }).then(({ schemas, acts }) => {
-      setActsObj(acts);
-      setSchemasObj(schemas);
-    });
+    getSchemasAPI({ baseUrl: address ? address : urlAddress }).then(
+      ({ schemas, acts }) => {
+        setActsObj(acts);
+        setSchemasObj(schemas);
+      }
+    );
   };
 
   const changeGetValue = (
@@ -398,23 +400,25 @@ export const Page = () => {
   const createNestedObjectsFromKeys = (
     obj: Record<string, any>
   ): Record<string, any> => {
-    const result: Record<string, any> = {};
+    const result: Record<string, any> = { get: {}, set: {} };
 
     // For each object path (property key) in the object
     for (const objectPath in obj) {
-      // Split path into component parts
-      const parts = objectPath.split(".");
+      if (obj[objectPath] || obj[objectPath] === 0) {
+        // Split path into component parts
+        const parts = objectPath.split(".");
 
-      // Create sub-objects along path as needed
-      let target: Record<string, any> = result;
-      while (parts.length > 1) {
-        const part = parts.shift()!;
-        target[part] = target[part] || {};
-        target = target[part];
+        // Create sub-objects along path as needed
+        let target: Record<string, any> = result;
+        while (parts.length > 1) {
+          const part = parts.shift()!;
+          target[part] = target[part] || {};
+          target = target[part];
+        }
+
+        // Set value at end of path
+        target[parts[0]] = obj[objectPath];
       }
-
-      // Set value at end of path
-      target[parts[0]] = obj[objectPath];
     }
 
     return result;
