@@ -1,5 +1,5 @@
 /** @jsx h */
-import { Fragment, h } from "https://esm.sh/preact@10.5.15";
+import { h, Fragment, FunctionComponent } from "https://esm.sh/preact@10.5.15";
 import {
   useEffect,
   useRef,
@@ -12,6 +12,107 @@ import { History } from "./History.tsx";
 import Modal from "./Modal.tsx";
 import { Setting } from "./Setting.tsx";
 import useModal from "./useModal.tsx";
+import ArrowDownIcon from "../Icons/ArrowDownIcon.tsx";
+import CloseIcon from "../Icons/CloseIcon.tsx";
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface MultiSelectProps {
+  options: Option[];
+}
+
+const MultiSelect: FunctionComponent<MultiSelectProps> = ({ options }) => {
+  const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
+  const [unselectedOptions, setUnselectedOptions] = useState<Option[]>(options);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOptionChange = (selectedOption: Option) => {
+    if (selectedOptions.includes(selectedOption)) {
+      const filteredSelectedOptions = selectedOptions.filter(
+        (option) => option.value !== selectedOption.value
+      );
+      setSelectedOptions(filteredSelectedOptions);
+      setUnselectedOptions([...unselectedOptions, selectedOption]);
+    } else {
+      const filteredUnselectedOptions = unselectedOptions.filter(
+        (option) => option.value !== selectedOption.value
+      );
+      setSelectedOptions([...selectedOptions, selectedOption]);
+      setUnselectedOptions(filteredUnselectedOptions);
+    }
+  };
+
+  const resetOptions = () => {
+    setSelectedOptions([]);
+    setUnselectedOptions(options);
+  };
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div className="multi-select__wrapper">
+      <div className="multi-select__field" onClick={toggleDropdown}>
+        <div className="multi-select__selected-item-wrapper">
+          {selectedOptions.map((item) => (
+            <div className="multi-select__selected-item" key={item}>
+              <div className="multi-select__selected-item-text">
+                {item.label}
+              </div>
+              <div
+                className="multi-select__selected-item-btn"
+                role="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOptionChange(item);
+                }}
+              >
+                x
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="multi-select__icons-wrapper">
+          <div
+            className="multi-select__close-icon-wrapper"
+            role="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              resetOptions();
+            }}
+          >
+            <CloseIcon className="multi-select__close-icon" />
+          </div>
+          <div className="multi-select__arrow-icon-wrapper" role="button">
+            <ArrowDownIcon className="multi-select__arrow-icon" />
+          </div>
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className="multi-select__options">
+          {unselectedOptions.length ? (
+            unselectedOptions.map((option) => (
+              <div
+                key={option.value}
+                onClick={() => handleOptionChange(option)}
+                className="multi-select__option"
+              >
+                <div className="multi-select__option-label">{option.label}</div>
+              </div>
+            ))
+          ) : (
+            <div className="multi-select__option--no-option">No Options!</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
   fetch(`${baseUrl}static/get/schemas`).then((res) => res.json());
@@ -62,7 +163,7 @@ export const Page = () => {
   const [actsObj, setActsObj] = useState({});
   const [schemasObj, setSchemasObj] = useState({});
   const [urlAddress, setUrlAddress] = useState(
-    window && window.location ? window.location.href : "http://localhost:1366",
+    window && window.location ? window.location.href : "http://localhost:1366"
   );
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -81,7 +182,7 @@ export const Page = () => {
       ({ schemas, acts }) => {
         setActsObj(acts);
         setSchemasObj(schemas);
-      },
+      }
     );
   };
 
@@ -89,17 +190,17 @@ export const Page = () => {
     value: 0 | 1 | null,
     keyname: string,
     getObj: Record<string, any>,
-    returnObj: Record<string, any>,
+    returnObj: Record<string, any>
   ) => {
     for (const key in getObj) {
       getObj[key].type === "enums"
         ? (returnObj[`${keyname}.${key}`] = value)
         : changeGetValue(
-          value,
-          `${keyname}.${key}`,
-          getObj[key].schema,
-          returnObj,
-        );
+            value,
+            `${keyname}.${key}`,
+            getObj[key].schema,
+            returnObj
+          );
     }
     return returnObj;
   };
@@ -122,15 +223,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string,
+      keyname: string
     ) => {
       for (const key in formData) {
         typeof formData[key] === "object"
           ? generateFormData(
-            formData[key],
-            returnFormData,
-            keyname ? `${keyname}.${key}` : key,
-          )
+              formData[key],
+              returnFormData,
+              keyname ? `${keyname}.${key}` : key
+            )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -182,63 +283,122 @@ export const Page = () => {
     >
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item) =>
-        getField["schema"][item].type === "enums"
-          ? (
-            <div className="input-cnt get-items" key={item}>
-              <label htmlFor={item}>
-                {keyName}.{item}:
-              </label>
-              <div className="get-values">
-                <span
-                  onClick={() => {
-                    const copy = { ...formData };
-                    delete copy[`get.${keyName}.${item}`];
-                    setFormData(copy);
-                  }}
-                >
-                </span>
-                <span
-                  className={formData[`get.${keyName}.${item}`] === 0
-                    ? "active"
-                    : ""}
-                  onClick={() => {
-                    setFormData({
-                      ...formData,
-                      [`get.${keyName}.${item}`]: 0,
-                    });
-                  }}
-                >
-                  0
-                </span>
-                <span
-                  className={formData[`get.${keyName}.${item}`] === 1
-                    ? "active"
-                    : ""}
-                  onClick={() => {
-                    setFormData({
-                      ...formData,
-                      [`get.${keyName}.${item}`]: 1,
-                    });
-                  }}
-                >
-                  1
-                </span>
-              </div>
+        getField["schema"][item].type === "enums" ? (
+          <div className="input-cnt get-items" key={item}>
+            <label htmlFor={item}>
+              {keyName}.{item}:
+            </label>
+            <div className="get-values">
+              <span
+                onClick={() => {
+                  const copy = { ...formData };
+                  delete copy[`get.${keyName}.${item}`];
+                  setFormData(copy);
+                }}
+              ></span>
+              <span
+                className={
+                  formData[`get.${keyName}.${item}`] === 0 ? "active" : ""
+                }
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    [`get.${keyName}.${item}`]: 0,
+                  });
+                }}
+              >
+                0
+              </span>
+              <span
+                className={
+                  formData[`get.${keyName}.${item}`] === 1 ? "active" : ""
+                }
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    [`get.${keyName}.${item}`]: 1,
+                  });
+                }}
+              >
+                1
+              </span>
             </div>
-          )
-          : (
-            renderGetFields({
-              getField: getField["schema"][item],
-              keyName: `${keyName}.${item}`,
-              margin: margin + 1,
-            })
-          )
+          </div>
+        ) : (
+          renderGetFields({
+            getField: getField["schema"][item],
+            keyName: `${keyName}.${item}`,
+            margin: margin + 1,
+          })
+        )
       )}
     </div>
   );
 
+  const renderPostFields = ({
+    key,
+    field,
+    isMultiEnum = false,
+  }: {
+    key: string;
+    field: Record<string, any>;
+    isMultiEnum?: boolean;
+  }): h.JSX.Element => {
+    if (field.type === "array") {
+      return renderPostFields({
+        field: field["schema"],
+        key,
+        isMultiEnum: true,
+      });
+    }
+    if (field["type"] === "enums" && isMultiEnum) {
+      return (
+        <MultiSelect
+          // value={formData[`set.${key}`]}
+          // onChange={(e: any) => {
+          //   setFormData({
+          //     ...formData,
+          //     [`set.${key}`]: e.target.value,
+          //   });
+          // }}
+          options={Object.keys(field["schema"]).map((schema) => ({
+            label: schema,
+            value: schema,
+          }))}
+        ></MultiSelect>
+      );
+    }
+    return field["type"] === "enums" ? (
+      <select
+        className="sidebar__select"
+        value={formData[`set.${key}`]}
+        onChange={(event: any) => {
+          setFormData({
+            ...formData,
+            [`set.${key}`]: event.target.value,
+          });
+        }}
+      >
+        <option value=""></option>
+        {Object.keys(field["schema"]).map((schema) => (
+          <option value={schema}>{schema}</option>
+        ))}
+      </select>
+    ) : (
+      <input
+        placeholder={key}
+        id={key}
+        value={formData[`set.${key}`]}
+        name={`set.${key}`}
+        type={field["type"] === "number" ? "number" : "string"}
+        alt={field["type"]}
+        onChange={handleChange}
+      />
+    );
+  };
+
   const createNestedObjectsFromKeys = (
-    obj: Record<string, any>,
+    obj: Record<string, any>
   ): Record<string, any> => {
     const result: Record<string, any> = { get: {}, set: {} };
 
@@ -301,8 +461,8 @@ export const Page = () => {
     ]);
   };
 
-  const canShowRequestFields = service && method && schema && postFields &&
-    getFields && act;
+  const canShowRequestFields =
+    service && method && schema && postFields && getFields && act;
 
   const canShowSchema = service && method;
 
@@ -373,8 +533,8 @@ export const Page = () => {
               <option value=""></option>
               {canShowSchema
                 ? Object.keys((actsObj as any)[service][method]).map(
-                  (schema) => <option value={schema}>{schema}</option>,
-                )
+                    (schema) => <option value={schema}>{schema}</option>
+                  )
                 : null}
             </select>
           </div>
@@ -399,8 +559,8 @@ export const Page = () => {
               <option value=""></option>
               {canShowAct
                 ? Object.keys((actsObj as any)[service][method][schema]).map(
-                  (schema) => <option value={schema}>{schema}</option>,
-                )
+                    (schema) => <option value={schema}>{schema}</option>
+                  )
                 : null}
             </select>
           </div>
@@ -442,37 +602,10 @@ export const Page = () => {
             {Object.keys(postFields).map((item) => (
               <div className="input-cnt" key={item}>
                 <label htmlFor={item}>{item}:</label>
-                {postFields[item]["type"] === "enums"
-                  ? (
-                    <select
-                      className="sidebar__select"
-                      value={formData[`set.${item}`]}
-                      onChange={(event: any) => {
-                        setFormData({
-                          ...formData,
-                          [`set.${item}`]: event.target.value,
-                        });
-                      }}
-                    >
-                      <option value=""></option>
-                      {Object.keys(postFields[item]["schema"]).map((schema) => (
-                        <option value={schema}>{schema}</option>
-                      ))}
-                    </select>
-                  )
-                  : (
-                    <input
-                      placeholder={item}
-                      id={item}
-                      value={formData[`set.${item}`]}
-                      name={`set.${item}`}
-                      type={postFields[item]["type"] === "number"
-                        ? "number"
-                        : "string"}
-                      alt={postFields[item]["type"]}
-                      onChange={handleChange}
-                    />
-                  )}
+                {renderPostFields({
+                  field: postFields[item],
+                  key: item,
+                })}
               </div>
             ))}
             <div className="sidebar__section-heading sidebar__section-heading--fields">
@@ -487,8 +620,7 @@ export const Page = () => {
                     const copy = changeGetValue(null, "get", getFields, {});
                     setFormData({ ...formData, ...copy });
                   }}
-                >
-                </span>
+                ></span>
                 <span
                   onClick={() => {
                     const copy = changeGetValue(0, "get", getFields, {});
@@ -515,55 +647,48 @@ export const Page = () => {
             </div>
 
             {Object.keys(getFields).map((item) =>
-              getFields[item].type === "enums"
-                ? (
-                  <div className="input-cnt get-items">
-                    <label htmlFor={item}>{item}:</label>
-                    <div className="get-values">
-                      <span
-                        onClick={() => {
-                          const copy = { ...formData };
-                          delete copy[`get.${item}`];
-                          setFormData(copy);
-                        }}
-                      >
-                      </span>
-                      <span
-                        className={formData[`get.${item}`] === 0
-                          ? "active"
-                          : ""}
-                        onClick={() => {
-                          setFormData({
-                            ...formData,
-                            [`get.${item}`]: 0,
-                          });
-                        }}
-                      >
-                        0
-                      </span>
-                      <span
-                        className={formData[`get.${item}`] === 1
-                          ? "active"
-                          : ""}
-                        onClick={() => {
-                          setFormData({
-                            ...formData,
-                            [`get.${item}`]: 1,
-                          });
-                        }}
-                      >
-                        1
-                      </span>
-                    </div>
+              getFields[item].type === "enums" ? (
+                <div className="input-cnt get-items">
+                  <label htmlFor={item}>{item}:</label>
+                  <div className="get-values">
+                    <span
+                      onClick={() => {
+                        const copy = { ...formData };
+                        delete copy[`get.${item}`];
+                        setFormData(copy);
+                      }}
+                    ></span>
+                    <span
+                      className={formData[`get.${item}`] === 0 ? "active" : ""}
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          [`get.${item}`]: 0,
+                        });
+                      }}
+                    >
+                      0
+                    </span>
+                    <span
+                      className={formData[`get.${item}`] === 1 ? "active" : ""}
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          [`get.${item}`]: 1,
+                        });
+                      }}
+                    >
+                      1
+                    </span>
                   </div>
-                )
-                : (
-                  renderGetFields({
-                    getField: getFields[item],
-                    keyName: item,
-                    margin: 0,
-                  })
-                )
+                </div>
+              ) : (
+                renderGetFields({
+                  getField: getFields[item],
+                  keyName: item,
+                  margin: 0,
+                })
+              )
             )}
             <div className="cnt--btn-send">
               <button className="btn btn--send" type="submit">
@@ -580,20 +705,24 @@ export const Page = () => {
             <p className="response-detail-title">Response</p>
             <div className="response-detail-info">
               <JSONViewer jsonData={response} />
-              {response && response?.success === true
-                ? <div className="success"></div>
-                : <div className="fail"></div>}
+              {response && response?.success === true ? (
+                <div className="success"></div>
+              ) : (
+                <div className="fail"></div>
+              )}
             </div>
           </div>
         )}
 
         {isOpen && (
           <Modal toggle={toggleModal} title={active}>
-            {active === MODAL_TYPES.HISTORY
-              ? <History setFormFromHistory={setFormFromHistory} />
-              : active === MODAL_TYPES.SETTING
-              ? <Setting configUrl={configUrl} />
-              : <Fragment></Fragment>}
+            {active === MODAL_TYPES.HISTORY ? (
+              <History setFormFromHistory={setFormFromHistory} />
+            ) : active === MODAL_TYPES.SETTING ? (
+              <Setting configUrl={configUrl} />
+            ) : (
+              <Fragment></Fragment>
+            )}
           </Modal>
         )}
       </div>
