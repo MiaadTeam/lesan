@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h, Fragment } from "https://esm.sh/preact@10.5.15";
+import { h, Fragment, FunctionComponent } from "https://esm.sh/preact@10.5.15";
 import {
   useEffect,
   useRef,
@@ -12,6 +12,107 @@ import { History } from "./History.tsx";
 import Modal from "./Modal.tsx";
 import { Setting } from "./Setting.tsx";
 import useModal from "./useModal.tsx";
+import ArrowDownIcon from "../Icons/ArrowDownIcon.tsx";
+import CloseIcon from "../Icons/CloseIcon.tsx";
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface MultiSelectProps {
+  options: Option[];
+}
+
+const MultiSelect: FunctionComponent<MultiSelectProps> = ({ options }) => {
+  const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
+  const [unselectedOptions, setUnselectedOptions] = useState<Option[]>(options);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOptionChange = (selectedOption: Option) => {
+    if (selectedOptions.includes(selectedOption)) {
+      const filteredSelectedOptions = selectedOptions.filter(
+        (option) => option.value !== selectedOption.value
+      );
+      setSelectedOptions(filteredSelectedOptions);
+      setUnselectedOptions([...unselectedOptions, selectedOption]);
+    } else {
+      const filteredUnselectedOptions = unselectedOptions.filter(
+        (option) => option.value !== selectedOption.value
+      );
+      setSelectedOptions([...selectedOptions, selectedOption]);
+      setUnselectedOptions(filteredUnselectedOptions);
+    }
+  };
+
+  const resetOptions = () => {
+    setSelectedOptions([]);
+    setUnselectedOptions(options);
+  };
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div className="multi-select__wrapper">
+      <div className="multi-select__field" onClick={toggleDropdown}>
+        <div className="multi-select__selected-item-wrapper">
+          {selectedOptions.map((item) => (
+            <div className="multi-select__selected-item" key={item}>
+              <div className="multi-select__selected-item-text">
+                {item.label}
+              </div>
+              <div
+                className="multi-select__selected-item-btn"
+                role="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOptionChange(item);
+                }}
+              >
+                x
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="multi-select__icons-wrapper">
+          <div
+            className="multi-select__close-icon-wrapper"
+            role="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              resetOptions();
+            }}
+          >
+            <CloseIcon className="multi-select__close-icon" />
+          </div>
+          <div className="multi-select__arrow-icon-wrapper" role="button">
+            <ArrowDownIcon className="multi-select__arrow-icon" />
+          </div>
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className="multi-select__options">
+          {unselectedOptions.length ? (
+            unselectedOptions.map((option) => (
+              <div
+                key={option.value}
+                onClick={() => handleOptionChange(option)}
+                className="multi-select__option"
+              >
+                <div className="multi-select__option-label">{option.label}</div>
+              </div>
+            ))
+          ) : (
+            <div className="multi-select__option--no-option">No Options!</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
   fetch(`${baseUrl}static/get/schemas`).then((res) => res.json());
@@ -232,6 +333,68 @@ export const Page = () => {
     </div>
   );
 
+  const renderPostFields = ({
+    key,
+    field,
+    isMultiEnum = false,
+  }: {
+    key: string;
+    field: Record<string, any>;
+    isMultiEnum?: boolean;
+  }): h.JSX.Element => {
+    if (field.type === "array") {
+      return renderPostFields({
+        field: field["schema"],
+        key,
+        isMultiEnum: true,
+      });
+    }
+    if (field["type"] === "enums" && isMultiEnum) {
+      return (
+        <MultiSelect
+          // value={formData[`set.${key}`]}
+          // onChange={(e: any) => {
+          //   setFormData({
+          //     ...formData,
+          //     [`set.${key}`]: e.target.value,
+          //   });
+          // }}
+          options={Object.keys(field["schema"]).map((schema) => ({
+            label: schema,
+            value: schema,
+          }))}
+        ></MultiSelect>
+      );
+    }
+    return field["type"] === "enums" ? (
+      <select
+        className="sidebar__select"
+        value={formData[`set.${key}`]}
+        onChange={(event: any) => {
+          setFormData({
+            ...formData,
+            [`set.${key}`]: event.target.value,
+          });
+        }}
+      >
+        <option value=""></option>
+        {Object.keys(field["schema"]).map((schema) => (
+          <option value={schema}>{schema}</option>
+        ))}
+      </select>
+    ) : (
+      <input
+        placeholder={key}
+        id={key}
+        value={formData[`set.${key}`]}
+        name={`set.${key}`}
+        type={field["type"] === "number" ? "number" : "string"}
+        alt={field["type"]}
+        onChange={handleChange}
+      />
+    );
+  };
+
   const createNestedObjectsFromKeys = (
     obj: Record<string, any>
   ): Record<string, any> => {
@@ -435,37 +598,10 @@ export const Page = () => {
             {Object.keys(postFields).map((item) => (
               <div className="input-cnt" key={item}>
                 <label htmlFor={item}>{item}:</label>
-                {postFields[item]["type"] === "enums" ? (
-                  <select
-                    className="sidebar__select"
-                    value={formData[`set.${item}`]}
-                    onChange={(event: any) => {
-                      setFormData({
-                        ...formData,
-                        [`set.${item}`]: event.target.value,
-                      });
-                    }}
-                  >
-                    <option value=""></option>
-                    {Object.keys(postFields[item]["schema"]).map((schema) => (
-                      <option value={schema}>{schema}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    placeholder={item}
-                    id={item}
-                    value={formData[`set.${item}`]}
-                    name={`set.${item}`}
-                    type={
-                      postFields[item]["type"] === "number"
-                        ? "number"
-                        : "string"
-                    }
-                    alt={postFields[item]["type"]}
-                    onChange={handleChange}
-                  />
-                )}
+                {renderPostFields({
+                  field: postFields[item],
+                  key: item,
+                })}
               </div>
             ))}
             <div className="sidebar__section-heading sidebar__section-heading--fields">
