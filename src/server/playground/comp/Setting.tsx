@@ -6,7 +6,7 @@ import { useLesan } from "./ManagedLesanContext.tsx";
 export function Setting({
   configUrl,
 }: {
-  configUrl: (address: string) => void;
+  configUrl: (address?: string) => void;
 }) {
   const { headers, setHeader } = useLesan();
   const [urlAddress, setUrlAddress] = useState("");
@@ -14,11 +14,28 @@ export function Setting({
   return (
     <div className="setting modal-content">
       <div className="url">
-        <p className="url-title">Set Url</p>
+        <p className="url-title">Fetch Config</p>
+        <div className="url-detail">
+          <button
+            className="btn url-button"
+            onClick={() => configUrl()}
+          >
+            Refetch Config
+          </button>
+        </div>
         <div className="url-detail">
           {" "}
-          <input className="url-input" placeholder="Set URL" />
-          <button className="btn url-button" >Apply</button>
+          <input
+            className="url-input"
+            placeholder="Set URL"
+            onChange={(e: any) => setUrlAddress(e.target.value)}
+          />
+          <button
+            className="btn url-button"
+            onClick={() => configUrl(urlAddress)}
+          >
+            Apply
+          </button>
         </div>
       </div>
       <div className="sidebar__section sidebar__section--headers">

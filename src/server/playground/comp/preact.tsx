@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h } from "https://esm.sh/preact@10.5.15";
+import { Fragment, h } from "https://esm.sh/preact@10.5.15";
 import {
   useEffect,
   useRef,
@@ -12,6 +12,24 @@ import { History } from "./History.tsx";
 import Modal from "./Modal.tsx";
 import { Setting } from "./Setting.tsx";
 import useModal from "./useModal.tsx";
+
+const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
+  fetch(`${baseUrl}static/get/schemas`).then((res) => res.json());
+
+const lesanAPI = ({
+  baseUrl,
+  options,
+}: {
+  baseUrl: string;
+  options: TRequest;
+}) => fetch(`${baseUrl}lesan`, options).then((res) => res.json());
+
+enum MODAL_TYPES {
+  HISTORY = "HISTORY",
+  GRAPH = "GRAPH",
+  SETTING = "SETTING",
+  E2E_TEST = "E2E_TEST",
+}
 
 export const Page = () => {
   const { isOpen, toggleModal } = useModal();
@@ -49,8 +67,8 @@ export const Page = () => {
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const configUrl = (address: string) => {
-    setUrlAddress(address);
+  const configUrl = (address?: string) => {
+    address && setUrlAddress(address);
 
     setService("");
     setMethod("");
@@ -59,12 +77,12 @@ export const Page = () => {
     resetPostFields();
     setFormData({});
 
-    fetch(`${address}static/get/schemas`).then((value) => {
-      value.json().then(({ schemas, acts }) => {
+    getSchemasAPI({ baseUrl: address ? address : urlAddress }).then(
+      ({ schemas, acts }) => {
         setActsObj(acts);
         setSchemasObj(schemas);
-      });
-    });
+      },
+    );
   };
 
   const changeGetValue = (
@@ -75,7 +93,7 @@ export const Page = () => {
   ) => {
     for (const key in getObj) {
       getObj[key].type === "enums"
-        ? returnObj[`${keyname}.${key}`] = value
+        ? (returnObj[`${keyname}.${key}`] = value)
         : changeGetValue(
           value,
           `${keyname}.${key}`,
@@ -107,7 +125,7 @@ export const Page = () => {
       keyname: string,
     ) => {
       for (const key in formData) {
-        typeof (formData[key]) === "object"
+        typeof formData[key] === "object"
           ? generateFormData(
             formData[key],
             returnFormData,
@@ -129,80 +147,35 @@ export const Page = () => {
     configUrl(window.location.href);
   }, []);
 
-  const uid = function() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  };
+  const uid = () =>
+    Date.now().toString(36) + Math.random().toString(36).substr(2);
 
   const handleChange = (event: any) => {
     const { name, value, type, alt } = event.target;
-    setFormData({
-      ...formData,
-      [name]: type === "number"
-        ? Number(value)
-        : alt === "array" || alt === "boolean"
-        ? JSON.parse(value)
-        : value,
-    });
-  };
+    let updatedValue: string | number | boolean | any[];
 
-  const deepen = (obj: Record<string, any>) => {
-    const result = { get: {}, set: {} };
-
-    // For each object path (property key) in the object
-    for (const objectPath in obj) {
-      if (obj[objectPath] || obj[objectPath] === 0) {
-        // Split path into component parts
-        const parts = objectPath.split(".");
-        // Create sub-objects along path as needed
-        let target = result;
-        while (parts.length > 1) {
-          const part = parts.shift();
-          target = (target as any)[part!] = (target as any)[part!] || {};
-        }
-        // Set value at end of path
-        (target as any)[parts[0]] = obj[objectPath];
-      }
+    if (type === "number") {
+      updatedValue = Number(value);
+    } else if (alt === "array" || alt === "boolean") {
+      updatedValue = JSON.parse(value);
+    } else {
+      updatedValue = value;
     }
 
-    return result;
+    setFormData({
+      ...formData,
+      [name]: updatedValue,
+    });
   };
-
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    const details = deepen(formData);
-
-    const body: TRequest = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
-      body: JSON.stringify({
-        service: service,
-        contents: method,
-        wants: { model: schema, act: act },
-        details,
-      }),
-    };
-
-    const sendedRequest = await fetch(`${urlAddress}lesan`, body);
-    const jsonSendedRequest = await sendedRequest.json();
-
-    setResponse(jsonSendedRequest);
-    /* event.target.reset(); */
-    /* setFormData({}); */
-
-    setHistory([
-      {
-        request: { ...body, body: JSON.parse(body.body) },
-        response: jsonSendedRequest,
-        id: uid(),
-      },
-      ...history,
-    ]);
-  };
-
-  const renderGetFields = (getField: any, keyName: string, margin: number) => (
+  const renderGetFields = ({
+    getField,
+    keyName,
+    margin,
+  }: {
+    getField: any;
+    keyName: string;
+    margin: number;
+  }) => (
     <div
       style={{ marginLeft: `${margin + 1}px` }}
       className="sidebar__section_container"
@@ -212,7 +185,9 @@ export const Page = () => {
         getField["schema"][item].type === "enums"
           ? (
             <div className="input-cnt get-items" key={item}>
-              <label htmlFor={item}>{keyName}.{item}:</label>
+              <label htmlFor={item}>
+                {keyName}.{item}:
+              </label>
               <div className="get-values">
                 <span
                   onClick={() => {
@@ -252,27 +227,96 @@ export const Page = () => {
             </div>
           )
           : (
-            renderGetFields(
-              getField["schema"][item],
-              `${keyName}.${item}`,
-              margin + 1,
-            )
+            renderGetFields({
+              getField: getField["schema"][item],
+              keyName: `${keyName}.${item}`,
+              margin: margin + 1,
+            })
           )
       )}
     </div>
   );
 
-  const canShowContent = service && method && schema && postFields &&
+  const createNestedObjectsFromKeys = (
+    obj: Record<string, any>,
+  ): Record<string, any> => {
+    const result: Record<string, any> = { get: {}, set: {} };
+
+    // For each object path (property key) in the object
+    for (const objectPath in obj) {
+      if (obj[objectPath] || obj[objectPath] === 0) {
+        // Split path into component parts
+        const parts = objectPath.split(".");
+
+        // Create sub-objects along path as needed
+        let target: Record<string, any> = result;
+        while (parts.length > 1) {
+          const part = parts.shift()!;
+          target[part] = target[part] || {};
+          target = target[part];
+        }
+
+        // Set value at end of path
+        target[parts[0]] = obj[objectPath];
+      }
+    }
+
+    return result;
+  };
+
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    const details = createNestedObjectsFromKeys(formData);
+
+    const body: TRequest = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: JSON.stringify({
+        service: service,
+        contents: method,
+        wants: { model: schema, act: act },
+        details,
+      }),
+    };
+
+    const jsonSendedRequest = await lesanAPI({
+      baseUrl: urlAddress,
+      options: body,
+    });
+
+    setResponse(jsonSendedRequest);
+    /* event.target.reset(); */
+    /* setFormData({}); */
+
+    setHistory([
+      {
+        request: { ...body, body: JSON.parse(body.body) },
+        response: jsonSendedRequest,
+        id: uid(),
+      },
+      ...history,
+    ]);
+  };
+
+  const canShowRequestFields = service && method && schema && postFields &&
     getFields && act;
 
   const canShowSchema = service && method;
 
   const canShowAct = service && method && schema;
 
+  const modalBtnClickHandler = (type: MODAL_TYPES) => {
+    setActive(type);
+    toggleModal();
+  };
+
   return (
     <div className="cnt">
       <div className="sidebar">
-        <div className="sections">
+        <div className="sidebar__sections-wrapper">
           <div className="sidebar__section sidebar__section--services">
             <div className="sidebar__section-heading">select services</div>
             <select
@@ -361,51 +405,35 @@ export const Page = () => {
             </select>
           </div>
         </div>
-        <div className="buttons">
-          {" "}
+        <div className="sidebar__btns-wrapper">
           <button
             className="btn btn-modal"
-            onClick={() => {
-              setActive("History");
-              toggleModal();
-            
-            }}
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
           >
-            {" "}
-            History{" "}
+            History
           </button>
           <button
-            className="btn btn-modal btn-modal-2"
-            onClick={() => {
-              setActive("Setting");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--2"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
           >
-            {/* {console.log(active)} */}
             Setting
           </button>
           <button
-            className="btn btn-modal btn-modal-3"
-            onClick={() => {
-              setActive("Graph");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--3"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.GRAPH)}
           >
             Graph
           </button>
           <button
-            className="btn btn-modal btn-modal-4"
-            onClick={() => {
-              setActive("E2E Test");
-              toggleModal();
-            }}
+            className="btn btn-modal btn-modal--4"
+            onClick={() => modalBtnClickHandler(MODAL_TYPES.E2E_TEST)}
           >
             E2E Test
           </button>
         </div>
       </div>
 
-      {canShowContent && (
+      {canShowRequestFields && (
         <div className="sidebar sidebar--fields">
           <form ref={formRef} onSubmit={handleSubmit} className="form--fields">
             <div className="sidebar__section-heading sidebar__section-heading--fields">
@@ -530,7 +558,11 @@ export const Page = () => {
                   </div>
                 )
                 : (
-                  renderGetFields(getFields[item], item, 0)
+                  renderGetFields({
+                    getField: getFields[item],
+                    keyName: item,
+                    margin: 0,
+                  })
                 )
             )}
             <div className="cnt--btn-send">
@@ -554,18 +586,17 @@ export const Page = () => {
             </div>
           </div>
         )}
+
+        {isOpen && (
+          <Modal toggle={toggleModal} title={active}>
+            {active === MODAL_TYPES.HISTORY
+              ? <History setFormFromHistory={setFormFromHistory} />
+              : active === MODAL_TYPES.SETTING
+              ? <Setting configUrl={configUrl} />
+              : <Fragment></Fragment>}
+          </Modal>
+        )}
       </div>
-      {isOpen && (
-        <Modal toggle={toggleModal} title={active} >
-          {active === "History" ? (
-            <History setFormFromHistory={setFormFromHistory}/>
-          ) : active === "Setting" ? (
-            <Setting configUrl={configUrl} />
-          ) : (
-            ""
-          )}
-        </Modal>
-      )}
     </div>
   );
 };
