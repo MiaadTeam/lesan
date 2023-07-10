@@ -195,6 +195,10 @@ input:focus {
   color: white;
 }
 
+.buttons{
+  width: 100%;
+}
+
 .btn-modal {
   width: 100%;
   margin-bottom: 10px;

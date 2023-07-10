@@ -361,13 +361,14 @@ export const Page = () => {
             </select>
           </div>
         </div>
-        <div className="">
+        <div className="buttons">
           {" "}
           <button
             className="btn btn-modal"
             onClick={() => {
               setActive("History");
               toggleModal();
+            
             }}
           >
             {" "}
@@ -555,9 +556,9 @@ export const Page = () => {
         )}
       </div>
       {isOpen && (
-        <Modal toggle={toggleModal} title={active}>
+        <Modal toggle={toggleModal} title={active} >
           {active === "History" ? (
-            <History setFormFromHistory={setFormFromHistory} />
+            <History setFormFromHistory={setFormFromHistory}/>
           ) : active === "Setting" ? (
             <Setting configUrl={configUrl} />
           ) : (

@@ -12,13 +12,13 @@ export function Setting({
   const [urlAddress, setUrlAddress] = useState("");
 
   return (
-    <div className="setting">
+    <div className="setting modal-content">
       <div className="url">
         <p className="url-title">Set Url</p>
         <div className="url-detail">
           {" "}
           <input className="url-input" placeholder="Set URL" />
-          <button className="btn url-button">Apply</button>
+          <button className="btn url-button" >Apply</button>
         </div>
       </div>
       <div className="sidebar__section sidebar__section--headers">
