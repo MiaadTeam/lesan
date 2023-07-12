@@ -72,59 +72,59 @@ interface IState {
   resetGetFields: () => void;
   setFormData: (payload: any) => void;
   setHeader: (payload: TObjectArray<string>) => void;
-  setHistory: (payload: THistory[]) => void;
+  setHistory: (payload: THistory[] | {}) => void;
   setResponse: (payload: TResponse | null) => void;
 }
 
 type TAction =
   | {
-    type: ACTION_TYPE.SET_SERVICE;
-    payload: string;
-  }
+      type: ACTION_TYPE.SET_SERVICE;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.SET_METHOD;
-    payload: string;
-  }
+      type: ACTION_TYPE.SET_METHOD;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.SET_SCHEMA;
-    payload: string;
-  }
+      type: ACTION_TYPE.SET_SCHEMA;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.SET_ACT;
-    payload: string;
-  }
+      type: ACTION_TYPE.SET_ACT;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.SET_POST_FIELDS;
-    payload: string;
-  }
+      type: ACTION_TYPE.SET_POST_FIELDS;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.RESET_POST_FIELDS;
-    payload: string;
-  }
+      type: ACTION_TYPE.RESET_POST_FIELDS;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.SET_GET_FIELDS;
-    payload: string;
-  }
+      type: ACTION_TYPE.SET_GET_FIELDS;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.RESET_GET_FIELDS;
-    payload: string;
-  }
+      type: ACTION_TYPE.RESET_GET_FIELDS;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.SET_FORM_DATA;
-    payload: string;
-  }
+      type: ACTION_TYPE.SET_FORM_DATA;
+      payload: string;
+    }
   | {
-    type: ACTION_TYPE.SET_HEADER;
-    payload: TObjectArray<string>;
-  }
+      type: ACTION_TYPE.SET_HEADER;
+      payload: TObjectArray<string>;
+    }
   | {
-    type: ACTION_TYPE.SET_HISTORY;
-    payload: THistory[];
-  }
+      type: ACTION_TYPE.SET_HISTORY;
+      payload: THistory[];
+    }
   | {
-    type: ACTION_TYPE.SET_RESPONSE;
-    payload: TResponse | null;
-  };
+      type: ACTION_TYPE.SET_RESPONSE;
+      payload: TResponse | null;
+    };
 /* -------------------------- Type Definitions End -------------------------- */
 
 // TODO: Have to Find Someway to Prevent from Rewriting Function Types
@@ -240,68 +240,68 @@ const LesanProvider = (props: any) => {
 
   const setService = useCallback(
     (payload: string) => dispatch({ type: ACTION_TYPE.SET_SERVICE, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setMethod = useCallback(
     (payload: string) => dispatch({ type: ACTION_TYPE.SET_METHOD, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setSchema = useCallback(
     (payload: string) => dispatch({ type: ACTION_TYPE.SET_SCHEMA, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setAct = useCallback(
     (payload: string) => dispatch({ type: ACTION_TYPE.SET_ACT, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setPostFields = useCallback(
     (payload: string) =>
       dispatch({ type: ACTION_TYPE.SET_POST_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const resetPostFields = useCallback(
     (payload: string) =>
       dispatch({ type: ACTION_TYPE.RESET_POST_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setGetFields = useCallback(
     (payload: string) =>
       dispatch({ type: ACTION_TYPE.SET_GET_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const resetGetFields = useCallback(
     (payload: string) =>
       dispatch({ type: ACTION_TYPE.RESET_GET_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
   const setFormData = useCallback(
     (payload: any) => dispatch({ type: ACTION_TYPE.SET_FORM_DATA, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setHeader = useCallback(
     (payload: TObjectArray<string>) =>
       dispatch({ type: ACTION_TYPE.SET_HEADER, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setHistory = useCallback(
     (payload: THistory[]) =>
       dispatch({ type: ACTION_TYPE.SET_HISTORY, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setResponse = useCallback(
     (payload: TResponse) =>
       dispatch({ type: ACTION_TYPE.SET_RESPONSE, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const value = useMemo(
@@ -320,7 +320,7 @@ const LesanProvider = (props: any) => {
       setHistory,
       setResponse,
     }),
-    [state],
+    [state]
   );
 
   return <LesanContext.Provider value={value} {...props} />;

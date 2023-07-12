@@ -194,7 +194,7 @@ input:focus {
   color: white;
 }
 
-.buttons{
+.sidebar__btns-wrapper {
   width: 100%;
 }
 
@@ -327,7 +327,7 @@ input:focus {
   background-color: #272822;
 }
 
-@media (min-width: 769px){
+@media (min-width: 769px) {
   .response {
     width: 60%;
   }
@@ -535,6 +535,70 @@ input:focus {
   /* border-radius: 5px; */
   display: inline-block;
   color: white;
+}
+
+.clear-history {
+  position: absolute;
+  bottom: 0;
+  right: 27px;
+  display: flex;
+  justify-content: end;
+  margin: 0 auto 5px auto;
+  padding: 10px 2px 10px 0;
+}
+
+.clear-history-button {
+  border-radius: 50%;
+  background-color: darkred;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1px solid whiItesmoke;
+  cursor: pointer;
+}
+.clear-history-button:hover {
+  background-color: rgb(190, 6, 6);
+}
+
+.tooltip {
+  position: relative;
+  display: inline;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 100px;
+  background-color: darkred;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  position: absolute;
+  z-index: 1;
+
+  /* bottom: 0; */
+  bottom: 110%;
+  left: 50%;
+  margin-left: -50px;
+
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-text::after {
+  content: " ";
+  position: absolute;
+  top: 100%; /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgb(255, 255, 255) transparent transparent transparent;
 }
 
 .modal-title {
