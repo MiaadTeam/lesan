@@ -679,25 +679,35 @@ const cutify = (json)=>{
 };
 const JSONViewer = ({ jsonData  })=>{
     const cutifiedJson = cutify(jsonData);
-    return Z(N, null, Z("div", {
-        class: "json-viewer-toolbar"
-    }), Z("pre", {
+    return Z(N, null, Z("pre", {
         style: pre,
         dangerouslySetInnerHTML: {
             __html: cutifiedJson
         }
     }));
 };
+function Dustbin() {
+    return Z("svg", {
+        id: "Layer_1",
+        "data-name": "Layer 1",
+        xmlns: "http://www.w3.org/2000/svg",
+        viewBox: "0 0 105.7 122.88",
+        width: 20
+    }, Z("path", {
+        fill: "white",
+        d: "M30.46,14.57V5.22A5.18,5.18,0,0,1,32,1.55v0A5.19,5.19,0,0,1,35.68,0H70a5.22,5.22,0,0,1,3.67,1.53l0,0a5.22,5.22,0,0,1,1.53,3.67v9.35h27.08a3.36,3.36,0,0,1,3.38,3.37V29.58A3.38,3.38,0,0,1,102.32,33H98.51l-8.3,87.22a3,3,0,0,1-2.95,2.69H18.43a3,3,0,0,1-3-2.95L7.19,33H3.37A3.38,3.38,0,0,1,0,29.58V17.94a3.36,3.36,0,0,1,3.37-3.37Zm36.27,0V8.51H39v6.06ZM49.48,49.25a3.4,3.4,0,0,1,6.8,0v51.81a3.4,3.4,0,1,1-6.8,0V49.25ZM69.59,49a3.4,3.4,0,1,1,6.78.42L73,101.27a3.4,3.4,0,0,1-6.78-.43L69.59,49Zm-40.26.42A3.39,3.39,0,1,1,36.1,49l3.41,51.8a3.39,3.39,0,1,1-6.77.43L29.33,49.46ZM92.51,33.38H13.19l7.94,83.55H84.56l8-83.55Z"
+    }));
+}
 function History({ setFormFromHistory  }) {
-    const { history , response , setHistory  } = useLesan();
+    const { history , setHistory  } = useLesan();
     const [show, setShow] = F1("");
     return Z("div", {
-        className: "history"
+        className: "history modal-content"
     }, history && history?.length > 0 ? Z("div", {
         className: ""
     }, Z("br", null), history.map((hi)=>Z("div", {
             className: "history-detail",
-            key: hi.id
+            id: hi.id
         }, Z("section", {
             className: "history-re"
         }, Z("span", {
@@ -710,13 +720,16 @@ function History({ setFormFromHistory  }) {
             jsonData: hi.request.body.wants.model
         })), Z("span", null, "|"), Z("div", null, Z(JSONViewer, {
             jsonData: hi.request.body.wants.act
-        }))), show === hi.id ? Z("button", {
+        }))), Z("div", null, hi.reqTime), show === hi.id ? Z("button", {
             onClick: ()=>setShow(""),
             className: "history-re-detail-button"
         }, "Hide", Z("span", {
             className: "history-re-detail-button-icon"
         }, "–")) : Z("button", {
-            onClick: ()=>setShow(hi.id),
+            onClick: ()=>{
+                setShow(hi.id);
+                document.getElementById(hi.id)?.scrollIntoView();
+            },
             className: "history-re-detail-button"
         }, "Show", " ", Z("span", {
             className: "history-re-detail-button-icon"
@@ -753,7 +766,19 @@ function History({ setFormFromHistory  }) {
             jsonData: hi.response
         })))))) : Z("span", {
         className: "no-history"
-    }, '"There is no history to display"'));
+    }, '"There is no history to display"'), history && history.length > 0 ? Z("div", {
+        className: "clear-history"
+    }, Z("button", {
+        className: "btn clear-history-button tooltip",
+        onClick: ()=>{
+            if (confirm("Clear All History?") == true) {
+                localStorage.removeItem("localHistory");
+                setHistory("");
+            }
+        }
+    }, " ", Z(Dustbin, null), Z("span", {
+        className: "tooltip-text"
+    }, "Clear History"))) : "");
 }
 const Modal = (props)=>Z("div", {
         className: "modal-overlay",
@@ -770,7 +795,7 @@ function Setting({ configUrl  }) {
     const { headers , setHeader  } = useLesan();
     const [urlAddress, setUrlAddress] = F1("");
     return Z("div", {
-        className: "setting"
+        className: "setting modal-content"
     }, Z("div", {
         className: "url"
     }, Z("p", {
@@ -848,6 +873,10 @@ const Page = ()=>{
     const [actsObj, setActsObj] = F1({});
     const [schemasObj, setSchemasObj] = F1({});
     const [urlAddress, setUrlAddress] = F1(window && window.location ? window.location.href : "http://localhost:1366");
+    T1(()=>{
+        const localHistory = localStorage.getItem("localHistory");
+        if (localHistory) setHistory(JSON.parse(localHistory));
+    }, []);
     const formRef = V1(null);
     const configUrl = (address)=>{
         address && setUrlAddress(address);
@@ -973,6 +1002,7 @@ const Page = ()=>{
     const handleSubmit = async (event)=>{
         event.preventDefault();
         const details = createNestedObjectsFromKeys(formData);
+        const sendRequest = new Date().toLocaleDateString();
         const body = {
             method: "POST",
             headers: {
@@ -994,17 +1024,20 @@ const Page = ()=>{
             options: body
         });
         setResponse(jsonSendedRequest);
-        setHistory([
+        const newHistory = [
             {
                 request: {
                     ...body,
                     body: JSON.parse(body.body)
                 },
                 response: jsonSendedRequest,
-                id: uid()
+                id: uid(),
+                reqTime: sendRequest
             },
             ...history
-        ]);
+        ];
+        setHistory(newHistory);
+        localStorage.setItem("localHistory", JSON.stringify(newHistory));
     };
     const canShowRequestFields = service && method && schema && postFields && getFields && act;
     const canShowSchema = service && method;
