@@ -11,14 +11,12 @@ interface JSONViewerProps {
   jsonData: any;
 }
 
-export const JSONViewer: FunctionalComponent<JSONViewerProps> = (
-  { jsonData },
-) => {
+export const JSONViewer: FunctionalComponent<JSONViewerProps> = ({
+  jsonData,
+}) => {
   const cutifiedJson = cutify(jsonData);
   return (
     <Fragment>
-      <div class="json-viewer-toolbar">
-      </div>
       <pre
         style={styles.pre}
         dangerouslySetInnerHTML={{ __html: cutifiedJson }}

@@ -268,6 +268,7 @@ export const Page = () => {
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     const details = createNestedObjectsFromKeys(formData);
+    const sendRequest = new Date().toLocaleDateString();
 
     const body: TRequest = {
       method: "POST",
@@ -297,6 +298,7 @@ export const Page = () => {
         request: { ...body, body: JSON.parse(body.body) },
         response: jsonSendedRequest,
         id: uid(),
+        reqTime: sendRequest,
       },
       ...history,
     ];
