@@ -121,24 +121,28 @@ export const Page = () => {
 
   return (
     <div className="cnt">
-      {tabsData.map((tab, index) => (
-        <Fragment>
-          <div
-            onClick={() => {
-              setActiveTab(index);
-            }}
-          >
-            Tab {index}
-          </div>
-          <span
-            onClick={() => {
-              addTab(null);
-            }}
-          >
-            +
-          </span>
-        </Fragment>
-      ))}
+      <div className="tabs-container" style={{ display: "flex" }}>
+        {tabsData.map((tab, index) => (
+          <Fragment>
+            <div
+              className="tab"
+              data-tab={activeTab === index}
+              onClick={() => {
+                setActiveTab(index);
+              }}
+            >
+              Tab {index}
+            </div>
+          </Fragment>
+        ))}
+        <span
+          onClick={() => {
+            addTab(null);
+          }}
+        >
+          +
+        </span>
+      </div>
       <Main />
 
       <div className="sidebar__btns-wrapper">

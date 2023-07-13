@@ -99,6 +99,7 @@ input:focus {
   padding: 0.5% 1.5%;
   box-sizing: border-box;
   border-right: 1px solid slategrey;
+  padding-top: 40px;
 }
 
 @media (min-width: 769px) and (max-width: 1025px) {
@@ -195,7 +196,9 @@ input:focus {
 }
 
 .sidebar__btns-wrapper {
-  width: 100%;
+  /* width: 100%; */
+  position: absolute;
+  bottom: 0;
 }
 
 .btn-modal {
@@ -223,6 +226,7 @@ input:focus {
   width: 23%;
   background-color: var(--color-bg-secondary);
   position: relative;
+  padding-top: 40px;
 }
 
 @media (min-width: 769px) and (max-width: 1025px) {
@@ -343,6 +347,8 @@ input:focus {
   border: 1px solid white;
   border-radius: 10px;
   height: 90%;
+  position: relative;
+  margin-top: 70px;
 }
 
 .response-detail-title {
@@ -394,8 +400,8 @@ input:focus {
   width: 15px;
   height: 15px;
   position: absolute;
-  right: 55px;
-  top: 45px;
+  right: 30px;
+  top: 15px;
   animation-name: fail;
   animation-duration: 800ms;
   animation-iteration-count: infinite;
@@ -628,6 +634,27 @@ input:focus {
   justify-content: center;
   border-radius: 10px;
   padding: 10px;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 25px;
+  width: 100%;
+  position: fixed;
+  background-color: dodgerblue;
+  z-index: 5;
+  padding: 8px 8px 0 8px;
+}
+
+.tab {
+  color: white;
+  padding: 5px;
+  border-radius: 5px 5px 0 0;
+  background-color: teal;
+}
+
+.tab[data-tab="true"] {
+  background-color: #003049;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */
