@@ -8,6 +8,8 @@ import {
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 
+import { uid } from "../utils/uid.ts";
+import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
 import Modal from "./Modal.tsx";
 import { Setting } from "./Setting.tsx";
@@ -150,9 +152,6 @@ export const Page = () => {
   useEffect(() => {
     configUrl(window.location.href);
   }, []);
-
-  const uid = () =>
-    Date.now().toString(36) + Math.random().toString(36).substr(2);
 
   const handleChange = (event: any) => {
     const { name, value, type, alt } = event.target;
@@ -592,6 +591,8 @@ export const Page = () => {
               <History setFormFromHistory={setFormFromHistory} />
             ) : active === MODAL_TYPES.SETTING ? (
               <Setting configUrl={configUrl} />
+            ) : active === MODAL_TYPES.E2E_TEST ? (
+              <E2E configUrl={configUrl} />
             ) : (
               <Fragment></Fragment>
             )}
