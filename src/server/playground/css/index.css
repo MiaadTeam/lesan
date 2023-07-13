@@ -477,6 +477,11 @@ input:focus {
   align-items: baseline;
 }
 
+.history-re-detail-date {
+  font-size: 0.875rem;
+  color: lightsteelblue;
+}
+
 .history-re-detail-collapse {
   padding-right: 2.5rem;
 }

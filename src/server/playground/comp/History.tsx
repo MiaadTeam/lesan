@@ -44,6 +44,7 @@ export function History({
                       />
                     </div>
                   </div>
+                  <div className="history-re-detail-date">{hi.reqTime}</div>
                   {show === hi.id ? (
                     <button
                       onClick={() => setShow("")}

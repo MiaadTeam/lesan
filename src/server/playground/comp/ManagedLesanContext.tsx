@@ -52,6 +52,7 @@ type TResponse = {
 
 type THistory = {
   request: TRequest;
+  reqTime: any;
   response: TResponse;
   id: string;
 };

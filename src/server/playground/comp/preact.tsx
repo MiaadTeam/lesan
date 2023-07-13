@@ -46,7 +46,7 @@ export const Page = () => {
   const [active, setActive] = useState("");
 
   const [urlAddress, setUrlAddress] = useState(
-    window && window.location ? window.location.href : "http://localhost:1366",
+    window && window.location ? window.location.href : "http://localhost:1366"
   );
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export const Page = () => {
       ({ schemas, acts }) => {
         setActsObj(acts);
         setSchemasObj(schemas);
-      },
+      }
     );
   };
 
@@ -89,15 +89,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string,
+      keyname: string
     ) => {
       for (const key in formData) {
         typeof formData[key] === "object"
           ? generateFormData(
-            formData[key],
-            returnFormData,
-            keyname ? `${keyname}.${key}` : key,
-          )
+              formData[key],
+              returnFormData,
+              keyname ? `${keyname}.${key}` : key
+            )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -170,13 +170,15 @@ export const Page = () => {
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY
-            ? <History setFormFromHistory={setFormFromHistory} />
-            : active === MODAL_TYPES.SETTING
-            ? <Setting configUrl={configUrl} />
-            : active === MODAL_TYPES.E2E_TEST
-            ? <E2E configUrl={configUrl} />
-            : <Fragment></Fragment>}
+          {active === MODAL_TYPES.HISTORY ? (
+            <History setFormFromHistory={setFormFromHistory} />
+          ) : active === MODAL_TYPES.SETTING ? (
+            <Setting configUrl={configUrl} />
+          ) : active === MODAL_TYPES.E2E_TEST ? (
+            <E2E configUrl={configUrl} />
+          ) : (
+            <Fragment></Fragment>
+          )}
         </Modal>
       )}
     </div>
