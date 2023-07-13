@@ -1,0 +1,247 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The structure of OutRelation in the schema - lesan</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded "><a href="Receiving_Data.html"><strong aria-hidden="true">1.</strong> Receiving Data</a></li><li class="chapter-item expanded "><a href="Previous_methods_and_the_main_challenge.html"><strong aria-hidden="true">2.</strong> Previous methods and the main challenge</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Lesan's_Solution_For_How_To_Communicate_Between_The_Server_And_The_Client.html"><strong aria-hidden="true">2.1.</strong> Lesan's Solution For How To Communicate Between The Server And The Client</a></li><li class="chapter-item expanded "><a href="Why_NoSQL.html"><strong aria-hidden="true">2.2.</strong> Why noSQL?</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Penetration_Into_Depths.html"><strong aria-hidden="true">2.2.1.</strong> Penetration Into Depths</a></li></ol></li><li class="chapter-item expanded "><a href="Microservice.html"><strong aria-hidden="true">2.3.</strong> Microservice</a></li><li class="chapter-item expanded "><a href="Lesan_solution.html"><strong aria-hidden="true">2.4.</strong> Lesan solution</a></li></ol></li><li class="chapter-item expanded "><a href="Starting_work_with_Lesan.html"><strong aria-hidden="true">3.</strong> Starting work with Lesan</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Microservice_Architecture_with_Lesan.html"><strong aria-hidden="true">3.1.</strong> Microservice Architecture with Lesan</a></li></ol></li><li class="chapter-item expanded "><a href="Structures.html"><strong aria-hidden="true">4.</strong> Structures</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Schemas.html"><strong aria-hidden="true">4.1.</strong> Schemas</a></li><li class="chapter-item expanded "><a href="Pure_Structure_In_Schema.html"><strong aria-hidden="true">4.2.</strong> Pure Structure In Schema</a></li><li class="chapter-item expanded "><a href="The_InRelation_Structure_In_Schema.html"><strong aria-hidden="true">4.3.</strong> The InRelation Structure In Schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_OutRelation_in_the_schema.html" class="active"><strong aria-hidden="true">4.4.</strong> The structure of OutRelation in the schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_embed_in_the_schema.html"><strong aria-hidden="true">4.5.</strong> The structure of embed in the schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_Struct_in_the_schema.html"><strong aria-hidden="true">4.6.</strong> The structure of Struct in the schema</a></li><li class="chapter-item expanded "><a href="runServer_(web_server_structure).html"><strong aria-hidden="true">4.7.</strong> runServer (web server structure)</a></li><li class="chapter-item expanded "><a href="Request_processing.html"><strong aria-hidden="true">4.8.</strong> Request processing</a></li><li class="chapter-item expanded "><a href="Dynamic_structure.html"><strong aria-hidden="true">4.9.</strong> Dynamic structure</a></li><li class="chapter-item expanded "><a href="Static_structure.html"><strong aria-hidden="true">4.10.</strong> Static structure</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">lesan</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="the-structure-of-outrelation-in-the-schema"><a class="header" href="#the-structure-of-outrelation-in-the-schema">The structure of OutRelation in the schema</a></h1>
+<p>The outerRelation structure is a relationship that has more than the limitation that we have considered by default for the inrelation relationship. In this type of relationship, we try to store a limited number that may be requested in the first request in an embedded way with a special algorithm. The important point is that for the next user request, they can easily send their request to the main schema and receive the rest of the list from there. Ultimately, this will significantly reduce the number of requests sent to the server.</p>
+<p>For example, the number of cities in a country is usually more than a few hundred cities. Our limitation for the inrelation relationship was one hundred, so we store a limited number of cities within the country as an embedded outrelation relationship. By default, we have considered this limited number to be fifty and have sorted these fifty cities by their creation date and in DESC order. Or in another example, if we consider the user schema and the order schema in a shopping program, each order has a customer who is of the user schema type. Therefore, the user is stored in the order schema as an inrelation relationship of type one and embedded. On the other hand, the user schema is also related to the order schema. The user’s orders may be very large, so we store a limited number of each user’s orders as an outRelation relationship embedded in the user schema. We can even store orders multiple times as an outrelation relationship in the user schema. Once sorted by order registration date and once sorted by order price and …</p>
+<p>The structure of the outrelation relationship is as follows:</p>
+<pre><code class="language-typescript">export interface OutRelation {
+  /**
+   * name of schema that this schema has relation with
+   */
+  schemaName: string;
+  /**
+   * number of value that we want to keep
+   */
+  number: number;
+  /**
+   * sort : {field , order} - field of sort , and order of sort
+   */
+  sort: {
+    field: string;
+    order: &quot;asc&quot; | &quot;desc&quot;;
+    type: &quot;number&quot; | &quot;date&quot; | &quot;objectId&quot;;
+  };
+}
+</code></pre>
+<p>In this structure, schemaName is the name of the schema that schema A is related to. Number is the number of fields we want to keep in this schema, and an object called sort that includes three values:</p>
+<p>1- field that we want to sort by.</p>
+<p>2- Order type of ascending or descending.</p>
+<p>3- Type the type of field we want to sort by.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="The_InRelation_Structure_In_Schema.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="The_structure_of_embed_in_the_schema.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="The_InRelation_Structure_In_Schema.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="The_structure_of_embed_in_the_schema.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
