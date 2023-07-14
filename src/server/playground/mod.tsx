@@ -2,7 +2,7 @@ import { bundle } from "../../deps.ts";
 import { Services } from "../../mod.ts";
 import { ISchema } from "../../models/mod.ts";
 
-const getCSSFile = async () => {
+export const getCSSFile = async () => {
   const url = new URL("./css/index.css", import.meta.url);
   const data = await Deno.readTextFile(url);
   return new Response(data, {
@@ -10,7 +10,7 @@ const getCSSFile = async () => {
   });
 };
 
-const getClientReact = async () => {
+export const getClientReact = async () => {
   const url = new URL("./hydrate.tsx", import.meta.url);
   const result = await bundle(url, {
     compilerOptions: { sourceMap: false },
@@ -22,7 +22,7 @@ const getClientReact = async () => {
   });
 };
 
-const getJSFile = async () => {
+export const getJSFile = async () => {
   const getBundle = async () => {
     const url = new URL("./dist/bundle.js", import.meta.url);
     const data = await Deno.readTextFile(url);
@@ -37,32 +37,20 @@ const getJSFile = async () => {
 };
 
 export const runPlayground = async (
-  request: Request,
-  schemasObj: ISchema,
-  actsObj: Services,
-  port: number,
+  url: URL,
 ) => {
-  const getSchemas = () => {
-    return new Response(
-      JSON.stringify({ schemas: schemasObj, acts: actsObj }),
-      {
-        headers: { "content-type": "application/json" },
-      },
-    );
-  };
-
   const getSsrReact = () => {
     const html = `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="http://localhost:${port}/static/index.css">
+        <link rel="stylesheet" href="${url.origin}/playground/static/index.css">
         <title>Lesan Playground</title>
       </head>
       <body >
         <div id="root"></div>
-        <script type="module" src="http://localhost:${port}/static/bundle.js" defer></script>
+        <script type="module" src="${url.origin}/playground/static/bundle.js" defer></script>
       </body>
       </html>`;
 
@@ -70,13 +58,5 @@ export const runPlayground = async (
       headers: { "content-type": "text/html; charset=utf-8" },
     });
   };
-  return request.url === `http://localhost:${port}/static/client.js`
-    ? await getClientReact()
-    : request.url === `http://localhost:${port}/static/index.css`
-    ? await getCSSFile()
-    : request.url === `http://localhost:${port}/static/bundle.js`
-    ? await getJSFile()
-    : request.url === `http://localhost:${port}/static/get/schemas`
-    ? getSchemas()
-    : getSsrReact();
+  return getSsrReact();
 };

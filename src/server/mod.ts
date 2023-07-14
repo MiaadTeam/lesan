@@ -1,10 +1,10 @@
-import { serve } from "https://deno.land/std@0.128.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.194.0/http/server.ts";
 import { Services } from "../acts/mod.ts";
 import { ISchema } from "../models/mod.ts";
 import { generateSchemTypes } from "../types/mod.ts";
 import { lesanFns } from "../utils/mod.ts";
 import { addCors, addCorsObj } from "./cors.ts";
-import { runPlayground } from "./playground/mod.tsx";
+import { serveStatic } from "./serveStatic.ts";
 
 /**
  * this function is for run Server and get request of client and send response of request for client
@@ -19,10 +19,17 @@ export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
     port,
     playground,
     typeGeneration,
+    staticPath,
   }: {
     port: number;
     playground: boolean;
     typeGeneration: boolean;
+    staticPath?: string[];
+  } = {
+    port: 8000,
+    playground: false,
+    typeGeneration: false,
+    staticPath: [],
   }) => {
     typeGeneration && (await generateSchemTypes(schemasObj));
     const handler = async (request: Request): Promise<Response> => {
@@ -37,10 +44,14 @@ export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
         }
 
         return request.method === "GET"
-          // ? await serveStatic(request)
-          ? await runPlayground(request, schemasObj, actsObj, port)
+          ? await serveStatic(
+            request,
+            schemasObj,
+            actsObj,
+            playground,
+            staticPath || [],
+          )
           : await lesanFns(actsObj).serveLesan(request, port);
-        // return await lesanFns(actsObj).serveLesan(request, port);
       } catch (e) {
         return new Response(
           JSON.stringify({

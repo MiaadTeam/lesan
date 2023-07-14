@@ -14,7 +14,7 @@ import { Setting } from "./Setting.tsx";
 import useModal from "./useModal.tsx";
 
 const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
-  fetch(`${baseUrl}static/get/schemas`).then((res) => res.json());
+  fetch(`${baseUrl}playground/static/get/schemas`).then((res) => res.json());
 
 enum MODAL_TYPES {
   HISTORY = "HISTORY",
@@ -49,11 +49,17 @@ export const Page = () => {
 
   const [active, setActive] = useState("");
 
-  const [urlAddress, setUrlAddress] = useState(
-    window && window.location ? window.location.href : "http://localhost:1366",
-  );
+  const parsedWindowUrl = () => {
+    return window && window.location
+      ? `${new URL(window.location.href).origin}/`
+      : "http://localhost:1366/";
+  };
+
+  const [urlAddress, setUrlAddress] = useState("");
 
   useEffect(() => {
+    configUrl(parsedWindowUrl());
+
     const localHistory = localStorage.getItem("localHistory");
     if (localHistory) setHistory(JSON.parse(localHistory));
   }, []);
@@ -114,10 +120,6 @@ export const Page = () => {
     toggleModal();
   };
 
-  useEffect(() => {
-    configUrl(window.location.href);
-  }, []);
-
   const modalBtnClickHandler = (type: MODAL_TYPES) => {
     setActive(type);
     toggleModal();
@@ -147,7 +149,7 @@ export const Page = () => {
           +
         </span>
       </div>
-      <Main />
+      <Main urlAddress={urlAddress} />
 
       <div className="sidebar__btns-wrapper">
         <span

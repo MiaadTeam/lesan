@@ -1204,9 +1204,8 @@ function TestIcon() {
     }));
 }
 const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
-const Main = ()=>{
+const Main = ({ urlAddress  })=>{
     const { activeTab , tabsData , actsObj , headers , history , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
-    const [urlAddress, setUrlAddress] = F1(window && window.location ? window.location.href : "http://localhost:1366");
     const changeGetValue = (value, keyname, getObj, returnObj)=>{
         for(const key in getObj){
             getObj[key].type === "enums" ? returnObj[`${keyname}.${key}`] = value : changeGetValue(value, `${keyname}.${key}`, getObj[key].schema, returnObj);
@@ -1686,7 +1685,7 @@ function useModal() {
         toggleModal
     };
 }
-const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}static/get/schemas`).then((res)=>res.json());
+const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}playground/static/get/schemas`).then((res)=>res.json());
 var MODAL_TYPES;
 (function(MODAL_TYPES) {
     MODAL_TYPES["HISTORY"] = "HISTORY";
@@ -1698,8 +1697,12 @@ const Page = ()=>{
     const { isOpen , toggleModal  } = useModal();
     const { tabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields , setSchemasObj , setActsObj  } = useLesan();
     const [active, setActive] = F1("");
-    const [urlAddress, setUrlAddress] = F1(window && window.location ? window.location.href : "http://localhost:1366");
+    const parsedWindowUrl = ()=>{
+        return window && window.location ? `${new URL(window.location.href).origin}/` : "http://localhost:1366/";
+    };
+    const [urlAddress, setUrlAddress] = F1("");
     T1(()=>{
+        configUrl(parsedWindowUrl());
         const localHistory = localStorage.getItem("localHistory");
         if (localHistory) setHistory(JSON.parse(localHistory));
     }, []);
@@ -1773,9 +1776,6 @@ const Page = ()=>{
         });
         toggleModal();
     };
-    T1(()=>{
-        configUrl(window.location.href);
-    }, []);
     const modalBtnClickHandler = (type)=>{
         setActive(type);
         toggleModal();
@@ -1797,7 +1797,9 @@ const Page = ()=>{
         onClick: ()=>{
             addTab(null);
         }
-    }, "+")), Z(Main, null), Z("div", {
+    }, "+")), Z(Main, {
+        urlAddress: urlAddress
+    }), Z("div", {
         className: "sidebar__btns-wrapper"
     }, Z("span", {
         className: "btn-modal",

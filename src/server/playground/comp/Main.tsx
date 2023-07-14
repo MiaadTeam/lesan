@@ -18,7 +18,7 @@ const lesanAPI = ({
   options: TRequest;
 }) => fetch(`${baseUrl}lesan`, options).then((res) => res.json());
 
-export const Main = () => {
+export const Main = ({ urlAddress }: { urlAddress: string }) => {
   const {
     activeTab,
     tabsData,
@@ -37,10 +37,6 @@ export const Main = () => {
     resetGetFields,
     resetPostFields,
   } = useLesan();
-
-  const [urlAddress, setUrlAddress] = useState(
-    window && window.location ? window.location.href : "http://localhost:1366",
-  );
 
   const changeGetValue = (
     value: 0 | 1 | null,
