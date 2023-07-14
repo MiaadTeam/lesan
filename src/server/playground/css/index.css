@@ -134,7 +134,7 @@ input:focus {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: "";
+  content: '';
   height: 2px;
   width: 100%;
   background-color: white;
@@ -198,28 +198,40 @@ input:focus {
 .sidebar__btns-wrapper {
   /* width: 100%; */
   position: absolute;
-  bottom: 0;
+  bottom: 1rem;
+  left: calc(10% - 6.5rem);
+  height: 2.8rem;
+  display: flex;
+  background-color: azure;
+  border-radius: 0.3rem;
+  border: 1px solid antiquewhite;
 }
 
 .btn-modal {
-  width: 100%;
-  margin-bottom: 10px;
-  font-size: 17px;
-  background-color: teal;
+  width: 2.2rem;
+  padding: 0.3rem;
   cursor: pointer;
+  border-right: 1px solid antiquewhite;
+  position: relative;
 }
 
-.btn-modal--2 {
-  background-color: steelblue;
+.btn-modal .tooltip-text {
+  background-color: azure;
+  width: 80px;
+  padding: 2px 0;
+  color: currentColor;
+  margin-left: -40px;
 }
 
-.btn-modal--3 {
-  background-color: lightseagreen;
+.btn-modal:hover {
+  background-color: antiquewhite;
 }
 
-.btn-modal--4 {
-  background-color: cadetblue;
+.btn-modal:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
 }
+
 /* -------------------------------------------------------------------------- */
 
 .sidebar--fields {
@@ -529,7 +541,7 @@ input:focus {
   display: none;
 }
 
-.history-re-detail-complete[data-show="true"] {
+.history-re-detail-complete[data-show='true'] {
   display: block;
 }
 
@@ -602,7 +614,7 @@ input:focus {
 }
 
 .tooltip-text::after {
-  content: " ";
+  content: ' ';
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
   left: 50%;
@@ -653,7 +665,7 @@ input:focus {
   background-color: teal;
 }
 
-.tab[data-tab="true"] {
+.tab[data-tab='true'] {
   background-color: #003049;
 }
 

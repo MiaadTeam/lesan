@@ -392,24 +392,39 @@ var ACTION_TYPE;
     ACTION_TYPE["SET_HEADER"] = "SET_HEADER";
     ACTION_TYPE["SET_HISTORY"] = "ADD_HISTORY";
     ACTION_TYPE["SET_RESPONSE"] = "SET_RESPONSE";
+    ACTION_TYPE["SET_ACTS_OBJ"] = "SET_ACTS_OBJ";
+    ACTION_TYPE["SET_SCHEMAS_OBJ"] = "SET_SCHEMAS_OBJ";
+    ACTION_TYPE["SET_ACTIVE_TAB"] = "SET_ACTIVE_TAB";
+    ACTION_TYPE["ADD_TAB"] = "ADD_TAB";
 })(ACTION_TYPE || (ACTION_TYPE = {}));
 const initialState = {
-    service: "",
-    method: "",
-    schema: "",
-    act: "",
-    postFields: {},
-    getFields: {},
-    formData: {},
+    tabsData: [
+        {
+            service: "",
+            method: "",
+            schema: "",
+            act: "",
+            postFields: {},
+            getFields: {},
+            formData: {},
+            response: null
+        }
+    ],
+    schemasObj: {},
+    actsObj: {},
     headers: {
         Authorization: ""
     },
     history: [],
-    response: null,
+    activeTab: 0,
+    setActiveTab: ()=>({}),
+    addTab: ()=>({}),
     setService: ()=>({}),
     setMethod: ()=>({}),
     setSchema: ()=>({}),
     setAct: ()=>({}),
+    setActsObj: ()=>({}),
+    setSchemasObj: ()=>({}),
     setPostFields: ()=>({}),
     resetPostFields: ()=>({}),
     setGetFields: ()=>({}),
@@ -425,65 +440,146 @@ function lesanReducer(state, action) {
     switch(type){
         case ACTION_TYPE.SET_SERVICE:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload.index] = {
+                    ...copyTabsData[payload.index],
+                    service: payload.data
+                };
                 return {
                     ...state,
-                    service: payload
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.SET_METHOD:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload.index] = {
+                    ...copyTabsData[payload.index],
+                    method: payload.data
+                };
                 return {
                     ...state,
-                    method: payload
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.SET_SCHEMA:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload.index] = {
+                    ...copyTabsData[payload.index],
+                    schema: payload.data
+                };
                 return {
                     ...state,
-                    schema: payload
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.SET_ACT:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload.index] = {
+                    ...copyTabsData[payload.index],
+                    act: payload.data
+                };
                 return {
                     ...state,
-                    act: payload
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.SET_POST_FIELDS:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload.index] = {
+                    ...copyTabsData[payload.index],
+                    postFields: payload.data
+                };
                 return {
                     ...state,
-                    postFields: payload
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.RESET_POST_FIELDS:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload] = {
+                    ...copyTabsData[payload],
+                    postFields: {}
+                };
                 return {
                     ...state,
-                    postFields: {}
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.SET_GET_FIELDS:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload.index] = {
+                    ...copyTabsData[payload.index],
+                    getFields: payload.data
+                };
                 return {
                     ...state,
-                    getFields: payload
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.RESET_GET_FIELDS:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload] = {
+                    ...copyTabsData[payload],
+                    getFields: {}
+                };
                 return {
                     ...state,
-                    getFields: {}
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.SET_FORM_DATA:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload.index] = {
+                    ...copyTabsData[payload.index],
+                    formData: payload.data
+                };
                 return {
                     ...state,
-                    formData: payload
+                    tabsData: [
+                        ...copyTabsData
+                    ]
                 };
             }
         case ACTION_TYPE.SET_HEADER:
@@ -502,9 +598,59 @@ function lesanReducer(state, action) {
             }
         case ACTION_TYPE.SET_RESPONSE:
             {
+                const copyTabsData = [
+                    ...state.tabsData
+                ];
+                copyTabsData[payload.index] = {
+                    ...copyTabsData[payload.index],
+                    response: payload.data
+                };
                 return {
                     ...state,
-                    response: payload
+                    tabsData: [
+                        ...copyTabsData
+                    ]
+                };
+            }
+        case ACTION_TYPE.ADD_TAB:
+            {
+                return {
+                    ...state,
+                    tabsData: [
+                        ...state.tabsData,
+                        {
+                            service: "",
+                            method: "",
+                            schema: "",
+                            act: "",
+                            postFields: {},
+                            getFields: {},
+                            formData: {},
+                            response: null
+                        }
+                    ],
+                    activeTab: state.tabsData.length
+                };
+            }
+        case ACTION_TYPE.SET_ACTIVE_TAB:
+            {
+                return {
+                    ...state,
+                    activeTab: payload
+                };
+            }
+        case ACTION_TYPE.SET_ACTS_OBJ:
+            {
+                return {
+                    ...state,
+                    actsObj: payload
+                };
+            }
+        case ACTION_TYPE.SET_SCHEMAS_OBJ:
+            {
+                return {
+                    ...state,
+                    schemasObj: payload
                 };
             }
         default:
@@ -567,6 +713,18 @@ const LesanProvider = (props)=>{
         }), [
         dispatch
     ]);
+    const setActiveTab = R1((payload)=>dispatch({
+            type: ACTION_TYPE.SET_ACTIVE_TAB,
+            payload
+        }), [
+        dispatch
+    ]);
+    const addTab = R1((payload)=>dispatch({
+            type: ACTION_TYPE.ADD_TAB,
+            payload
+        }), [
+        dispatch
+    ]);
     const setHeader = R1((payload)=>dispatch({
             type: ACTION_TYPE.SET_HEADER,
             payload
@@ -585,6 +743,18 @@ const LesanProvider = (props)=>{
         }), [
         dispatch
     ]);
+    const setSchemasObj = R1((payload)=>dispatch({
+            type: ACTION_TYPE.SET_SCHEMAS_OBJ,
+            payload
+        }), [
+        dispatch
+    ]);
+    const setActsObj = R1((payload)=>dispatch({
+            type: ACTION_TYPE.SET_ACTS_OBJ,
+            payload
+        }), [
+        dispatch
+    ]);
     const value = g(()=>({
             ...state,
             setService,
@@ -598,7 +768,11 @@ const LesanProvider = (props)=>{
             setFormData,
             setHeader,
             setHistory,
-            setResponse
+            setResponse,
+            setActsObj,
+            setSchemasObj,
+            setActiveTab,
+            addTab
         }), [
         state
     ]);
@@ -618,6 +792,167 @@ const ManagedLesanContext = (props)=>{
     const { children  } = props;
     return Z(LesanProvider, null, children);
 };
+const uid = ()=>Date.now().toString(36) + Math.random().toString(36).substr(2);
+function E2E({ configUrl  }) {
+    const [e2eFroms, setE2eForms] = F1([]);
+    const [urlAddress, setUrlAddress] = F1("");
+    const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
+    const runE2eTest = ()=>{
+        e2eFroms.map(async (e2eForm)=>{
+            const parsedHeaderBody = JSON.parse(e2eForm.bodyHeaders);
+            console.log(" ============= ");
+            console.group("parsedHeaderBody ------ ");
+            console.log();
+            console.info({
+                parsedHeaderBody
+            }, " ------ ");
+            console.log();
+            console.groupEnd();
+            console.log(" ============= ");
+            const body = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(parsedHeaderBody.body)
+            };
+            const jsonSendedRequest = await lesanAPI({
+                baseUrl: "http://localhost:8000/",
+                options: body
+            });
+            console.log(" ============= ");
+            console.group("jsonSendedRequest ------ ");
+            console.log();
+            console.info({
+                jsonSendedRequest
+            }, " ------ ");
+            console.log();
+            console.groupEnd();
+            console.log(" ============= ");
+        });
+    };
+    return Z("div", {
+        className: "e2e modal-content"
+    }, Z("button", {
+        className: "btn btn--add",
+        onClick: ()=>{
+            setE2eForms((e2eForm)=>[
+                    ...e2eForm,
+                    {
+                        id: uid(),
+                        bodyHeaders: `
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": ""
+  },
+  "body": {
+    "service": "main",
+    "contents": "dynamic",
+    "wants": {
+      "model": "",
+      "act": ""
+    },
+    "details": {
+      "get": {},
+      "set": {}
+    }
+  }
+}
+`,
+                        repeat: 1,
+                        capture: []
+                    }
+                ]);
+        }
+    }, "add +"), Z("div", {
+        className: "sidebar__section sidebar__section--headers"
+    }, e2eFroms.map((e2eForm, idx)=>Z(N, null, Z("div", {
+            className: "sidebar__input-double",
+            key: e2eForm.id
+        }, Z("div", {
+            className: "sidebar__section-heading"
+        }, "set test body and headers"), Z("textarea", {
+            placeholder: "please paste a request body here",
+            value: e2eForm.bodyHeaders,
+            name: `${e2eForm.id}-body`,
+            rows: 18,
+            onChange: (e)=>{
+                setE2eForms((e2eForm)=>{
+                    const copy = [
+                        ...e2eForm
+                    ];
+                    copy[idx].bodyHeaders = e.target.value;
+                    return [
+                        ...copy
+                    ];
+                });
+            }
+        }), Z("div", {
+            className: "sidebar__section-heading"
+        }, "set repeat time"), Z("input", {
+            placeholder: "set repeat number",
+            value: e2eForm.repeat,
+            name: `${e2eForm.id}-repeat`,
+            type: "number",
+            onChange: (e)=>{
+                setE2eForms((e2eForm)=>{
+                    const copy = [
+                        ...e2eForm
+                    ];
+                    copy[idx].repeat = e.target.value;
+                    return [
+                        ...copy
+                    ];
+                });
+            }
+        }), Z("div", {
+            className: "sidebar__section-heading"
+        }, "capture variables"), Z("button", {
+            className: "btn btn--add",
+            onClick: ()=>{
+                setE2eForms((e2eForm)=>{
+                    const copy = [
+                        ...e2eForm
+                    ];
+                    copy[idx].capture.push({
+                        key: "",
+                        value: ""
+                    });
+                    return copy;
+                });
+            }
+        }, "add capture variable item"), e2eForm.capture.map((capture, capId)=>Z(N, null, Z("input", {
+                placeholder: "set a variable name",
+                value: capture.key,
+                onChange: (e)=>{
+                    setE2eForms((e2eForm)=>{
+                        const copy = [
+                            ...e2eForm
+                        ];
+                        copy[idx].capture[capId].key = e.target.value;
+                        return copy;
+                    });
+                }
+            }), Z("input", {
+                placeholder: "set a value for variable",
+                value: capture.value,
+                onChange: (e)=>{
+                    setE2eForms((e2eForm)=>{
+                        const copy = [
+                            ...e2eForm
+                        ];
+                        copy[idx].capture[capId].value = e.target.value;
+                        return copy;
+                    });
+                }
+            }), Z("hr", null)))), Z("hr", null), Z("hr", null)))), Z("button", {
+        className: "btn btn--add",
+        onClick: ()=>{
+            runE2eTest();
+        }
+    }, "Run E2E Test"));
+}
 var ClassNames;
 (function(ClassNames) {
     ClassNames["string"] = "cute-string";
@@ -720,7 +1055,9 @@ function History({ setFormFromHistory  }) {
             jsonData: hi.request.body.wants.model
         })), Z("span", null, "|"), Z("div", null, Z(JSONViewer, {
             jsonData: hi.request.body.wants.act
-        }))), Z("div", null, hi.reqTime), show === hi.id ? Z("button", {
+        }))), Z("div", {
+            className: "history-re-detail-date"
+        }, hi.reqTime), show === hi.id ? Z("button", {
             onClick: ()=>setShow(""),
             className: "history-re-detail-button"
         }, "Hide", Z("span", {
@@ -780,6 +1117,498 @@ function History({ setFormFromHistory  }) {
         className: "tooltip-text"
     }, "Clear History"))) : "");
 }
+function GraphIcon() {
+    return Z("svg", {
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        opacity: "0.5",
+        d: "M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z",
+        stroke: "#1C274C",
+        "stroke-width": "1.5"
+    }), Z("path", {
+        d: "M7 18V9",
+        stroke: "#1C274C",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round"
+    }), Z("path", {
+        d: "M12 18V6",
+        stroke: "#1C274C",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round"
+    }), Z("path", {
+        d: "M17 18V13",
+        stroke: "#1C274C",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round"
+    }));
+}
+function HistoryIcon() {
+    return Z("svg", {
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M5.07868 5.06891C8.87402 1.27893 15.0437 1.31923 18.8622 5.13778C22.6824 8.95797 22.7211 15.1313 18.9262 18.9262C15.1312 22.7211 8.95793 22.6824 5.13774 18.8622C2.87389 16.5984 1.93904 13.5099 2.34047 10.5812C2.39672 10.1708 2.775 9.88377 3.18537 9.94002C3.59575 9.99627 3.88282 10.3745 3.82658 10.7849C3.4866 13.2652 4.27782 15.881 6.1984 17.8016C9.44288 21.0461 14.6664 21.0646 17.8655 17.8655C21.0646 14.6664 21.046 9.44292 17.8015 6.19844C14.5587 2.95561 9.33889 2.93539 6.13935 6.12957L6.88705 6.13333C7.30126 6.13541 7.63535 6.47288 7.63327 6.88709C7.63119 7.3013 7.29372 7.63539 6.87951 7.63331L4.33396 7.62052C3.92269 7.61845 3.58981 7.28556 3.58774 6.8743L3.57495 4.32874C3.57286 3.91454 3.90696 3.57707 4.32117 3.57498C4.73538 3.5729 5.07285 3.907 5.07493 4.32121L5.07868 5.06891Z",
+        fill: "#1C274C"
+    }), Z("path", {
+        opacity: "0.5",
+        d: "M12 7.25C12.4142 7.25 12.75 7.58579 12.75 8V11.6893L15.0303 13.9697C15.3232 14.2626 15.3232 14.7374 15.0303 15.0303C14.7374 15.3232 14.2626 15.3232 13.9697 15.0303L11.5429 12.6036C11.3554 12.416 11.25 12.1617 11.25 11.8964V8C11.25 7.58579 11.5858 7.25 12 7.25Z",
+        fill: "#1C274C"
+    }));
+}
+function SettingIcon() {
+    return Z("svg", {
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M3 9.10986V14.8799C3 16.9999 3 16.9999 5 18.3499L10.5 21.5299C11.33 22.0099 12.68 22.0099 13.5 21.5299L19 18.3499C21 16.9999 21 16.9999 21 14.8899V9.10986C21 6.99986 21 6.99986 19 5.64986L13.5 2.46986C12.68 1.98986 11.33 1.98986 10.5 2.46986L5 5.64986C3 6.99986 3 6.99986 3 9.10986Z",
+        stroke: "#292D32",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        opacity: "0.34",
+        d: "M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z",
+        stroke: "#292D32",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
+function TestIcon() {
+    return Z("svg", {
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M9.74872 2.49415L18.1594 7.31987M9.74872 2.49415L2.65093 14.7455C1.31093 17.0584 2.10615 20.0159 4.42709 21.3513C6.74803 22.6867 9.7158 21.8942 11.0558 19.5813L12.5511 17.0003L14.1886 14.1738L15.902 11.2163L18.1594 7.31987M9.74872 2.49415L8.91283 2M18.1594 7.31987L19 7.80374",
+        stroke: "#1C274C",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round"
+    }), Z("path", {
+        opacity: "0.5",
+        d: "M15.9021 11.2164L13.3441 9.74463M14.1887 14.1739L9.98577 11.7557M12.5512 17.0004L9.93848 15.4972",
+        stroke: "#1C274C",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round"
+    }), Z("path", {
+        opacity: "0.5",
+        d: "M22 14.9166C22 16.0672 21.1046 16.9999 20 16.9999C18.8954 16.9999 18 16.0672 18 14.9166C18 14.1967 18.783 13.2358 19.3691 12.6174C19.7161 12.2512 20.2839 12.2512 20.6309 12.6174C21.217 13.2358 22 14.1967 22 14.9166Z",
+        stroke: "#1C274C",
+        "stroke-width": "1.5"
+    }));
+}
+const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
+const Main = ()=>{
+    const { activeTab , tabsData , actsObj , headers , history , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
+    const [urlAddress, setUrlAddress] = F1(window && window.location ? window.location.href : "http://localhost:1366");
+    const changeGetValue = (value, keyname, getObj, returnObj)=>{
+        for(const key in getObj){
+            getObj[key].type === "enums" ? returnObj[`${keyname}.${key}`] = value : changeGetValue(value, `${keyname}.${key}`, getObj[key].schema, returnObj);
+        }
+        return returnObj;
+    };
+    T1(()=>{
+        const localHistory = localStorage.getItem("localHistory");
+        if (localHistory) setHistory(JSON.parse(localHistory));
+    }, []);
+    const formRef = V1(null);
+    const handleChange = (event)=>{
+        const { name , value , type , alt  } = event.target;
+        let updatedValue;
+        if (type === "number") {
+            updatedValue = Number(value);
+        } else if (alt === "array" || alt === "boolean") {
+            updatedValue = JSON.parse(value);
+        } else {
+            updatedValue = value;
+        }
+        setFormData({
+            data: {
+                ...tabsData[activeTab].formData,
+                [name]: updatedValue
+            },
+            index: activeTab
+        });
+    };
+    const renderGetFields = ({ getField , keyName , margin  })=>Z("div", {
+            style: {
+                marginLeft: `${margin + 1}px`
+            },
+            className: "sidebar__section_container"
+        }, Z("div", {
+            className: "sidebar__section-heading--subfields"
+        }, keyName), Object.keys(getField["schema"]).map((item)=>getField["schema"][item].type === "enums" ? Z("div", {
+                className: "input-cnt get-items",
+                key: item
+            }, Z("label", {
+                htmlFor: item
+            }, keyName, ".", item, ":"), Z("div", {
+                className: "get-values"
+            }, Z("span", {
+                onClick: ()=>{
+                    const copy = {
+                        ...tabsData[activeTab].formData
+                    };
+                    delete copy[`get.${keyName}.${item}`];
+                    setFormData({
+                        data: copy,
+                        index: activeTab
+                    });
+                }
+            }), Z("span", {
+                className: tabsData[activeTab].formData[`get.${keyName}.${item}`] === 0 ? "active" : "",
+                onClick: ()=>{
+                    setFormData({
+                        index: activeTab,
+                        data: {
+                            ...tabsData[activeTab].formData,
+                            [`get.${keyName}.${item}`]: 0
+                        }
+                    });
+                }
+            }, "0"), Z("span", {
+                className: tabsData[activeTab].formData[`get.${keyName}.${item}`] === 1 ? "active" : "",
+                onClick: ()=>{
+                    setFormData({
+                        data: {
+                            ...tabsData[activeTab].formData,
+                            [`get.${keyName}.${item}`]: 1
+                        },
+                        index: activeTab
+                    });
+                }
+            }, "1"))) : renderGetFields({
+                getField: getField["schema"][item],
+                keyName: `${keyName}.${item}`,
+                margin: margin + 1
+            })));
+    const createNestedObjectsFromKeys = (obj)=>{
+        const result = {
+            get: {},
+            set: {}
+        };
+        for(const objectPath in obj){
+            if (obj[objectPath] || obj[objectPath] === 0) {
+                const parts = objectPath.split(".");
+                let target = result;
+                while(parts.length > 1){
+                    const part = parts.shift();
+                    target[part] = target[part] || {};
+                    target = target[part];
+                }
+                target[parts[0]] = obj[objectPath];
+            }
+        }
+        return result;
+    };
+    const handleSubmit = async (event)=>{
+        event.preventDefault();
+        const details = createNestedObjectsFromKeys(tabsData[activeTab].formData);
+        const body = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...headers
+            },
+            body: JSON.stringify({
+                service: tabsData[activeTab].service,
+                contents: tabsData[activeTab].method,
+                wants: {
+                    model: tabsData[activeTab].schema,
+                    act: tabsData[activeTab].act
+                },
+                details
+            })
+        };
+        const jsonSendedRequest = await lesanAPI({
+            baseUrl: urlAddress,
+            options: body
+        });
+        setResponse({
+            data: jsonSendedRequest,
+            index: activeTab
+        });
+        const newHistory = [
+            {
+                request: {
+                    ...body,
+                    body: JSON.parse(body.body)
+                },
+                response: jsonSendedRequest,
+                id: uid()
+            },
+            ...history
+        ];
+        setHistory(newHistory);
+        localStorage.setItem("localHistory", JSON.stringify(newHistory));
+    };
+    const canShowRequestFields = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema && tabsData[activeTab].postFields && tabsData[activeTab].getFields && tabsData[activeTab].act;
+    const canShowSchema = tabsData[activeTab].service && tabsData[activeTab].method;
+    const canShowAct = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema;
+    return Z(N, null, Z("div", {
+        className: "sidebar"
+    }, Z("div", {
+        className: "sidebar__sections-wrapper"
+    }, Z("div", {
+        className: "sidebar__section sidebar__section--services"
+    }, Z("div", {
+        className: "sidebar__section-heading"
+    }, "select services"), Z("select", {
+        className: "sidebar__select",
+        value: tabsData[activeTab].service,
+        onChange: (event)=>{
+            setService({
+                data: event.target.value,
+                index: activeTab
+            });
+            setMethod({
+                data: "",
+                index: activeTab
+            });
+            setSchema({
+                data: "",
+                index: activeTab
+            });
+            resetGetFields(activeTab);
+            resetPostFields(activeTab);
+            setFormData({
+                data: {},
+                index: activeTab
+            });
+        }
+    }, Z("option", {
+        value: ""
+    }), Object.keys(actsObj).map((service, index)=>Z("option", {
+            key: index,
+            value: service
+        }, service)))), Z("div", {
+        className: "sidebar__section sidebar__section--method"
+    }, Z("div", {
+        className: "sidebar__section-heading"
+    }, "select content"), Z("select", {
+        className: "sidebar__select",
+        value: tabsData[activeTab].method,
+        onChange: (event)=>{
+            setMethod({
+                data: event.target.value,
+                index: activeTab
+            });
+            setSchema({
+                data: "",
+                index: activeTab
+            });
+            resetGetFields(activeTab);
+            resetPostFields(activeTab);
+            setFormData({
+                data: {},
+                index: activeTab
+            });
+        }
+    }, Z("option", {
+        value: ""
+    }), Z("option", {
+        value: "dynamic"
+    }, "dynamic"), Z("option", {
+        value: "static"
+    }, "static"))), Z("div", {
+        className: "sidebar__section sidebar__section--schema"
+    }, Z("div", {
+        className: "sidebar__section-heading"
+    }, "select schema"), Z("select", {
+        className: "sidebar__select",
+        disabled: !canShowSchema,
+        value: canShowSchema ? tabsData[activeTab].schema : undefined,
+        onChange: (event)=>{
+            setSchema({
+                data: event.target.value,
+                index: activeTab
+            });
+            resetGetFields(activeTab);
+            resetPostFields(activeTab);
+            setFormData({
+                data: {},
+                index: activeTab
+            });
+        }
+    }, Z("option", {
+        value: ""
+    }), canShowSchema ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method]).map((schema)=>Z("option", {
+            value: schema
+        }, schema)) : null)), Z("div", {
+        className: "sidebar__section sidebar__section--act"
+    }, Z("div", {
+        className: "sidebar__section-heading"
+    }, "select action"), Z("select", {
+        className: "sidebar__select",
+        disabled: !canShowAct,
+        value: canShowAct ? tabsData[activeTab].act : undefined,
+        onChange: (event)=>{
+            const actObj = actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema][event.target.value]["validator"]["schema"];
+            formRef && formRef.current && formRef.current.reset();
+            setAct({
+                data: event.target.value,
+                index: activeTab
+            });
+            setGetFields({
+                data: actObj["get"]["schema"],
+                index: activeTab
+            });
+            setPostFields({
+                data: actObj["set"]["schema"],
+                index: activeTab
+            });
+            setFormData({
+                data: {},
+                index: activeTab
+            });
+        }
+    }, Z("option", {
+        value: ""
+    }), canShowAct ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema]).map((schema)=>Z("option", {
+            value: schema
+        }, schema)) : null)))), canShowRequestFields && Z("div", {
+        className: "sidebar sidebar--fields"
+    }, Z("form", {
+        ref: formRef,
+        onSubmit: handleSubmit,
+        className: "form--fields"
+    }, Z("div", {
+        className: "sidebar__section-heading sidebar__section-heading--fields"
+    }, "SET fields"), Object.keys(tabsData[activeTab].postFields).map((item)=>Z("div", {
+            className: "input-cnt",
+            key: item
+        }, Z("label", {
+            htmlFor: item
+        }, item, ":"), tabsData[activeTab].postFields[item]["type"] === "enums" ? Z("select", {
+            className: "sidebar__select",
+            value: tabsData[activeTab].formData[`set.${item}`],
+            onChange: (event)=>{
+                setFormData({
+                    data: {
+                        ...tabsData[activeTab].formData,
+                        [`set.${item}`]: event.target.value
+                    },
+                    index: activeTab
+                });
+            }
+        }, Z("option", {
+            value: ""
+        }), Object.keys(tabsData[activeTab].postFields[item]["schema"]).map((schema)=>Z("option", {
+                value: schema
+            }, schema))) : Z("input", {
+            placeholder: item,
+            id: item,
+            value: tabsData[activeTab].formData[`set.${item}`],
+            name: `set.${item}`,
+            type: tabsData[activeTab].postFields[item]["type"] === "number" ? "number" : "string",
+            alt: tabsData[activeTab].postFields[item]["type"],
+            onChange: handleChange
+        }))), Z("div", {
+        className: "sidebar__section-heading sidebar__section-heading--fields"
+    }, "GET fields"), Z("div", {
+        className: "input-cnt get-items border-bottom"
+    }, Z("label", null, "All Items :"), Z("div", {
+        className: "get-values"
+    }, Z("span", {
+        onClick: ()=>{
+            const copy = changeGetValue(null, "get", tabsData[activeTab].getFields, {});
+            setFormData({
+                data: {
+                    ...tabsData[activeTab].formData,
+                    ...copy
+                },
+                index: activeTab
+            });
+        }
+    }), Z("span", {
+        onClick: ()=>{
+            const copy = changeGetValue(0, "get", tabsData[activeTab].getFields, {});
+            setFormData({
+                data: {
+                    ...tabsData[activeTab].formData,
+                    ...copy
+                },
+                index: activeTab
+            });
+        }
+    }, "0"), Z("span", {
+        onClick: ()=>{
+            const copy = changeGetValue(1, "get", tabsData[activeTab].getFields, {});
+            setFormData({
+                data: {
+                    ...tabsData[activeTab].formData,
+                    ...copy
+                },
+                index: activeTab
+            });
+        }
+    }, "1"))), Object.keys(tabsData[activeTab].getFields).map((item)=>tabsData[activeTab].getFields[item].type === "enums" ? Z("div", {
+            className: "input-cnt get-items"
+        }, Z("label", {
+            htmlFor: item
+        }, item, ":"), Z("div", {
+            className: "get-values"
+        }, Z("span", {
+            onClick: ()=>{
+                const copy = {
+                    ...tabsData[activeTab].formData
+                };
+                delete copy[`get.${item}`];
+                setFormData(copy);
+            }
+        }), Z("span", {
+            className: tabsData[activeTab].formData[`get.${item}`] === 0 ? "active" : "",
+            onClick: ()=>{
+                setFormData({
+                    data: {
+                        ...tabsData[activeTab].formData,
+                        [`get.${item}`]: 0
+                    },
+                    index: activeTab
+                });
+            }
+        }, "0"), Z("span", {
+            className: tabsData[activeTab].formData[`get.${item}`] === 1 ? "active" : "",
+            onClick: ()=>{
+                setFormData({
+                    data: {
+                        ...tabsData[activeTab].formData,
+                        [`get.${item}`]: 1
+                    },
+                    index: activeTab
+                });
+            }
+        }, "1"))) : renderGetFields({
+            getField: tabsData[activeTab].getFields[item],
+            keyName: item,
+            margin: 0
+        })), Z("div", {
+        className: "cnt--btn-send"
+    }, Z("button", {
+        className: "btn btn--send",
+        type: "submit"
+    }, "send")))), Z("div", {
+        className: "response"
+    }, tabsData[activeTab].response && Z("div", {
+        class: "response-detail"
+    }, Z("p", {
+        className: "response-detail-title"
+    }, "Response"), Z("div", {
+        className: "response-detail-info"
+    }, Z(JSONViewer, {
+        jsonData: tabsData[activeTab].response
+    }), tabsData[activeTab].response && tabsData[activeTab].response?.success === true ? Z("div", {
+        className: "success"
+    }) : Z("div", {
+        className: "fail"
+    })))));
+};
 const Modal = (props)=>Z("div", {
         className: "modal-overlay",
         onClick: props.toggle
@@ -858,7 +1687,6 @@ function useModal() {
     };
 }
 const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}static/get/schemas`).then((res)=>res.json());
-const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
 var MODAL_TYPES;
 (function(MODAL_TYPES) {
     MODAL_TYPES["HISTORY"] = "HISTORY";
@@ -868,24 +1696,33 @@ var MODAL_TYPES;
 })(MODAL_TYPES || (MODAL_TYPES = {}));
 const Page = ()=>{
     const { isOpen , toggleModal  } = useModal();
-    const { act , formData , getFields , headers , history , method , postFields , response , schema , service , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
+    const { tabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields , setSchemasObj , setActsObj  } = useLesan();
     const [active, setActive] = F1("");
-    const [actsObj, setActsObj] = F1({});
-    const [schemasObj, setSchemasObj] = F1({});
     const [urlAddress, setUrlAddress] = F1(window && window.location ? window.location.href : "http://localhost:1366");
     T1(()=>{
         const localHistory = localStorage.getItem("localHistory");
         if (localHistory) setHistory(JSON.parse(localHistory));
     }, []);
-    const formRef = V1(null);
     const configUrl = (address)=>{
         address && setUrlAddress(address);
-        setService("");
-        setMethod("");
-        setSchema("");
-        resetGetFields();
-        resetPostFields();
-        setFormData({});
+        setService({
+            data: "",
+            index: activeTab
+        });
+        setMethod({
+            data: "",
+            index: activeTab
+        });
+        setSchema({
+            data: "",
+            index: activeTab
+        });
+        resetGetFields(activeTab);
+        resetPostFields(activeTab);
+        setFormData({
+            data: {},
+            index: activeTab
+        });
         getSchemasAPI({
             baseUrl: address ? address : urlAddress
         }).then(({ schemas , acts  })=>{
@@ -893,21 +1730,36 @@ const Page = ()=>{
             setSchemasObj(schemas);
         });
     };
-    const changeGetValue = (value, keyname, getObj, returnObj)=>{
-        for(const key in getObj){
-            getObj[key].type === "enums" ? returnObj[`${keyname}.${key}`] = value : changeGetValue(value, `${keyname}.${key}`, getObj[key].schema, returnObj);
-        }
-        return returnObj;
-    };
     const setFormFromHistory = (request)=>{
-        setService(request.body.service);
-        setMethod(request.body.contents);
-        setSchema(request.body.wants.model);
-        setAct(request.body.wants.act);
+        setService({
+            data: request.body.service,
+            index: activeTab
+        });
+        setMethod({
+            data: request.body.contents,
+            index: activeTab
+        });
+        setSchema({
+            data: request.body.wants.model,
+            index: activeTab
+        });
+        setAct({
+            data: request.body.wants.act,
+            index: activeTab
+        });
         const actObj = actsObj[request.body.service][request.body.contents][request.body.wants.model][request.body.wants.act]["validator"]["schema"];
-        setGetFields(actObj["get"]["schema"]);
-        setPostFields(actObj["set"]["schema"]);
-        setResponse(null);
+        setGetFields({
+            data: actObj["get"]["schema"],
+            index: activeTab
+        });
+        setPostFields({
+            data: actObj["set"]["schema"],
+            index: activeTab
+        });
+        setResponse({
+            data: null,
+            index: activeTab
+        });
         const generateFormData = (formData, returnFormData, keyname)=>{
             for(const key in formData){
                 typeof formData[key] === "object" ? generateFormData(formData[key], returnFormData, keyname ? `${keyname}.${key}` : key) : returnFormData[`${keyname}.${key}`] = formData[key];
@@ -915,133 +1767,15 @@ const Page = ()=>{
             return returnFormData;
         };
         const historyFromData = generateFormData(request.body.details, {}, "");
-        setFormData(historyFromData);
+        setFormData({
+            data: historyFromData,
+            index: activeTab
+        });
         toggleModal();
     };
     T1(()=>{
         configUrl(window.location.href);
     }, []);
-    const uid = ()=>Date.now().toString(36) + Math.random().toString(36).substr(2);
-    const handleChange = (event)=>{
-        const { name , value , type , alt  } = event.target;
-        let updatedValue;
-        if (type === "number") {
-            updatedValue = Number(value);
-        } else if (alt === "array" || alt === "boolean") {
-            updatedValue = JSON.parse(value);
-        } else {
-            updatedValue = value;
-        }
-        setFormData({
-            ...formData,
-            [name]: updatedValue
-        });
-    };
-    const renderGetFields = ({ getField , keyName , margin  })=>Z("div", {
-            style: {
-                marginLeft: `${margin + 1}px`
-            },
-            className: "sidebar__section_container"
-        }, Z("div", {
-            className: "sidebar__section-heading--subfields"
-        }, keyName), Object.keys(getField["schema"]).map((item)=>getField["schema"][item].type === "enums" ? Z("div", {
-                className: "input-cnt get-items",
-                key: item
-            }, Z("label", {
-                htmlFor: item
-            }, keyName, ".", item, ":"), Z("div", {
-                className: "get-values"
-            }, Z("span", {
-                onClick: ()=>{
-                    const copy = {
-                        ...formData
-                    };
-                    delete copy[`get.${keyName}.${item}`];
-                    setFormData(copy);
-                }
-            }), Z("span", {
-                className: formData[`get.${keyName}.${item}`] === 0 ? "active" : "",
-                onClick: ()=>{
-                    setFormData({
-                        ...formData,
-                        [`get.${keyName}.${item}`]: 0
-                    });
-                }
-            }, "0"), Z("span", {
-                className: formData[`get.${keyName}.${item}`] === 1 ? "active" : "",
-                onClick: ()=>{
-                    setFormData({
-                        ...formData,
-                        [`get.${keyName}.${item}`]: 1
-                    });
-                }
-            }, "1"))) : renderGetFields({
-                getField: getField["schema"][item],
-                keyName: `${keyName}.${item}`,
-                margin: margin + 1
-            })));
-    const createNestedObjectsFromKeys = (obj)=>{
-        const result = {
-            get: {},
-            set: {}
-        };
-        for(const objectPath in obj){
-            if (obj[objectPath] || obj[objectPath] === 0) {
-                const parts = objectPath.split(".");
-                let target = result;
-                while(parts.length > 1){
-                    const part = parts.shift();
-                    target[part] = target[part] || {};
-                    target = target[part];
-                }
-                target[parts[0]] = obj[objectPath];
-            }
-        }
-        return result;
-    };
-    const handleSubmit = async (event)=>{
-        event.preventDefault();
-        const details = createNestedObjectsFromKeys(formData);
-        const sendRequest = new Date().toLocaleDateString();
-        const body = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...headers
-            },
-            body: JSON.stringify({
-                service: service,
-                contents: method,
-                wants: {
-                    model: schema,
-                    act: act
-                },
-                details
-            })
-        };
-        const jsonSendedRequest = await lesanAPI({
-            baseUrl: urlAddress,
-            options: body
-        });
-        setResponse(jsonSendedRequest);
-        const newHistory = [
-            {
-                request: {
-                    ...body,
-                    body: JSON.parse(body.body)
-                },
-                response: jsonSendedRequest,
-                id: uid(),
-                reqTime: sendRequest
-            },
-            ...history
-        ];
-        setHistory(newHistory);
-        localStorage.setItem("localHistory", JSON.stringify(newHistory));
-    };
-    const canShowRequestFields = service && method && schema && postFields && getFields && act;
-    const canShowSchema = service && method;
-    const canShowAct = service && method && schema;
     const modalBtnClickHandler = (type)=>{
         setActive(type);
         toggleModal();
@@ -1049,225 +1783,51 @@ const Page = ()=>{
     return Z("div", {
         className: "cnt"
     }, Z("div", {
-        className: "sidebar"
-    }, Z("div", {
-        className: "sidebar__sections-wrapper"
-    }, Z("div", {
-        className: "sidebar__section sidebar__section--services"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select services"), Z("select", {
-        className: "sidebar__select",
-        value: service,
-        onChange: (event)=>{
-            setService(event.target.value);
-            setMethod("");
-            setSchema("");
-            resetGetFields();
-            resetPostFields();
-            setFormData({});
+        className: "tabs-container",
+        style: {
+            display: "flex"
         }
-    }, Z("option", {
-        value: ""
-    }), Object.keys(actsObj).map((service, index)=>Z("option", {
-            key: index,
-            value: service
-        }, service)))), Z("div", {
-        className: "sidebar__section sidebar__section--method"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select content"), Z("select", {
-        className: "sidebar__select",
-        value: method,
-        onChange: (event)=>{
-            setMethod(event.target.value);
-            setSchema("");
-            resetGetFields();
-            resetPostFields();
-            setFormData({});
+    }, tabsData.map((tab, index)=>Z(N, null, Z("div", {
+            className: "tab",
+            "data-tab": activeTab === index,
+            onClick: ()=>{
+                setActiveTab(index);
+            }
+        }, "Tab ", index))), Z("span", {
+        onClick: ()=>{
+            addTab(null);
         }
-    }, Z("option", {
-        value: ""
-    }), Z("option", {
-        value: "dynamic"
-    }, "dynamic"), Z("option", {
-        value: "static"
-    }, "static"))), Z("div", {
-        className: "sidebar__section sidebar__section--schema"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select schema"), Z("select", {
-        className: "sidebar__select",
-        disabled: !canShowSchema,
-        value: canShowSchema ? schema : undefined,
-        onChange: (event)=>{
-            setSchema(event.target.value);
-            resetGetFields();
-            resetPostFields();
-            setFormData({});
-        }
-    }, Z("option", {
-        value: ""
-    }), canShowSchema ? Object.keys(actsObj[service][method]).map((schema)=>Z("option", {
-            value: schema
-        }, schema)) : null)), Z("div", {
-        className: "sidebar__section sidebar__section--act"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select action"), Z("select", {
-        className: "sidebar__select",
-        disabled: !canShowAct,
-        value: canShowAct ? act : undefined,
-        onChange: (event)=>{
-            const actObj = actsObj[service][method][schema][event.target.value]["validator"]["schema"];
-            formRef && formRef.current && formRef.current.reset();
-            setAct(event.target.value);
-            setGetFields(actObj["get"]["schema"]);
-            setPostFields(actObj["set"]["schema"]);
-            setFormData({});
-        }
-    }, Z("option", {
-        value: ""
-    }), canShowAct ? Object.keys(actsObj[service][method][schema]).map((schema)=>Z("option", {
-            value: schema
-        }, schema)) : null))), Z("div", {
+    }, "+")), Z(Main, null), Z("div", {
         className: "sidebar__btns-wrapper"
-    }, Z("button", {
-        className: "btn btn-modal",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.HISTORY)
-    }, "History"), Z("button", {
-        className: "btn btn-modal btn-modal--2",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SETTING)
-    }, "Setting"), Z("button", {
-        className: "btn btn-modal btn-modal--3",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.GRAPH)
-    }, "Graph"), Z("button", {
-        className: "btn btn-modal btn-modal--4",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.E2E_TEST)
-    }, "E2E Test"))), canShowRequestFields && Z("div", {
-        className: "sidebar sidebar--fields"
-    }, Z("form", {
-        ref: formRef,
-        onSubmit: handleSubmit,
-        className: "form--fields"
-    }, Z("div", {
-        className: "sidebar__section-heading sidebar__section-heading--fields"
-    }, "SET fields"), Object.keys(postFields).map((item)=>Z("div", {
-            className: "input-cnt",
-            key: item
-        }, Z("label", {
-            htmlFor: item
-        }, item, ":"), postFields[item]["type"] === "enums" ? Z("select", {
-            className: "sidebar__select",
-            value: formData[`set.${item}`],
-            onChange: (event)=>{
-                setFormData({
-                    ...formData,
-                    [`set.${item}`]: event.target.value
-                });
-            }
-        }, Z("option", {
-            value: ""
-        }), Object.keys(postFields[item]["schema"]).map((schema)=>Z("option", {
-                value: schema
-            }, schema))) : Z("input", {
-            placeholder: item,
-            id: item,
-            value: formData[`set.${item}`],
-            name: `set.${item}`,
-            type: postFields[item]["type"] === "number" ? "number" : "string",
-            alt: postFields[item]["type"],
-            onChange: handleChange
-        }))), Z("div", {
-        className: "sidebar__section-heading sidebar__section-heading--fields"
-    }, "GET fields"), Z("div", {
-        className: "input-cnt get-items border-bottom"
-    }, Z("label", null, "All Items :"), Z("div", {
-        className: "get-values"
     }, Z("span", {
-        onClick: ()=>{
-            const copy = changeGetValue(null, "get", getFields, {});
-            setFormData({
-                ...formData,
-                ...copy
-            });
-        }
-    }), Z("span", {
-        onClick: ()=>{
-            const copy = changeGetValue(0, "get", getFields, {});
-            setFormData({
-                ...formData,
-                ...copy
-            });
-        }
-    }, "0"), Z("span", {
-        onClick: ()=>{
-            const copy = changeGetValue(1, "get", getFields, {});
-            setFormData({
-                ...formData,
-                ...copy
-            });
-        }
-    }, "1"))), Object.keys(getFields).map((item)=>getFields[item].type === "enums" ? Z("div", {
-            className: "input-cnt get-items"
-        }, Z("label", {
-            htmlFor: item
-        }, item, ":"), Z("div", {
-            className: "get-values"
-        }, Z("span", {
-            onClick: ()=>{
-                const copy = {
-                    ...formData
-                };
-                delete copy[`get.${item}`];
-                setFormData(copy);
-            }
-        }), Z("span", {
-            className: formData[`get.${item}`] === 0 ? "active" : "",
-            onClick: ()=>{
-                setFormData({
-                    ...formData,
-                    [`get.${item}`]: 0
-                });
-            }
-        }, "0"), Z("span", {
-            className: formData[`get.${item}`] === 1 ? "active" : "",
-            onClick: ()=>{
-                setFormData({
-                    ...formData,
-                    [`get.${item}`]: 1
-                });
-            }
-        }, "1"))) : renderGetFields({
-            getField: getFields[item],
-            keyName: item,
-            margin: 0
-        })), Z("div", {
-        className: "cnt--btn-send"
-    }, Z("button", {
-        className: "btn btn--send",
-        type: "submit"
-    }, "send")))), Z("div", {
-        className: "response"
-    }, response && Z("div", {
-        class: "response-detail"
-    }, Z("p", {
-        className: "response-detail-title"
-    }, "Response"), Z("div", {
-        className: "response-detail-info"
-    }, Z(JSONViewer, {
-        jsonData: response
-    }), response && response?.success === true ? Z("div", {
-        className: "success"
-    }) : Z("div", {
-        className: "fail"
-    }))), isOpen && Z(Modal, {
+        className: "btn-modal",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.HISTORY)
+    }, Z("span", {
+        className: "tooltip-text"
+    }, "History"), Z(HistoryIcon, null)), Z("span", {
+        className: "btn-modal btn-modal--2",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SETTING)
+    }, Z("span", {
+        className: "tooltip-text"
+    }, "Setting"), Z(SettingIcon, null)), Z("span", {
+        className: "btn-modal btn-modal--3",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.GRAPH)
+    }, Z("span", {
+        className: "tooltip-text"
+    }, "Graph"), Z(GraphIcon, null)), Z("span", {
+        className: "btn-modal btn-modal--4",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.E2E_TEST)
+    }, Z("span", {
+        className: "tooltip-text"
+    }, "Test"), Z(TestIcon, null))), isOpen && Z(Modal, {
         toggle: toggleModal,
         title: active
     }, active === MODAL_TYPES.HISTORY ? Z(History, {
         setFormFromHistory: setFormFromHistory
     }) : active === MODAL_TYPES.SETTING ? Z(Setting, {
         configUrl: configUrl
-    }) : Z(N, null))));
+    }) : active === MODAL_TYPES.E2E_TEST ? Z(E2E, {
+        configUrl: configUrl
+    }) : Z(N, null)));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));
