@@ -8,7 +8,7 @@ import {
 } from "https://esm.sh/preact@10.5.15/hooks";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
-import Dustbin from "./Dustbin.tsx";
+import DustbinIcon from "./icon/DustbinIcon.tsx";
 
 export function History({
   setFormFromHistory,
@@ -128,7 +128,7 @@ export function History({
             }}
           >
             {" "}
-            <Dustbin />
+            <DustbinIcon />
             <span className="tooltip-text">Clear History</span>
           </button>
         </div>

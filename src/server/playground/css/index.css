@@ -99,7 +99,7 @@ input:focus {
   padding: 0.5% 1.5%;
   box-sizing: border-box;
   border-right: 1px solid slategrey;
-  padding-top: 40px;
+  padding-top: 53px;
 }
 
 @media (min-width: 769px) and (max-width: 1025px) {
@@ -134,7 +134,7 @@ input:focus {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: '';
+  content: "";
   height: 2px;
   width: 100%;
   background-color: white;
@@ -199,12 +199,22 @@ input:focus {
   /* width: 100%; */
   position: absolute;
   bottom: 1rem;
-  left: calc(10% - 6.5rem);
+  /* left: calc(10% - 6.5rem); */
   height: 2.8rem;
   display: flex;
   background-color: azure;
   border-radius: 0.3rem;
   border: 1px solid antiquewhite;
+  left: calc(10% - 5.8rem);
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar__btns-wrapper {
+    left: calc(16% - 6.5rem);
+  }
+
+  .btn-modal {
+  }
 }
 
 .btn-modal {
@@ -238,7 +248,7 @@ input:focus {
   width: 23%;
   background-color: var(--color-bg-secondary);
   position: relative;
-  padding-top: 40px;
+  padding-top: 53px;
 }
 
 @media (min-width: 769px) and (max-width: 1025px) {
@@ -360,7 +370,7 @@ input:focus {
   border-radius: 10px;
   height: 90%;
   position: relative;
-  margin-top: 70px;
+  margin-top: 80px;
 }
 
 .response-detail-title {
@@ -377,7 +387,7 @@ input:focus {
 
 .response-detail-info {
   padding: 0 10px;
-  height: 100vh;
+  /* height: 100vh; */
   overflow: scroll;
 }
 
@@ -388,8 +398,8 @@ input:focus {
   width: 15px;
   height: 15px;
   position: absolute;
-  right: 55px;
-  top: 45px;
+  right: 30px;
+  top: 15px;
   animation-name: success;
   animation-duration: 1s;
   animation-iteration-count: infinite;
@@ -541,7 +551,7 @@ input:focus {
   display: none;
 }
 
-.history-re-detail-complete[data-show='true'] {
+.history-re-detail-complete[data-show="true"] {
   display: block;
 }
 
@@ -614,7 +624,7 @@ input:focus {
 }
 
 .tooltip-text::after {
-  content: ' ';
+  content: " ";
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
   left: 50%;
@@ -650,23 +660,47 @@ input:focus {
 
 .tabs-container {
   display: flex;
-  gap: 25px;
+  gap: 10px;
   width: 100%;
   position: fixed;
-  background-color: dodgerblue;
+  background-color: #24123b;
   z-index: 5;
-  padding: 8px 8px 0 8px;
+  padding: 8px 8px 8px 8px;
+  border-bottom: 1px solid #8f71b6;
+  overflow-y: scroll;
 }
 
 .tab {
-  color: white;
+  color: #c0b7cc;
   padding: 5px;
-  border-radius: 5px 5px 0 0;
-  background-color: teal;
+  border-radius: 5px;
+  /* background-color: teal; */
+  cursor: default;
+  /* width: 120px; */
+  max-width: 200px;
+  min-width: 55px;
+  flex-grow: 1;
 }
 
-.tab[data-tab='true'] {
-  background-color: #003049;
+.tab:hover {
+  background-color: #452a69;
+}
+
+.tab[data-tab="true"] {
+  background-color: #2e1056;
+  border: 1px solid #6b3ca9;
+}
+
+.add-tab {
+  color: #c0b7cc;
+  align-self: center;
+  padding: 5px;
+  cursor: default;
+}
+
+.add-tab:hover {
+  background-color: #452a69;
+  border-radius: 5px;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */

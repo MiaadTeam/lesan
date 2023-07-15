@@ -78,7 +78,7 @@ export const Page = () => {
       ({ schemas, acts }) => {
         setActsObj(acts);
         setSchemasObj(schemas);
-      },
+      }
     );
   };
 
@@ -99,15 +99,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string,
+      keyname: string
     ) => {
       for (const key in formData) {
         typeof formData[key] === "object"
           ? generateFormData(
-            formData[key],
-            returnFormData,
-            keyname ? `${keyname}.${key}` : key,
-          )
+              formData[key],
+              returnFormData,
+              keyname ? `${keyname}.${key}` : key
+            )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -142,6 +142,7 @@ export const Page = () => {
           </Fragment>
         ))}
         <span
+          className="add-tab"
           onClick={() => {
             addTab(null);
           }}
@@ -160,21 +161,21 @@ export const Page = () => {
           <HistoryIcon />
         </span>
         <span
-          className="btn-modal btn-modal--2"
+          className="btn-modal"
           onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
         >
           <span className="tooltip-text">Setting</span>
           <SettingIcon />
         </span>
         <span
-          className="btn-modal btn-modal--3"
+          className="btn-modal"
           onClick={() => modalBtnClickHandler(MODAL_TYPES.GRAPH)}
         >
           <span className="tooltip-text">Graph</span>
           <GraphIcon />
         </span>
         <span
-          className="btn-modal btn-modal--4"
+          className="btn-modal"
           onClick={() => modalBtnClickHandler(MODAL_TYPES.E2E_TEST)}
         >
           <span className="tooltip-text">Test</span>
@@ -184,13 +185,15 @@ export const Page = () => {
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY
-            ? <History setFormFromHistory={setFormFromHistory} />
-            : active === MODAL_TYPES.SETTING
-            ? <Setting configUrl={configUrl} />
-            : active === MODAL_TYPES.E2E_TEST
-            ? <E2E configUrl={configUrl} />
-            : <Fragment></Fragment>}
+          {active === MODAL_TYPES.HISTORY ? (
+            <History setFormFromHistory={setFormFromHistory} />
+          ) : active === MODAL_TYPES.SETTING ? (
+            <Setting configUrl={configUrl} />
+          ) : active === MODAL_TYPES.E2E_TEST ? (
+            <E2E configUrl={configUrl} />
+          ) : (
+            <Fragment></Fragment>
+          )}
         </Modal>
       )}
     </div>
