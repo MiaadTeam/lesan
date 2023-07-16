@@ -212,9 +212,6 @@ input:focus {
   .sidebar__btns-wrapper {
     left: calc(16% - 6.5rem);
   }
-
-  .btn-modal {
-  }
 }
 
 .btn-modal {
@@ -355,7 +352,7 @@ input:focus {
 
 @media (min-width: 769px) {
   .response {
-    width: 60%;
+    width: 40%;
   }
 }
 
@@ -373,16 +370,72 @@ input:focus {
   margin-top: 80px;
 }
 
-.response-detail-title {
-  color: white;
+.response-detail-button_title {
   background-color: #105a86;
+  color: white;
+  position: relative;
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  /* justify-content: flex-start; */
+  /* align-items: center; */
+  /* gap: 210px; */
+}
+
+.response-detail-buttons {
+  display: flex;
+  gap: 10px;
+  position: absolute;
+  right: 80px;
+  top: 7px;
+}
+
+.response-detail-button {
+  /* background-color: teal; */
+  cursor: pointer;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.response-detail-button .tooltip-text {
+  background-color: #003049;
+  /* position: relative; */
+  /* display: inline; */
+  white-space: nowrap;
+  width: 120px;
+  margin-left: -60px;
+  padding: 5px 5px;
+  transition: none;
+}
+
+.response-detail-button:hover {
+  background-color: silver;
+  padding: 0px;
+}
+
+.response-detail-button:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .response-detail-buttons {
+    right: 59px;
+  }
+}
+
+.response-detail-title {
+  /* color: white; */
+  /* background-color: #105a86; */
   /* display: inline-block;
   width: 100%; */
-  position: relative;
+  /* position: relative; */
   margin: 0;
-  padding: 10px;
+  /* padding: 10px; */
   font-size: 20px;
-  border-radius: 10px 10px 0 0;
+  /* border-radius: 10px 10px 0 0; */
 }
 
 .response-detail-info {
