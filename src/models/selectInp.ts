@@ -1,4 +1,4 @@
-import { number, object } from "https://deno.land/x/lestruct@v0.0.2/mod.ts";
+import { number, object } from "../deps.ts";
 import { ISchema, schemas } from "./mod.ts";
 
 export type Type = Record<string, number | any>;

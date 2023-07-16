@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.194.0/http/server.ts";
 import { Services } from "../acts/mod.ts";
+import { serve } from "../deps.ts";
 import { ISchema } from "../models/mod.ts";
 import { generateSchemTypes } from "../types/mod.ts";
 import { lesanFns } from "../utils/mod.ts";
@@ -74,7 +74,14 @@ export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
     };
 
     console.log(
-      `HTTP webserver running. please send a post request to http://localhost:${port}/lesan`,
+      `HTTP webserver running.
+please send a post request to http://localhost:${port}/lesan
+${
+        playground
+          ? "you can visit playground on http://localhost:" + port +
+            "/playground"
+          : ""
+      }\n`,
     );
     await serve(handler, { port });
     // playground && runPlayground();

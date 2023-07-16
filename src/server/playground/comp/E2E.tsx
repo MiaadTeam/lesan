@@ -1,6 +1,5 @@
 /** @jsx h */
-import { Fragment, h } from "https://esm.sh/preact@10.5.15";
-import { useState } from "https://esm.sh/preact@10.5.15/hooks";
+import { Fragment, h, useState } from "../../../deps.ts";
 import { uid } from "../utils/uid.ts";
 import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 

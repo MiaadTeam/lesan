@@ -1,11 +1,12 @@
 /** @jsx h */
-import { createContext, h } from "https://esm.sh/preact@10.5.15";
 import {
+  createContext,
+  h,
   useCallback,
   useContext,
   useMemo,
   useReducer,
-} from "https://esm.sh/preact@10.5.15/hooks";
+} from "../../../deps.ts";
 
 // A generic Type to handle customized Objects
 interface TObjectArray<T> {

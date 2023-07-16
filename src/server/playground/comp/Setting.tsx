@@ -1,6 +1,5 @@
 /** @jsx h */
-import { h } from "https://esm.sh/preact@10.5.15";
-import { useState } from "https://esm.sh/preact@10.5.15/hooks";
+import { h, useState } from "../../../deps.ts";
 import { useLesan } from "./ManagedLesanContext.tsx";
 
 export function Setting({

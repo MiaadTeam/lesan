@@ -1,9 +1,5 @@
 /** @jsx h */
-import {
-  Fragment,
-  FunctionalComponent,
-  h,
-} from "https://esm.sh/preact@10.5.15";
+import { Fragment, FunctionalComponent, h } from "../../../deps.ts";
 import { cutify } from "./cutify.ts";
 import * as styles from "./styles.ts";
 

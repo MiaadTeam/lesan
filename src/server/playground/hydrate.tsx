@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h, hydrate } from "https://esm.sh/preact@10.5.15";
+import { h, hydrate } from "../../deps.ts";
 import { ManagedLesanContext } from "./comp/ManagedLesanContext.tsx";
 import { Page } from "./comp/preact.tsx";
 

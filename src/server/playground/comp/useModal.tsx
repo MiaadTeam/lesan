@@ -1,4 +1,4 @@
-import { useState } from "https://esm.sh/preact@10.5.15/hooks";
+import { useState } from "../../../deps.ts";
 
 export default function useModal() {
   const [isOpen, setisOpen] = useState(false);

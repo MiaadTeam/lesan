@@ -1,6 +1,5 @@
 /** @jsx h */
-import { Fragment, h } from "https://esm.sh/preact@10.5.15";
-import { useEffect, useState } from "https://esm.sh/preact@10.5.15/hooks";
+import { Fragment, h, useEffect, useState } from "../../../deps.ts";
 import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
 import GraphIcon from "./icon/GraphIcon.tsx";
@@ -78,7 +77,7 @@ export const Page = () => {
       ({ schemas, acts }) => {
         setActsObj(acts);
         setSchemasObj(schemas);
-      }
+      },
     );
   };
 
@@ -99,15 +98,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string
+      keyname: string,
     ) => {
       for (const key in formData) {
         typeof formData[key] === "object"
           ? generateFormData(
-              formData[key],
-              returnFormData,
-              keyname ? `${keyname}.${key}` : key
-            )
+            formData[key],
+            returnFormData,
+            keyname ? `${keyname}.${key}` : key,
+          )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -185,15 +184,13 @@ export const Page = () => {
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : active === MODAL_TYPES.SETTING ? (
-            <Setting configUrl={configUrl} />
-          ) : active === MODAL_TYPES.E2E_TEST ? (
-            <E2E configUrl={configUrl} />
-          ) : (
-            <Fragment></Fragment>
-          )}
+          {active === MODAL_TYPES.HISTORY
+            ? <History setFormFromHistory={setFormFromHistory} />
+            : active === MODAL_TYPES.SETTING
+            ? <Setting configUrl={configUrl} />
+            : active === MODAL_TYPES.E2E_TEST
+            ? <E2E configUrl={configUrl} />
+            : <Fragment></Fragment>}
         </Modal>
       )}
     </div>
