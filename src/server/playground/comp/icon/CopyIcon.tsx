@@ -7,17 +7,10 @@ export default function CopyIcon() {
       version="1.2"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 98 123"
-      //   width="98"
       width={28}
-      //   height="123"
+      fill="white"
     >
-      {/* <title>noun-copy-paste-5049743-svg</title> */}
-      {/* <style>
-		tspan { white-space:pre } 
-		.s0 { fill: #000000 } 
-	</style> */}
       <path
-        fill="white"
         id="Layer"
         fill-rule="evenodd"
         class="s0"

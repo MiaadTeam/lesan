@@ -397,22 +397,28 @@ input:focus {
   display: flex;
   justify-content: space-between;
   padding: 0;
+  position: relative;
 }
 
 .response-detail-button .tooltip-text {
-  background-color: #003049;
-  /* position: relative; */
-  /* display: inline; */
+  background-color: cornflowerblue;
   white-space: nowrap;
-  width: 120px;
-  margin-left: -60px;
+  width: 125px;
+  margin-left: -67px;
   padding: 5px 5px;
   transition: none;
+  top: 100%;
+  margin-top: 5px;
+  height: fit-content;
 }
 
-.response-detail-button:hover {
-  background-color: silver;
-  padding: 0px;
+.response-detail-button:hover svg {
+  fill: black;
+}
+
+.response-detail-button .tooltip-text::after {
+  top: -10px;
+  border-color: transparent transparent rgb(255, 255, 255) transparent;
 }
 
 .response-detail-button:hover .tooltip-text {
@@ -427,20 +433,12 @@ input:focus {
 }
 
 .response-detail-title {
-  /* color: white; */
-  /* background-color: #105a86; */
-  /* display: inline-block;
-  width: 100%; */
-  /* position: relative; */
   margin: 0;
-  /* padding: 10px; */
   font-size: 20px;
-  /* border-radius: 10px 10px 0 0; */
 }
 
 .response-detail-info {
   padding: 0 10px;
-  /* height: 100vh; */
   overflow: scroll;
 }
 
