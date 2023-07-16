@@ -4,6 +4,7 @@ import { JSONViewer } from "./JSONVeiwer.tsx";
 import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 
 import { uid } from "../utils/uid.ts";
+import CopyIcon from "./icon/CopyIcon.tsx";
 
 const lesanAPI = ({
   baseUrl,
@@ -52,10 +53,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     return returnObj;
   };
 
-  useEffect(() => {
-    const localHistory = localStorage.getItem("localHistory");
-    if (localHistory) setHistory(JSON.parse(localHistory));
-  }, []);
+  // console.log(localStorage);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -184,10 +182,8 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     return result;
   };
 
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
+  const requestFunction = () => {
     const details = createNestedObjectsFromKeys(tabsData[activeTab].formData);
-    const sendRequest = new Date().toLocaleDateString();
 
     const body: TRequest = {
       method: "POST",
@@ -205,10 +201,16 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
         details,
       }),
     };
+    return { body };
+  };
+
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    const sendRequest = new Date().toLocaleDateString();
 
     const jsonSendedRequest = await lesanAPI({
       baseUrl: urlAddress,
-      options: body,
+      options: requestFunction().body,
     });
 
     setResponse({ data: jsonSendedRequest, index: activeTab });
@@ -217,7 +219,10 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
 
     const newHistory = [
       {
-        request: { ...body, body: JSON.parse(body.body) },
+        request: {
+          ...requestFunction().body,
+          body: JSON.parse(requestFunction().body.body),
+        },
         response: jsonSendedRequest,
         id: uid(),
         reqTime: sendRequest,
@@ -241,6 +246,18 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
   const canShowAct = tabsData[activeTab].service &&
     tabsData[activeTab].method &&
     tabsData[activeTab].schema;
+
+  const response = JSON.stringify(tabsData[activeTab].response);
+
+  const copyResponse = () => {
+    navigator.clipboard.writeText(response);
+  };
+
+  const request = JSON.stringify(requestFunction());
+
+  const copyRequest = () => {
+    navigator.clipboard.writeText(request);
+  };
 
   return (
     <Fragment>
@@ -531,7 +548,27 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
       <div className="response">
         {tabsData[activeTab].response && (
           <div class="response-detail">
-            <p className="response-detail-title">Response</p>
+            <div className="response-detail-button_title">
+              <p className="response-detail-title">Response</p>
+              <div className="response-detail-buttons">
+                <div
+                  className="btn response-detail-button "
+                  onClick={copyRequest}
+                >
+                  <CopyIcon />
+                  <span className="tooltip-text">Copy Request</span>
+                </div>
+                <div
+                  className="btn response-detail-button "
+                  onClick={() => {
+                    copyResponse;
+                  }}
+                >
+                  <CopyIcon />
+                  <span className="tooltip-text">Copy Response</span>
+                </div>
+              </div>
+            </div>
             <div className="response-detail-info">
               <JSONViewer jsonData={tabsData[activeTab].response} />
               {tabsData[activeTab].response &&

@@ -41,6 +41,7 @@ export const Page = () => {
     setHistory,
     setResponse,
     resetGetFields,
+    setTabsData,
     resetPostFields,
     setSchemasObj,
     setActsObj,
@@ -77,7 +78,15 @@ export const Page = () => {
       ({ schemas, acts }) => {
         setActsObj(acts);
         setSchemasObj(schemas);
-      },
+
+        // TODO: ۱.قصد داشتیم که اطلاعات تب های مختلف را در لوکال استورج  ذخیره کنیم تا با رفرش کردن مرورگر این اطلاعات از دست نرود
+        // ۲.مشکلی که پیش آمد این بود که اگر اطلاعات و کانفیگ موجود در تب ها که در لوکال استورج ذخیره شده بود و میخواستیم فرخوانی اش کنیم موضوعی که باید به آن توجه می شد این بود که ممکن بود کانفیگ توسط یوزر عوض شده باشد و با کانفیگ ذخیره شده در لوال استورج مطابقت نداشته باشد  و لذا به ارور می خوردیم
+        // ۳.برای حل این موضوع باید اطلاعات چک و بررسی می شد
+        // ۴.انشاءالله
+        // const localTabsData = localStorage.getItem("localTabsData");
+        // console.log("localTabsData", JSON.parse(localTabsData!));
+        // if (localTabsData) setTabsData(JSON.parse(localTabsData));
+      }
     );
   };
 
@@ -98,15 +107,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string,
+      keyname: string
     ) => {
       for (const key in formData) {
         typeof formData[key] === "object"
           ? generateFormData(
-            formData[key],
-            returnFormData,
-            keyname ? `${keyname}.${key}` : key,
-          )
+              formData[key],
+              returnFormData,
+              keyname ? `${keyname}.${key}` : key
+            )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -144,6 +153,8 @@ export const Page = () => {
           className="add-tab"
           onClick={() => {
             addTab(null);
+            // TODO: مربوط به تودو بالایی
+            // localStorage.setItem("localTabsData", JSON.stringify(tabsData));
           }}
         >
           +
@@ -184,13 +195,15 @@ export const Page = () => {
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY
-            ? <History setFormFromHistory={setFormFromHistory} />
-            : active === MODAL_TYPES.SETTING
-            ? <Setting configUrl={configUrl} />
-            : active === MODAL_TYPES.E2E_TEST
-            ? <E2E configUrl={configUrl} />
-            : <Fragment></Fragment>}
+          {active === MODAL_TYPES.HISTORY ? (
+            <History setFormFromHistory={setFormFromHistory} />
+          ) : active === MODAL_TYPES.SETTING ? (
+            <Setting configUrl={configUrl} />
+          ) : active === MODAL_TYPES.E2E_TEST ? (
+            <E2E configUrl={configUrl} />
+          ) : (
+            <Fragment></Fragment>
+          )}
         </Modal>
       )}
     </div>

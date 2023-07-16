@@ -28,6 +28,8 @@ enum ACTION_TYPE {
   SET_HISTORY = "ADD_HISTORY",
   SET_RESPONSE = "SET_RESPONSE",
 
+  SET_TABS_DATA = "SET_TABS_DATA",
+
   SET_ACTS_OBJ = "SET_ACTS_OBJ",
   SET_SCHEMAS_OBJ = "SET_SCHEMAS_OBJ",
 
@@ -58,18 +60,23 @@ type THistory = {
   id: string;
 };
 
+type TTabsData = {
+  service: string;
+  method: string;
+  schema: string;
+  act: string;
+  response: TResponse | null;
+  postFields: any;
+  getFields: any;
+  formData: any;
+};
+
 // TODO: The any Types have to remove and fix
 interface IState {
-  tabsData: {
-    service: string;
-    method: string;
-    schema: string;
-    act: string;
-    response: TResponse | null;
-    postFields: any;
-    getFields: any;
-    formData: any;
-  }[];
+  tabsData: TTabsData[];
+
+  setTabsData: (payload: TTabsData[]) => void;
+
   setService: (payload: { data: string; index: number }) => void;
   setMethod: (payload: { data: string; index: number }) => void;
   setSchema: (payload: { data: string; index: number }) => void;
@@ -77,9 +84,10 @@ interface IState {
   setPostFields: (payload: { data: string; index: number }) => void;
   setGetFields: (payload: { data: string; index: number }) => void;
   setFormData: (payload: { data: any; index: number }) => void;
-  setResponse: (
-    payload: { data: TResponse | null; index: number | null },
-  ) => void;
+  setResponse: (payload: {
+    data: TResponse | null;
+    index: number | null;
+  }) => void;
 
   resetPostFields: (payload: number) => void;
   resetGetFields: (payload: number) => void;
@@ -100,83 +108,89 @@ interface IState {
 
 type TAction =
   | {
-    type: ACTION_TYPE.SET_SERVICE;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_SERVICE;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_METHOD;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_METHOD;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_SCHEMA;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_SCHEMA;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_ACT;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_ACT;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_POST_FIELDS;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_POST_FIELDS;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.RESET_POST_FIELDS;
-    payload: number;
-  }
+      type: ACTION_TYPE.RESET_POST_FIELDS;
+      payload: number;
+    }
   | {
-    type: ACTION_TYPE.SET_GET_FIELDS;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_GET_FIELDS;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.RESET_GET_FIELDS;
-    payload: number;
-  }
+      type: ACTION_TYPE.RESET_GET_FIELDS;
+      payload: number;
+    }
   | {
-    type: ACTION_TYPE.SET_FORM_DATA;
-    payload: { data: any; index: number };
-  }
+      type: ACTION_TYPE.SET_FORM_DATA;
+      payload: { data: any; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_HEADER;
-    payload: TObjectArray<string>;
-  }
+      type: ACTION_TYPE.SET_HEADER;
+      payload: TObjectArray<string>;
+    }
   | {
-    type: ACTION_TYPE.SET_HISTORY;
-    payload: THistory[];
-  }
+      type: ACTION_TYPE.SET_TABS_DATA;
+      payload: TTabsData[];
+    }
   | {
-    type: ACTION_TYPE.SET_RESPONSE;
-    payload: { data: TResponse | null; index: number };
-  }
+      type: ACTION_TYPE.SET_HISTORY;
+      payload: THistory[];
+    }
   | {
-    type: ACTION_TYPE.SET_SCHEMAS_OBJ;
-    payload: Record<string, any>;
-  }
+      type: ACTION_TYPE.SET_RESPONSE;
+      payload: { data: TResponse | null; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_ACTIVE_TAB;
-    payload: number;
-  }
+      type: ACTION_TYPE.SET_SCHEMAS_OBJ;
+      payload: Record<string, any>;
+    }
   | {
-    type: ACTION_TYPE.ADD_TAB;
-    payload: null;
-  }
+      type: ACTION_TYPE.SET_ACTIVE_TAB;
+      payload: number;
+    }
   | {
-    type: ACTION_TYPE.SET_ACTS_OBJ;
-    payload: Record<string, any>;
-  };
+      type: ACTION_TYPE.ADD_TAB;
+      payload: null;
+    }
+  | {
+      type: ACTION_TYPE.SET_ACTS_OBJ;
+      payload: Record<string, any>;
+    };
 /* -------------------------- Type Definitions End -------------------------- */
 
 // TODO: Have to Find Someway to Prevent from Rewriting Function Types
 const initialState: IState = {
-  tabsData: [{
-    service: "",
-    method: "",
-    schema: "",
-    act: "",
-    postFields: {},
-    getFields: {},
-    formData: {},
-    response: null,
-  }],
+  tabsData: [
+    {
+      service: "",
+      method: "",
+      schema: "",
+      act: "",
+      postFields: {},
+      getFields: {},
+      formData: {},
+      response: null,
+    },
+  ],
   schemasObj: {},
   actsObj: {},
   headers: { Authorization: "" },
@@ -185,6 +199,8 @@ const initialState: IState = {
   activeTab: 0,
   setActiveTab: () => ({}),
   addTab: () => ({}),
+
+  setTabsData: () => ({}),
 
   setService: () => ({}),
   setMethod: () => ({}),
@@ -312,6 +328,14 @@ function lesanReducer(state: IState, action: TAction): IState {
         history: payload,
       };
     }
+
+    case ACTION_TYPE.SET_TABS_DATA: {
+      return {
+        ...state,
+        tabsData: payload,
+      };
+    }
+
     case ACTION_TYPE.SET_RESPONSE: {
       const copyTabsData = [...state.tabsData];
       copyTabsData[payload.index] = {
@@ -326,16 +350,19 @@ function lesanReducer(state: IState, action: TAction): IState {
     case ACTION_TYPE.ADD_TAB: {
       return {
         ...state,
-        tabsData: [...state.tabsData, {
-          service: "",
-          method: "",
-          schema: "",
-          act: "",
-          postFields: {},
-          getFields: {},
-          formData: {},
-          response: null,
-        }],
+        tabsData: [
+          ...state.tabsData,
+          {
+            service: "",
+            method: "",
+            schema: "",
+            act: "",
+            postFields: {},
+            getFields: {},
+            formData: {},
+            response: null,
+          },
+        ],
         activeTab: state.tabsData.length,
       };
     }
@@ -368,95 +395,101 @@ const LesanProvider = (props: any) => {
   const setService = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_SERVICE, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setMethod = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_METHOD, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setSchema = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_SCHEMA, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setAct = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_ACT, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setPostFields = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_POST_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const resetPostFields = useCallback(
     (payload: number) =>
       dispatch({ type: ACTION_TYPE.RESET_POST_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setGetFields = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_GET_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const resetGetFields = useCallback(
     (payload: number) =>
       dispatch({ type: ACTION_TYPE.RESET_GET_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setFormData = useCallback(
     (payload: { data: any; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_FORM_DATA, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setActiveTab = useCallback(
     (payload: number) =>
       dispatch({ type: ACTION_TYPE.SET_ACTIVE_TAB, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const addTab = useCallback(
     (payload: null) => dispatch({ type: ACTION_TYPE.ADD_TAB, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setHeader = useCallback(
     (payload: TObjectArray<string>) =>
       dispatch({ type: ACTION_TYPE.SET_HEADER, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setHistory = useCallback(
     (payload: THistory[]) =>
       dispatch({ type: ACTION_TYPE.SET_HISTORY, payload }),
-    [dispatch],
+    [dispatch]
+  );
+
+  const setTabsData = useCallback(
+    (payload: TTabsData[]) =>
+      dispatch({ type: ACTION_TYPE.SET_TABS_DATA, payload }),
+    [dispatch]
   );
 
   const setResponse = useCallback(
     (payload: { data: any; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_RESPONSE, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setSchemasObj = useCallback(
     (payload: Record<string, any>) =>
       dispatch({ type: ACTION_TYPE.SET_SCHEMAS_OBJ, payload }),
-    [dispatch],
+    [dispatch]
   );
   const setActsObj = useCallback(
     (payload: Record<string, any>) =>
       dispatch({ type: ACTION_TYPE.SET_ACTS_OBJ, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const value = useMemo(
@@ -473,13 +506,14 @@ const LesanProvider = (props: any) => {
       setFormData,
       setHeader,
       setHistory,
+      setTabsData,
       setResponse,
       setActsObj,
       setSchemasObj,
       setActiveTab,
       addTab,
     }),
-    [state],
+    [state]
   );
 
   return <LesanContext.Provider value={value} {...props} />;

@@ -392,6 +392,7 @@ var ACTION_TYPE;
     ACTION_TYPE["SET_HEADER"] = "SET_HEADER";
     ACTION_TYPE["SET_HISTORY"] = "ADD_HISTORY";
     ACTION_TYPE["SET_RESPONSE"] = "SET_RESPONSE";
+    ACTION_TYPE["SET_TABS_DATA"] = "SET_TABS_DATA";
     ACTION_TYPE["SET_ACTS_OBJ"] = "SET_ACTS_OBJ";
     ACTION_TYPE["SET_SCHEMAS_OBJ"] = "SET_SCHEMAS_OBJ";
     ACTION_TYPE["SET_ACTIVE_TAB"] = "SET_ACTIVE_TAB";
@@ -419,6 +420,7 @@ const initialState = {
     activeTab: 0,
     setActiveTab: ()=>({}),
     addTab: ()=>({}),
+    setTabsData: ()=>({}),
     setService: ()=>({}),
     setMethod: ()=>({}),
     setSchema: ()=>({}),
@@ -596,6 +598,13 @@ function lesanReducer(state, action) {
                     history: payload
                 };
             }
+        case ACTION_TYPE.SET_TABS_DATA:
+            {
+                return {
+                    ...state,
+                    tabsData: payload
+                };
+            }
         case ACTION_TYPE.SET_RESPONSE:
             {
                 const copyTabsData = [
@@ -737,6 +746,12 @@ const LesanProvider = (props)=>{
         }), [
         dispatch
     ]);
+    const setTabsData = R1((payload)=>dispatch({
+            type: ACTION_TYPE.SET_TABS_DATA,
+            payload
+        }), [
+        dispatch
+    ]);
     const setResponse = R1((payload)=>dispatch({
             type: ACTION_TYPE.SET_RESPONSE,
             payload
@@ -768,6 +783,7 @@ const LesanProvider = (props)=>{
             setFormData,
             setHeader,
             setHistory,
+            setTabsData,
             setResponse,
             setActsObj,
             setSchemasObj,
@@ -1203,6 +1219,20 @@ function TestIcon() {
         "stroke-width": "1.5"
     }));
 }
+function CopyIcon() {
+    return Z("svg", {
+        version: "1.2",
+        xmlns: "http://www.w3.org/2000/svg",
+        viewBox: "0 0 98 123",
+        width: 28,
+        fill: "white"
+    }, Z("path", {
+        id: "Layer",
+        "fill-rule": "evenodd",
+        class: "s0",
+        d: "m83.8 9.2v69.5c0 1-0.8 1.8-1.9 1.8h-8.5v8.3c0 1-0.8 1.8-1.8 1.8h-55.5c-1.1 0-1.9-0.8-1.9-1.8v-69.5c0-1 0.8-1.8 1.9-1.8h8.5v-8.3c0-1 0.8-1.8 1.8-1.8h55.5c1.1 0 1.9 0.8 1.9 1.8zm-14 77.7c0 0 0-8.2 0-8.2v-44.7h-11.2q0 0 0 0c-1 0-1.8-0.8-1.8-1.8v-11h-38.9v65.7c0 0 51.9 0 51.9 0zm-8.2-39c0 1-0.8 1.8-1.8 1.8h-32c-1 0-1.8-0.8-1.8-1.8 0-1 0.8-1.8 1.8-1.8h32c1 0 1.8 0.8 1.8 1.8zm-35.6-12.3c0-1 0.8-1.8 1.8-1.8h21.2c1 0 1.9 0.8 1.9 1.8 0 1-0.9 1.8-1.9 1.8h-21.2c-1 0-1.8-0.8-1.8-1.8zm35.6 36.9c0 1-0.8 1.8-1.8 1.8h-32c-1 0-1.8-0.8-1.8-1.8 0-1 0.8-1.8 1.8-1.8h32c1 0 1.8 0.8 1.8 1.8zm0-12.3c0 1-0.8 1.8-1.8 1.8h-32c-1 0-1.8-0.8-1.8-1.8 0-1 0.8-1.8 1.8-1.8h32c1 0 1.8 0.8 1.8 1.8zm18.5-49.1h-51.9v6.4h30.4q0 0 0 0 0.2 0 0.3 0.1 0.1 0 0.2 0 0.1 0 0.2 0.1 0.1 0 0.2 0.1 0 0 0.1 0 0.1 0.1 0.1 0.2 0.1 0 0.2 0l13 12.8q0 0 0 0 0.1 0.1 0.2 0.2 0 0.1 0 0.2 0.1 0.1 0.2 0.2 0 0.1 0 0.2 0.1 0.1 0.1 0.2 0 0.2 0 0.3v44.7h6.7c0 0 0-65.7 0-65.7zm-19.7 12.6l0.1 6.6h6.7z"
+    }));
+}
 const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
 const Main = ({ urlAddress  })=>{
     const { activeTab , tabsData , actsObj , headers , history , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
@@ -1212,10 +1242,6 @@ const Main = ({ urlAddress  })=>{
         }
         return returnObj;
     };
-    T1(()=>{
-        const localHistory = localStorage.getItem("localHistory");
-        if (localHistory) setHistory(JSON.parse(localHistory));
-    }, []);
     const formRef = V1(null);
     const handleChange = (event)=>{
         const { name , value , type , alt  } = event.target;
@@ -1306,8 +1332,7 @@ const Main = ({ urlAddress  })=>{
         }
         return result;
     };
-    const handleSubmit = async (event)=>{
-        event.preventDefault();
+    const requestFunction = ()=>{
         const details = createNestedObjectsFromKeys(tabsData[activeTab].formData);
         const body = {
             method: "POST",
@@ -1325,9 +1350,16 @@ const Main = ({ urlAddress  })=>{
                 details
             })
         };
+        return {
+            body
+        };
+    };
+    const handleSubmit = async (event)=>{
+        event.preventDefault();
+        const sendRequest = new Date().toLocaleDateString();
         const jsonSendedRequest = await lesanAPI({
             baseUrl: urlAddress,
-            options: body
+            options: requestFunction().body
         });
         setResponse({
             data: jsonSendedRequest,
@@ -1336,11 +1368,12 @@ const Main = ({ urlAddress  })=>{
         const newHistory = [
             {
                 request: {
-                    ...body,
-                    body: JSON.parse(body.body)
+                    ...requestFunction().body,
+                    body: JSON.parse(requestFunction().body.body)
                 },
                 response: jsonSendedRequest,
-                id: uid()
+                id: uid(),
+                reqTime: sendRequest
             },
             ...history
         ];
@@ -1350,6 +1383,14 @@ const Main = ({ urlAddress  })=>{
     const canShowRequestFields = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema && tabsData[activeTab].postFields && tabsData[activeTab].getFields && tabsData[activeTab].act;
     const canShowSchema = tabsData[activeTab].service && tabsData[activeTab].method;
     const canShowAct = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema;
+    const response = JSON.stringify(tabsData[activeTab].response);
+    const copyResponse = ()=>{
+        navigator.clipboard.writeText(response);
+    };
+    const request = JSON.stringify(requestFunction());
+    const copyRequest = ()=>{
+        navigator.clipboard.writeText(request);
+    };
     return Z(N, null, Z("div", {
         className: "sidebar"
     }, Z("div", {
@@ -1596,9 +1637,25 @@ const Main = ({ urlAddress  })=>{
         className: "response"
     }, tabsData[activeTab].response && Z("div", {
         class: "response-detail"
+    }, Z("div", {
+        className: "response-detail-button_title"
     }, Z("p", {
         className: "response-detail-title"
     }, "Response"), Z("div", {
+        className: "response-detail-buttons"
+    }, Z("div", {
+        className: "btn response-detail-button ",
+        onClick: copyRequest
+    }, Z(CopyIcon, null), Z("span", {
+        className: "tooltip-text"
+    }, "Copy Request")), Z("div", {
+        className: "btn response-detail-button ",
+        onClick: ()=>{
+            copyResponse;
+        }
+    }, Z(CopyIcon, null), Z("span", {
+        className: "tooltip-text"
+    }, "Copy Response")))), Z("div", {
         className: "response-detail-info"
     }, Z(JSONViewer, {
         jsonData: tabsData[activeTab].response
@@ -1695,7 +1752,7 @@ var MODAL_TYPES;
 })(MODAL_TYPES || (MODAL_TYPES = {}));
 const Page = ()=>{
     const { isOpen , toggleModal  } = useModal();
-    const { tabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields , setSchemasObj , setActsObj  } = useLesan();
+    const { tabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , setTabsData , resetPostFields , setSchemasObj , setActsObj  } = useLesan();
     const [active, setActive] = F1("");
     const parsedWindowUrl = ()=>{
         return window && window.location ? `${new URL(window.location.href).origin}/` : "http://localhost:1366/";
@@ -1794,6 +1851,7 @@ const Page = ()=>{
                 setActiveTab(index);
             }
         }, "Tab ", index))), Z("span", {
+        className: "add-tab",
         onClick: ()=>{
             addTab(null);
         }
@@ -1807,17 +1865,17 @@ const Page = ()=>{
     }, Z("span", {
         className: "tooltip-text"
     }, "History"), Z(HistoryIcon, null)), Z("span", {
-        className: "btn-modal btn-modal--2",
+        className: "btn-modal",
         onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SETTING)
     }, Z("span", {
         className: "tooltip-text"
     }, "Setting"), Z(SettingIcon, null)), Z("span", {
-        className: "btn-modal btn-modal--3",
+        className: "btn-modal",
         onClick: ()=>modalBtnClickHandler(MODAL_TYPES.GRAPH)
     }, Z("span", {
         className: "tooltip-text"
     }, "Graph"), Z(GraphIcon, null)), Z("span", {
-        className: "btn-modal btn-modal--4",
+        className: "btn-modal",
         onClick: ()=>modalBtnClickHandler(MODAL_TYPES.E2E_TEST)
     }, Z("span", {
         className: "tooltip-text"
