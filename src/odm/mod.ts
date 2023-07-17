@@ -178,6 +178,7 @@ export const odm = (schemasObj: ISchema) => {
             optional: relation[inrelationObj[key].schemaName],
             keyname: inrelationObj[key].schemaName,
             key,
+            newOptinal: relation[key],
           }, " ------ ");
           console.log();
           console.groupEnd();
