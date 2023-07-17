@@ -1,5 +1,5 @@
 /** @jsx h */
-import { Fragment, h, useEffect, useState } from "../../../deps.ts";
+import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
 import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
 import GraphIcon from "./icon/GraphIcon.tsx";
@@ -41,7 +41,7 @@ export const Page = () => {
     setHistory,
     setResponse,
     resetGetFields,
-    setTabsData,
+    closeTab,
     resetPostFields,
     setSchemasObj,
     setActsObj,
@@ -86,7 +86,7 @@ export const Page = () => {
         // const localTabsData = localStorage.getItem("localTabsData");
         // console.log("localTabsData", JSON.parse(localTabsData!));
         // if (localTabsData) setTabsData(JSON.parse(localTabsData));
-      }
+      },
     );
   };
 
@@ -107,15 +107,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string
+      keyname: string,
     ) => {
       for (const key in formData) {
         typeof formData[key] === "object"
           ? generateFormData(
-              formData[key],
-              returnFormData,
-              keyname ? `${keyname}.${key}` : key
-            )
+            formData[key],
+            returnFormData,
+            keyname ? `${keyname}.${key}` : key,
+          )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -139,13 +139,30 @@ export const Page = () => {
         {tabsData.map((tab, index) => (
           <Fragment>
             <div
-              className="tab"
+              className="tab-name"
               data-tab={activeTab === index}
               onClick={() => {
                 setActiveTab(index);
               }}
             >
-              Tab {index}
+              {tabsData[index].act
+                ? `${tabsData[index].schema} | ${tabsData[index].act}`
+                : tabsData[index].schema
+                ? `${tabsData[index].method} | ${tabsData[index].schema}`
+                : tabsData[index].method
+                ? `${tabsData[index].service} | ${tabsData[index].method}`
+                : tabsData[index].service
+                ? tabsData[index].service
+                : `Tab ${index}`}
+              <span
+                className="add-tab tab-close"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  closeTab(index);
+                }}
+              >
+                x
+              </span>
             </div>
           </Fragment>
         ))}
@@ -195,15 +212,13 @@ export const Page = () => {
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : active === MODAL_TYPES.SETTING ? (
-            <Setting configUrl={configUrl} />
-          ) : active === MODAL_TYPES.E2E_TEST ? (
-            <E2E configUrl={configUrl} />
-          ) : (
-            <Fragment></Fragment>
-          )}
+          {active === MODAL_TYPES.HISTORY
+            ? <History setFormFromHistory={setFormFromHistory} />
+            : active === MODAL_TYPES.SETTING
+            ? <Setting configUrl={configUrl} />
+            : active === MODAL_TYPES.E2E_TEST
+            ? <E2E configUrl={configUrl} />
+            : <Fragment></Fragment>}
         </Modal>
       )}
     </div>

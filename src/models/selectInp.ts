@@ -1,4 +1,4 @@
-import { number, object } from "../deps.ts";
+import { number, object } from "../npmDeps.ts";
 import { ISchema, schemas } from "./mod.ts";
 
 export type Type = Record<string, number | any>;

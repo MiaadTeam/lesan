@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h, useState } from "../../../deps.ts";
+import { h, useState } from "../reactDeps.ts";
 import { useLesan } from "./ManagedLesanContext.tsx";
 
 export function Setting({

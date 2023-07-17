@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h } from "../../../deps.ts";
+import { h } from "../reactDeps.ts";
 
 interface ModalType {
   children?: h.JSX.Element;
@@ -11,7 +11,8 @@ const Modal = (props: ModalType) => (
   <div className="modal-overlay" onClick={props.toggle}>
     <div
       className="modal-box"
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) =>
+        e.stopPropagation()}
     >
       <span className="modal-title">{props.title}</span>
       <div className="modal-content">{props.children}</div>

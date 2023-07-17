@@ -1,5 +1,5 @@
 /** @jsx h */
-import { Fragment, h, useEffect, useRef } from "../../../deps.ts";
+import { Fragment, h, useEffect, useRef } from "../reactDeps.ts";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 

@@ -1,4 +1,4 @@
-import { Act, Services } from "./types.ts";
+import { Services } from "./types.ts";
 
 /**
  *  get Dynamic Actions of main service with schemaName

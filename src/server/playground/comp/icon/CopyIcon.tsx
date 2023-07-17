@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h } from "https://esm.sh/preact@10.5.15";
+import { h } from "../../reactDeps.ts";
 
 export default function CopyIcon() {
   return (

@@ -1,6 +1,5 @@
 import { acts, Services } from "./acts/mod.ts";
 import { contextFns } from "./context.ts";
-import { Database } from "./deps.ts";
 import { Model, schemas } from "./models/mod.ts";
 import { odm } from "./odm/mod.ts";
 import { lesanServer } from "./server/mod.ts";

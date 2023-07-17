@@ -1,24 +1,20 @@
 import {
   AggregateOptions,
   AggregatePipeline,
-  assert,
   Bson,
-  create,
   Database,
   DeleteOptions,
-  enums,
   Filter,
   FindOptions,
   InsertDocument,
   InsertOptions,
-  object,
   ObjectId,
-  optional,
   UpdateFilter,
   UpdateOptions,
 } from "../deps.ts";
 import { InRelation, ISchema, OutRelation, PureModel } from "../models/mod.ts";
 import { schemaFns } from "../models/mod.ts";
+import { assert, create, enums, object, optional } from "../npmDeps.ts";
 import { throwError } from "../utils/throwError.ts";
 import { generateProjection, Projection } from "./aggregation/mod.ts";
 import {

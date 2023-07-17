@@ -1,4 +1,5 @@
-import { instance, ObjectId, size, string } from "../../deps.ts";
+import { ObjectId } from "../../deps.ts";
+import { instance, size, string } from "../../npmDeps.ts";
 
 export const objectIdValidation = instance(ObjectId) || size(string(), 24);
 

@@ -1,7 +1,7 @@
 import { acts, Services } from "../acts/mod.ts";
 import { contextFns } from "../context.ts";
-import { assert, create, enums } from "../deps.ts";
-import { addCors, addCorsObj } from "../server/cors.ts";
+import { assert, create, enums } from "../npmDeps.ts";
+import { addCorsObj } from "../server/cors.ts";
 import { Body, parsBody } from "./mod.ts";
 
 const runPreActs = async (preActs: Function[]) => {

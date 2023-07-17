@@ -1,4 +1,4 @@
-import { array, object } from "../../deps.ts";
+import { array, object } from "../../npmDeps.ts";
 import { getSchema } from "./getSchema.ts";
 import { Schemas } from "./mod.ts";
 

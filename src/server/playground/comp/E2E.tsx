@@ -1,7 +1,7 @@
 /** @jsx h */
-import { Fragment, h, useState } from "../../../deps.ts";
+import { Fragment, h, useState } from "../reactDeps.ts";
 import { uid } from "../utils/uid.ts";
-import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
+import { TRequest } from "./ManagedLesanContext.tsx";
 
 /* const sampleE2eForm = [{ */
 /*   body: { */

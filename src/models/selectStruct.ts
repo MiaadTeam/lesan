@@ -1,5 +1,5 @@
 import { ObjectSchema } from "https://deno.land/x/lestruct@v0.0.2/src/utils.ts";
-import { enums, object, optional } from "../deps.ts";
+import { enums, object, optional } from "../npmDeps.ts";
 import { ISchema, pureFns, schemaFns } from "./mod.ts";
 
 export type Iterate = Record<string, number | any>;

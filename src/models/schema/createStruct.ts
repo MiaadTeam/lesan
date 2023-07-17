@@ -1,4 +1,4 @@
-import { assign, object } from "../../deps.ts";
+import { assign, object } from "../../npmDeps.ts";
 import { createEmbedded } from "./createEmbedded.ts";
 import { getSchema } from "./getSchema.ts";
 import { Schemas } from "./mod.ts";

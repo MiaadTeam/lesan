@@ -1,4 +1,4 @@
-import { Struct } from "../deps.ts";
+import { Struct } from "../npmDeps.ts";
 import { Body } from "../utils/mod.ts";
 
 /**

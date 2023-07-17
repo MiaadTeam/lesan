@@ -1,4 +1,4 @@
-import { useState } from "../../../deps.ts";
+import { useState } from "../reactDeps.ts";
 
 export default function useModal() {
   const [isOpen, setisOpen] = useState(false);

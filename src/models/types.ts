@@ -1,4 +1,4 @@
-import { Struct } from "../deps.ts";
+import { Struct } from "../npmDeps.ts";
 /**
  * PureModel is interface of pure feature,
  * pure feature is an intrinsic feature of an schema. Which are embedded in other schemas

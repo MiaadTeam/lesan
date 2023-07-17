@@ -1,6 +1,4 @@
 import { bundle } from "../../deps.ts";
-import { Services } from "../../mod.ts";
-import { ISchema } from "../../models/mod.ts";
 
 export const getCSSFile = async () => {
   const url = new URL("./css/index.css", import.meta.url);
@@ -13,6 +11,7 @@ export const getCSSFile = async () => {
 export const getClientReact = async () => {
   const url = new URL("./hydrate.tsx", import.meta.url);
   const result = await bundle(url, {
+    type: "classic",
     compilerOptions: { sourceMap: false },
   });
   const { code } = result;
@@ -36,7 +35,7 @@ export const getJSFile = async () => {
     : await getBundle();
 };
 
-export const runPlayground = async (
+export const runPlayground = (
   url: URL,
 ) => {
   const getSsrReact = () => {

@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h, useState } from "../../../deps.ts";
+import { h, useState } from "../reactDeps.ts";
 import DustbinIcon from "./icon/DustbinIcon.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";

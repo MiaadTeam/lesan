@@ -134,7 +134,7 @@ input:focus {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: "";
+  content: '';
   height: 2px;
   width: 100%;
   background-color: white;
@@ -413,7 +413,7 @@ input:focus {
 }
 
 .response-detail-button:hover svg {
-  fill: black;
+  fill: darkgoldenrod;
 }
 
 .response-detail-button .tooltip-text::after {
@@ -602,7 +602,7 @@ input:focus {
   display: none;
 }
 
-.history-re-detail-complete[data-show="true"] {
+.history-re-detail-complete[data-show='true'] {
   display: block;
 }
 
@@ -675,7 +675,7 @@ input:focus {
 }
 
 .tooltip-text::after {
-  content: " ";
+  content: ' ';
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
   left: 50%;
@@ -721,7 +721,7 @@ input:focus {
   overflow-y: scroll;
 }
 
-.tab {
+.tab-name {
   color: #c0b7cc;
   padding: 5px;
   border-radius: 5px;
@@ -731,13 +731,18 @@ input:focus {
   max-width: 200px;
   min-width: 55px;
   flex-grow: 1;
+  height: 1.5rem;
+  position: relative;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.tab:hover {
+.tab-name:hover {
   background-color: #452a69;
 }
 
-.tab[data-tab="true"] {
+.tab-name[data-tab='true'] {
   background-color: #2e1056;
   border: 1px solid #6b3ca9;
 }
@@ -745,13 +750,29 @@ input:focus {
 .add-tab {
   color: #c0b7cc;
   align-self: center;
+  font-size: 1.4rem;
+  width: 1.2rem;
+  text-align: center;
   padding: 5px;
-  cursor: default;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
 .add-tab:hover {
   background-color: #452a69;
-  border-radius: 5px;
+}
+
+.tab-close {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  line-height: 1rem;
+  position: absolute;
+  right: 0.2rem;
+}
+
+.tab-close:hover {
+  background-color: #452a69;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */
