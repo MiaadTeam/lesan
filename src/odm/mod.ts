@@ -161,10 +161,10 @@ export const odm = (schemasObj: ISchema) => {
     if (relation) {
       for (const key in inrelationObj) {
         if (inrelationObj[key].optional === false) {
-          checkRelationTypeAndAddInRelation(key);
+          await checkRelationTypeAndAddInRelation(key);
         } else {
           if (key && inrelationObj[key].schemaName) {
-            checkRelationTypeAndAddInRelation(key);
+            await checkRelationTypeAndAddInRelation(key);
           }
         }
       }
