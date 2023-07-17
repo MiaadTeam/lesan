@@ -148,23 +148,6 @@ export const odm = (schemasObj: ISchema) => {
         const res = await findOnePureData(inrelationObj[key].schemaName, {
           _id: relation![key],
         });
-        /*
-         *  @LOG @DEBUG @INFO
-         *  This log written by ::==> {{ syd }}
-         *
-         *  Please remove your log after debugging
-         */
-        console.log(" ============= ");
-        console.group("res ------ ");
-        console.log();
-        console.info({
-          res,
-          relation: relation![key],
-          collection: inrelationObj[key].schemaName,
-        }, " ------ ");
-        console.log();
-        console.groupEnd();
-        console.log(" ============= ");
         doc[key] = res;
       } else {
         const res = await findPureData(inrelationObj[key].schemaName, {
@@ -174,32 +157,11 @@ export const odm = (schemasObj: ISchema) => {
       }
     };
 
-    // console.log("doc================>", doc);
     if (relation) {
       for (const key in inrelationObj) {
         if (inrelationObj[key].optional === false) {
           await checkRelationTypeAndAddInRelation(key);
         } else {
-          /*
-           *  @LOG @DEBUG @INFO
-           *  This log written by ::==> {{ syd }}
-           *
-           *  Please remove your log after debugging
-           */
-          console.log(" ============= ");
-          console.group("relation, optopnal:  ------ ");
-          console.log();
-          console.info({
-            relation,
-            inrelationObj,
-            optional: relation[inrelationObj[key].schemaName],
-            keyname: inrelationObj[key].schemaName,
-            key,
-            newOptinal: relation[key],
-          }, " ------ ");
-          console.log();
-          console.groupEnd();
-          console.log(" ============= ");
           if (
             key &&
             relation[key]
@@ -214,25 +176,9 @@ export const odm = (schemasObj: ISchema) => {
 
     doc = addOutrelation(collection, doc, foundedSchema);
 
-    /*
-     *  @LOG @DEBUG @INFO
-     *  This log written by ::==> {{ syd }}
-     *
-     *  Please remove your log after debugging
-     */
-    console.log(" ============= ");
-    console.group("doc ------ ");
-    console.log();
-    console.info({ doc }, " ------ ");
-    console.log();
-    console.groupEnd();
-    console.log(" ============= ");
-
     doc._id = db
       ? await db.collection(collection).insertOne(doc, options)
       : throwError("No database connection");
-
-    // console.log(result);
 
     checkRelation(collection, inrelationObj, schemasObj, doc, db);
 
