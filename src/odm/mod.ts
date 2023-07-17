@@ -174,7 +174,8 @@ export const odm = (schemasObj: ISchema) => {
           console.log();
           console.info({
             relation,
-            optopnal: relation[inrelationObj[key].schemaName],
+            inrelationObj,
+            optional: relation[inrelationObj[key].schemaName],
             keyname: inrelationObj[key].schemaName,
             key,
           }, " ------ ");
