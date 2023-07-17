@@ -144,14 +144,14 @@ export const odm = (schemasObj: ISchema) => {
       schemaFns(schemasObj).getSchema(collection).inrelation;
 
     const checkRelationTypeAndAddInRelation = async (key: string) => {
-      if (!Array.isArray(relation![inrelationObj[key].schemaName])) {
+      if (!Array.isArray(relation![key])) {
         const res = await findOnePureData(inrelationObj[key].schemaName, {
-          _id: relation![inrelationObj[key].schemaName],
+          _id: relation![key],
         });
         doc[key] = res;
       } else {
         const res = await findPureData(inrelationObj[key].schemaName, {
-          _id: { $in: relation![inrelationObj[key].schemaName] },
+          _id: { $in: relation![key] },
         });
         doc[key] = res;
       }
@@ -184,8 +184,8 @@ export const odm = (schemasObj: ISchema) => {
           console.groupEnd();
           console.log(" ============= ");
           if (
-            key && inrelationObj[key].schemaName &&
-            relation[inrelationObj[key].schemaName]
+            key &&
+            relation[key]
           ) {
             await checkRelationTypeAndAddInRelation(key);
           }
