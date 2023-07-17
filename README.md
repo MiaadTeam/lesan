@@ -2,7 +2,9 @@
 
 Even though _**NoSQL**_ is very fast, its complexities are very troublesome for large-scale projects. On the other hand, _**GraphQL**_ shines in client-server connectivity but it has several weaknesses and is somewhat complex, adding another layer of complexity to the project. That’s why we created LESAN.
 
-## Look below code:
+### Look below code:
+
+Create a file called `mod.ts` and paste the code below into it:
 
 ```typescript
 import {
@@ -152,7 +154,25 @@ coreApp.acts.setAct({
 coreApp.runServer({ port: 8080, typeGeneration: false, playground: true });
 ```
 
-now you can visit playground on `http://localhost:8080/playground` and send request to server for `addCountry` , `addUser` and `getUsers` .
+Now run this command in the terminal:
+
+```bash
+deno run -A mod.ts
+```
+
+You should see this messsage:
+
+```bash
+HTTP webserver running.
+please send a post request to http://localhost:8080/lesan
+you can visit playground on http://localhost:8080/playground
+
+Listening on http://localhost:8080/
+```
+
+Now you can visit the playground at `http://localhost:8080/playground` and send requests to the server for `addCountry`, `addUser`, and `getUsers`.
+<img width="1672" alt="Screen Shot 1402-04-26 at 20 47 05" src="https://github.com/MiaadTeam/lesan/assets/6236123/1486687b-b695-46da-9f67-334bf719cf8a">
+
 alternativly you can send post request to `http://localhost:8080/lesan` with `postman` include the following in JSON format inside the body in order to retrieve the desired data:
 
 ```JSON
@@ -183,3 +203,5 @@ alternativly you can send post request to `http://localhost:8080/lesan` with `po
 ```
 
 ![Screen Shot 1402-04-25 at 18 24 16](https://github.com/MiaadTeam/lesan/assets/6236123/7e9c7c93-cf08-4120-9c44-df93475c108f)
+
+We handle all relationships between the data and `embed` everything. You can also control the level of penetration into the `action get` depth. On the `client-side`, you can describe what you want and get back exactly what you described.
