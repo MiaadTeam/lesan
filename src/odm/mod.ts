@@ -143,20 +143,28 @@ export const odm = (schemasObj: ISchema) => {
     const inrelationObj =
       schemaFns(schemasObj).getSchema(collection).inrelation;
 
+    const checkRelationTypeAndAddInRelation = async (key: string) => {
+      if (!Array.isArray(relation![inrelationObj[key].schemaName])) {
+        const res = await findOnePureData(inrelationObj[key].schemaName, {
+          _id: relation![inrelationObj[key].schemaName],
+        });
+        doc[key] = res;
+      } else {
+        const res = await findPureData(inrelationObj[key].schemaName, {
+          _id: { $in: relation![inrelationObj[key].schemaName] },
+        });
+        doc[key] = res;
+      }
+    };
+
     // console.log("doc================>", doc);
     if (relation) {
       for (const key in inrelationObj) {
         if (inrelationObj[key].optional === false) {
-          if (!Array.isArray(relation[inrelationObj[key].schemaName])) {
-            const res = await findOnePureData(inrelationObj[key].schemaName, {
-              _id: relation[inrelationObj[key].schemaName],
-            });
-            doc[key] = res;
-          } else {
-            const res = await findPureData(inrelationObj[key].schemaName, {
-              _id: { $in: relation[inrelationObj[key].schemaName] },
-            });
-            doc[key] = res;
+          checkRelationTypeAndAddInRelation(key);
+        } else {
+          if (key && inrelationObj[key].schemaName) {
+            checkRelationTypeAndAddInRelation(key);
           }
         }
       }
