@@ -157,7 +157,11 @@ export const odm = (schemasObj: ISchema) => {
         console.log(" ============= ");
         console.group("res ------ ");
         console.log();
-        console.info({ res, relation: relation![key] }, " ------ ");
+        console.info({
+          res,
+          relation: relation![key],
+          collection: inrelationObj[key].schemaName,
+        }, " ------ ");
         console.log();
         console.groupEnd();
         console.log(" ============= ");
