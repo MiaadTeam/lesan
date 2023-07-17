@@ -19,7 +19,7 @@ import {
   OutRelation,
   size,
   string,
-} from "/Users/syd/work/arc/lesan/mod.ts";
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts";
 
 const coreApp = lesan();
 
@@ -153,6 +153,8 @@ coreApp.acts.setAct({
 
 coreApp.runServer({ port: 8080, typeGeneration: false, playground: true });
 ```
+
+> Please replace `x.x.x` in the import link with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 Now run this command in the terminal:
 
