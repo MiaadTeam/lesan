@@ -163,6 +163,24 @@ export const odm = (schemasObj: ISchema) => {
         if (inrelationObj[key].optional === false) {
           await checkRelationTypeAndAddInRelation(key);
         } else {
+          /*
+           *  @LOG @DEBUG @INFO
+           *  This log written by ::==> {{ syd }}
+           *
+           *  Please remove your log after debugging
+           */
+          console.log(" ============= ");
+          console.group("relation, optopnal:  ------ ");
+          console.log();
+          console.info({
+            relation,
+            optopnal: relation[inrelationObj[key].schemaName],
+            keyname: inrelationObj[key].schemaName,
+            key,
+          }, " ------ ");
+          console.log();
+          console.groupEnd();
+          console.log(" ============= ");
           if (
             key && inrelationObj[key].schemaName &&
             relation[inrelationObj[key].schemaName]
