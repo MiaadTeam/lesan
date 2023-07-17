@@ -148,6 +148,19 @@ export const odm = (schemasObj: ISchema) => {
         const res = await findOnePureData(inrelationObj[key].schemaName, {
           _id: relation![key],
         });
+        /*
+         *  @LOG @DEBUG @INFO
+         *  This log written by ::==> {{ syd }}
+         *
+         *  Please remove your log after debugging
+         */
+        console.log(" ============= ");
+        console.group("res ------ ");
+        console.log();
+        console.info({ res, relation: relation![key] }, " ------ ");
+        console.log();
+        console.groupEnd();
+        console.log(" ============= ");
         doc[key] = res;
       } else {
         const res = await findPureData(inrelationObj[key].schemaName, {
@@ -196,6 +209,20 @@ export const odm = (schemasObj: ISchema) => {
     create(doc, object(pureInrelSchema));
 
     doc = addOutrelation(collection, doc, foundedSchema);
+
+    /*
+     *  @LOG @DEBUG @INFO
+     *  This log written by ::==> {{ syd }}
+     *
+     *  Please remove your log after debugging
+     */
+    console.log(" ============= ");
+    console.group("doc ------ ");
+    console.log();
+    console.info({ doc }, " ------ ");
+    console.log();
+    console.groupEnd();
+    console.log(" ============= ");
 
     doc._id = db
       ? await db.collection(collection).insertOne(doc, options)
