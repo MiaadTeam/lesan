@@ -393,6 +393,7 @@ var ACTION_TYPE;
     ACTION_TYPE["SET_HISTORY"] = "ADD_HISTORY";
     ACTION_TYPE["SET_RESPONSE"] = "SET_RESPONSE";
     ACTION_TYPE["SET_TABS_DATA"] = "SET_TABS_DATA";
+    ACTION_TYPE["DELETE_ITEM_HISTORY"] = "DELETE_ITEM_HISTORY";
     ACTION_TYPE["SET_ACTS_OBJ"] = "SET_ACTS_OBJ";
     ACTION_TYPE["SET_SCHEMAS_OBJ"] = "SET_SCHEMAS_OBJ";
     ACTION_TYPE["SET_ACTIVE_TAB"] = "SET_ACTIVE_TAB";
@@ -423,6 +424,7 @@ const initialState = {
     addTab: ()=>({}),
     closeTab: ()=>({}),
     setTabsData: ()=>({}),
+    deleteItemHistory: ()=>({}),
     setService: ()=>({}),
     setMethod: ()=>({}),
     setSchema: ()=>({}),
@@ -664,6 +666,13 @@ function lesanReducer(state, action) {
                     activeTab: copyTabsData.length >= 1 && state.activeTab >= payload && state.activeTab !== 0 ? state.activeTab - 1 : state.activeTab
                 };
             }
+        case ACTION_TYPE.DELETE_ITEM_HISTORY:
+            {
+                return {
+                    ...state,
+                    history: state.history.slice(0, payload).concat(state.history.slice(payload + 1))
+                };
+            }
         case ACTION_TYPE.SET_ACTS_OBJ:
             {
                 return {
@@ -756,6 +765,12 @@ const LesanProvider = (props)=>{
         }), [
         dispatch
     ]);
+    const deleteItemHistory = R1((payload)=>dispatch({
+            type: ACTION_TYPE.DELETE_ITEM_HISTORY,
+            payload
+        }), [
+        dispatch
+    ]);
     const setHeader = R1((payload)=>dispatch({
             type: ACTION_TYPE.SET_HEADER,
             payload
@@ -811,7 +826,8 @@ const LesanProvider = (props)=>{
             setSchemasObj,
             setActiveTab,
             addTab,
-            closeTab
+            closeTab,
+            deleteItemHistory
         }), [
         state
     ]);
@@ -1072,14 +1088,33 @@ const JSONViewer = ({ jsonData  })=>{
         }
     }));
 };
+const useNonInitialEffect = (effect, deps)=>{
+    const initialRender = V1(true);
+    T1(()=>{
+        let effectReturns = ()=>{};
+        if (initialRender.current) {
+            initialRender.current = false;
+        } else {
+            effectReturns = effect();
+        }
+        if (effectReturns && typeof effectReturns === "function") {
+            return effectReturns;
+        }
+    }, deps);
+};
 function History({ setFormFromHistory  }) {
-    const { history , setHistory  } = useLesan();
+    const { history , setHistory , deleteItemHistory  } = useLesan();
     const [show, setShow] = F1("");
+    useNonInitialEffect(()=>{
+        localStorage.setItem("localHistory", JSON.stringify(history));
+    }, [
+        history
+    ]);
     return Z("div", {
         className: "history modal-content"
     }, history && history?.length > 0 ? Z("div", {
         className: ""
-    }, Z("br", null), history.map((hi)=>Z("div", {
+    }, Z("br", null), history.map((hi, index)=>Z("div", {
             className: "history-detail",
             id: hi.id
         }, Z("section", {
@@ -1116,9 +1151,20 @@ function History({ setFormFromHistory  }) {
             jsonData: hi.request
         }))), Z("section", {
             className: "history-re history-response"
+        }, Z("div", {
+            className: "history-re-title_delete",
+            style: {
+                position: "relative"
+            },
+            onClick: (event)=>{
+                event.stopPropagation();
+                deleteItemHistory(index);
+            }
         }, Z("span", {
+            className: "history-re-delete"
+        }, "x"), Z("span", {
             className: "history-re-title"
-        }, "RESPONSE"), Z("div", {
+        }, "RESPONSE")), Z("div", {
             className: "history-re-detail"
         }, Z("div", {
             className: "history-re-detail-title"
@@ -1148,8 +1194,7 @@ function History({ setFormFromHistory  }) {
         className: "btn clear-history-button tooltip",
         onClick: ()=>{
             if (confirm("Clear All History?") == true) {
-                localStorage.removeItem("localHistory");
-                setHistory("");
+                setHistory([]);
             }
         }
     }, " ", Z(Dustbin, null), Z("span", {
@@ -1783,8 +1828,8 @@ const Page = ()=>{
     const [urlAddress, setUrlAddress] = F1("");
     T1(()=>{
         configUrl(parsedWindowUrl());
-        const localHistory = localStorage.getItem("localHistory");
-        if (localHistory) setHistory(JSON.parse(localHistory));
+        const localHistory = JSON.parse(localStorage.getItem("localHistory"));
+        if (localHistory) setHistory(localHistory);
     }, []);
     const configUrl = (address)=>{
         address && setUrlAddress(address);

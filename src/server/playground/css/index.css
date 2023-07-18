@@ -514,8 +514,8 @@ input:focus {
 .modal-box {
   display: block;
   background: rgb(80, 80, 80, 0.5);
-  width: 70%;
-  height: 70%;
+  width: 80%;
+  height: 80%;
   padding: 1rem;
   border-radius: 0.8rem;
   overflow: visible;
@@ -552,7 +552,7 @@ input:focus {
 
 .history-re-delete {
   position: absolute;
-  right: 10px;
+  right: 25px;
   top: 0;
   cursor: pointer;
   color: white;
