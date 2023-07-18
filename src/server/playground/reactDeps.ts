@@ -20,4 +20,4 @@ export type {
   RefObject,
 } from "https://esm.sh/preact@10.5.15";
 
-export type { Ref } from "https://esm.sh/preact@10.5.15/hooks";
+export type { Ref, EffectCallback } from "https://esm.sh/preact@10.5.15/hooks";
