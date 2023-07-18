@@ -1,4 +1,8 @@
+import { ObjectId } from "./deps.ts";
+import { instance, size, string } from "./npmDeps.ts";
 import { Body } from "./utils/checkWants.ts";
+
+export const objectIdValidation = instance(ObjectId) || size(string(), 24);
 
 /**
  * Context Holds values and carries them in functions.
