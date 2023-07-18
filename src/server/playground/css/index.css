@@ -134,7 +134,7 @@ input:focus {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: '';
+  content: "";
   height: 2px;
   width: 100%;
   background-color: white;
@@ -550,6 +550,18 @@ input:focus {
   color: white;
 }
 
+.history-re-delete {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  cursor: pointer;
+  color: white;
+}
+
+.history-re-delete:hover {
+  color: red;
+}
+
 .history-re-detail-title {
   display: flex;
   color: white;
@@ -602,7 +614,7 @@ input:focus {
   display: none;
 }
 
-.history-re-detail-complete[data-show='true'] {
+.history-re-detail-complete[data-show="true"] {
   display: block;
 }
 
@@ -675,7 +687,7 @@ input:focus {
 }
 
 .tooltip-text::after {
-  content: ' ';
+  content: " ";
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
   left: 50%;
@@ -742,7 +754,7 @@ input:focus {
   background-color: #452a69;
 }
 
-.tab-name[data-tab='true'] {
+.tab-name[data-tab="true"] {
   background-color: #2e1056;
   border: 1px solid #6b3ca9;
 }
