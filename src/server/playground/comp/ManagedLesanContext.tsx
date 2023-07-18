@@ -29,6 +29,7 @@ enum ACTION_TYPE {
   SET_RESPONSE = "SET_RESPONSE",
 
   SET_TABS_DATA = "SET_TABS_DATA",
+  DELETE_ITEM_HISTORY = "DELETE_ITEM_HISTORY",
 
   SET_ACTS_OBJ = "SET_ACTS_OBJ",
   SET_SCHEMAS_OBJ = "SET_SCHEMAS_OBJ",
@@ -77,6 +78,7 @@ interface IState {
   tabsData: TTabsData[];
 
   setTabsData: (payload: TTabsData[]) => void;
+  deleteItemHistory: (payload: number) => void;
 
   setService: (payload: { data: string; index: number }) => void;
   setMethod: (payload: { data: string; index: number }) => void;
@@ -110,77 +112,81 @@ interface IState {
 
 type TAction =
   | {
-    type: ACTION_TYPE.SET_SERVICE;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_SERVICE;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_METHOD;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_METHOD;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_SCHEMA;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_SCHEMA;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_ACT;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_ACT;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_POST_FIELDS;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_POST_FIELDS;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.RESET_POST_FIELDS;
-    payload: number;
-  }
+      type: ACTION_TYPE.RESET_POST_FIELDS;
+      payload: number;
+    }
   | {
-    type: ACTION_TYPE.SET_GET_FIELDS;
-    payload: { data: string; index: number };
-  }
+      type: ACTION_TYPE.SET_GET_FIELDS;
+      payload: { data: string; index: number };
+    }
   | {
-    type: ACTION_TYPE.RESET_GET_FIELDS;
-    payload: number;
-  }
+      type: ACTION_TYPE.RESET_GET_FIELDS;
+      payload: number;
+    }
   | {
-    type: ACTION_TYPE.SET_FORM_DATA;
-    payload: { data: any; index: number };
-  }
+      type: ACTION_TYPE.SET_FORM_DATA;
+      payload: { data: any; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_HEADER;
-    payload: TObjectArray<string>;
-  }
+      type: ACTION_TYPE.SET_HEADER;
+      payload: TObjectArray<string>;
+    }
   | {
-    type: ACTION_TYPE.SET_TABS_DATA;
-    payload: TTabsData[];
-  }
+      type: ACTION_TYPE.SET_TABS_DATA;
+      payload: TTabsData[];
+    }
   | {
-    type: ACTION_TYPE.SET_HISTORY;
-    payload: THistory[];
-  }
+      type: ACTION_TYPE.SET_HISTORY;
+      payload: THistory[];
+    }
   | {
-    type: ACTION_TYPE.SET_RESPONSE;
-    payload: { data: TResponse | null; index: number };
-  }
+      type: ACTION_TYPE.SET_RESPONSE;
+      payload: { data: TResponse | null; index: number };
+    }
   | {
-    type: ACTION_TYPE.SET_SCHEMAS_OBJ;
-    payload: Record<string, any>;
-  }
+      type: ACTION_TYPE.SET_SCHEMAS_OBJ;
+      payload: Record<string, any>;
+    }
   | {
-    type: ACTION_TYPE.SET_ACTIVE_TAB;
-    payload: number;
-  }
+      type: ACTION_TYPE.SET_ACTIVE_TAB;
+      payload: number;
+    }
   | {
-    type: ACTION_TYPE.ADD_TAB;
-    payload: null;
-  }
+      type: ACTION_TYPE.ADD_TAB;
+      payload: null;
+    }
   | {
-    type: ACTION_TYPE.CLOSE_TAB;
-    payload: number;
-  }
+      type: ACTION_TYPE.CLOSE_TAB;
+      payload: number;
+    }
   | {
-    type: ACTION_TYPE.SET_ACTS_OBJ;
-    payload: Record<string, any>;
-  };
+      type: ACTION_TYPE.SET_ACTS_OBJ;
+      payload: Record<string, any>;
+    }
+  | {
+      type: ACTION_TYPE.DELETE_ITEM_HISTORY;
+      payload: number;
+    };
 /* -------------------------- Type Definitions End -------------------------- */
 
 // TODO: Have to Find Someway to Prevent from Rewriting Function Types
@@ -208,6 +214,7 @@ const initialState: IState = {
   closeTab: () => ({}),
 
   setTabsData: () => ({}),
+  deleteItemHistory: () => ({}),
 
   setService: () => ({}),
   setMethod: () => ({}),
@@ -385,12 +392,24 @@ function lesanReducer(state: IState, action: TAction): IState {
       return {
         ...state,
         tabsData: [...copyTabsData],
-        activeTab: (copyTabsData.length >= 1 && state.activeTab >= payload &&
-            state.activeTab !== 0)
-          ? state.activeTab - 1
-          : state.activeTab,
+        activeTab:
+          copyTabsData.length >= 1 &&
+          state.activeTab >= payload &&
+          state.activeTab !== 0
+            ? state.activeTab - 1
+            : state.activeTab,
       };
     }
+
+    case ACTION_TYPE.DELETE_ITEM_HISTORY: {
+      return {
+        ...state,
+        history: state.history
+          .slice(0, payload)
+          .concat(state.history.slice(payload + 1)),
+      };
+    }
+
     case ACTION_TYPE.SET_ACTS_OBJ: {
       return {
         ...state,
@@ -414,106 +433,112 @@ const LesanProvider = (props: any) => {
   const setService = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_SERVICE, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setMethod = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_METHOD, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setSchema = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_SCHEMA, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setAct = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_ACT, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setPostFields = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_POST_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const resetPostFields = useCallback(
     (payload: number) =>
       dispatch({ type: ACTION_TYPE.RESET_POST_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setGetFields = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_GET_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const resetGetFields = useCallback(
     (payload: number) =>
       dispatch({ type: ACTION_TYPE.RESET_GET_FIELDS, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setFormData = useCallback(
     (payload: { data: any; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_FORM_DATA, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setActiveTab = useCallback(
     (payload: number) =>
       dispatch({ type: ACTION_TYPE.SET_ACTIVE_TAB, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const addTab = useCallback(
     (payload: null) => dispatch({ type: ACTION_TYPE.ADD_TAB, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const closeTab = useCallback(
     (payload: number) => dispatch({ type: ACTION_TYPE.CLOSE_TAB, payload }),
-    [dispatch],
+    [dispatch]
+  );
+
+  const deleteItemHistory = useCallback(
+    (payload: number) =>
+      dispatch({ type: ACTION_TYPE.DELETE_ITEM_HISTORY, payload }),
+    [dispatch]
   );
 
   const setHeader = useCallback(
     (payload: TObjectArray<string>) =>
       dispatch({ type: ACTION_TYPE.SET_HEADER, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setHistory = useCallback(
     (payload: THistory[]) =>
       dispatch({ type: ACTION_TYPE.SET_HISTORY, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setTabsData = useCallback(
     (payload: TTabsData[]) =>
       dispatch({ type: ACTION_TYPE.SET_TABS_DATA, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setResponse = useCallback(
     (payload: { data: any; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_RESPONSE, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const setSchemasObj = useCallback(
     (payload: Record<string, any>) =>
       dispatch({ type: ACTION_TYPE.SET_SCHEMAS_OBJ, payload }),
-    [dispatch],
+    [dispatch]
   );
   const setActsObj = useCallback(
     (payload: Record<string, any>) =>
       dispatch({ type: ACTION_TYPE.SET_ACTS_OBJ, payload }),
-    [dispatch],
+    [dispatch]
   );
 
   const value = useMemo(
@@ -537,8 +562,9 @@ const LesanProvider = (props: any) => {
       setActiveTab,
       addTab,
       closeTab,
+      deleteItemHistory,
     }),
-    [state],
+    [state]
   );
 
   return <LesanContext.Provider value={value} {...props} />;
