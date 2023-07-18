@@ -19,7 +19,7 @@ import {
   OutRelation,
   size,
   string,
-} from "https://deno.land/x/lesan@vx.x.x/mod.ts";
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // > Please replace `x.x.x` in the import link with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
