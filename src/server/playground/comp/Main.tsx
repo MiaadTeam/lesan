@@ -77,6 +77,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
       index: activeTab,
     });
   };
+
   const renderGetFields = ({
     getField,
     keyName,
@@ -89,12 +90,16 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     <div
       style={{ marginLeft: `${margin + 1}px` }}
       className="sidebar__section_container"
+      key={`${activeTab}.${keyName}`}
     >
       <div className="sidebar__section-heading--subfields">{keyName}</div>
-      {Object.keys(getField["schema"]).map((item) =>
+      {Object.keys(getField["schema"]).map((item, index) =>
         getField["schema"][item].type === "enums"
           ? (
-            <div className="input-cnt get-items" key={item}>
+            <div
+              className="input-cnt get-items"
+              key={`${activeTab}.${item}-${index}`}
+            >
               <label htmlFor={item}>
                 {keyName}.{item}:
               </label>
@@ -279,7 +284,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             >
               <option value=""></option>
               {Object.keys(actsObj).map((service, index) => (
-                <option key={index} value={service}>
+                <option key={`${activeTab}.${index}--`} value={service}>
                   {service}
                 </option>
               ))}
@@ -322,7 +327,11 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                   (actsObj as any)[tabsData[activeTab].service][
                     tabsData[activeTab].method
                   ],
-                ).map((schema) => <option value={schema}>{schema}</option>)
+                ).map((schema, index) => (
+                  <option key={`${activeTab}.${index}---`} value={schema}>
+                    {schema}
+                  </option>
+                ))
                 : null}
             </select>
           </div>
@@ -358,7 +367,11 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                   (actsObj as any)[tabsData[activeTab].service][
                     tabsData[activeTab].method
                   ][tabsData[activeTab].schema],
-                ).map((schema) => <option value={schema}>{schema}</option>)
+                ).map((schema, index) => (
+                  <option key={`${activeTab}.${index}----`} value={schema}>
+                    {schema}
+                  </option>
+                ))
                 : null}
             </select>
           </div>
@@ -372,8 +385,10 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
               SET fields
             </div>
             {Object.keys(tabsData[activeTab].postFields).map((item) => (
-              <div className="input-cnt" key={item}>
-                <label htmlFor={item}>{item}:</label>
+              <div className="input-cnt" key={`${activeTab}.${item}-----`}>
+                <label htmlFor={item}>
+                  {item} :
+                </label>
                 {tabsData[activeTab].postFields[item]["type"] === "enums"
                   ? (
                     <select
@@ -392,8 +407,13 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                       <option value=""></option>
                       {Object.keys(
                         tabsData[activeTab].postFields[item]["schema"],
-                      ).map((schema) => (
-                        <option value={schema}>{schema}</option>
+                      ).map((schema, index) => (
+                        <option
+                          key={`${activeTab}.${index}------`}
+                          value={schema}
+                        >
+                          {schema}
+                        </option>
                       ))}
                     </select>
                   )
@@ -480,7 +500,10 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             {Object.keys(tabsData[activeTab].getFields).map((item) =>
               tabsData[activeTab].getFields[item].type === "enums"
                 ? (
-                  <div className="input-cnt get-items">
+                  <div
+                    className="input-cnt get-items"
+                    key={`${activeTab}.${item}-------`}
+                  >
                     <label htmlFor={item}>{item}:</label>
                     <div className="get-values">
                       <span
