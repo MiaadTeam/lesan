@@ -339,6 +339,128 @@ input:focus {
   font-size: 1.1rem;
 }
 
+/* btn */
+
+.wrapper {
+  position: absolute;
+  right: 0;
+  top: 93%;
+  background-color: var(--color-bg-secondary);
+  width: 100%;
+  height: 7%;
+}
+
+.send-button {
+  /* font-family: "Ubuntu", sans-serif; */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* width: 170px; */
+  width: 85%;
+  height: 40px;
+  line-height: 1;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: 3px solid var(--color-blue-4);
+  background: #fff;
+  color: var(--color-blue-4);
+  /* border-radius: 40px; */
+  border-radius: 20px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.35s;
+}
+
+.send-button:hover {
+  background: var(--color-blue-4);
+  color: #fff;
+}
+
+.send-button span {
+  opacity: 1;
+  visibility: visible;
+  transition: all 0.35s;
+}
+
+.successe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.35s;
+}
+
+.successe svg {
+  width: 20px;
+  height: 20px;
+  fill: yellowgreen;
+  transform-origin: 50% 50%;
+  transform: translateY(-50%) rotate(0deg) scale(0);
+  transition: all 0.35s;
+}
+
+.send-button[data-active="true"] {
+  width: 40px;
+  height: 40px;
+}
+
+.send-button[data-active="true"] .successe {
+  opacity: 1;
+  visibility: visible;
+}
+
+.send-button[data-active="true"] .successe svg {
+  margin-top: 50%;
+  transform: translateY(-50%) rotate(720deg) scale(1);
+}
+
+.send-button[data-active="true"] span {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* 
+.btn--send:active {
+  animation-name: active;
+  animation-duration: 5s;
+  animation-iteration-count: 4;
+} */
+
+/* @keyframes active {
+  0% {
+    width: 20%;
+  }
+  25% {
+    width: 50%;
+  }
+
+  75% {
+    width: 65%;
+  }
+  100% {
+    width: 80%;
+  }
+} */
+
+/* @keyframes active {
+  from {
+    width: 20%;
+  }
+
+  to {
+    width: 80%;
+  }
+} */
+
 .response {
   display: flex;
   flex-direction: column;
