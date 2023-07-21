@@ -848,178 +848,6 @@ const ManagedLesanContext = (props)=>{
     return Z(LesanProvider, null, children);
 };
 const uid = ()=>Date.now().toString(36) + Math.random().toString(36).substr(2);
-function E2E({ configUrl  }) {
-    const [e2eFroms, setE2eForms] = F1([]);
-    const [urlAddress, setUrlAddress] = F1("");
-    const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
-    const runE2eTest = ()=>{
-        e2eFroms.map(async (e2eForm)=>{
-            const parsedHeaderBody = JSON.parse(e2eForm.bodyHeaders);
-            console.log(" ============= ");
-            console.group("parsedHeaderBody ------ ");
-            console.log();
-            console.info({
-                parsedHeaderBody
-            }, " ------ ");
-            console.log();
-            console.groupEnd();
-            console.log(" ============= ");
-            const body = {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(parsedHeaderBody.body)
-            };
-            const jsonSendedRequest = await lesanAPI({
-                baseUrl: "http://localhost:8000/",
-                options: body
-            });
-            console.log(" ============= ");
-            console.group("jsonSendedRequest ------ ");
-            console.log();
-            console.info({
-                jsonSendedRequest
-            }, " ------ ");
-            console.log();
-            console.groupEnd();
-            console.log(" ============= ");
-        });
-    };
-    return Z("div", {
-        className: "e2e modal-content"
-    }, Z("button", {
-        className: "btn btn--add",
-        onClick: ()=>{
-            setE2eForms((e2eForm)=>[
-                    ...e2eForm,
-                    {
-                        id: uid(),
-                        bodyHeaders: `
-{
-  "headers": {
-    "Content-Type": "application/json",
-    "Authorization": ""
-  },
-  "body": {
-    "service": "main",
-    "contents": "dynamic",
-    "wants": {
-      "model": "",
-      "act": ""
-    },
-    "details": {
-      "get": {},
-      "set": {}
-    }
-  }
-}
-`,
-                        repeat: 1,
-                        capture: []
-                    }
-                ]);
-        }
-    }, "add +"), Z("div", {
-        className: "sidebar__section sidebar__section--headers"
-    }, e2eFroms.map((e2eForm, idx)=>Z(N, null, Z("div", {
-            className: "sidebar__input-double",
-            key: e2eForm.id
-        }, Z("div", {
-            className: "sidebar__section-heading"
-        }, "set test body and headers"), Z("textarea", {
-            placeholder: "please paste a request body here",
-            value: e2eForm.bodyHeaders,
-            name: `${e2eForm.id}-body`,
-            rows: 18,
-            onChange: (e)=>{
-                setE2eForms((e2eForm)=>{
-                    const copy = [
-                        ...e2eForm
-                    ];
-                    copy[idx].bodyHeaders = e.target.value;
-                    return [
-                        ...copy
-                    ];
-                });
-            }
-        }), Z("div", {
-            className: "sidebar__section-heading"
-        }, "set repeat time"), Z("input", {
-            placeholder: "set repeat number",
-            value: e2eForm.repeat,
-            name: `${e2eForm.id}-repeat`,
-            type: "number",
-            onChange: (e)=>{
-                setE2eForms((e2eForm)=>{
-                    const copy = [
-                        ...e2eForm
-                    ];
-                    copy[idx].repeat = e.target.value;
-                    return [
-                        ...copy
-                    ];
-                });
-            }
-        }), Z("div", {
-            className: "sidebar__section-heading"
-        }, "capture variables"), Z("button", {
-            className: "btn btn--add",
-            onClick: ()=>{
-                setE2eForms((e2eForm)=>{
-                    const copy = [
-                        ...e2eForm
-                    ];
-                    copy[idx].capture.push({
-                        key: "",
-                        value: ""
-                    });
-                    return copy;
-                });
-            }
-        }, "add capture variable item"), e2eForm.capture.map((capture, capId)=>Z(N, null, Z("input", {
-                placeholder: "set a variable name",
-                value: capture.key,
-                onChange: (e)=>{
-                    setE2eForms((e2eForm)=>{
-                        const copy = [
-                            ...e2eForm
-                        ];
-                        copy[idx].capture[capId].key = e.target.value;
-                        return copy;
-                    });
-                }
-            }), Z("input", {
-                placeholder: "set a value for variable",
-                value: capture.value,
-                onChange: (e)=>{
-                    setE2eForms((e2eForm)=>{
-                        const copy = [
-                            ...e2eForm
-                        ];
-                        copy[idx].capture[capId].value = e.target.value;
-                        return copy;
-                    });
-                }
-            }), Z("hr", null)))), Z("hr", null), Z("hr", null)))), Z("button", {
-        className: "btn btn--add",
-        onClick: ()=>{
-            runE2eTest();
-        }
-    }, "Run E2E Test"));
-}
-function Dustbin() {
-    return Z("svg", {
-        id: "Layer_1",
-        "data-name": "Layer 1",
-        xmlns: "http://www.w3.org/2000/svg",
-        viewBox: "0 0 105.7 122.88",
-        width: 20
-    }, Z("path", {
-        fill: "white",
-        d: "M30.46,14.57V5.22A5.18,5.18,0,0,1,32,1.55v0A5.19,5.19,0,0,1,35.68,0H70a5.22,5.22,0,0,1,3.67,1.53l0,0a5.22,5.22,0,0,1,1.53,3.67v9.35h27.08a3.36,3.36,0,0,1,3.38,3.37V29.58A3.38,3.38,0,0,1,102.32,33H98.51l-8.3,87.22a3,3,0,0,1-2.95,2.69H18.43a3,3,0,0,1-3-2.95L7.19,33H3.37A3.38,3.38,0,0,1,0,29.58V17.94a3.36,3.36,0,0,1,3.37-3.37Zm36.27,0V8.51H39v6.06ZM49.48,49.25a3.4,3.4,0,0,1,6.8,0v51.81a3.4,3.4,0,1,1-6.8,0V49.25ZM69.59,49a3.4,3.4,0,1,1,6.78.42L73,101.27a3.4,3.4,0,0,1-6.78-.43L69.59,49Zm-40.26.42A3.39,3.39,0,1,1,36.1,49l3.41,51.8a3.39,3.39,0,1,1-6.77.43L29.33,49.46ZM92.51,33.38H13.19l7.94,83.55H84.56l8-83.55Z"
-    }));
-}
 var ClassNames;
 (function(ClassNames) {
     ClassNames["string"] = "cute-string";
@@ -1088,6 +916,263 @@ const JSONViewer = ({ jsonData  })=>{
         }
     }));
 };
+function E2E({ configUrl  }) {
+    const [e2eFroms, setE2eForms] = F1([]);
+    const [resultView, setResultView] = F1(false);
+    const [results, setResults] = F1([]);
+    const [urlAddress, setUrlAddress] = F1("");
+    const lesanAPI = async ({ baseUrl , options  })=>{
+        const fetching = await fetch(`${baseUrl}lesan`, options);
+        return await fetching.json();
+    };
+    const replaceCaptureString = (obj, variablesSet)=>{
+        for(const key in obj){
+            if (typeof obj[key] === "object") {
+                replaceCaptureString(obj[key], variablesSet);
+            }
+            const value = obj[key];
+            if (typeof value === "string" && value.includes("{")) {
+                const openBraceIndexes = [];
+                for(let index = 0; index < value.length; index++){
+                    if (value[index] === "{") {
+                        openBraceIndexes.push(index);
+                    }
+                }
+                const closeBraceIndexes = [];
+                for(let index = 0; index < value.length; index++){
+                    if (value[index] === "}") {
+                        closeBraceIndexes.push(index);
+                    }
+                }
+                const variablesName = openBraceIndexes.map((openBrace, index)=>{
+                    return value.slice(openBrace + 1, closeBraceIndexes[index]);
+                });
+                variablesName.forEach((variableName)=>{
+                    for (const setValue of variablesSet){
+                        if (setValue.key === variableName) {
+                            obj[key] = obj[key].replace(`{${variableName}}`, setValue.value);
+                        }
+                    }
+                });
+            }
+        }
+    };
+    const runE2eTest = async ()=>{
+        const parsedCaptures = new Set();
+        for await (const e2eForm of e2eFroms){
+            const parsedHeaderBody = JSON.parse(e2eForm.bodyHeaders);
+            replaceCaptureString(parsedHeaderBody, parsedCaptures);
+            const body = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...parsedHeaderBody.headers
+                },
+                body: JSON.stringify(parsedHeaderBody.body)
+            };
+            const jsonSendedRequest = await lesanAPI({
+                baseUrl: "http://localhost:8000/",
+                options: body
+            });
+            const captures = [
+                ...e2eForm.captures
+            ].filter((capture)=>capture.key && capture.value);
+            const parsedCapuresValue = captures.map((capture)=>{
+                const parts = capture.value.split("[");
+                const value = [];
+                parts.forEach((part)=>{
+                    let slicedPart = part.slice(0, part.indexOf("]"));
+                    if (!isNaN(Number(slicedPart))) {
+                        slicedPart = Number(slicedPart);
+                    }
+                    value.push(slicedPart);
+                });
+                value.shift();
+                return {
+                    key: capture.key,
+                    value
+                };
+            });
+            parsedCapuresValue.forEach((capture)=>{
+                if (capture.value.length > 0) {
+                    let getedValue = jsonSendedRequest;
+                    capture.value.forEach((capValue)=>{
+                        getedValue = getedValue[capValue];
+                    });
+                    parsedCaptures.add({
+                        key: capture.key,
+                        value: getedValue
+                    });
+                }
+            });
+            setResults((results)=>[
+                    ...results,
+                    {
+                        id: uid(),
+                        request: {
+                            ...body,
+                            body: parsedHeaderBody.body
+                        },
+                        response: jsonSendedRequest
+                    }
+                ]);
+        }
+    };
+    return Z("div", {
+        className: "e2e modal-content"
+    }, resultView ? Z("div", {
+        className: "results"
+    }, results.map((re)=>Z("div", {
+            key: re.id
+        }, Z("div", null, "request:", Z(JSONViewer, {
+            jsonData: re.request
+        })), Z("div", null, "response:", Z(JSONViewer, {
+            jsonData: re.response
+        })), Z("hr", null))), Z("button", {
+        className: "btn btn--add",
+        onClick: ()=>{
+            setResults([]);
+            setResultView(false);
+        }
+    }, "back to TEST")) : Z(N, null, Z("button", {
+        className: "btn btn--add",
+        onClick: ()=>{
+            setE2eForms((e2eForm)=>[
+                    ...e2eForm,
+                    {
+                        id: uid(),
+                        bodyHeaders: `
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": ""
+  },
+  "body": {
+    "service": "main",
+    "contents": "dynamic",
+    "wants": {
+      "model": "province",
+      "act": "addProvince"
+    },
+    "details": {
+      "get": {
+        "abb": 0
+      },
+      "set": {
+        "name": "hamedan",
+        "enName": "sd",
+        "abb": "hm"
+      }
+    }
+  }
+}
+`,
+                        repeat: 1,
+                        captures: []
+                    }
+                ]);
+        }
+    }, "add +"), Z("div", {
+        className: "sidebar__section sidebar__section--headers"
+    }, e2eFroms.map((e2eForm, idx)=>Z(N, null, Z("div", {
+            className: "sidebar__input-double",
+            key: e2eForm.id
+        }, Z("div", {
+            className: "sidebar__section-heading"
+        }, "set test body and headers"), Z("textarea", {
+            placeholder: "please paste a request body here",
+            value: e2eForm.bodyHeaders,
+            name: `${e2eForm.id}-body`,
+            rows: 18,
+            onChange: (e)=>{
+                setE2eForms((e2eForm)=>{
+                    const copy = [
+                        ...e2eForm
+                    ];
+                    copy[idx].bodyHeaders = e.target.value;
+                    return [
+                        ...copy
+                    ];
+                });
+            }
+        }), Z("div", {
+            className: "sidebar__section-heading"
+        }, "set repeat time"), Z("input", {
+            placeholder: "set repeat number",
+            value: e2eForm.repeat,
+            name: `${e2eForm.id}-repeat`,
+            type: "number",
+            onChange: (e)=>{
+                setE2eForms((e2eForm)=>{
+                    const copy = [
+                        ...e2eForm
+                    ];
+                    copy[idx].repeat = e.target.value;
+                    return [
+                        ...copy
+                    ];
+                });
+            }
+        }), Z("div", {
+            className: "sidebar__section-heading"
+        }, "capture variables"), Z("button", {
+            className: "btn btn--add",
+            onClick: ()=>{
+                setE2eForms((e2eForm)=>{
+                    const copy = [
+                        ...e2eForm
+                    ];
+                    copy[idx].captures.push({
+                        key: "",
+                        value: ""
+                    });
+                    return copy;
+                });
+            }
+        }, "add capture variable item"), e2eForm.captures.map((capture, capId)=>Z(N, null, Z("input", {
+                placeholder: "set a variable name",
+                value: capture.key,
+                onChange: (e)=>{
+                    setE2eForms((e2eForm)=>{
+                        const copy = [
+                            ...e2eForm
+                        ];
+                        copy[idx].captures[capId].key = e.target.value;
+                        return copy;
+                    });
+                }
+            }), Z("input", {
+                placeholder: "set a value for variable",
+                value: capture.value,
+                onChange: (e)=>{
+                    setE2eForms((e2eForm)=>{
+                        const copy = [
+                            ...e2eForm
+                        ];
+                        copy[idx].captures[capId].value = e.target.value;
+                        return copy;
+                    });
+                }
+            }), Z("hr", null)))), Z("hr", null), Z("hr", null)))), Z("button", {
+        className: "btn btn--add",
+        onClick: async ()=>{
+            setResultView(true);
+            await runE2eTest();
+        }
+    }, "Run E2E Test")));
+}
+function Dustbin() {
+    return Z("svg", {
+        id: "Layer_1",
+        "data-name": "Layer 1",
+        xmlns: "http://www.w3.org/2000/svg",
+        viewBox: "0 0 105.7 122.88",
+        width: 20
+    }, Z("path", {
+        fill: "white",
+        d: "M30.46,14.57V5.22A5.18,5.18,0,0,1,32,1.55v0A5.19,5.19,0,0,1,35.68,0H70a5.22,5.22,0,0,1,3.67,1.53l0,0a5.22,5.22,0,0,1,1.53,3.67v9.35h27.08a3.36,3.36,0,0,1,3.38,3.37V29.58A3.38,3.38,0,0,1,102.32,33H98.51l-8.3,87.22a3,3,0,0,1-2.95,2.69H18.43a3,3,0,0,1-3-2.95L7.19,33H3.37A3.38,3.38,0,0,1,0,29.58V17.94a3.36,3.36,0,0,1,3.37-3.37Zm36.27,0V8.51H39v6.06ZM49.48,49.25a3.4,3.4,0,0,1,6.8,0v51.81a3.4,3.4,0,1,1-6.8,0V49.25ZM69.59,49a3.4,3.4,0,1,1,6.78.42L73,101.27a3.4,3.4,0,0,1-6.78-.43L69.59,49Zm-40.26.42A3.39,3.39,0,1,1,36.1,49l3.41,51.8a3.39,3.39,0,1,1-6.77.43L29.33,49.46ZM92.51,33.38H13.19l7.94,83.55H84.56l8-83.55Z"
+    }));
+}
 const useNonInitialEffect = (effect, deps)=>{
     const initialRender = V1(true);
     T1(()=>{
@@ -1301,9 +1386,19 @@ function CopyIcon() {
         d: "m83.8 9.2v69.5c0 1-0.8 1.8-1.9 1.8h-8.5v8.3c0 1-0.8 1.8-1.8 1.8h-55.5c-1.1 0-1.9-0.8-1.9-1.8v-69.5c0-1 0.8-1.8 1.9-1.8h8.5v-8.3c0-1 0.8-1.8 1.8-1.8h55.5c1.1 0 1.9 0.8 1.9 1.8zm-14 77.7c0 0 0-8.2 0-8.2v-44.7h-11.2q0 0 0 0c-1 0-1.8-0.8-1.8-1.8v-11h-38.9v65.7c0 0 51.9 0 51.9 0zm-8.2-39c0 1-0.8 1.8-1.8 1.8h-32c-1 0-1.8-0.8-1.8-1.8 0-1 0.8-1.8 1.8-1.8h32c1 0 1.8 0.8 1.8 1.8zm-35.6-12.3c0-1 0.8-1.8 1.8-1.8h21.2c1 0 1.9 0.8 1.9 1.8 0 1-0.9 1.8-1.9 1.8h-21.2c-1 0-1.8-0.8-1.8-1.8zm35.6 36.9c0 1-0.8 1.8-1.8 1.8h-32c-1 0-1.8-0.8-1.8-1.8 0-1 0.8-1.8 1.8-1.8h32c1 0 1.8 0.8 1.8 1.8zm0-12.3c0 1-0.8 1.8-1.8 1.8h-32c-1 0-1.8-0.8-1.8-1.8 0-1 0.8-1.8 1.8-1.8h32c1 0 1.8 0.8 1.8 1.8zm18.5-49.1h-51.9v6.4h30.4q0 0 0 0 0.2 0 0.3 0.1 0.1 0 0.2 0 0.1 0 0.2 0.1 0.1 0 0.2 0.1 0 0 0.1 0 0.1 0.1 0.1 0.2 0.1 0 0.2 0l13 12.8q0 0 0 0 0.1 0.1 0.2 0.2 0 0.1 0 0.2 0.1 0.1 0.2 0.2 0 0.1 0 0.2 0.1 0.1 0.1 0.2 0 0.2 0 0.3v44.7h6.7c0 0 0-65.7 0-65.7zm-19.7 12.6l0.1 6.6h6.7z"
     }));
 }
+function SuccessIcon() {
+    return Z("svg", {
+        version: "1.1",
+        viewBox: "0 0 29.756 29.756",
+        style: "enable-background:new 0 0 29.756 29.756;"
+    }, Z("path", {
+        d: "M29.049,5.009L28.19,4.151c-0.943-0.945-2.488-0.945-3.434,0L10.172,18.737l-5.175-5.173   c-0.943-0.944-2.489-0.944-3.432,0.001l-0.858,0.857c-0.943,0.944-0.943,2.489,0,3.433l7.744,7.752   c0.944,0.943,2.489,0.943,3.433,0L29.049,8.442C29.991,7.498,29.991,5.953,29.049,5.009z"
+    }));
+}
 const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
 const Main = ({ urlAddress  })=>{
     const { activeTab , tabsData , actsObj , headers , history , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
+    const [active, setActive] = F1(false);
     const changeGetValue = (value, keyname, getObj, returnObj)=>{
         for(const key in getObj){
             getObj[key].type === "enums" ? returnObj[`${keyname}.${key}`] = value : changeGetValue(value, `${keyname}.${key}`, getObj[key].schema, returnObj);
@@ -1333,12 +1428,13 @@ const Main = ({ urlAddress  })=>{
             style: {
                 marginLeft: `${margin + 1}px`
             },
-            className: "sidebar__section_container"
+            className: "sidebar__section_container",
+            key: `${activeTab}.${keyName}`
         }, Z("div", {
             className: "sidebar__section-heading--subfields"
-        }, keyName), Object.keys(getField["schema"]).map((item)=>getField["schema"][item].type === "enums" ? Z("div", {
+        }, keyName), Object.keys(getField["schema"]).map((item, index)=>getField["schema"][item].type === "enums" ? Z("div", {
                 className: "input-cnt get-items",
-                key: item
+                key: `${activeTab}.${item}-${index}`
             }, Z("label", {
                 htmlFor: item
             }, keyName, ".", item, ":"), Z("div", {
@@ -1425,6 +1521,10 @@ const Main = ({ urlAddress  })=>{
     const handleSubmit = async (event)=>{
         event.preventDefault();
         const sendRequest = new Date().toLocaleDateString();
+        setActive(true);
+        setTimeout(()=>{
+            setActive(false);
+        }, 400);
         const jsonSendedRequest = await lesanAPI({
             baseUrl: urlAddress,
             options: requestFunction().body
@@ -1493,7 +1593,7 @@ const Main = ({ urlAddress  })=>{
     }, Z("option", {
         value: ""
     }), Object.keys(actsObj).map((service, index)=>Z("option", {
-            key: index,
+            key: `${activeTab}.${index}--`,
             value: service
         }, service)))), Z("div", {
         className: "sidebar__section sidebar__section--method"
@@ -1546,7 +1646,8 @@ const Main = ({ urlAddress  })=>{
         }
     }, Z("option", {
         value: ""
-    }), canShowSchema ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method]).map((schema)=>Z("option", {
+    }), canShowSchema ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method]).map((schema, index)=>Z("option", {
+            key: `${activeTab}.${index}---`,
             value: schema
         }, schema)) : null)), Z("div", {
         className: "sidebar__section sidebar__section--act"
@@ -1578,7 +1679,8 @@ const Main = ({ urlAddress  })=>{
         }
     }, Z("option", {
         value: ""
-    }), canShowAct ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema]).map((schema)=>Z("option", {
+    }), canShowAct ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema]).map((schema, index)=>Z("option", {
+            key: `${activeTab}.${index}----`,
             value: schema
         }, schema)) : null)))), canShowRequestFields && Z("div", {
         className: "sidebar sidebar--fields"
@@ -1590,10 +1692,10 @@ const Main = ({ urlAddress  })=>{
         className: "sidebar__section-heading sidebar__section-heading--fields"
     }, "SET fields"), Object.keys(tabsData[activeTab].postFields).map((item)=>Z("div", {
             className: "input-cnt",
-            key: item
+            key: `${activeTab}.${item}-----`
         }, Z("label", {
             htmlFor: item
-        }, item, ":"), tabsData[activeTab].postFields[item]["type"] === "enums" ? Z("select", {
+        }, item, " :"), tabsData[activeTab].postFields[item]["type"] === "enums" ? Z("select", {
             className: "sidebar__select",
             value: tabsData[activeTab].formData[`set.${item}`],
             onChange: (event)=>{
@@ -1607,7 +1709,8 @@ const Main = ({ urlAddress  })=>{
             }
         }, Z("option", {
             value: ""
-        }), Object.keys(tabsData[activeTab].postFields[item]["schema"]).map((schema)=>Z("option", {
+        }), Object.keys(tabsData[activeTab].postFields[item]["schema"]).map((schema, index)=>Z("option", {
+                key: `${activeTab}.${index}------`,
                 value: schema
             }, schema))) : Z("input", {
             placeholder: item,
@@ -1657,7 +1760,8 @@ const Main = ({ urlAddress  })=>{
             });
         }
     }, "1"))), Object.keys(tabsData[activeTab].getFields).map((item)=>tabsData[activeTab].getFields[item].type === "enums" ? Z("div", {
-            className: "input-cnt get-items"
+            className: "input-cnt get-items",
+            key: `${activeTab}.${item}-------`
         }, Z("label", {
             htmlFor: item
         }, item, ":"), Z("div", {
@@ -1697,11 +1801,13 @@ const Main = ({ urlAddress  })=>{
             keyName: item,
             margin: 0
         })), Z("div", {
-        className: "cnt--btn-send"
+        class: "wrapper"
     }, Z("button", {
-        className: "btn btn--send",
-        type: "submit"
-    }, "send")))), Z("div", {
+        class: "send-button",
+        "data-active": active
+    }, Z("span", null, "Send"), Z("div", {
+        class: "successe"
+    }, Z(SuccessIcon, null)))))), Z("div", {
         className: "response"
     }, tabsData[activeTab].response && Z("div", {
         class: "response-detail"
