@@ -970,10 +970,24 @@ function E2E({ configUrl  }) {
                 },
                 body: JSON.stringify(parsedHeaderBody.body)
             };
-            const jsonSendedRequest = await lesanAPI({
-                baseUrl: "http://localhost:8000/",
-                options: body
-            });
+            let jsonSendedRequest;
+            for(let repeat = 0; repeat < e2eForm.repeat; repeat++){
+                jsonSendedRequest = await lesanAPI({
+                    baseUrl: "http://localhost:8000/",
+                    options: body
+                });
+                setResults((results)=>[
+                        ...results,
+                        {
+                            id: uid(),
+                            request: {
+                                ...body,
+                                body: parsedHeaderBody.body
+                            },
+                            response: jsonSendedRequest
+                        }
+                    ]);
+            }
             const captures = [
                 ...e2eForm.captures
             ].filter((capture)=>capture.key && capture.value);
@@ -1005,17 +1019,6 @@ function E2E({ configUrl  }) {
                     });
                 }
             });
-            setResults((results)=>[
-                    ...results,
-                    {
-                        id: uid(),
-                        request: {
-                            ...body,
-                            body: parsedHeaderBody.body
-                        },
-                        response: jsonSendedRequest
-                    }
-                ]);
         }
     };
     return Z("div", {

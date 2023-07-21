@@ -95,10 +95,20 @@ export function E2E({
         body: JSON.stringify(parsedHeaderBody.body),
       };
 
-      const jsonSendedRequest = await lesanAPI({
-        baseUrl: "http://localhost:8000/",
-        options: body,
-      });
+      let jsonSendedRequest: any;
+      for (let repeat = 0; repeat < e2eForm.repeat; repeat++) {
+        jsonSendedRequest = await lesanAPI({
+          baseUrl: "http://localhost:8000/",
+          options: body,
+        });
+        setResults((
+          results,
+        ) => [...results, {
+          id: uid(),
+          request: { ...body, body: parsedHeaderBody.body },
+          response: jsonSendedRequest,
+        }]);
+      }
 
       const captures = [...e2eForm.captures].filter(
         capture => (capture.key && capture.value),
@@ -128,14 +138,6 @@ export function E2E({
           parsedCaptures.add({ key: capture.key, value: getedValue });
         }
       });
-
-      setResults((
-        results,
-      ) => [...results, {
-        id: uid(),
-        request: { ...body, body: parsedHeaderBody.body },
-        response: jsonSendedRequest,
-      }]);
     }
   };
 
