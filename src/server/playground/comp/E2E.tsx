@@ -4,6 +4,7 @@ import { uid } from "../utils/uid.ts";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { TRequest } from "./ManagedLesanContext.tsx";
 import BackIcon from "./icon/BackIcon.tsx";
+import ExportIcon from "./icon/ExportIcon.tsx";
 
 export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
   const [e2eFroms, setE2eForms] = useState<
@@ -22,6 +23,40 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
       response: Record<string, any>;
     }[]
   >([]);
+
+  const exportForm = () => {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(e2eFroms)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "data.json";
+
+    link.click();
+  };
+
+  const jsonFileUpload = (e: any) => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = (e) => {
+      // console.log("e.target.result", e.target!.result as string);
+      const data = JSON.parse(e.target!.result as string);
+      // console.log("Json Data", data);
+      setE2eForms(data);
+    };
+  };
+
+  const exportResults = () => {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(results)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "data.json";
+
+    link.click();
+  };
+
   const [urlAddress, setUrlAddress] = useState("");
 
   const lesanAPI = async ({
@@ -146,16 +181,26 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
         <Fragment>
           <br />
           <div className="results">
-            <button
-              className="btn  e2e-back-button"
-              onClick={() => {
-                setResults([]);
-                setResultView(false);
-              }}
-            >
-              <BackIcon />
-              Back
-            </button>
+            <div className="results-buttons">
+              <button
+                className="btn  e2e-back-button"
+                onClick={() => {
+                  setResults([]);
+                  setResultView(false);
+                }}
+              >
+                <BackIcon />
+                <span>Back</span>
+              </button>
+              <button
+                className="btn  e2e-back-button e2e-export_results-button"
+                onClick={exportResults}
+              >
+                <ExportIcon />
+                <span>Export</span>
+              </button>
+              {/* <input type="file" onChange={jsonFileUpload} /> */}
+            </div>
             {results.map((re) => (
               <div key={re.id} className="container-detail">
                 <section className="container-re ">
@@ -214,6 +259,7 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
           >
             add +
           </button>
+          {/* <input type="file" onChange={jsonFileUpload} /> */}
 
           <div className="sidebar__section sidebar__section--headers">
             {e2eFroms.map((e2eForm, idx) => (

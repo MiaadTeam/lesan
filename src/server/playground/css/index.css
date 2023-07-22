@@ -620,9 +620,6 @@ input:focus {
 }
 
 .e2e-back-button {
-  position: fixed;
-  top: 0;
-  width: 10%;
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -638,8 +635,20 @@ input:focus {
   background-color: lightcoral;
 }
 
+.e2e-export_results-button {
+  left: 150px;
+}
+
 .results {
   margin-top: 5px;
+}
+
+.results-buttons {
+  position: fixed;
+  top: 0;
+  display: flex;
+  width: 100%;
+  gap: 20px;
 }
 
 .container-detail {
