@@ -12,7 +12,40 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
       repeat: number;
       captures: { key: string; value: string }[];
     }[]
-  >([]);
+  >([
+    {
+      id: uid(),
+      bodyHeaders: `
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": ""
+  },
+  "body": {
+    "service": "main",
+    "contents": "dynamic",
+    "wants": {
+    "model": "province",
+    "act": "addProvince"
+  },
+    "details": {
+      "get": {
+       "abb": 0
+      },
+    "set": {
+    "name": "hamedan",
+    "enName": "sd",
+    "abb": "hm"
+    }
+  }
+}
+}
+            `,
+      repeat: 1,
+      captures: [],
+    },
+  ]);
+
   const [resultView, setResultView] = useState<boolean>(false);
   const [results, setResults] = useState<
     {
@@ -152,7 +185,9 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
   const minesRepeatHandler = (index: number) => {
     setE2eForms((e2eForm) => {
       const copy = [...e2eForm];
-      copy[index].repeat -= 1;
+      if (copy[index].repeat > 0) {
+        copy[index].repeat -= 1;
+      }
       return [...copy];
     });
   };
@@ -186,47 +221,6 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
         </div>
       ) : (
         <Fragment>
-          <button
-            className="btn btn--add"
-            onClick={() => {
-              setE2eForms((e2eForm) => [
-                ...e2eForm,
-                {
-                  id: uid(),
-                  bodyHeaders: `
-{
-  "headers": {
-    "Content-Type": "application/json",
-    "Authorization": ""
-  },
-  "body": {
-    "service": "main",
-      "contents": "dynamic",
-    "wants": {
-      "model": "province",
-      "act": "addProvince"
-    },
-    "details": {
-      "get": {
-        "abb": 0
-      },
-      "set": {
-        "name": "hamedan",
-        "enName": "sd",
-        "abb": "hm"
-      }
-    }
-  }
-}
-                        `,
-                  repeat: 1,
-                  captures: [],
-                },
-              ]);
-            }}
-          >
-            add +
-          </button>
           <div className="sidebar__section sidebar__section--headers">
             {e2eFroms.map((e2eForm, idx) => (
               <Fragment>
@@ -276,7 +270,7 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
                       </button>
                       <button
                         className="btn"
-                        onClick={() => minesRepeatHandler}
+                        onClick={() => minesRepeatHandler(idx)}
                       >
                         -
                       </button>
@@ -330,15 +324,58 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
               </Fragment>
             ))}
           </div>
-          <button
-            className="btn btn--add"
-            onClick={async () => {
-              setResultView(true);
-              await runE2eTest();
-            }}
-          >
-            Run E2E Test
-          </button>
+          <div className="btn__action">
+            <button
+              className="btn btn--add"
+              onClick={() => {
+                setE2eForms((e2eForm) => [
+                  ...e2eForm,
+                  {
+                    id: uid(),
+                    bodyHeaders: `
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": ""
+  },
+  "body": {
+    "service": "main",
+      "contents": "dynamic",
+    "wants": {
+      "model": "province",
+      "act": "addProvince"
+    },
+    "details": {
+      "get": {
+        "abb": 0
+      },
+      "set": {
+        "name": "hamedan",
+        "enName": "sd",
+        "abb": "hm"
+      }
+    }
+  }
+}
+                        `,
+                    repeat: 1,
+                    captures: [],
+                  },
+                ]);
+              }}
+            >
+              add +
+            </button>
+            <button
+              className="btn btn--add"
+              onClick={async () => {
+                setResultView(true);
+                await runE2eTest();
+              }}
+            >
+              Run E2E Test
+            </button>
+          </div>
         </Fragment>
       )}
     </div>
