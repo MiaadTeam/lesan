@@ -78,6 +78,10 @@ input {
   box-sizing: border-box;
 }
 
+textarea {
+  resize: none;
+}
+
 input:focus {
   outline: none;
   border: 2px solid rgb(16, 182, 182);
@@ -143,7 +147,54 @@ input:focus {
 
 .sidebar__input-double {
   display: flex;
-  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar__section-body-heading,
+.sidebar__section-capture {
+  border: 1px solid #808080;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+}
+
+.sidebar__section-capture {
+ min-width: 515px; 
+}
+
+.sidebar__section-body-heading {
+  flex-grow: 2;
+}
+
+
+.sidebar__section-body-heading textarea {
+  width: 99%;
+  border-radius: 5px;
+  min-height: 85%;
+}
+
+.repeat__number {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.repeat__number input {
+  width: 80%;
+}
+
+.repeat__number button {
+  background-color: var(--color-colonial-2);
+  color: white;
+  margin: 10px 0;
+  padding: 10px 15px;
+}
+
+.sidebar__section-add-capture {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  width: fit-content;
 }
 
 .btn {
