@@ -25,11 +25,11 @@ export function History({
         <div className="">
           <br />
           {history.map((hi, index) => (
-            <div className="history-detail" id={hi.id}>
-              <section className="history-re">
-                <span className="history-re-title">REQUEST</span>
-                <div className="history-re-detail">
-                  <div className="history-re-detail-title">
+            <div className="container-detail" id={hi.id}>
+              <section className="container-re">
+                <span className="container-re-title">REQUEST</span>
+                <div className="container-re-detail">
+                  <div className="container-re-detail-title">
                     <div>
                       {" "}
                       <JSONViewer
@@ -77,7 +77,7 @@ export function History({
                   <JSONViewer jsonData={hi.request} />
                 </div>
               </section>
-              <section className="history-re history-response">
+              <section className="container-re history-response">
                 <div
                   className="history-re-title_delete"
                   style={{ position: "relative" }}
@@ -89,9 +89,9 @@ export function History({
                   <span className="history-re-delete">
                     x{/* <DeleteIcon /> */}
                   </span>
-                  <span className="history-re-title">RESPONSE</span>
+                  <span className="container-re-title">RESPONSE</span>
                 </div>
-                <div className="history-re-detail">
+                <div className="container-re-detail">
                   <div className="history-re-detail-title">
                     <div className="history-re-response-title">
                       {" "}
