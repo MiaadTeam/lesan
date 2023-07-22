@@ -14,7 +14,40 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
       repeat: number;
       captures: { key: string; value: string }[];
     }[]
-  >([]);
+  >([
+    {
+      id: uid(),
+      bodyHeaders: `
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": ""
+  },
+  "body": {
+    "service": "main",
+    "contents": "dynamic",
+    "wants": {
+    "model": "province",
+    "act": "addProvince"
+  },
+    "details": {
+      "get": {
+       "abb": 0
+      },
+    "set": {
+    "name": "hamedan",
+    "enName": "sd",
+    "abb": "hm"
+    }
+  }
+}
+}
+            `,
+      repeat: 1,
+      captures: [],
+    },
+  ]);
+
   const [resultView, setResultView] = useState<boolean>(false);
   const [results, setResults] = useState<
     {
@@ -175,6 +208,26 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
     }
   };
 
+  // plus repeat
+  const plusRepeatHandler = (index: number) => {
+    setE2eForms((e2eForm) => {
+      const copy = [...e2eForm];
+      copy[index].repeat += 1;
+      return [...copy];
+    });
+  };
+
+  //mines repeat
+  const minesRepeatHandler = (index: number) => {
+    setE2eForms((e2eForm) => {
+      const copy = [...e2eForm];
+      if (copy[index].repeat > 0) {
+        copy[index].repeat -= 1;
+      }
+      return [...copy];
+    });
+  };
+
   return (
     <div className="e2e modal-content">
       {resultView ? (
@@ -233,7 +286,7 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
   },
   "body": {
     "service": "main",
-    "contents": "dynamic",
+      "contents": "dynamic",
     "wants": {
       "model": "province",
       "act": "addProvince"
