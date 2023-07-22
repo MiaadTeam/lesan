@@ -428,39 +428,6 @@ input:focus {
   visibility: hidden;
 }
 
-/* 
-.btn--send:active {
-  animation-name: active;
-  animation-duration: 5s;
-  animation-iteration-count: 4;
-} */
-
-/* @keyframes active {
-  0% {
-    width: 20%;
-  }
-  25% {
-    width: 50%;
-  }
-
-  75% {
-    width: 65%;
-  }
-  100% {
-    width: 80%;
-  }
-} */
-
-/* @keyframes active {
-  from {
-    width: 20%;
-  }
-
-  to {
-    width: 80%;
-  }
-} */
-
 .response {
   display: flex;
   flex-direction: column;
@@ -652,20 +619,42 @@ input:focus {
   height: 100%;
 }
 
-.history-detail {
+.e2e-back-button {
+  position: fixed;
+  top: 0;
+  width: 10%;
   display: flex;
-  /* gap: 50px; */
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: bisque;
+  border-radius: 0 0 5px 5px;
+  padding: 6px;
+  font-size: 15px;
+}
+
+.e2e-back-button:hover {
+  background-color: lightcoral;
+}
+
+.results {
+  margin-top: 5px;
+}
+
+.container-detail {
+  display: flex;
   justify-content: space-between;
   width: 100%;
   margin-bottom: 10px;
 }
 
-.history-re {
+.container-re {
   width: 50%;
   background-color: #030712;
 }
 
-.history-re-detail {
+.container-re-detail {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -684,7 +673,7 @@ input:focus {
   color: red;
 }
 
-.history-re-detail-title {
+.container-re-detail-title {
   display: flex;
   color: white;
   align-items: baseline;
@@ -744,7 +733,7 @@ input:focus {
   background-color: #272822;
 }
 
-.history-re-title {
+.container-re-title {
   text-align: center;
   background-color: #11567b;
   width: 100%;
