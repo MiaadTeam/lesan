@@ -916,10 +916,228 @@ const JSONViewer = ({ jsonData  })=>{
         }
     }));
 };
+function BackIcon() {
+    return Z("svg", {
+        width: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z",
+        stroke: "#292D32",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        d: "M9.00002 15.3802H13.92C15.62 15.3802 17 14.0002 17 12.3002C17 10.6002 15.62 9.22021 13.92 9.22021H7.15002",
+        stroke: "#292D32",
+        "stroke-width": "1.5",
+        "stroke-miterlimit": "10",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        d: "M8.57 10.7701L7 9.19012L8.57 7.62012",
+        stroke: "#292D32",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
+function ExportIcon() {
+    return Z("svg", {
+        width: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        opacity: "0.5",
+        d: "M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12",
+        stroke: "#1C274C",
+        "stroke-width": "1.5"
+    }), Z("path", {
+        d: "M2 14C2 11.1997 2 9.79961 2.54497 8.73005C3.02433 7.78924 3.78924 7.02433 4.73005 6.54497C5.79961 6 7.19974 6 10 6H14C16.8003 6 18.2004 6 19.27 6.54497C20.2108 7.02433 20.9757 7.78924 21.455 8.73005C22 9.79961 22 11.1997 22 14C22 16.8003 22 18.2004 21.455 19.27C20.9757 20.2108 20.2108 20.9757 19.27 21.455C18.2004 22 16.8003 22 14 22H10C7.19974 22 5.79961 22 4.73005 21.455C3.78924 20.9757 3.02433 20.2108 2.54497 19.27C2 18.2004 2 16.8003 2 14Z",
+        stroke: "#1C274C",
+        "stroke-width": "1.5"
+    }), Z("path", {
+        d: "M12 17L12 11M12 11L14.5 13.5M12 11L9.5 13.5",
+        stroke: "#1C274C",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
+function ImportIcon() {
+    return Z("svg", {
+        width: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        opacity: "0.5",
+        d: "M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12",
+        stroke: "#1C274C",
+        "stroke-width": "1.5"
+    }), Z("path", {
+        d: "M2 14C2 11.1997 2 9.79961 2.54497 8.73005C3.02433 7.78924 3.78924 7.02433 4.73005 6.54497C5.79961 6 7.19974 6 10 6H14C16.8003 6 18.2004 6 19.27 6.54497C20.2108 7.02433 20.9757 7.78924 21.455 8.73005C22 9.79961 22 11.1997 22 14C22 16.8003 22 18.2004 21.455 19.27C20.9757 20.2108 20.2108 20.9757 19.27 21.455C18.2004 22 16.8003 22 14 22H10C7.19974 22 5.79961 22 4.73005 21.455C3.78924 20.9757 3.02433 20.2108 2.54497 19.27C2 18.2004 2 16.8003 2 14Z",
+        stroke: "#1C274C",
+        "stroke-width": "1.5"
+    }), Z("path", {
+        d: "M12 11L12 17M12 17L14.5 14.5M12 17L9.5 14.5",
+        stroke: "#1C274C",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
+function AddIcon() {
+    return Z("svg", {
+        width: "25px",
+        height: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M11 8C11 7.44772 11.4477 7 12 7C12.5523 7 13 7.44772 13 8V11H16C16.5523 11 17 11.4477 17 12C17 12.5523 16.5523 13 16 13H13V16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16V13H8C7.44771 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11H11V8Z",
+        fill: "#000"
+    }), Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "#8d8688"
+    }));
+}
+function RunIcon() {
+    return Z("svg", {
+        width: "25px",
+        height: "25px",
+        viewBox: "0 0 16 16",
+        version: "1.1",
+        xmlns: "http://www.w3.org/2000/svg",
+        "xmlns:xlink": "http://www.w3.org/1999/xlink"
+    }, Z("title", null, "Fill 1"), Z("desc", null, "Created with Sketch."), Z("g", {
+        id: "-",
+        stroke: "none",
+        "stroke-width": "1",
+        fill: "none",
+        "fill-rule": "evenodd"
+    }, Z("g", {
+        id: "Icon/playBig",
+        fill: "#8d8688"
+    }, Z("path", {
+        d: "M6,11 L11,8 L6,5 L6,11 Z M8,14.6 C4.4,14.6 1.4,11.6 1.4,8 C1.4,4.4 4.4,1.4 8,1.4 C11.6,1.4 14.6,4.4 14.6,8 C14.6,11.6 11.6,14.6 8,14.6 L8,14.6 Z M8,0 C3.6,0 0,3.6 0,8 C0,12.4 3.6,16 8,16 C12.4,16 16,12.4 16,8 C16,3.6 12.4,0 8,0 L8,0 Z",
+        id: "Fill-1"
+    }))));
+}
+function UpIcon() {
+    return Z("svg", {
+        width: "25px",
+        viewBox: "-0.5 0 25 25",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M12 22.4199C17.5228 22.4199 22 17.9428 22 12.4199C22 6.89707 17.5228 2.41992 12 2.41992C6.47715 2.41992 2 6.89707 2 12.4199C2 17.9428 6.47715 22.4199 12 22.4199Z",
+        stroke: "#000000",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        d: "M8 13.8599L10.87 10.8C11.0125 10.6416 11.1868 10.5149 11.3815 10.4282C11.5761 10.3415 11.7869 10.2966 12 10.2966C12.2131 10.2966 12.4239 10.3415 12.6185 10.4282C12.8132 10.5149 12.9875 10.6416 13.13 10.8L16 13.8599",
+        stroke: "#000000",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
+function DownIcon() {
+    return Z("svg", {
+        width: "25px",
+        viewBox: "-0.5 0 25 25",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M12 22.4199C17.5228 22.4199 22 17.9428 22 12.4199C22 6.89707 17.5228 2.41992 12 2.41992C6.47715 2.41992 2 6.89707 2 12.4199C2 17.9428 6.47715 22.4199 12 22.4199Z",
+        stroke: "#000000",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        d: "M16 10.99L13.13 14.05C12.9858 14.2058 12.811 14.3298 12.6166 14.4148C12.4221 14.4998 12.2122 14.5437 12 14.5437C11.7878 14.5437 11.5779 14.4998 11.3834 14.4148C11.189 14.3298 11.0142 14.2058 10.87 14.05L8 10.99",
+        stroke: "#000000",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
 function E2E({ configUrl  }) {
-    const [e2eFroms, setE2eForms] = F1([]);
+    const handleMove = (fromIndex, toIndex)=>{
+        if (fromIndex === 0 && toIndex <= 0) {
+            return;
+        } else {
+            var element = e2eFroms[fromIndex];
+            e2eFroms.splice(fromIndex, 1);
+            e2eFroms.splice(toIndex, 0, element);
+            setE2eForms([
+                ...e2eFroms
+            ]);
+        }
+    };
+    const [e2eFroms, setE2eForms] = F1([
+        {
+            id: uid(),
+            bodyHeaders: `
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": ""
+  },
+  "body": {
+    "service": "main",
+    "contents": "dynamic",
+    "wants": {
+    "model": "province",
+    "act": "addProvince"
+  },
+    "details": {
+      "get": {
+       "abb": 0
+      },
+    "set": {
+    "name": "hamedan",
+    "enName": "sd",
+    "abb": "hm"
+    }
+  }
+}
+}
+            `,
+            repeat: 1,
+            captures: []
+        }
+    ]);
     const [resultView, setResultView] = F1(false);
     const [results, setResults] = F1([]);
+    const exportForm = ()=>{
+        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(e2eFroms))}`;
+        const link = document.createElement("a");
+        link.href = jsonString;
+        link.download = "Configdata.json";
+        link.click();
+    };
+    const jsonFileUpload = (e)=>{
+        const fileReader = new FileReader();
+        fileReader.readAsText(e.target.files[0], "UTF-8");
+        fileReader.onload = (e)=>{
+            const data = JSON.parse(e.target.result);
+            setE2eForms(data);
+        };
+    };
+    const exportResults = ()=>{
+        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(results))}`;
+        const link = document.createElement("a");
+        link.href = jsonString;
+        link.download = "data.json";
+        link.click();
+    };
     const [urlAddress, setUrlAddress] = F1("");
     const lesanAPI = async ({ baseUrl , options  })=>{
         const fetching = await fetch(`${baseUrl}lesan`, options);
@@ -1021,66 +1239,76 @@ function E2E({ configUrl  }) {
             });
         }
     };
+    const plusRepeatHandler = (index)=>{
+        setE2eForms((e2eForm)=>{
+            const copy = [
+                ...e2eForm
+            ];
+            copy[index].repeat += 1;
+            return [
+                ...copy
+            ];
+        });
+    };
+    const minesRepeatHandler = (index)=>{
+        setE2eForms((e2eForm)=>{
+            const copy = [
+                ...e2eForm
+            ];
+            if (copy[index].repeat > 0) {
+                copy[index].repeat -= 1;
+            }
+            return [
+                ...copy
+            ];
+        });
+    };
     return Z("div", {
         className: "e2e modal-content"
-    }, resultView ? Z("div", {
+    }, resultView ? Z(N, null, Z("br", null), Z("div", {
         className: "results"
-    }, results.map((re)=>Z("div", {
-            key: re.id
-        }, Z("div", null, "request:", Z(JSONViewer, {
-            jsonData: re.request
-        })), Z("div", null, "response:", Z(JSONViewer, {
-            jsonData: re.response
-        })), Z("hr", null))), Z("button", {
-        className: "btn btn--add",
+    }, Z("div", {
+        className: "results-buttons"
+    }, Z("button", {
+        className: "btn  e2e-back-button",
         onClick: ()=>{
             setResults([]);
             setResultView(false);
         }
-    }, "back to TEST")) : Z(N, null, Z("button", {
-        className: "btn btn--add",
-        onClick: ()=>{
-            setE2eForms((e2eForm)=>[
-                    ...e2eForm,
-                    {
-                        id: uid(),
-                        bodyHeaders: `
-{
-  "headers": {
-    "Content-Type": "application/json",
-    "Authorization": ""
-  },
-  "body": {
-    "service": "main",
-    "contents": "dynamic",
-    "wants": {
-      "model": "province",
-      "act": "addProvince"
-    },
-    "details": {
-      "get": {
-        "abb": 0
-      },
-      "set": {
-        "name": "hamedan",
-        "enName": "sd",
-        "abb": "hm"
-      }
-    }
-  }
-}
-`,
-                        repeat: 1,
-                        captures: []
-                    }
-                ]);
-        }
-    }, "add +"), Z("div", {
+    }, Z(BackIcon, null), Z("span", null, "Back")), Z("button", {
+        className: "btn  e2e-back-button e2e-export_results-button",
+        onClick: exportResults
+    }, Z(ExportIcon, null), Z("span", null, "Export"))), results.map((re)=>Z("div", {
+            key: re.id,
+            className: "container-detail"
+        }, Z("section", {
+            className: "container-re "
+        }, Z("span", {
+            className: "container-re-title"
+        }, "REQUEST"), Z(JSONViewer, {
+            jsonData: re.request
+        })), Z("section", {
+            className: "container-re history-response"
+        }, Z("span", {
+            className: "container-re-title"
+        }, "RESPONSE"), Z(JSONViewer, {
+            jsonData: re.response
+        })))))) : Z(N, null, Z("div", {
         className: "sidebar__section sidebar__section--headers"
     }, e2eFroms.map((e2eForm, idx)=>Z(N, null, Z("div", {
             className: "sidebar__input-double",
             key: e2eForm.id
         }, Z("div", {
+            className: "sidebar__section-body-heading"
+        }, Z("div", {
+            className: "e2e-move-buttons"
+        }, Z("button", {
+            className: "e2e-move-button",
+            onClick: ()=>handleMove(idx, idx - 1)
+        }, Z(UpIcon, null)), Z("button", {
+            className: "e2e-move-button",
+            onClick: ()=>handleMove(idx, idx + 1)
+        }, Z(DownIcon, null))), Z("div", {
             className: "sidebar__section-heading"
         }, "set test body and headers"), Z("textarea", {
             placeholder: "please paste a request body here",
@@ -1098,9 +1326,13 @@ function E2E({ configUrl  }) {
                     ];
                 });
             }
-        }), Z("div", {
+        })), Z("div", {
+            className: "sidebar__section-capture"
+        }, Z("div", {
             className: "sidebar__section-heading"
-        }, "set repeat time"), Z("input", {
+        }, "set repeat time"), Z("div", {
+            className: "repeat__number"
+        }, Z("input", {
             placeholder: "set repeat number",
             value: e2eForm.repeat,
             name: `${e2eForm.id}-repeat`,
@@ -1116,7 +1348,13 @@ function E2E({ configUrl  }) {
                     ];
                 });
             }
-        }), Z("div", {
+        }), Z("button", {
+            className: "btn",
+            onClick: ()=>plusRepeatHandler(idx)
+        }, "+"), Z("button", {
+            className: "btn",
+            onClick: ()=>minesRepeatHandler(idx)
+        }, "-")), Z("div", {
             className: "sidebar__section-heading"
         }, "capture variables"), Z("button", {
             className: "btn btn--add",
@@ -1132,7 +1370,9 @@ function E2E({ configUrl  }) {
                     return copy;
                 });
             }
-        }, "add capture variable item"), e2eForm.captures.map((capture, capId)=>Z(N, null, Z("input", {
+        }, "add capture variable item"), e2eForm.captures.map((capture, capId)=>Z(N, null, Z("div", {
+                className: "sidebar__section-add-capture"
+            }, Z("input", {
                 placeholder: "set a variable name",
                 value: capture.key,
                 onChange: (e)=>{
@@ -1156,13 +1396,66 @@ function E2E({ configUrl  }) {
                         return copy;
                     });
                 }
-            }), Z("hr", null)))), Z("hr", null), Z("hr", null)))), Z("button", {
-        className: "btn btn--add",
+            })), Z("hr", null)))))))), Z("div", {
+        className: "results-buttons"
+    }, Z("button", {
+        className: "btn  e2e-back-button e2e-export_results-button",
+        onClick: ()=>{
+            setE2eForms((e2eForm)=>[
+                    ...e2eForm,
+                    {
+                        id: uid(),
+                        bodyHeaders: `
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": ""
+  },
+  "body": {
+    "service": "main",
+      "contents": "dynamic",
+    "wants": {
+      "model": "province",
+      "act": "addProvince"
+    },
+    "details": {
+      "get": {
+        "abb": 0
+      },
+      "set": {
+        "name": "hamedan",
+        "enName": "sd",
+        "abb": "hm"
+      }
+    }
+  }
+}
+                        `,
+                        repeat: 1,
+                        captures: []
+                    }
+                ]);
+        }
+    }, Z(AddIcon, null), " add"), Z("button", {
+        className: "btn  e2e-back-button e2e-export_results-button",
         onClick: async ()=>{
             setResultView(true);
             await runE2eTest();
         }
-    }, "Run E2E Test")));
+    }, Z(RunIcon, null), "Run E2E Test"), Z("input", {
+        id: "actual-btn",
+        type: "file",
+        onChange: jsonFileUpload,
+        hidden: true
+    }), Z("label", {
+        htmlFor: "actual-btn",
+        className: "btn  e2e-back-button e2e-export_results-button"
+    }, Z(ImportIcon, null), Z("span", {
+        className: "e2e-export-form-button"
+    }, " Import ")), Z("button", {
+        className: "btn  e2e-back-button e2e-export_results-button",
+        onClick: exportForm
+    }, Z(ExportIcon, null), Z("span", null, "Export")))));
 }
 function Dustbin() {
     return Z("svg", {
@@ -1203,16 +1496,16 @@ function History({ setFormFromHistory  }) {
     }, history && history?.length > 0 ? Z("div", {
         className: ""
     }, Z("br", null), history.map((hi, index)=>Z("div", {
-            className: "history-detail",
+            className: "container-detail",
             id: hi.id
         }, Z("section", {
-            className: "history-re"
+            className: "container-re"
         }, Z("span", {
-            className: "history-re-title"
+            className: "container-re-title"
         }, "REQUEST"), Z("div", {
-            className: "history-re-detail"
+            className: "container-re-detail"
         }, Z("div", {
-            className: "history-re-detail-title"
+            className: "container-re-detail-title"
         }, Z("div", null, " ", Z(JSONViewer, {
             jsonData: hi.request.body.wants.model
         })), Z("span", null, "|"), Z("div", null, Z(JSONViewer, {
@@ -1238,7 +1531,7 @@ function History({ setFormFromHistory  }) {
         }, " ", Z(JSONViewer, {
             jsonData: hi.request
         }))), Z("section", {
-            className: "history-re history-response"
+            className: "container-re history-response"
         }, Z("div", {
             className: "history-re-title_delete",
             style: {
@@ -1251,9 +1544,9 @@ function History({ setFormFromHistory  }) {
         }, Z("span", {
             className: "history-re-delete"
         }, "x"), Z("span", {
-            className: "history-re-title"
+            className: "container-re-title"
         }, "RESPONSE")), Z("div", {
-            className: "history-re-detail"
+            className: "container-re-detail"
         }, Z("div", {
             className: "history-re-detail-title"
         }, Z("div", {
@@ -1527,7 +1820,7 @@ const Main = ({ urlAddress  })=>{
         setActive(true);
         setTimeout(()=>{
             setActive(false);
-        }, 400);
+        }, 450);
         const jsonSendedRequest = await lesanAPI({
             baseUrl: urlAddress,
             options: requestFunction().body
@@ -1550,6 +1843,7 @@ const Main = ({ urlAddress  })=>{
         ];
         setHistory(newHistory);
         localStorage.setItem("localHistory", JSON.stringify(newHistory));
+        localStorage.setItem("localTabsData", JSON.stringify(tabsData));
     };
     const canShowRequestFields = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema && tabsData[activeTab].postFields && tabsData[activeTab].getFields && tabsData[activeTab].act;
     const canShowSchema = tabsData[activeTab].service && tabsData[activeTab].method;
@@ -1592,6 +1886,7 @@ const Main = ({ urlAddress  })=>{
                 data: {},
                 index: activeTab
             });
+            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
     }, Z("option", {
         value: ""
@@ -1620,6 +1915,7 @@ const Main = ({ urlAddress  })=>{
                 data: {},
                 index: activeTab
             });
+            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
     }, Z("option", {
         value: ""
@@ -1646,6 +1942,7 @@ const Main = ({ urlAddress  })=>{
                 data: {},
                 index: activeTab
             });
+            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
     }, Z("option", {
         value: ""
@@ -1679,6 +1976,7 @@ const Main = ({ urlAddress  })=>{
                 data: {},
                 index: activeTab
             });
+            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
     }, Z("option", {
         value: ""
@@ -1709,6 +2007,7 @@ const Main = ({ urlAddress  })=>{
                     },
                     index: activeTab
                 });
+                localStorage.setItem("localTabsData", JSON.stringify(tabsData));
             }
         }, Z("option", {
             value: ""
@@ -1929,7 +2228,7 @@ var MODAL_TYPES;
 })(MODAL_TYPES || (MODAL_TYPES = {}));
 const Page = ()=>{
     const { isOpen , toggleModal  } = useModal();
-    const { tabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , closeTab , resetPostFields , setSchemasObj , setActsObj  } = useLesan();
+    const { tabsData , setTabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , closeTab , resetPostFields , setSchemasObj , setActsObj  } = useLesan();
     const [active, setActive] = F1("");
     const parsedWindowUrl = ()=>{
         return window && window.location ? `${new URL(window.location.href).origin}/` : "http://localhost:1366/";
@@ -1965,6 +2264,11 @@ const Page = ()=>{
         }).then(({ schemas , acts  })=>{
             setActsObj(acts);
             setSchemasObj(schemas);
+            console.log("schema:", schemas);
+            console.log("actsobj:", acts);
+            const localTabsData = localStorage.getItem("localTabsData");
+            console.log("localTabsData", JSON.parse(localTabsData));
+            if (localTabsData) setTabsData(JSON.parse(localTabsData));
         });
     };
     const setFormFromHistory = (request)=>{
@@ -2037,6 +2341,7 @@ const Page = ()=>{
         className: "add-tab",
         onClick: ()=>{
             addTab(null);
+            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
     }, "+")), Z(Main, {
         urlAddress: urlAddress
