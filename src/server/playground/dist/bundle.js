@@ -1068,7 +1068,7 @@ function DownIcon() {
         "stroke-linejoin": "round"
     }));
 }
-function E2E({ configUrl  }) {
+function E2E({ baseUrl  }) {
     const handleMove = (fromIndex, toIndex)=>{
         if (fromIndex === 0 && toIndex <= 0) {
             return;
@@ -1094,17 +1094,13 @@ function E2E({ configUrl  }) {
     "service": "main",
     "contents": "dynamic",
     "wants": {
-    "model": "province",
-    "act": "addProvince"
+    "model": "",
+    "act": ""
   },
     "details": {
       "get": {
-       "abb": 0
       },
     "set": {
-    "name": "hamedan",
-    "enName": "sd",
-    "abb": "hm"
     }
   }
 }
@@ -1138,7 +1134,6 @@ function E2E({ configUrl  }) {
         link.download = "data.json";
         link.click();
     };
-    const [urlAddress, setUrlAddress] = F1("");
     const lesanAPI = async ({ baseUrl , options  })=>{
         const fetching = await fetch(`${baseUrl}lesan`, options);
         return await fetching.json();
@@ -1191,7 +1186,7 @@ function E2E({ configUrl  }) {
             let jsonSendedRequest;
             for(let repeat = 0; repeat < e2eForm.repeat; repeat++){
                 jsonSendedRequest = await lesanAPI({
-                    baseUrl: "http://localhost:8000/",
+                    baseUrl: baseUrl,
                     options: body
                 });
                 setResults((results)=>[
@@ -1415,17 +1410,13 @@ function E2E({ configUrl  }) {
     "service": "main",
       "contents": "dynamic",
     "wants": {
-      "model": "province",
-      "act": "addProvince"
+      "model": "",
+      "act": ""
     },
     "details": {
       "get": {
-        "abb": 0
       },
       "set": {
-        "name": "hamedan",
-        "enName": "sd",
-        "abb": "hm"
       }
     }
   }
@@ -1848,13 +1839,15 @@ const Main = ({ urlAddress  })=>{
     const canShowRequestFields = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema && tabsData[activeTab].postFields && tabsData[activeTab].getFields && tabsData[activeTab].act;
     const canShowSchema = tabsData[activeTab].service && tabsData[activeTab].method;
     const canShowAct = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema;
-    const response = JSON.stringify(tabsData[activeTab].response);
     const copyResponse = ()=>{
+        const response = JSON.stringify(tabsData[activeTab].response);
         navigator.clipboard.writeText(response);
     };
-    const request = JSON.stringify(requestFunction());
     const copyRequest = ()=>{
-        navigator.clipboard.writeText(request);
+        const request = requestFunction();
+        console.log(request);
+        request.body.body = JSON.parse(request.body.body);
+        navigator.clipboard.writeText(JSON.stringify(request));
     };
     return Z(N, null, Z("div", {
         className: "sidebar"
@@ -2224,7 +2217,7 @@ var MODAL_TYPES;
     MODAL_TYPES["HISTORY"] = "HISTORY";
     MODAL_TYPES["GRAPH"] = "GRAPH";
     MODAL_TYPES["SETTING"] = "SETTING";
-    MODAL_TYPES["E2E_TEST"] = "E2E_TEST";
+    MODAL_TYPES["E2E_TEST"] = "E2E TEST";
 })(MODAL_TYPES || (MODAL_TYPES = {}));
 const Page = ()=>{
     const { isOpen , toggleModal  } = useModal();
@@ -2375,7 +2368,7 @@ const Page = ()=>{
     }) : active === MODAL_TYPES.SETTING ? Z(Setting, {
         configUrl: configUrl
     }) : active === MODAL_TYPES.E2E_TEST ? Z(E2E, {
-        configUrl: configUrl
+        baseUrl: urlAddress
     }) : Z(N, null)));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));

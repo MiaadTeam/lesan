@@ -219,7 +219,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
 
     setTimeout(() => {
       setActive(false);
-    }, 400);
+    }, 450);
 
     const jsonSendedRequest = await lesanAPI({
       baseUrl: urlAddress,
@@ -244,6 +244,8 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     ];
     setHistory(newHistory);
     localStorage.setItem("localHistory", JSON.stringify(newHistory));
+
+    localStorage.setItem("localTabsData", JSON.stringify(tabsData));
   };
 
   const canShowRequestFields =
@@ -262,16 +264,16 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     tabsData[activeTab].method &&
     tabsData[activeTab].schema;
 
-  const response = JSON.stringify(tabsData[activeTab].response);
-
   const copyResponse = () => {
+    const response = JSON.stringify(tabsData[activeTab].response);
     navigator.clipboard.writeText(response);
   };
 
-  const request = JSON.stringify(requestFunction());
-
   const copyRequest = () => {
-    navigator.clipboard.writeText(request);
+    const request: any = requestFunction();
+    console.log(request);
+    request.body.body = JSON.parse(request.body.body);
+    navigator.clipboard.writeText(JSON.stringify(request));
   };
 
   return (
@@ -290,6 +292,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                 resetGetFields(activeTab);
                 resetPostFields(activeTab);
                 setFormData({ data: {}, index: activeTab });
+                localStorage.setItem("localTabsData", JSON.stringify(tabsData));
               }}
             >
               <option value=""></option>
@@ -311,6 +314,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                 resetGetFields(activeTab);
                 resetPostFields(activeTab);
                 setFormData({ data: {}, index: activeTab });
+                localStorage.setItem("localTabsData", JSON.stringify(tabsData));
               }}
             >
               <option value=""></option>
@@ -329,6 +333,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                 resetGetFields(activeTab);
                 resetPostFields(activeTab);
                 setFormData({ data: {}, index: activeTab });
+                localStorage.setItem("localTabsData", JSON.stringify(tabsData));
               }}
             >
               <option value=""></option>
@@ -369,6 +374,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                   index: activeTab,
                 });
                 setFormData({ data: {}, index: activeTab });
+                localStorage.setItem("localTabsData", JSON.stringify(tabsData));
               }}
             >
               <option value=""></option>
@@ -409,6 +415,10 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                         },
                         index: activeTab,
                       });
+                      localStorage.setItem(
+                        "localTabsData",
+                        JSON.stringify(tabsData)
+                      );
                     }}
                   >
                     <option value=""></option>
