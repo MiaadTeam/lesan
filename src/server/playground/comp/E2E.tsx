@@ -8,6 +8,18 @@ import ExportIcon from "./icon/ExportIcon.tsx";
 import ImportIcon from "./icon/ImportIcon.tsx";
 
 export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
+  const handleMove = (fromIndex: any, toIndex: any) => {
+    if (fromIndex === 0 && toIndex <= 0) {
+      return;
+    } else {
+      var element = e2eFroms[fromIndex];
+      e2eFroms.splice(fromIndex, 1);
+      e2eFroms.splice(toIndex, 0, element);
+      console.log(e2eFroms);
+      setE2eForms([...e2eFroms]);
+    }
+  };
+
   const [e2eFroms, setE2eForms] = useState<
     {
       id: string;
@@ -64,7 +76,7 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
     )}`;
     const link = document.createElement("a");
     link.href = jsonString;
-    link.download = "data.json";
+    link.download = "Configdata.json";
 
     link.click();
   };
@@ -275,13 +287,9 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
             <input
               id="actual-btn"
               type="file"
-              // className="btn  e2e-back-button e2e-export_results-button"
               onChange={jsonFileUpload}
               hidden={true}
-            >
-              {/* <ImportIcon /> */}
-              {/* <span>Import</span> */}
-            </input>
+            ></input>
             <label
               htmlFor="actual-btn"
               className="btn  e2e-back-button e2e-export_results-button"
@@ -302,6 +310,12 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
               <Fragment>
                 <div className="sidebar__input-double" key={e2eForm.id}>
                   <div className="sidebar__section-body-heading">
+                    <button onClick={() => handleMove(idx, idx - 1)}>
+                      move up
+                    </button>
+                    <button onClick={() => handleMove(idx, idx + 1)}>
+                      move down
+                    </button>
                     <div className="sidebar__section-heading">
                       set test body and headers
                     </div>
