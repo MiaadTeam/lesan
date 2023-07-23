@@ -147,28 +147,30 @@ input:focus {
 
 .sidebar__input-double {
   display: flex;
+  margin-bottom: 1rem;
   gap: 1rem;
 }
 
 .sidebar__section-body-heading,
 .sidebar__section-capture {
   border: 1px solid #808080;
-  padding: 1rem 2rem;
+  padding: 0.5rem 2rem;
   border-radius: 10px;
 }
 
 .sidebar__section-capture {
-  min-width: 515px;
+  width: 30%;
 }
 
 .sidebar__section-body-heading {
-  flex-grow: 2;
+  width: 70%;
+  min-height: 50%;
 }
 
 .sidebar__section-body-heading textarea {
   width: 99%;
   border-radius: 5px;
-  min-height: 85%;
+  min-height: 80%;
 }
 
 .repeat__number {
@@ -187,13 +189,18 @@ input:focus {
   color: white;
   margin: 10px 0;
   padding: 10px 15px;
+  font-size: 1rem;
 }
 
 .sidebar__section-add-capture {
   display: flex;
   justify-content: space-between;
-  gap: 2rem;
-  width: fit-content;
+  gap: 10px;
+  width: 100%;
+}
+
+.sidebar__section-add-capture input {
+  width: 50%;
 }
 
 .btn {
@@ -212,15 +219,17 @@ input:focus {
 
 .btn__action {
   position: fixed;
-  bottom: 0;
+  top: 0;
   background-color: #2c2c2b;
-  width: 100%;
+  width: 97%;
   display: flex;
   gap: 2rem;
+  height: 46px;
 }
 
 .btn__action button {
   width: 25%;
+  height: 30px;
 }
 
 .sidebar__select {
@@ -274,6 +283,24 @@ input:focus {
 @media (min-width: 769px) and (max-width: 1024px) {
   .sidebar__btns-wrapper {
     left: calc(16% - 6.5rem);
+  }
+  .sidebar__section-add-capture {
+    flex-direction: column;
+  }
+  .sidebar__section-add-capture input {
+    margin: 0;
+    width: 100%;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1440px) {
+  .sidebar__section-add-capture {
+    flex-direction: column;
+  }
+
+  .sidebar__section-add-capture input {
+    margin: 0;
+    width: 100%;
   }
 }
 

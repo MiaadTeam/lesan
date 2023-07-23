@@ -6,6 +6,8 @@ import { TRequest } from "./ManagedLesanContext.tsx";
 import BackIcon from "./icon/BackIcon.tsx";
 import ExportIcon from "./icon/ExportIcon.tsx";
 import ImportIcon from "./icon/ImportIcon.tsx";
+import AddIcon from "./icon/AddIcon.tsx";
+import RunIcon from "./icon/RunIcon.tsx";
 
 export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
   const [e2eFroms, setE2eForms] = useState<
@@ -271,32 +273,6 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
         </Fragment>
       ) : (
         <Fragment>
-          <div className="results-buttons">
-            <input
-              id="actual-btn"
-              type="file"
-              // className="btn  e2e-back-button e2e-export_results-button"
-              onChange={jsonFileUpload}
-              hidden={true}
-            >
-              {/* <ImportIcon /> */}
-              {/* <span>Import</span> */}
-            </input>
-            <label
-              htmlFor="actual-btn"
-              className="btn  e2e-back-button e2e-export_results-button"
-            >
-              <ImportIcon />
-              <span className="e2e-export-form-button"> Import </span>
-            </label>
-            <button
-              className="btn  e2e-back-button e2e-export_results-button"
-              onClick={exportForm}
-            >
-              <ExportIcon />
-              <span>Export</span>
-            </button>
-          </div>
           <div className="sidebar__section sidebar__section--headers">
             {e2eFroms.map((e2eForm, idx) => (
               <Fragment>
@@ -368,41 +344,44 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
                     </button>
 
                     {e2eForm.captures.map((capture, capId) => (
-                      <div className="sidebar__section-add-capture">
-                        <input
-                          placeholder="set a variable name"
-                          value={capture.key}
-                          onChange={(e: any) => {
-                            setE2eForms((e2eForm) => {
-                              const copy = [...e2eForm];
-                              copy[idx].captures[capId].key = e.target.value;
-                              return copy;
-                            });
-                          }}
-                        />
-                        <input
-                          placeholder="set a value for variable"
-                          value={capture.value}
-                          onChange={(e: any) => {
-                            setE2eForms((e2eForm) => {
-                              const copy = [...e2eForm];
-                              copy[idx].captures[capId].value = e.target.value;
-                              return copy;
-                            });
-                          }}
-                        />
-                      </div>
+                      <Fragment>
+                        <div className="sidebar__section-add-capture">
+                          <input
+                            placeholder="set a variable name"
+                            value={capture.key}
+                            onChange={(e: any) => {
+                              setE2eForms((e2eForm) => {
+                                const copy = [...e2eForm];
+                                copy[idx].captures[capId].key = e.target.value;
+                                return copy;
+                              });
+                            }}
+                          />
+                          <input
+                            placeholder="set a value for variable"
+                            value={capture.value}
+                            onChange={(e: any) => {
+                              setE2eForms((e2eForm) => {
+                                const copy = [...e2eForm];
+                                copy[idx].captures[capId].value =
+                                  e.target.value;
+                                return copy;
+                              });
+                            }}
+                          />
+                        </div>
+                        <hr />
+                      </Fragment>
                     ))}
                   </div>
                 </div>
-                <hr />
-                <hr />
               </Fragment>
             ))}
           </div>
-          <div className="btn__action">
+
+          <div className="results-buttons">
             <button
-              className="btn btn--add"
+              className="btn  e2e-back-button e2e-export_results-button"
               onClick={() => {
                 setE2eForms((e2eForm) => [
                   ...e2eForm,
@@ -440,16 +419,40 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
                 ]);
               }}
             >
-              add +
+              <AddIcon /> add
             </button>
             <button
-              className="btn btn--add"
+              className="btn  e2e-back-button e2e-export_results-button"
               onClick={async () => {
                 setResultView(true);
                 await runE2eTest();
               }}
             >
-              Run E2E Test
+              <RunIcon />Run E2E Test
+            </button>
+            <input
+              id="actual-btn"
+              type="file"
+              // className="btn  e2e-back-button e2e-export_results-button"
+              onChange={jsonFileUpload}
+              hidden={true}
+            >
+              {/* <ImportIcon /> */}
+              {/* <span>Import</span> */}
+            </input>
+            <label
+              htmlFor="actual-btn"
+              className="btn  e2e-back-button e2e-export_results-button"
+            >
+              <ImportIcon />
+              <span className="e2e-export-form-button"> Import </span>
+            </label>
+            <button
+              className="btn  e2e-back-button e2e-export_results-button"
+              onClick={exportForm}
+            >
+              <ExportIcon />
+              <span>Export</span>
             </button>
           </div>
         </Fragment>
