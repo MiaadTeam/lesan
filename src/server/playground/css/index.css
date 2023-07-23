@@ -725,6 +725,7 @@ input:focus {
 .e2e-move-button {
   border: none;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .e2e-back-button {

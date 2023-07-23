@@ -11,7 +11,7 @@ import RunIcon from "./icon/RunIcon.tsx";
 import UpIcon from "./icon/UpIcon.tsx";
 import DownIcon from "./icon/DownIcon.tsx";
 
-export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
+export function E2E({ baseUrl }: { baseUrl: string }) {
   const handleMove = (fromIndex: any, toIndex: any) => {
     if (fromIndex === 0 && toIndex <= 0) {
       return;
@@ -43,17 +43,13 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
     "service": "main",
     "contents": "dynamic",
     "wants": {
-    "model": "province",
-    "act": "addProvince"
+    "model": "",
+    "act": ""
   },
     "details": {
       "get": {
-       "abb": 0
       },
     "set": {
-    "name": "hamedan",
-    "enName": "sd",
-    "abb": "hm"
     }
   }
 }
@@ -103,8 +99,6 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
 
     link.click();
   };
-
-  const [urlAddress, setUrlAddress] = useState("");
 
   const lesanAPI = async ({
     baseUrl,
@@ -178,7 +172,7 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
       let jsonSendedRequest: any;
       for (let repeat = 0; repeat < e2eForm.repeat; repeat++) {
         jsonSendedRequest = await lesanAPI({
-          baseUrl: "http://localhost:8000/",
+          baseUrl: baseUrl,
           options: body,
         });
         setResults((results) => [
@@ -422,17 +416,13 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
     "service": "main",
       "contents": "dynamic",
     "wants": {
-      "model": "province",
-      "act": "addProvince"
+      "model": "",
+      "act": ""
     },
     "details": {
       "get": {
-        "abb": 0
       },
       "set": {
-        "name": "hamedan",
-        "enName": "sd",
-        "abb": "hm"
       }
     }
   }
@@ -459,13 +449,9 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
             <input
               id="actual-btn"
               type="file"
-              // className="btn  e2e-back-button e2e-export_results-button"
               onChange={jsonFileUpload}
               hidden={true}
-            >
-              {/* <ImportIcon /> */}
-              {/* <span>Import</span> */}
-            </input>
+            ></input>
             <label
               htmlFor="actual-btn"
               className="btn  e2e-back-button e2e-export_results-button"
