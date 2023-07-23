@@ -682,9 +682,13 @@ input:focus {
   height: 100%;
 }
 
+.sidebar__section--headers {
+  margin-top: 30px;
+}
+
 .e2e-back-button {
   display: flex;
-  gap: 10px;
+  gap: 7px;
   justify-content: center;
   align-items: center;
   cursor: pointer;
@@ -701,6 +705,10 @@ input:focus {
 .e2e-export_results-button {
   left: 150px;
 }
+.e2e-export-form-button {
+  color: black;
+  font-size: 14px;
+}
 
 .results {
   margin-top: 5px;
@@ -712,6 +720,7 @@ input:focus {
   display: flex;
   width: 100%;
   gap: 20px;
+  z-index: 1;
 }
 
 .container-detail {
