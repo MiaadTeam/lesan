@@ -8,6 +8,8 @@ import ExportIcon from "./icon/ExportIcon.tsx";
 import ImportIcon from "./icon/ImportIcon.tsx";
 import AddIcon from "./icon/AddIcon.tsx";
 import RunIcon from "./icon/RunIcon.tsx";
+import UpIcon from "./icon/UpIcon.tsx";
+import DownIcon from "./icon/DownIcon.tsx";
 
 export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
   const handleMove = (fromIndex: any, toIndex: any) => {
@@ -17,7 +19,6 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
       var element = e2eFroms[fromIndex];
       e2eFroms.splice(fromIndex, 1);
       e2eFroms.splice(toIndex, 0, element);
-      console.log(e2eFroms);
       setE2eForms([...e2eFroms]);
     }
   };
@@ -87,9 +88,7 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
     const fileReader = new FileReader();
     fileReader.readAsText(e.target.files[0], "UTF-8");
     fileReader.onload = (e) => {
-      // console.log("e.target.result", e.target!.result as string);
       const data = JSON.parse(e.target!.result as string);
-      // console.log("Json Data", data);
       setE2eForms(data);
     };
   };
@@ -267,7 +266,6 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
                 <ExportIcon />
                 <span>Export</span>
               </button>
-              {/* <input type="file" onChange={jsonFileUpload} /> */}
             </div>
             {results.map((re) => (
               <div key={re.id} className="container-detail">
@@ -285,39 +283,26 @@ export function E2E({ configUrl }: { configUrl: (address: string) => void }) {
         </Fragment>
       ) : (
         <Fragment>
-          <div className="results-buttons">
-            <input
-              id="actual-btn"
-              type="file"
-              onChange={jsonFileUpload}
-              hidden={true}
-            ></input>
-            <label
-              htmlFor="actual-btn"
-              className="btn  e2e-back-button e2e-export_results-button"
-            >
-              <ImportIcon />
-              <span className="e2e-export-form-button"> Import </span>
-            </label>
-            <button
-              className="btn  e2e-back-button e2e-export_results-button"
-              onClick={exportForm}
-            >
-              <ExportIcon />
-              <span>Export</span>
-            </button>
-          </div>
           <div className="sidebar__section sidebar__section--headers">
             {e2eFroms.map((e2eForm, idx) => (
               <Fragment>
                 <div className="sidebar__input-double" key={e2eForm.id}>
                   <div className="sidebar__section-body-heading">
-                    <button onClick={() => handleMove(idx, idx - 1)}>
-                      move up
-                    </button>
-                    <button onClick={() => handleMove(idx, idx + 1)}>
-                      move down
-                    </button>
+                    <div className="e2e-move-buttons">
+                      <button
+                        className="e2e-move-button"
+                        onClick={() => handleMove(idx, idx - 1)}
+                      >
+                        <UpIcon />
+                      </button>
+                      <button
+                        className="e2e-move-button"
+                        onClick={() => handleMove(idx, idx + 1)}
+                      >
+                        <DownIcon />
+                      </button>
+                    </div>
+
                     <div className="sidebar__section-heading">
                       set test body and headers
                     </div>

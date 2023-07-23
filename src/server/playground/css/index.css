@@ -147,7 +147,7 @@ input:focus {
 
 .sidebar__input-double {
   display: flex;
-  margin-bottom: 1rem;
+  margin-bottom: 25px;
   gap: 1rem;
 }
 
@@ -710,7 +710,17 @@ input:focus {
 }
 
 .sidebar__section--headers {
-  margin-top: 30px;
+  margin-top: 50px;
+}
+.e2e-move-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: -22px;
+}
+
+.e2e-move-button {
+  border: none;
+  border-radius: 5px;
 }
 
 .e2e-back-button {
