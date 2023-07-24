@@ -192,8 +192,9 @@ input:focus {
   background-color: var(--color-colonial-2);
   color: white;
   margin: 10px 0;
-  padding: 10px 15px;
-  font-size: 1rem;
+  padding: 5px 15px;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
 .sidebar__section-add-capture {
@@ -219,6 +220,8 @@ input:focus {
   color: white;
   width: 100%;
   margin: 10px 0;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .btn__action {
