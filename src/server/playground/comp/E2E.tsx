@@ -10,6 +10,7 @@ import AddIcon from "./icon/AddIcon.tsx";
 import RunIcon from "./icon/RunIcon.tsx";
 import UpIcon from "./icon/UpIcon.tsx";
 import DownIcon from "./icon/DownIcon.tsx";
+import HelpIcon from "./icon/HelpIcon.tsx";
 
 export function E2E({ baseUrl }: { baseUrl: string }) {
   const handleMove = (fromIndex: any, toIndex: any) => {
@@ -282,20 +283,24 @@ export function E2E({ baseUrl }: { baseUrl: string }) {
               <Fragment>
                 <div className="sidebar__input-double" key={e2eForm.id}>
                   <div className="sidebar__section-body-heading">
-                    <div className="e2e-move-buttons">
-                      <button
-                        className="e2e-move-button"
-                        onClick={() => handleMove(idx, idx - 1)}
-                      >
-                        <UpIcon />
-                      </button>
-                      <button
-                        className="e2e-move-button"
-                        onClick={() => handleMove(idx, idx + 1)}
-                      >
-                        <DownIcon />
-                      </button>
-                    </div>
+                    {e2eFroms.length > 1 ? (
+                      <div className="e2e-move-buttons">
+                        <button
+                          className="e2e-move-button"
+                          onClick={() => handleMove(idx, idx - 1)}
+                        >
+                          <UpIcon />
+                        </button>
+                        <button
+                          className="e2e-move-button"
+                          onClick={() => handleMove(idx, idx + 1)}
+                        >
+                          <DownIcon />
+                        </button>
+                      </div>
+                    ) : (
+                      ""
+                    )}
 
                     <div className="sidebar__section-heading">
                       set test body and headers
@@ -465,6 +470,10 @@ export function E2E({ baseUrl }: { baseUrl: string }) {
             >
               <ExportIcon />
               <span>Export</span>
+            </button>
+            <button className="btn  e2e-back-button e2e-export_results-button">
+              <HelpIcon />
+              <span>Help</span>
             </button>
           </div>
         </Fragment>
