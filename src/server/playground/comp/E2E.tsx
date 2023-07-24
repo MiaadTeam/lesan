@@ -1,5 +1,5 @@
 /** @jsx h */
-import { Fragment, h, useState } from "../reactDeps.ts";
+import { Fragment, h, useState, useEffect } from "../reactDeps.ts";
 import { uid } from "../utils/uid.ts";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { TRequest } from "./ManagedLesanContext.tsx";
@@ -12,12 +12,18 @@ import UpIcon from "./icon/UpIcon.tsx";
 import DownIcon from "./icon/DownIcon.tsx";
 import HelpIcon from "./icon/HelpIcon.tsx";
 
-export function E2E({ baseUrl }: { baseUrl: string }) {
+export function E2E({
+  baseUrl,
+  bodyHeaders,
+}: {
+  baseUrl: string;
+  bodyHeaders?: string;
+}) {
   const handleMove = (fromIndex: any, toIndex: any) => {
     if (fromIndex === 0 && toIndex <= 0) {
       return;
     } else {
-      var element = e2eFroms[fromIndex];
+      const element = e2eFroms[fromIndex];
       e2eFroms.splice(fromIndex, 1);
       e2eFroms.splice(toIndex, 0, element);
       setE2eForms([...e2eFroms]);
@@ -60,6 +66,12 @@ export function E2E({ baseUrl }: { baseUrl: string }) {
       captures: [],
     },
   ]);
+
+  useEffect(() => {
+    if (bodyHeaders) {
+      setE2eForms([{ id: uid(), repeat: 1, bodyHeaders, captures: [] }]);
+    }
+  }, []);
 
   const [resultView, setResultView] = useState<boolean>(false);
   const [results, setResults] = useState<

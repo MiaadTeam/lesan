@@ -6,6 +6,12 @@ import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
 import { uid } from "../utils/uid.ts";
 import CopyIcon from "./icon/CopyIcon.tsx";
 import SuccessIcon from "./icon/SuccessIcon.tsx";
+import useModal from "./useModal.tsx";
+import Modal from "./Modal.tsx";
+import { E2E } from "./E2E.tsx";
+import RunIcon from "./icon/RunIcon.tsx";
+import RunTest from "./icon/RunTestIcon.tsx";
+import RunTestIcon from "./icon/RunTestIcon.tsx";
 
 const lesanAPI = ({
   baseUrl,
@@ -16,6 +22,8 @@ const lesanAPI = ({
 }) => fetch(`${baseUrl}lesan`, options).then((res) => res.json());
 
 export const Main = ({ urlAddress }: { urlAddress: string }) => {
+  const { isOpen, toggleModal } = useModal();
+
   const {
     activeTab,
     tabsData,
@@ -272,6 +280,13 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     console.log(request);
     request.body.body = JSON.parse(request.body.body);
     navigator.clipboard.writeText(JSON.stringify(request));
+  };
+
+  const runE2eRequest = () => {
+    const request: any = requestFunction();
+    request.body.body = JSON.parse(request.body.body);
+    const { method, ...rest } = request.body;
+    return JSON.stringify({ ...rest }, null, 2);
   };
 
   return (
@@ -606,6 +621,16 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                   <CopyIcon />
                   <span className="tooltip-text">Copy Response</span>
                 </div>
+                <div
+                  className="btn response-detail-button "
+                  onClick={() => {
+                    runE2eRequest;
+                    toggleModal();
+                  }}
+                >
+                  <RunTestIcon />
+                  <span className="tooltip-text">Run E2E Test</span>
+                </div>
               </div>
             </div>
             <div className="response-detail-info">
@@ -620,6 +645,11 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
           </div>
         )}
       </div>
+      {isOpen && (
+        <Modal toggle={toggleModal} title={"E2E TEST"}>
+          <E2E baseUrl={urlAddress} bodyHeaders={runE2eRequest()} />
+        </Modal>
+      )}
     </Fragment>
   );
 };
