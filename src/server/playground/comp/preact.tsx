@@ -19,7 +19,7 @@ enum MODAL_TYPES {
   HISTORY = "HISTORY",
   GRAPH = "GRAPH",
   SETTING = "SETTING",
-  E2E_TEST = "E2E_TEST",
+  E2E_TEST = "E2E TEST",
 }
 
 export const Page = () => {
@@ -27,6 +27,7 @@ export const Page = () => {
 
   const {
     tabsData,
+    setTabsData,
     activeTab,
     actsObj,
     addTab,
@@ -60,6 +61,10 @@ export const Page = () => {
   useEffect(() => {
     configUrl(parsedWindowUrl());
 
+    // const localTabsData = localStorage.getItem("localTabsData");
+    // console.log("localTabsData", JSON.parse(localTabsData!));
+    // if (localTabsData) setTabsData(JSON.parse(localTabsData));
+
     const localHistory = JSON.parse(localStorage.getItem("localHistory")!);
     if (localHistory) setHistory(localHistory);
   }, []);
@@ -83,10 +88,29 @@ export const Page = () => {
         // ۲.مشکلی که پیش آمد این بود که اگر اطلاعات و کانفیگ موجود در تب ها که در لوکال استورج ذخیره شده بود و میخواستیم فرخوانی اش کنیم موضوعی که باید به آن توجه می شد این بود که ممکن بود کانفیگ توسط یوزر عوض شده باشد و با کانفیگ ذخیره شده در لوال استورج مطابقت نداشته باشد  و لذا به ارور می خوردیم
         // ۳.برای حل این موضوع باید اطلاعات چک و بررسی می شد
         // ۴.انشاءالله
-        // const localTabsData = localStorage.getItem("localTabsData");
-        // console.log("localTabsData", JSON.parse(localTabsData!));
+        console.log("schema:", schemas);
+        console.log("actsobj:", acts);
+        const localTabsData = localStorage.getItem("localTabsData");
+        console.log("localTabsData", JSON.parse(localTabsData!));
         // if (localTabsData) setTabsData(JSON.parse(localTabsData));
-      },
+
+        const re = () => {
+          JSON.parse(localTabsData!).map((o: any) => {
+            if (
+              typeof o.service === "string" &&
+              typeof o.method === "string" &&
+              typeof o.schema === "string" &&
+              typeof o.act === "string"
+            ) {
+              setTabsData(JSON.parse(localTabsData!));
+            }
+          });
+        };
+
+        if (localTabsData) {
+          re();
+        }
+      }
     );
   };
 
@@ -107,15 +131,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string,
+      keyname: string
     ) => {
       for (const key in formData) {
         typeof formData[key] === "object"
           ? generateFormData(
-            formData[key],
-            returnFormData,
-            keyname ? `${keyname}.${key}` : key,
-          )
+              formData[key],
+              returnFormData,
+              keyname ? `${keyname}.${key}` : key
+            )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -171,7 +195,7 @@ export const Page = () => {
           onClick={() => {
             addTab(null);
             // TODO: مربوط به تودو بالایی
-            // localStorage.setItem("localTabsData", JSON.stringify(tabsData));
+            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
           }}
         >
           +
@@ -212,13 +236,15 @@ export const Page = () => {
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY
-            ? <History setFormFromHistory={setFormFromHistory} />
-            : active === MODAL_TYPES.SETTING
-            ? <Setting configUrl={configUrl} />
-            : active === MODAL_TYPES.E2E_TEST
-            ? <E2E configUrl={configUrl} />
-            : <Fragment></Fragment>}
+          {active === MODAL_TYPES.HISTORY ? (
+            <History setFormFromHistory={setFormFromHistory} />
+          ) : active === MODAL_TYPES.SETTING ? (
+            <Setting configUrl={configUrl} />
+          ) : active === MODAL_TYPES.E2E_TEST ? (
+            <E2E baseUrl={urlAddress} />
+          ) : (
+            <Fragment></Fragment>
+          )}
         </Modal>
       )}
     </div>

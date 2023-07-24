@@ -56,8 +56,6 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     return returnObj;
   };
 
-  // console.log(localStorage);
-
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleChange = (event: any) => {
