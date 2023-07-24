@@ -110,7 +110,7 @@ export const Page = () => {
         if (localTabsData) {
           re();
         }
-      }
+      },
     );
   };
 
@@ -131,15 +131,15 @@ export const Page = () => {
     const generateFormData = (
       formData: Record<string, any>,
       returnFormData: Record<string, any>,
-      keyname: string
+      keyname: string,
     ) => {
       for (const key in formData) {
         typeof formData[key] === "object"
           ? generateFormData(
-              formData[key],
-              returnFormData,
-              keyname ? `${keyname}.${key}` : key
-            )
+            formData[key],
+            returnFormData,
+            keyname ? `${keyname}.${key}` : key,
+          )
           : (returnFormData[`${keyname}.${key}`] = formData[key]);
       }
       return returnFormData;
@@ -236,15 +236,13 @@ export const Page = () => {
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : active === MODAL_TYPES.SETTING ? (
-            <Setting configUrl={configUrl} />
-          ) : active === MODAL_TYPES.E2E_TEST ? (
-            <E2E baseUrl={urlAddress} />
-          ) : (
-            <Fragment></Fragment>
-          )}
+          {active === MODAL_TYPES.HISTORY
+            ? <History setFormFromHistory={setFormFromHistory} />
+            : active === MODAL_TYPES.SETTING
+            ? <Setting configUrl={configUrl} />
+            : active === MODAL_TYPES.E2E_TEST
+            ? <E2E baseUrl={urlAddress} />
+            : <Fragment></Fragment>}
         </Modal>
       )}
     </div>

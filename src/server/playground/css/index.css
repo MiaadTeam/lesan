@@ -78,7 +78,7 @@ input {
   box-sizing: border-box;
 }
 
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
@@ -142,7 +142,7 @@ input:focus {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: "";
+  content: '';
   height: 2px;
   width: 100%;
   background-color: white;
@@ -502,22 +502,22 @@ input:focus {
   transition: all 0.35s;
 }
 
-.send-button[data-active="true"] {
+.send-button[data-active='true'] {
   width: 40px;
   height: 40px;
 }
 
-.send-button[data-active="true"] .successe {
+.send-button[data-active='true'] .successe {
   opacity: 1;
   visibility: visible;
 }
 
-.send-button[data-active="true"] .successe svg {
+.send-button[data-active='true'] .successe svg {
   margin-top: 50%;
   transform: translateY(-50%) rotate(720deg) scale(1);
 }
 
-.send-button[data-active="true"] span {
+.send-button[data-active='true'] span {
   opacity: 0;
   visibility: hidden;
 }
@@ -734,14 +734,22 @@ input:focus {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  background-color: bisque;
-  border-radius: 0 0 5px 5px;
+  background-color: rgba(70, 70, 70, 0.5);
+  border-radius: 0 0 10px 10px;
   padding: 6px;
   font-size: 15px;
+  color: bisque;
+  border: 1px solid bisque;
+  backdrop-filter: blur(10px);
+  border-top: none;
+}
+
+.e2e-back-button.e2e-run-botton {
+  background-color: darkslategray;
 }
 
 .e2e-back-button:hover {
-  background-color: lightcoral;
+  background-color: dimgray;
 }
 
 .e2e-export_results-button {
@@ -848,7 +856,7 @@ input:focus {
   display: none;
 }
 
-.history-re-detail-complete[data-show="true"] {
+.history-re-detail-complete[data-show='true'] {
   display: block;
 }
 
@@ -921,7 +929,7 @@ input:focus {
 }
 
 .tooltip-text::after {
-  content: " ";
+  content: ' ';
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
   left: 50%;
@@ -988,7 +996,7 @@ input:focus {
   background-color: #452a69;
 }
 
-.tab-name[data-tab="true"] {
+.tab-name[data-tab='true'] {
   background-color: #2e1056;
   border: 1px solid #6b3ca9;
 }
