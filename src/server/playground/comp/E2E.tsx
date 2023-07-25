@@ -325,8 +325,7 @@ export function E2E({
                       </div>
                     </div>
                   )}
-
-                  <div className="sidebar__section-heading">
+                  <div className="sidebar__section-body-heading">
                     <div className="sidebar__section-heading">
                       set test body and headers
                     </div>
@@ -344,53 +343,52 @@ export function E2E({
                       }}
                     />
                   </div>
-
-                    <div className="sidebar__section-capture">
-                      <div className="e2e_sidebar__section-heading">
-                        set repeat time
-                      </div>
-                      <div className="repeat__number">
-                        <input
-                          placeholder="set repeat number"
-                          value={e2eForm.repeat}
-                          name={`${e2eForm.id}-repeat`}
-                          type="number"
-                          onChange={(e: any) => {
-                            setE2eForms((e2eForm) => {
-                              const copy = [...e2eForm];
-                              copy[idx].repeat = e.target.value;
-                              return [...copy];
-                            });
-                          }}
-                        />
-                        <button
-                          className="e2e-back-button e2e-export_results-button"
-                          onClick={() => plusRepeatHandler(idx)}
-                        >
-                          +
-                        </button>
-                        <button
-                          className="e2e-back-button e2e-export_results-button"
-                          onClick={() => minesRepeatHandler(idx)}
-                        >
-                          -
-                        </button>
-                      </div>
-                      <div className="e2e_sidebar__section-heading">
-                        capture variables
-                      </div>
-                      <button
-                        className="btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture "
-                        onClick={() => {
+                  <div className="sidebar__section-capture">
+                    <div className="e2e_sidebar__section-heading">
+                      set repeat time
+                    </div>
+                    <div className="repeat__number">
+                      <input
+                        placeholder="set repeat number"
+                        value={e2eForm.repeat}
+                        name={`${e2eForm.id}-repeat`}
+                        type="number"
+                        onChange={(e: any) => {
                           setE2eForms((e2eForm) => {
                             const copy = [...e2eForm];
-                            copy[idx].captures.push({ key: "", value: "" });
-                            return copy;
+                            copy[idx].repeat = e.target.value;
+                            return [...copy];
                           });
                         }}
+                      />
+                      <button
+                        className="e2e-back-button e2e-export_results-button"
+                        onClick={() => plusRepeatHandler(idx)}
                       >
-                        add capture variable item
+                        +
                       </button>
+                      <button
+                        className="e2e-back-button e2e-export_results-button"
+                        onClick={() => minesRepeatHandler(idx)}
+                      >
+                        -
+                      </button>
+                    </div>
+                    <div className="e2e_sidebar__section-heading">
+                      capture variables
+                    </div>
+                    <button
+                      className="btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture "
+                      onClick={() => {
+                        setE2eForms((e2eForm) => {
+                          const copy = [...e2eForm];
+                          copy[idx].captures.push({ key: "", value: "" });
+                          return copy;
+                        });
+                      }}
+                    >
+                      add capture variable item
+                    </button>
 
                     {e2eForm.captures.map((capture, capId) => (
                       <Fragment>
@@ -427,7 +425,6 @@ export function E2E({
               </Fragment>
             ))}
           </div>
-
           <div className="results-buttons">
             <button
               className="btn  e2e-back-button e2e-export_results-button"
@@ -437,52 +434,6 @@ export function E2E({
                   {
                     id: uid(),
                     bodyHeaders: `
-                      {e2eForm.captures.map((capture, capId) => (
-                        <Fragment>
-                          <div className="sidebar__section-add-capture">
-                            <input
-                              placeholder="set a variable name"
-                              value={capture.key}
-                              onChange={(e: any) => {
-                                setE2eForms((e2eForm) => {
-                                  const copy = [...e2eForm];
-                                  copy[idx].captures[capId].key =
-                                    e.target.value;
-                                  return copy;
-                                });
-                              }}
-                            />
-                            <input
-                              placeholder="set a value for variable"
-                              value={capture.value}
-                              onChange={(e: any) => {
-                                setE2eForms((e2eForm) => {
-                                  const copy = [...e2eForm];
-                                  copy[idx].captures[capId].value =
-                                    e.target.value;
-                                  return copy;
-                                });
-                              }}
-                            />
-                          </div>
-                          <hr />
-                        </Fragment>
-                      ))}
-                    </div>
-                  </div>
-                </Fragment>
-              ))}
-            </div>
-
-            <div className="results-buttons">
-              <button
-                className="btn  e2e-back-button e2e-export_results-button"
-                onClick={() => {
-                  setE2eForms((e2eForm) => [
-                    ...e2eForm,
-                    {
-                      id: uid(),
-                      bodyHeaders: `
 {
   "headers": {
     "Content-Type": "application/json",

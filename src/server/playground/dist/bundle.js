@@ -1399,7 +1399,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
         })), Z("div", {
             className: "sidebar__section-capture"
         }, Z("div", {
-            className: "sidebar__section-heading"
+            className: "e2e_sidebar__section-heading"
         }, "set repeat time"), Z("div", {
             className: "repeat__number"
         }, Z("input", {
@@ -1419,15 +1419,15 @@ function E2E({ baseUrl , bodyHeaders  }) {
                 });
             }
         }), Z("button", {
-            className: "btn",
+            className: "e2e-back-button e2e-export_results-button",
             onClick: ()=>plusRepeatHandler(idx)
         }, "+"), Z("button", {
-            className: "btn",
+            className: "e2e-back-button e2e-export_results-button",
             onClick: ()=>minesRepeatHandler(idx)
         }, "-")), Z("div", {
-            className: "sidebar__section-heading"
+            className: "e2e_sidebar__section-heading"
         }, "capture variables"), Z("button", {
-            className: "btn btn--add",
+            className: "btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture ",
             onClick: ()=>{
                 setE2eForms((e2eForm)=>{
                     const copy = [
