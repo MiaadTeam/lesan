@@ -78,7 +78,7 @@ input {
   box-sizing: border-box;
 }
 
-input[type='number'] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -142,7 +142,7 @@ input:focus {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: '';
+  content: "";
   height: 2px;
   width: 100%;
   background-color: white;
@@ -505,22 +505,22 @@ input:focus {
   transition: all 0.35s;
 }
 
-.send-button[data-active='true'] {
+.send-button[data-active="true"] {
   width: 40px;
   height: 40px;
 }
 
-.send-button[data-active='true'] .successe {
+.send-button[data-active="true"] .successe {
   opacity: 1;
   visibility: visible;
 }
 
-.send-button[data-active='true'] .successe svg {
+.send-button[data-active="true"] .successe svg {
   margin-top: 50%;
   transform: translateY(-50%) rotate(720deg) scale(1);
 }
 
-.send-button[data-active='true'] span {
+.send-button[data-active="true"] span {
   opacity: 0;
   visibility: hidden;
 }
@@ -719,6 +719,7 @@ input:focus {
 .sidebar__section--headers {
   margin-top: 50px;
 }
+
 .e2e-move-buttons {
   display: flex;
   gap: 10px;
@@ -774,6 +775,11 @@ input:focus {
   width: 100%;
   gap: 20px;
   z-index: 1;
+}
+
+.help .e2e-back-button {
+  position: fixed;
+  top: 0;
 }
 
 .container-detail {
@@ -859,7 +865,7 @@ input:focus {
   display: none;
 }
 
-.history-re-detail-complete[data-show='true'] {
+.history-re-detail-complete[data-show="true"] {
   display: block;
 }
 
@@ -932,7 +938,7 @@ input:focus {
 }
 
 .tooltip-text::after {
-  content: ' ';
+  content: " ";
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
   left: 50%;
@@ -999,7 +1005,7 @@ input:focus {
   background-color: #452a69;
 }
 
-.tab-name[data-tab='true'] {
+.tab-name[data-tab="true"] {
   background-color: #2e1056;
   border: 1px solid #6b3ca9;
 }
