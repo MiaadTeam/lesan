@@ -1,16 +1,16 @@
 /** @jsx h */
 import { Fragment, h, useState, useEffect } from "../reactDeps.ts";
 import { uid } from "../utils/uid.ts";
-import { JSONViewer } from "./JSONVeiwer.tsx";
-import { TRequest } from "./ManagedLesanContext.tsx";
-import BackIcon from "./icon/BackIcon.tsx";
-import ExportIcon from "./icon/ExportIcon.tsx";
-import ImportIcon from "./icon/ImportIcon.tsx";
 import AddIcon from "./icon/AddIcon.tsx";
+import BackIcon from "./icon/BackIcon.tsx";
+import DownIcon from "./icon/DownIcon.tsx";
+import ExportIcon from "./icon/ExportIcon.tsx";
+import HelpIcon from "./icon/HelpIcon.tsx";
+import ImportIcon from "./icon/ImportIcon.tsx";
 import RunIcon from "./icon/RunIcon.tsx";
 import UpIcon from "./icon/UpIcon.tsx";
-import DownIcon from "./icon/DownIcon.tsx";
-import HelpIcon from "./icon/HelpIcon.tsx";
+import { JSONViewer } from "./JSONVeiwer.tsx";
+import { TRequest } from "./ManagedLesanContext.tsx";
 
 export function E2E({
   baseUrl,
@@ -244,7 +244,7 @@ export function E2E({
     });
   };
 
-  //mines repeat
+  // mines repeat
   const minesRepeatHandler = (index: number) => {
     setE2eForms((e2eForm) => {
       const copy = [...e2eForm];
@@ -464,17 +464,18 @@ export function E2E({
                 ]);
               }}
             >
-              <AddIcon /> add
+              <AddIcon />
+              <span>Add</span>
             </button>
             <button
-              className="btn  e2e-back-button e2e-export_results-button"
+              className="btn e2e-back-button e2e-run-botton e2e-export_results-button"
               onClick={async () => {
                 setResultView(true);
                 await runE2eTest();
               }}
             >
               <RunIcon />
-              Run E2E Test
+              <span>Run E2E Test</span>
             </button>
             <input
               id="actual-btn"
@@ -484,19 +485,19 @@ export function E2E({
             ></input>
             <label
               htmlFor="actual-btn"
-              className="btn  e2e-back-button e2e-export_results-button"
+              className="btn e2e-back-button e2e-export_results-button"
             >
               <ImportIcon />
-              <span className="e2e-export-form-button"> Import </span>
+              <span>Import</span>
             </label>
             <button
-              className="btn  e2e-back-button e2e-export_results-button"
+              className="btn e2e-back-button e2e-export_results-button"
               onClick={exportForm}
             >
               <ExportIcon />
               <span>Export</span>
             </button>
-            <button className="btn  e2e-back-button e2e-export_results-button">
+            <button className="btn e2e-back-button e2e-export_results-button">
               <HelpIcon />
               <span>Help</span>
             </button>

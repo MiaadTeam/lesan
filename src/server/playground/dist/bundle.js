@@ -847,7 +847,191 @@ const ManagedLesanContext = (props)=>{
     const { children  } = props;
     return Z(LesanProvider, null, children);
 };
+const createNestedObjectsFromKeys = (obj)=>{
+    const result = {
+        get: {},
+        set: {}
+    };
+    for(const objectPath in obj){
+        if (obj[objectPath] || obj[objectPath] === 0) {
+            const parts = objectPath.split(".");
+            let target = result;
+            while(parts.length > 1){
+                const part = parts.shift();
+                target[part] = target[part] || {};
+                target = target[part];
+            }
+            target[parts[0]] = obj[objectPath];
+        }
+    }
+    return result;
+};
+const generateFormData = (formData, returnFormData, keyname)=>{
+    for(const key in formData){
+        typeof formData[key] === "object" ? generateFormData(formData[key], returnFormData, keyname ? `${keyname}.${key}` : key) : returnFormData[`${keyname}.${key}`] = formData[key];
+    }
+    return returnFormData;
+};
 const uid = ()=>Date.now().toString(36) + Math.random().toString(36).substr(2);
+function AddIcon() {
+    return Z("svg", {
+        width: "25px",
+        height: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M11 8C11 7.44772 11.4477 7 12 7C12.5523 7 13 7.44772 13 8V11H16C16.5523 11 17 11.4477 17 12C17 12.5523 16.5523 13 16 13H13V16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16V13H8C7.44771 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11H11V8Z",
+        fill: "lightcoral"
+    }), Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "bisque"
+    }));
+}
+function BackIcon() {
+    return Z("svg", {
+        width: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M9.00002 15.3802H13.92C15.62 15.3802 17 14.0002 17 12.3002C17 10.6002 15.62 9.22021 13.92 9.22021H7.15002",
+        stroke: "lightcoral",
+        "stroke-width": "1.5",
+        "stroke-miterlimit": "10",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        d: "M8.57 10.7701L7 9.19012L8.57 7.62012",
+        stroke: "lightcoral",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "bisque"
+    }));
+}
+function DownIcon() {
+    return Z("svg", {
+        width: "25px",
+        viewBox: "-0.5 0 25 25",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M12 22.4199C17.5228 22.4199 22 17.9428 22 12.4199C22 6.89707 17.5228 2.41992 12 2.41992C6.47715 2.41992 2 6.89707 2 12.4199C2 17.9428 6.47715 22.4199 12 22.4199Z",
+        stroke: "#000000",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        d: "M16 10.99L13.13 14.05C12.9858 14.2058 12.811 14.3298 12.6166 14.4148C12.4221 14.4998 12.2122 14.5437 12 14.5437C11.7878 14.5437 11.5779 14.4998 11.3834 14.4148C11.189 14.3298 11.0142 14.2058 10.87 14.05L8 10.99",
+        stroke: "#000000",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
+function ExportIcon() {
+    return Z("svg", {
+        width: "25px",
+        height: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M11.2501 7.06066L8.03039 10.2803L6.96973 9.21967L12.0001 4.18934L17.0304 9.21967L15.9697 10.2803L12.7501 7.06066L12.7501 16.5L11.2501 16.5L11.2501 7.06066Z",
+        fill: "lightcoral"
+    }), Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "bisque"
+    }));
+}
+function HelpIcon() {
+    return Z("svg", {
+        width: "25px",
+        height: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M12 17V16.9929M12 14.8571C12 11.6429 15 12.3571 15 9.85714C15 8.27919 13.6568 7 12 7C10.6567 7 9.51961 7.84083 9.13733 9",
+        stroke: "lightcoral",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "bisque"
+    }));
+}
+function ImportIcon() {
+    return Z("svg", {
+        width: "25px",
+        height: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M12.75 13.9393L15.9697 10.7197L17.0303 11.7803L12 16.8107L6.96967 11.7803L8.03033 10.7197L11.25 13.9393L11.25 4.5L12.75 4.5L12.75 13.9393Z",
+        fill: "lightcoral"
+    }), Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "bisque"
+    }));
+}
+function RunIcon() {
+    return Z("svg", {
+        width: "25px",
+        height: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M13.8876 9.9348C14.9625 10.8117 15.5 11.2501 15.5 12C15.5 12.7499 14.9625 13.1883 13.8876 14.0652C13.5909 14.3073 13.2966 14.5352 13.0261 14.7251C12.7888 14.8917 12.5201 15.064 12.2419 15.2332C11.1695 15.8853 10.6333 16.2114 10.1524 15.8504C9.6715 15.4894 9.62779 14.7336 9.54038 13.2222C9.51566 12.7947 9.5 12.3757 9.5 12C9.5 11.6243 9.51566 11.2053 9.54038 10.7778C9.62779 9.26636 9.6715 8.51061 10.1524 8.1496C10.6333 7.78859 11.1695 8.11466 12.2419 8.76679C12.5201 8.93597 12.7888 9.10831 13.0261 9.27492C13.2966 9.46483 13.5909 9.69274 13.8876 9.9348Z",
+        stroke: "lightcoral",
+        "stroke-width": "2"
+    }), Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "bisque"
+    }));
+}
+function UpIcon() {
+    return Z("svg", {
+        width: "25px",
+        viewBox: "-0.5 0 25 25",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M12 22.4199C17.5228 22.4199 22 17.9428 22 12.4199C22 6.89707 17.5228 2.41992 12 2.41992C6.47715 2.41992 2 6.89707 2 12.4199C2 17.9428 6.47715 22.4199 12 22.4199Z",
+        stroke: "#000000",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("path", {
+        d: "M8 13.8599L10.87 10.8C11.0125 10.6416 11.1868 10.5149 11.3815 10.4282C11.5761 10.3415 11.7869 10.2966 12 10.2966C12.2131 10.2966 12.4239 10.3415 12.6185 10.4282C12.8132 10.5149 12.9875 10.6416 13.13 10.8L16 13.8599",
+        stroke: "#000000",
+        "stroke-width": "1.5",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
 var ClassNames;
 (function(ClassNames) {
     ClassNames["string"] = "cute-string";
@@ -916,164 +1100,12 @@ const JSONViewer = ({ jsonData  })=>{
         }
     }));
 };
-function BackIcon() {
-    return Z("svg", {
-        width: "25px",
-        viewBox: "0 0 24 24",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
-    }, Z("path", {
-        d: "M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z",
-        stroke: "#292D32",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }), Z("path", {
-        d: "M9.00002 15.3802H13.92C15.62 15.3802 17 14.0002 17 12.3002C17 10.6002 15.62 9.22021 13.92 9.22021H7.15002",
-        stroke: "#292D32",
-        "stroke-width": "1.5",
-        "stroke-miterlimit": "10",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }), Z("path", {
-        d: "M8.57 10.7701L7 9.19012L8.57 7.62012",
-        stroke: "#292D32",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }));
-}
-function ExportIcon() {
-    return Z("svg", {
-        width: "25px",
-        viewBox: "0 0 24 24",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
-    }, Z("path", {
-        opacity: "0.5",
-        d: "M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12",
-        stroke: "#1C274C",
-        "stroke-width": "1.5"
-    }), Z("path", {
-        d: "M2 14C2 11.1997 2 9.79961 2.54497 8.73005C3.02433 7.78924 3.78924 7.02433 4.73005 6.54497C5.79961 6 7.19974 6 10 6H14C16.8003 6 18.2004 6 19.27 6.54497C20.2108 7.02433 20.9757 7.78924 21.455 8.73005C22 9.79961 22 11.1997 22 14C22 16.8003 22 18.2004 21.455 19.27C20.9757 20.2108 20.2108 20.9757 19.27 21.455C18.2004 22 16.8003 22 14 22H10C7.19974 22 5.79961 22 4.73005 21.455C3.78924 20.9757 3.02433 20.2108 2.54497 19.27C2 18.2004 2 16.8003 2 14Z",
-        stroke: "#1C274C",
-        "stroke-width": "1.5"
-    }), Z("path", {
-        d: "M12 17L12 11M12 11L14.5 13.5M12 11L9.5 13.5",
-        stroke: "#1C274C",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }));
-}
-function ImportIcon() {
-    return Z("svg", {
-        width: "25px",
-        viewBox: "0 0 24 24",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
-    }, Z("path", {
-        opacity: "0.5",
-        d: "M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12",
-        stroke: "#1C274C",
-        "stroke-width": "1.5"
-    }), Z("path", {
-        d: "M2 14C2 11.1997 2 9.79961 2.54497 8.73005C3.02433 7.78924 3.78924 7.02433 4.73005 6.54497C5.79961 6 7.19974 6 10 6H14C16.8003 6 18.2004 6 19.27 6.54497C20.2108 7.02433 20.9757 7.78924 21.455 8.73005C22 9.79961 22 11.1997 22 14C22 16.8003 22 18.2004 21.455 19.27C20.9757 20.2108 20.2108 20.9757 19.27 21.455C18.2004 22 16.8003 22 14 22H10C7.19974 22 5.79961 22 4.73005 21.455C3.78924 20.9757 3.02433 20.2108 2.54497 19.27C2 18.2004 2 16.8003 2 14Z",
-        stroke: "#1C274C",
-        "stroke-width": "1.5"
-    }), Z("path", {
-        d: "M12 11L12 17M12 17L14.5 14.5M12 17L9.5 14.5",
-        stroke: "#1C274C",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }));
-}
-function AddIcon() {
-    return Z("svg", {
-        width: "25px",
-        height: "25px",
-        viewBox: "0 0 24 24",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
-    }, Z("path", {
-        d: "M11 8C11 7.44772 11.4477 7 12 7C12.5523 7 13 7.44772 13 8V11H16C16.5523 11 17 11.4477 17 12C17 12.5523 16.5523 13 16 13H13V16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16V13H8C7.44771 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11H11V8Z",
-        fill: "#000"
-    }), Z("path", {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
-        fill: "#8d8688"
-    }));
-}
-function RunIcon() {
-    return Z("svg", {
-        width: "25px",
-        height: "25px",
-        viewBox: "0 0 16 16",
-        version: "1.1",
-        xmlns: "http://www.w3.org/2000/svg",
-        "xmlns:xlink": "http://www.w3.org/1999/xlink"
-    }, Z("title", null, "Fill 1"), Z("desc", null, "Created with Sketch."), Z("g", {
-        id: "-",
-        stroke: "none",
-        "stroke-width": "1",
-        fill: "none",
-        "fill-rule": "evenodd"
-    }, Z("g", {
-        id: "Icon/playBig",
-        fill: "#8d8688"
-    }, Z("path", {
-        d: "M6,11 L11,8 L6,5 L6,11 Z M8,14.6 C4.4,14.6 1.4,11.6 1.4,8 C1.4,4.4 4.4,1.4 8,1.4 C11.6,1.4 14.6,4.4 14.6,8 C14.6,11.6 11.6,14.6 8,14.6 L8,14.6 Z M8,0 C3.6,0 0,3.6 0,8 C0,12.4 3.6,16 8,16 C12.4,16 16,12.4 16,8 C16,3.6 12.4,0 8,0 L8,0 Z",
-        id: "Fill-1"
-    }))));
-}
-function UpIcon() {
-    return Z("svg", {
-        width: "25px",
-        viewBox: "-0.5 0 25 25",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
-    }, Z("path", {
-        d: "M12 22.4199C17.5228 22.4199 22 17.9428 22 12.4199C22 6.89707 17.5228 2.41992 12 2.41992C6.47715 2.41992 2 6.89707 2 12.4199C2 17.9428 6.47715 22.4199 12 22.4199Z",
-        stroke: "#000000",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }), Z("path", {
-        d: "M8 13.8599L10.87 10.8C11.0125 10.6416 11.1868 10.5149 11.3815 10.4282C11.5761 10.3415 11.7869 10.2966 12 10.2966C12.2131 10.2966 12.4239 10.3415 12.6185 10.4282C12.8132 10.5149 12.9875 10.6416 13.13 10.8L16 13.8599",
-        stroke: "#000000",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }));
-}
-function DownIcon() {
-    return Z("svg", {
-        width: "25px",
-        viewBox: "-0.5 0 25 25",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
-    }, Z("path", {
-        d: "M12 22.4199C17.5228 22.4199 22 17.9428 22 12.4199C22 6.89707 17.5228 2.41992 12 2.41992C6.47715 2.41992 2 6.89707 2 12.4199C2 17.9428 6.47715 22.4199 12 22.4199Z",
-        stroke: "#000000",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }), Z("path", {
-        d: "M16 10.99L13.13 14.05C12.9858 14.2058 12.811 14.3298 12.6166 14.4148C12.4221 14.4998 12.2122 14.5437 12 14.5437C11.7878 14.5437 11.5779 14.4998 11.3834 14.4148C11.189 14.3298 11.0142 14.2058 10.87 14.05L8 10.99",
-        stroke: "#000000",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
-    }));
-}
-function E2E({ baseUrl  }) {
+function E2E({ baseUrl , bodyHeaders  }) {
     const handleMove = (fromIndex, toIndex)=>{
         if (fromIndex === 0 && toIndex <= 0) {
             return;
         } else {
-            var element = e2eFroms[fromIndex];
+            const element = e2eFroms[fromIndex];
             e2eFroms.splice(fromIndex, 1);
             e2eFroms.splice(toIndex, 0, element);
             setE2eForms([
@@ -1110,6 +1142,18 @@ function E2E({ baseUrl  }) {
             captures: []
         }
     ]);
+    T1(()=>{
+        if (bodyHeaders) {
+            setE2eForms([
+                {
+                    id: uid(),
+                    repeat: 1,
+                    bodyHeaders,
+                    captures: []
+                }
+            ]);
+        }
+    }, []);
     const [resultView, setResultView] = F1(false);
     const [results, setResults] = F1([]);
     const exportForm = ()=>{
@@ -1295,7 +1339,7 @@ function E2E({ baseUrl  }) {
             key: e2eForm.id
         }, Z("div", {
             className: "sidebar__section-body-heading"
-        }, Z("div", {
+        }, e2eFroms.length > 1 ? Z("div", {
             className: "e2e-move-buttons"
         }, Z("button", {
             className: "e2e-move-button",
@@ -1303,7 +1347,7 @@ function E2E({ baseUrl  }) {
         }, Z(UpIcon, null)), Z("button", {
             className: "e2e-move-button",
             onClick: ()=>handleMove(idx, idx + 1)
-        }, Z(DownIcon, null))), Z("div", {
+        }, Z(DownIcon, null))) : "", Z("div", {
             className: "sidebar__section-heading"
         }, "set test body and headers"), Z("textarea", {
             placeholder: "please paste a request body here",
@@ -1427,26 +1471,26 @@ function E2E({ baseUrl  }) {
                     }
                 ]);
         }
-    }, Z(AddIcon, null), " add"), Z("button", {
-        className: "btn  e2e-back-button e2e-export_results-button",
+    }, Z(AddIcon, null), Z("span", null, "Add")), Z("button", {
+        className: "btn e2e-back-button e2e-run-botton e2e-export_results-button",
         onClick: async ()=>{
             setResultView(true);
             await runE2eTest();
         }
-    }, Z(RunIcon, null), "Run E2E Test"), Z("input", {
+    }, Z(RunIcon, null), Z("span", null, "Run E2E Test")), Z("input", {
         id: "actual-btn",
         type: "file",
         onChange: jsonFileUpload,
         hidden: true
     }), Z("label", {
         htmlFor: "actual-btn",
-        className: "btn  e2e-back-button e2e-export_results-button"
-    }, Z(ImportIcon, null), Z("span", {
-        className: "e2e-export-form-button"
-    }, " Import ")), Z("button", {
-        className: "btn  e2e-back-button e2e-export_results-button",
+        className: "btn e2e-back-button e2e-export_results-button"
+    }, Z(ImportIcon, null), Z("span", null, "Import")), Z("button", {
+        className: "btn e2e-back-button e2e-export_results-button",
         onClick: exportForm
-    }, Z(ExportIcon, null), Z("span", null, "Export")))));
+    }, Z(ExportIcon, null), Z("span", null, "Export")), Z("button", {
+        className: "btn e2e-back-button e2e-export_results-button"
+    }, Z(HelpIcon, null), Z("span", null, "Help")))));
 }
 function Dustbin() {
     return Z("svg", {
@@ -1674,6 +1718,28 @@ function CopyIcon() {
         id: "Icon"
     }));
 }
+function RunTestIcon() {
+    return Z("svg", {
+        width: 25,
+        height: 25,
+        fill: "#ffffff",
+        version: "1.1",
+        id: "Capa_1",
+        xmlns: "http://www.w3.org/2000/svg",
+        viewBox: "0 0 104.778 104.778"
+    }, Z("g", {
+        id: "SVGRepo_bgCarrier",
+        "stroke-width": "0"
+    }), Z("g", {
+        id: "SVGRepo_tracerCarrier",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("g", {
+        id: "SVGRepo_iconCarrier"
+    }, " ", Z("g", null, " ", Z("path", {
+        d: "M96.832,88.406l-23.02-39.908V21.959c4.385-1.595,7.447-5.797,7.447-10.618C81.26,5.089,76.176,0,69.928,0H42.6 c-6.251,0-11.334,5.089-11.334,11.341c0,4.815,3.07,9.017,7.457,10.618v26.55l-2.083,3.685V30.359c0-1.546-1.257-2.802-2.803-2.802 H8.723c-1.546,0-2.801,1.256-2.801,2.802v59.557c0,7.475,5.742,13.614,13.174,14.648c0.331,0.126,0.683,0.214,1.059,0.214h67.227 c4.79,0,8.433-1.762,10.282-4.979C99.503,96.598,99.208,92.543,96.832,88.406z M11.513,89.916v-6.079h8.254 c1.546,0,2.802-1.26,2.802-2.802c0-1.549-1.256-2.802-2.802-2.802h-8.254v-9.09h8.254c1.546,0,2.802-1.263,2.802-2.801 c0-1.555-1.256-2.802-2.802-2.802h-8.254v-9.097h8.254c1.546,0,2.802-1.256,2.802-2.801c0-1.55-1.256-2.803-2.802-2.803h-8.254 V33.149h19.512v56.767c0,5.095-4.375,9.248-9.756,9.248C15.883,99.17,11.513,95.011,11.513,89.916z M92.794,96.997 c-0.799,1.379-2.779,2.178-5.432,2.178H33.189c2.118-2.55,3.439-5.734,3.439-9.259V63.19c0.245-0.207,0.476-0.443,0.645-0.743 l6.679-11.82c0.236-0.422,0.364-0.898,0.364-1.379V19.776c0-1.415-1.048-2.603-2.449-2.78c-2.859-0.364-5.015-2.796-5.015-5.655 c0-3.161,2.571-5.738,5.731-5.738H69.91c3.165,0,5.734,2.577,5.734,5.738c0,2.859-2.155,5.286-5.017,5.655 c-1.401,0.178-2.446,1.365-2.446,2.78v29.472c0,0.493,0.122,0.977,0.374,1.401l23.396,40.559 C93.292,93.506,93.593,95.617,92.794,96.997z M76.466,79.53c0,5.412-4.377,9.794-9.801,9.794c-5.411,0-9.795-4.382-9.795-9.794 c0-5.406,4.384-9.795,9.795-9.795C72.089,69.735,76.466,74.124,76.466,79.53z M54.609,68.877c0,2.665-2.146,4.799-4.802,4.799 c-2.657,0-4.802-2.156-4.802-4.799c0-2.644,2.15-4.8,4.802-4.8C52.468,64.077,54.609,66.233,54.609,68.877z M58.195,58.048 c-1.672,0-3.015-1.341-3.015-3.01c0-1.667,1.343-3.009,3.015-3.009c1.663,0,3.015,1.343,3.015,3.009 C61.21,56.707,59.853,58.048,58.195,58.048z M49.534,86.315c0,1.669-1.352,3.009-3.016,3.009c-1.665,0-3.014-1.34-3.014-3.009 c0-1.663,1.349-3.016,3.014-3.016C48.182,83.3,49.534,84.652,49.534,86.315z M54.805,46.184c-2.185,0-3.956-1.771-3.956-3.957 c0-2.186,1.771-3.957,3.956-3.957c2.183,0,3.957,1.771,3.957,3.957C58.762,44.414,56.983,46.184,54.805,46.184z"
+    }), " "), " "));
+}
 function SuccessIcon() {
     return Z("svg", {
         version: "1.1",
@@ -1683,8 +1749,30 @@ function SuccessIcon() {
         d: "M29.049,5.009L28.19,4.151c-0.943-0.945-2.488-0.945-3.434,0L10.172,18.737l-5.175-5.173   c-0.943-0.944-2.489-0.944-3.432,0.001l-0.858,0.857c-0.943,0.944-0.943,2.489,0,3.433l7.744,7.752   c0.944,0.943,2.489,0.943,3.433,0L29.049,8.442C29.991,7.498,29.991,5.953,29.049,5.009z"
     }));
 }
+const Modal = (props)=>Z("div", {
+        className: "modal-overlay",
+        onClick: props.toggle
+    }, Z("div", {
+        className: "modal-box",
+        onClick: (e)=>e.stopPropagation()
+    }, Z("span", {
+        className: "modal-title"
+    }, props.title), Z("div", {
+        className: "modal-content"
+    }, props.children)));
+function useModal() {
+    const [isOpen, setisOpen] = F1(false);
+    const toggleModal = ()=>{
+        setisOpen(!isOpen);
+    };
+    return {
+        isOpen,
+        toggleModal
+    };
+}
 const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
 const Main = ({ urlAddress  })=>{
+    const { isOpen , toggleModal  } = useModal();
     const { activeTab , tabsData , actsObj , headers , history , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
     const [active, setActive] = F1(false);
     const changeGetValue = (value, keyname, getObj, returnObj)=>{
@@ -1765,25 +1853,6 @@ const Main = ({ urlAddress  })=>{
                 keyName: `${keyName}.${item}`,
                 margin: margin + 1
             })));
-    const createNestedObjectsFromKeys = (obj)=>{
-        const result = {
-            get: {},
-            set: {}
-        };
-        for(const objectPath in obj){
-            if (obj[objectPath] || obj[objectPath] === 0) {
-                const parts = objectPath.split(".");
-                let target = result;
-                while(parts.length > 1){
-                    const part = parts.shift();
-                    target[part] = target[part] || {};
-                    target = target[part];
-                }
-                target[parts[0]] = obj[objectPath];
-            }
-        }
-        return result;
-    };
     const requestFunction = ()=>{
         const details = createNestedObjectsFromKeys(tabsData[activeTab].formData);
         const body = {
@@ -1849,6 +1918,14 @@ const Main = ({ urlAddress  })=>{
         console.log(request);
         request.body.body = JSON.parse(request.body.body);
         navigator.clipboard.writeText(JSON.stringify(request));
+    };
+    const runE2eRequest = ()=>{
+        const request = requestFunction();
+        request.body.body = JSON.parse(request.body.body);
+        const { method , ...rest } = request.body;
+        return JSON.stringify({
+            ...rest
+        }, null, 2);
     };
     return Z(N, null, Z("div", {
         className: "sidebar"
@@ -2125,7 +2202,15 @@ const Main = ({ urlAddress  })=>{
         }
     }, Z(CopyIcon, null), Z("span", {
         className: "tooltip-text"
-    }, "Copy Response")))), Z("div", {
+    }, "Copy Response")), Z("div", {
+        className: "btn response-detail-button ",
+        onClick: ()=>{
+            runE2eRequest;
+            toggleModal();
+        }
+    }, Z(RunTestIcon, null), Z("span", {
+        className: "tooltip-text"
+    }, "Run E2E Test")))), Z("div", {
         className: "response-detail-info"
     }, Z(JSONViewer, {
         jsonData: tabsData[activeTab].response
@@ -2133,19 +2218,14 @@ const Main = ({ urlAddress  })=>{
         className: "success"
     }) : Z("div", {
         className: "fail"
-    })))));
+    })))), isOpen && Z(Modal, {
+        toggle: toggleModal,
+        title: "E2E TEST"
+    }, Z(E2E, {
+        baseUrl: urlAddress,
+        bodyHeaders: runE2eRequest()
+    })));
 };
-const Modal = (props)=>Z("div", {
-        className: "modal-overlay",
-        onClick: props.toggle
-    }, Z("div", {
-        className: "modal-box",
-        onClick: (e)=>e.stopPropagation()
-    }, Z("span", {
-        className: "modal-title"
-    }, props.title), Z("div", {
-        className: "modal-content"
-    }, props.children)));
 function Setting({ configUrl  }) {
     const { headers , setHeader  } = useLesan();
     const [urlAddress, setUrlAddress] = F1("");
@@ -2202,16 +2282,6 @@ function Setting({ configUrl  }) {
             }
         }, "add +")))));
 }
-function useModal() {
-    const [isOpen, setisOpen] = F1(false);
-    const toggleModal = ()=>{
-        setisOpen(!isOpen);
-    };
-    return {
-        isOpen,
-        toggleModal
-    };
-}
 const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}playground/static/get/schemas`).then((res)=>res.json());
 var MODAL_TYPES;
 (function(MODAL_TYPES) {
@@ -2258,11 +2328,50 @@ const Page = ()=>{
         }).then(({ schemas , acts  })=>{
             setActsObj(acts);
             setSchemasObj(schemas);
-            console.log("schema:", schemas);
-            console.log("actsobj:", acts);
-            const localTabsData = localStorage.getItem("localTabsData");
-            console.log("localTabsData", JSON.parse(localTabsData));
-            if (localTabsData) setTabsData(JSON.parse(localTabsData));
+            let localTabsData = localStorage.getItem("localTabsData");
+            if (localTabsData) {
+                localTabsData = JSON.parse(localTabsData);
+                const parsedLocalTabData = [];
+                const proccessTabData = (tab)=>{
+                    parsedLocalTabData.pop();
+                    const parsedFromData = createNestedObjectsFromKeys(tab.formData);
+                    for(const setKeys in parsedFromData.set){
+                        if (acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.set.schema[setKeys] === undefined) {
+                            delete parsedFromData.set[setKeys];
+                        }
+                    }
+                    for(const getKey in parsedFromData.get){
+                        if (acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.get.schema[getKey] === undefined) {
+                            delete parsedFromData.get[getKey];
+                        }
+                    }
+                    const newGeneratedFormData = generateFormData(parsedFromData, {}, "");
+                    tab.postFields = acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.set.schema;
+                    tab.getFields = acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.get.schema;
+                    parsedLocalTabData.push({
+                        ...tab,
+                        formData: newGeneratedFormData
+                    });
+                };
+                for (const tab of localTabsData){
+                    if (tab.service && tab.service in acts) {
+                        parsedLocalTabData.push(tab);
+                    }
+                    if (tab.method && !(tab.method in acts[tab.service])) {
+                        parsedLocalTabData.pop();
+                    }
+                    if (tab.schema && !(tab.schema in acts[tab.service][tab.method])) {
+                        parsedLocalTabData.pop();
+                    }
+                    if (tab.act && !(tab.act in acts[tab.service][tab.method][tab.schema])) {
+                        parsedLocalTabData.pop();
+                    }
+                    if (tab.service && tab.method && tab.schema && tab.act && tab.act in acts[tab.service][tab.method][tab.schema]) {
+                        proccessTabData(tab);
+                    }
+                }
+                setTabsData(parsedLocalTabData);
+            }
         });
     };
     const setFormFromHistory = (request)=>{
@@ -2295,12 +2404,6 @@ const Page = ()=>{
             data: null,
             index: activeTab
         });
-        const generateFormData = (formData, returnFormData, keyname)=>{
-            for(const key in formData){
-                typeof formData[key] === "object" ? generateFormData(formData[key], returnFormData, keyname ? `${keyname}.${key}` : key) : returnFormData[`${keyname}.${key}`] = formData[key];
-            }
-            return returnFormData;
-        };
         const historyFromData = generateFormData(request.body.details, {}, "");
         setFormData({
             data: historyFromData,
