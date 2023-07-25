@@ -304,18 +304,18 @@ export function E2E({
                       {e2eFroms.length > 1
                         ? (
                           <div className="e2e-move-buttons">
-                            <button
-                              className="e2e-move-button"
+                            <div
+                              className="e2e-move-div"
                               onClick={() => handleMove(idx, idx - 1)}
                             >
                               <UpIcon />
-                            </button>
-                            <button
-                              className="e2e-move-button"
+                            </div>
+                            <div
+                              className="e2e-move-div"
                               onClick={() => handleMove(idx, idx + 1)}
                             >
                               <DownIcon />
-                            </button>
+                            </div>
                           </div>
                         )
                         : (
