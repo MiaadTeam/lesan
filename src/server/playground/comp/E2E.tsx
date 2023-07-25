@@ -30,6 +30,12 @@ export function E2E({
     }
   };
 
+  const handleDelete = (fromIndex: any) => {
+    const element = e2eFroms[fromIndex];
+    e2eFroms.splice(fromIndex, 1);
+    setE2eForms([...e2eFroms]);
+  };
+
   const [e2eFroms, setE2eForms] = useState<
     {
       id: string;
@@ -308,6 +314,13 @@ export function E2E({
                           onClick={() => handleMove(idx, idx + 1)}
                         >
                           <DownIcon />
+                        </button>
+                        <button
+                          className="e2e-move-button"
+                          onClick={() => handleDelete(idx)}
+                        >
+                          {/* <DownIcon /> */}
+                          delete
                         </button>
                       </div>
                     ) : (
