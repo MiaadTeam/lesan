@@ -1,5 +1,7 @@
 /** @jsx h */
 import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
+import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKeys.ts";
+import { generateFormData } from "../utils/generateFormData.ts";
 import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
 import GraphIcon from "./icon/GraphIcon.tsx";
@@ -84,31 +86,99 @@ export const Page = () => {
         setActsObj(acts);
         setSchemasObj(schemas);
 
-        // TODO: ۱.قصد داشتیم که اطلاعات تب های مختلف را در لوکال استورج  ذخیره کنیم تا با رفرش کردن مرورگر این اطلاعات از دست نرود
-        // ۲.مشکلی که پیش آمد این بود که اگر اطلاعات و کانفیگ موجود در تب ها که در لوکال استورج ذخیره شده بود و میخواستیم فرخوانی اش کنیم موضوعی که باید به آن توجه می شد این بود که ممکن بود کانفیگ توسط یوزر عوض شده باشد و با کانفیگ ذخیره شده در لوال استورج مطابقت نداشته باشد  و لذا به ارور می خوردیم
-        // ۳.برای حل این موضوع باید اطلاعات چک و بررسی می شد
-        // ۴.انشاءالله
-        console.log("schema:", schemas);
-        console.log("actsobj:", acts);
-        const localTabsData = localStorage.getItem("localTabsData");
-        console.log("localTabsData", JSON.parse(localTabsData!));
-        // if (localTabsData) setTabsData(JSON.parse(localTabsData));
-
-        const re = () => {
-          JSON.parse(localTabsData!).map((o: any) => {
-            if (
-              typeof o.service === "string" &&
-              typeof o.method === "string" &&
-              typeof o.schema === "string" &&
-              typeof o.act === "string"
-            ) {
-              setTabsData(JSON.parse(localTabsData!));
-            }
-          });
-        };
+        let localTabsData = localStorage.getItem("localTabsData");
 
         if (localTabsData) {
-          re();
+          localTabsData = JSON.parse(localTabsData);
+
+          const parsedLocalTabData: any[] = [];
+
+          const proccessTabData = (tab: any) => {
+            parsedLocalTabData.pop();
+
+            // form data section --- begin
+            const parsedFromData = createNestedObjectsFromKeys(
+              tab.formData,
+            );
+
+            // set fileds section --- begin
+            for (const setKeys in parsedFromData.set) {
+              if (
+                acts[tab.service][tab.method][tab.schema][tab.act]
+                  .validator.schema.set.schema[setKeys] === undefined
+              ) {
+                delete parsedFromData.set[setKeys];
+              }
+            }
+            // TODO : we need to check field type also in set fields inside acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.set.schema[setKeys].type
+
+            // set fileds section --- end
+
+            // get fileds section --- begin
+            for (const getKey in parsedFromData.get) {
+              if (
+                acts[tab.service][tab.method][tab.schema][tab.act]
+                  .validator.schema.get.schema[getKey] === undefined
+              ) {
+                delete parsedFromData.get[getKey];
+              }
+            }
+            // get fileds section --- end
+
+            const newGeneratedFormData = generateFormData(
+              parsedFromData,
+              {},
+              "",
+            );
+            // form data section --- end
+
+            // set fileds section --- begin
+            tab.postFields = acts[tab.service][tab.method][tab.schema][tab.act]
+              .validator.schema.set.schema;
+            // set fileds section --- end
+
+            // get fileds section --- begin
+            tab.getFields = acts[tab.service][tab.method][tab.schema][tab.act]
+              .validator.schema.get.schema;
+            // get fileds section --- end
+
+            parsedLocalTabData.push({
+              ...tab,
+              formData: newGeneratedFormData,
+            });
+          };
+
+          for (const tab of localTabsData as any) {
+            if (tab.service && tab.service in acts) {
+              parsedLocalTabData.push(tab);
+            }
+
+            if (tab.method && !(tab.method in acts[tab.service])) {
+              parsedLocalTabData.pop();
+            }
+
+            if (tab.schema && !(tab.schema in acts[tab.service][tab.method])) {
+              parsedLocalTabData.pop();
+            }
+
+            if (
+              tab.act && !(tab.act in acts[tab.service][tab.method][tab.schema])
+            ) {
+              parsedLocalTabData.pop();
+            }
+
+            if (
+              tab.service &&
+              tab.method &&
+              tab.schema &&
+              tab.act &&
+              (tab.act in acts[tab.service][tab.method][tab.schema])
+            ) {
+              proccessTabData(tab);
+            }
+          }
+
+          setTabsData(parsedLocalTabData);
         }
       },
     );
@@ -128,22 +198,6 @@ export const Page = () => {
     setPostFields({ data: actObj["set"]["schema"], index: activeTab });
 
     setResponse({ data: null, index: activeTab });
-    const generateFormData = (
-      formData: Record<string, any>,
-      returnFormData: Record<string, any>,
-      keyname: string,
-    ) => {
-      for (const key in formData) {
-        typeof formData[key] === "object"
-          ? generateFormData(
-            formData[key],
-            returnFormData,
-            keyname ? `${keyname}.${key}` : key,
-          )
-          : (returnFormData[`${keyname}.${key}`] = formData[key]);
-      }
-      return returnFormData;
-    };
 
     const historyFromData = generateFormData(request.body.details, {}, "");
 
