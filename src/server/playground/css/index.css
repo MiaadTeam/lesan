@@ -78,7 +78,7 @@ input {
   box-sizing: border-box;
 }
 
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
@@ -142,7 +142,7 @@ input:focus {
   position: absolute;
   right: 0;
   bottom: 7px;
-  content: "";
+  content: '';
   height: 2px;
   width: 100%;
   background-color: white;
@@ -156,6 +156,7 @@ input:focus {
   border-radius: 10px;
   border: 1px solid #808080;
   padding-bottom: 1.5rem;
+  position: relative;
 }
 
 .sidebar__section-body-heading,
@@ -174,7 +175,7 @@ input:focus {
 }
 
 .sidebar__section-body-heading::after {
-  content: "";
+  content: '';
   position: absolute;
   height: 95%;
   right: 0;
@@ -518,22 +519,22 @@ input:focus {
   transition: all 0.35s;
 }
 
-.send-button[data-active="true"] {
+.send-button[data-active='true'] {
   width: 40px;
   height: 40px;
 }
 
-.send-button[data-active="true"] .successe {
+.send-button[data-active='true'] .successe {
   opacity: 1;
   visibility: visible;
 }
 
-.send-button[data-active="true"] .successe svg {
+.send-button[data-active='true'] .successe svg {
   margin-top: 50%;
   transform: translateY(-50%) rotate(720deg) scale(1);
 }
 
-.send-button[data-active="true"] span {
+.send-button[data-active='true'] span {
   opacity: 0;
   visibility: hidden;
 }
@@ -754,8 +755,10 @@ input:focus {
 
 .e2e-move-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: -28px;
+  gap: 5px;
+  margin-top: -1.3rem;
+  position: absolute;
+  right: 1.5rem;
 }
 
 .e2e-move-div {
@@ -771,6 +774,10 @@ input:focus {
 
 .e2e-move-div svg:hover {
   background-color: dimgray;
+}
+
+.e2e-move-div.e2e-move-close svg:hover {
+  background-color: brown;
 }
 
 .e2e-move-div svg {
@@ -921,7 +928,7 @@ input:focus {
   display: none;
 }
 
-.history-re-detail-complete[data-show="true"] {
+.history-re-detail-complete[data-show='true'] {
   display: block;
 }
 
@@ -994,7 +1001,7 @@ input:focus {
 }
 
 .tooltip-text::after {
-  content: " ";
+  content: ' ';
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
   left: 50%;
@@ -1061,7 +1068,7 @@ input:focus {
   background-color: #452a69;
 }
 
-.tab-name[data-tab="true"] {
+.tab-name[data-tab='true'] {
   background-color: #2e1056;
   border: 1px solid #6b3ca9;
 }
