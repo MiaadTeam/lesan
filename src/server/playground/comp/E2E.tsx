@@ -3,6 +3,7 @@ import { Fragment, h, useState, useEffect } from "../reactDeps.ts";
 import { uid } from "../utils/uid.ts";
 import AddIcon from "./icon/AddIcon.tsx";
 import BackIcon from "./icon/BackIcon.tsx";
+import DeleteIcon from "./icon/deleteIcon.tsx";
 import DownIcon from "./icon/DownIcon.tsx";
 import ExportIcon from "./icon/ExportIcon.tsx";
 import HelpIcon from "./icon/HelpIcon.tsx";
@@ -303,25 +304,24 @@ export function E2E({
                   <div className="sidebar__section-body-heading">
                     {e2eFroms.length > 1 ? (
                       <div className="e2e-move-buttons">
-                        <button
-                          className="e2e-move-button"
+                        <div
+                          className="e2e-move-div"
                           onClick={() => handleMove(idx, idx - 1)}
                         >
                           <UpIcon />
-                        </button>
-                        <button
-                          className="e2e-move-button"
+                        </div>
+                        <div
+                          className="e2e-move-div"
                           onClick={() => handleMove(idx, idx + 1)}
                         >
                           <DownIcon />
-                        </button>
-                        <button
-                          className="e2e-move-button"
+                        </div>
+                        <div
+                          className="e2e-move-div"
                           onClick={() => handleDelete(idx)}
                         >
-                          {/* <DownIcon /> */}
-                          delete
-                        </button>
+                          <DeleteIcon />
+                        </div>
                       </div>
                     ) : (
                       ""
@@ -427,7 +427,7 @@ export function E2E({
               </Fragment>
             ))}
           </div>
-
+          
           <div className="results-buttons">
             <button
               className="btn  e2e-back-button e2e-export_results-button"
