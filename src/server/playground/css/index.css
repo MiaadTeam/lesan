@@ -153,22 +153,33 @@ input:focus {
   display: flex;
   margin-bottom: 25px;
   gap: 1rem;
+  border-radius: 10px;
+  border: 1px solid #808080;
+  padding-bottom: 1.5rem;
 }
 
 .sidebar__section-body-heading,
 .sidebar__section-capture {
-  border: 1px solid #808080;
   padding: 0.5rem 2rem;
-  border-radius: 10px;
 }
 
 .sidebar__section-capture {
-  width: 30%;
+  width: 40%;
 }
 
 .sidebar__section-body-heading {
+  position: relative;
   width: 70%;
   min-height: 50%;
+}
+
+.sidebar__section-body-heading::after {
+  content: "";
+  position: absolute;
+  height: 95%;
+  right: 0;
+  top: 5%;
+  border-right: 1px solid #808080;
 }
 
 .sidebar__section-body-heading textarea {
