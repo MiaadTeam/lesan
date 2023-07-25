@@ -731,6 +731,7 @@ input:focus {
 .sidebar__section--headers {
   margin-top: 50px;
 }
+
 .e2e-move-buttons {
   display: flex;
   gap: 5px;
@@ -807,6 +808,11 @@ input:focus {
   width: 100%;
   gap: 20px;
   z-index: 1;
+}
+
+.help .e2e-back-button {
+  position: fixed;
+  top: 0;
 }
 
 .container-detail {
