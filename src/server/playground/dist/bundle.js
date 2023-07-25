@@ -1182,7 +1182,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
             ]);
         }
     }, []);
-    const [resultView, setResultView] = F1(false);
+    const [resultView, setResultView] = F1("e2e");
     const [results, setResults] = F1([]);
     const exportForm = ()=>{
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(e2eFroms))}`;
@@ -1332,7 +1332,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
     };
     return Z("div", {
         className: "e2e modal-content"
-    }, resultView ? Z(N, null, Z("br", null), Z("div", {
+    }, resultView === "result" ? Z(N, null, Z("br", null), Z("div", {
         className: "results"
     }, Z("div", {
         className: "results-buttons"
@@ -1340,7 +1340,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
         className: "btn  e2e-back-button",
         onClick: ()=>{
             setResults([]);
-            setResultView(false);
+            setResultView("e2e");
         }
     }, Z(BackIcon, null), Z("span", null, "Back")), Z("button", {
         className: "btn  e2e-back-button e2e-export_results-button",
@@ -1360,12 +1360,12 @@ function E2E({ baseUrl , bodyHeaders  }) {
             className: "container-re-title"
         }, "RESPONSE"), Z(JSONViewer, {
             jsonData: re.response
-        })))))) : Z(N, null, Z("div", {
+        })))))) : resultView === "e2e" ? Z(N, null, Z("div", {
         className: "sidebar__section sidebar__section--headers"
     }, e2eFroms.map((e2eForm, idx)=>Z(N, null, Z("div", {
             className: "sidebar__input-double",
             key: e2eForm.id
-        }, e2eFroms.length > 1 ? Z("div", {
+        }, e2eFroms.length > 1 && Z("div", {
             className: "e2e-move-buttons"
         }, Z("div", {
             className: "e2e-move-div",
@@ -1376,7 +1376,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
         }, Z(DownIcon, null)), Z("div", {
             className: "e2e-move-div e2e-move-close",
             onClick: ()=>handleDelete(idx)
-        }, Z(DeleteIcon, null))) : "", Z("div", {
+        }, Z(DeleteIcon, null))), Z("div", {
             className: "sidebar__section-body-heading"
         }, Z("div", {
             className: "sidebar__section-heading"
@@ -1505,7 +1505,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
     }, Z(AddIcon, null), Z("span", null, "Add")), Z("button", {
         className: "btn e2e-back-button e2e-run-botton e2e-export_results-button",
         onClick: async ()=>{
-            setResultView(true);
+            setResultView("result");
             await runE2eTest();
         }
     }, Z(RunIcon, null), Z("span", null, "Run E2E Test")), Z("input", {
@@ -1520,8 +1520,16 @@ function E2E({ baseUrl , bodyHeaders  }) {
         className: "btn e2e-back-button e2e-export_results-button",
         onClick: exportForm
     }, Z(ExportIcon, null), Z("span", null, "Export")), Z("button", {
+        onClick: ()=>setResultView("help"),
         className: "btn e2e-back-button e2e-export_results-button"
-    }, Z(HelpIcon, null), Z("span", null, "Help")))));
+    }, Z(HelpIcon, null), Z("span", null, "Help")))) : resultView === "help" ? Z("div", {
+        className: "help"
+    }, " ", Z("button", {
+        className: "btn  e2e-back-button",
+        onClick: ()=>{
+            setResultView("e2e");
+        }
+    }, Z(BackIcon, null), Z("span", null, "Back")), " ") : "");
 }
 function Dustbin() {
     return Z("svg", {
