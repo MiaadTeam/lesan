@@ -327,7 +327,7 @@ export function E2E({
                       ""
                     )}
 
-                    <div className="sidebar__section-heading">
+                    <div className="e2e_sidebar__section-heading ">
                       set test body and headers
                     </div>
                     <textarea
@@ -346,7 +346,7 @@ export function E2E({
                   </div>
 
                   <div className="sidebar__section-capture">
-                    <div className="sidebar__section-heading">
+                    <div className="e2e_sidebar__section-heading">
                       set repeat time
                     </div>
                     <div className="repeat__number">
@@ -364,23 +364,23 @@ export function E2E({
                         }}
                       />
                       <button
-                        className="btn"
+                        className="e2e-back-button e2e-export_results-button"
                         onClick={() => plusRepeatHandler(idx)}
                       >
                         +
                       </button>
                       <button
-                        className="btn"
+                        className="e2e-back-button e2e-export_results-button"
                         onClick={() => minesRepeatHandler(idx)}
                       >
                         -
                       </button>
                     </div>
-                    <div className="sidebar__section-heading">
+                    <div className="e2e_sidebar__section-heading">
                       capture variables
                     </div>
                     <button
-                      className="btn btn--add"
+                      className="btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture "
                       onClick={() => {
                         setE2eForms((e2eForm) => {
                           const copy = [...e2eForm];
@@ -427,7 +427,7 @@ export function E2E({
               </Fragment>
             ))}
           </div>
-          
+
           <div className="results-buttons">
             <button
               className="btn  e2e-back-button e2e-export_results-button"

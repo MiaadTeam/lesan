@@ -200,12 +200,14 @@ input:focus {
 }
 
 .repeat__number button {
-  background-color: var(--color-colonial-2);
-  color: white;
+  background-color: rgba(70, 70, 70, 0.5);
+  color: lightcoral;
   margin: 10px 0;
   padding: 5px 15px;
   font-size: 1.5rem;
   cursor: pointer;
+  border-top: 1px solid bisque;
+  border-radius: 5px;
 }
 
 .sidebar__section-add-capture {
@@ -731,6 +733,25 @@ input:focus {
   margin-top: 50px;
 }
 
+.e2e_sidebar__section-heading {
+  color: gainsboro;
+  text-transform: capitalize;
+  align-self: flex-start;
+  padding: 10px 0;
+  position: relative;
+}
+
+.e2e_sidebar__section-heading::after {
+  position: absolute;
+  right: 0;
+  bottom: 7px;
+  content: "";
+  height: 2px;
+  width: 100%;
+  background-color: bisque;
+  border-radius: 10px;
+}
+
 .e2e-move-buttons {
   display: flex;
   gap: 10px;
@@ -780,6 +801,15 @@ input:focus {
 
 .e2e-back-button:hover {
   background-color: dimgray;
+}
+
+.e2e-add-capture {
+  border-top: 1px solid bisque;
+  border-radius: 5px;
+  padding: 8px;
+  width: 100%;
+  margin: 10px 0;
+  white-space: nowrap;
 }
 
 .e2e-export_results-button {
