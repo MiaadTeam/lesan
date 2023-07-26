@@ -97,15 +97,13 @@ export const Page = () => {
             parsedLocalTabData.pop();
 
             // form data section --- begin
-            const parsedFromData = createNestedObjectsFromKeys(
-              tab.formData,
-            );
+            const parsedFromData = createNestedObjectsFromKeys(tab.formData);
 
             // set fileds section --- begin
             for (const setKeys in parsedFromData.set) {
               if (
-                acts[tab.service][tab.method][tab.schema][tab.act]
-                  .validator.schema.set.schema[setKeys] === undefined
+                acts[tab.service][tab.method][tab.schema][tab.act].validator
+                  .schema.set.schema[setKeys] === undefined
               ) {
                 delete parsedFromData.set[setKeys];
               }
@@ -117,8 +115,8 @@ export const Page = () => {
             // get fileds section --- begin
             for (const getKey in parsedFromData.get) {
               if (
-                acts[tab.service][tab.method][tab.schema][tab.act]
-                  .validator.schema.get.schema[getKey] === undefined
+                acts[tab.service][tab.method][tab.schema][tab.act].validator
+                  .schema.get.schema[getKey] === undefined
               ) {
                 delete parsedFromData.get[getKey];
               }
@@ -128,18 +126,22 @@ export const Page = () => {
             const newGeneratedFormData = generateFormData(
               parsedFromData,
               {},
-              "",
+              ""
             );
             // form data section --- end
 
             // set fileds section --- begin
-            tab.postFields = acts[tab.service][tab.method][tab.schema][tab.act]
-              .validator.schema.set.schema;
+            tab.postFields =
+              acts[tab.service][tab.method][tab.schema][
+                tab.act
+              ].validator.schema.set.schema;
             // set fileds section --- end
 
             // get fileds section --- begin
-            tab.getFields = acts[tab.service][tab.method][tab.schema][tab.act]
-              .validator.schema.get.schema;
+            tab.getFields =
+              acts[tab.service][tab.method][tab.schema][
+                tab.act
+              ].validator.schema.get.schema;
             // get fileds section --- end
 
             parsedLocalTabData.push({
@@ -162,7 +164,8 @@ export const Page = () => {
             }
 
             if (
-              tab.act && !(tab.act in acts[tab.service][tab.method][tab.schema])
+              tab.act &&
+              !(tab.act in acts[tab.service][tab.method][tab.schema])
             ) {
               parsedLocalTabData.pop();
             }
@@ -172,15 +175,26 @@ export const Page = () => {
               tab.method &&
               tab.schema &&
               tab.act &&
-              (tab.act in acts[tab.service][tab.method][tab.schema])
+              tab.act in acts[tab.service][tab.method][tab.schema]
             ) {
               proccessTabData(tab);
             }
           }
-
+          if (parsedLocalTabData.length < 1) {
+            parsedLocalTabData.push({
+              service: "",
+              method: "",
+              schema: "",
+              act: "",
+              postFields: {},
+              getFields: {},
+              formData: {},
+              response: null,
+            });
+          }
           setTabsData(parsedLocalTabData);
         }
-      },
+      }
     );
   };
 
@@ -248,7 +262,6 @@ export const Page = () => {
           className="add-tab"
           onClick={() => {
             addTab(null);
-            // TODO: مربوط به تودو بالایی
             localStorage.setItem("localTabsData", JSON.stringify(tabsData));
           }}
         >
@@ -290,13 +303,15 @@ export const Page = () => {
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY
-            ? <History setFormFromHistory={setFormFromHistory} />
-            : active === MODAL_TYPES.SETTING
-            ? <Setting configUrl={configUrl} />
-            : active === MODAL_TYPES.E2E_TEST
-            ? <E2E baseUrl={urlAddress} />
-            : <Fragment></Fragment>}
+          {active === MODAL_TYPES.HISTORY ? (
+            <History setFormFromHistory={setFormFromHistory} />
+          ) : active === MODAL_TYPES.SETTING ? (
+            <Setting configUrl={configUrl} />
+          ) : active === MODAL_TYPES.E2E_TEST ? (
+            <E2E baseUrl={urlAddress} />
+          ) : (
+            <Fragment></Fragment>
+          )}
         </Modal>
       )}
     </div>
