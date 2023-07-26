@@ -1023,6 +1023,7 @@ input:focus {
   padding: 1rem;
   border-radius: 1rem;
   backdrop-filter: blur(10px);
+  z-index: 7;
 }
 
 .no-history {

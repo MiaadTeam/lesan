@@ -273,18 +273,19 @@ export const Page = () => {
       <div className="sidebar__btns-wrapper">
         <span
           className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
-        >
-          <span className="tooltip-text">History</span>
-          <HistoryIcon />
-        </span>
-        <span
-          className="btn-modal"
           onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
         >
           <span className="tooltip-text">Setting</span>
           <SettingIcon />
         </span>
+        <span
+          className="btn-modal"
+          onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
+        >
+          <span className="tooltip-text">History</span>
+          <HistoryIcon />
+        </span>
+
         <span
           className="btn-modal"
           onClick={() => modalBtnClickHandler(MODAL_TYPES.GRAPH)}
