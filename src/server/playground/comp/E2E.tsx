@@ -80,7 +80,7 @@ export function E2E({
     }
   }, []);
 
-  const [resultView, setResultView] = useState<"help" | "e2e" | "result">(
+  const [view, setView] = useState<"help" | "e2e" | "result">(
     "e2e",
   );
   const [results, setResults] = useState<
@@ -264,7 +264,7 @@ export function E2E({
 
   return (
     <div className="e2e modal-content">
-      {resultView === "result"
+      {view === "result"
         ? (
           <Fragment>
             <br />
@@ -274,7 +274,7 @@ export function E2E({
                   className="btn  e2e-back-button"
                   onClick={() => {
                     setResults([]);
-                    setResultView("e2e");
+                    setView("e2e");
                   }}
                 >
                   <BackIcon />
@@ -303,7 +303,7 @@ export function E2E({
             </div>
           </Fragment>
         )
-        : resultView === "e2e"
+        : view === "e2e"
         ? (
           <Fragment>
             <div className="sidebar__section sidebar__section--headers">
@@ -475,7 +475,7 @@ export function E2E({
               <button
                 className="btn e2e-back-button e2e-run-botton e2e-export_results-button"
                 onClick={async () => {
-                  setResultView("result");
+                  setView("result");
                   await runE2eTest();
                 }}
               >
@@ -504,7 +504,7 @@ export function E2E({
                 <span>Export</span>
               </button>
               <button
-                onClick={() => setResultView("help")}
+                onClick={() => setView("help")}
                 className="btn e2e-back-button e2e-export_results-button"
               >
                 <HelpIcon />
@@ -513,14 +513,14 @@ export function E2E({
             </div>
           </Fragment>
         )
-        : resultView === "help"
+        : view === "help"
         ? (
           <div className="help">
             {" "}
             <button
               className="btn  e2e-back-button"
               onClick={() => {
-                setResultView("e2e");
+                setView("e2e");
               }}
             >
               <BackIcon />
