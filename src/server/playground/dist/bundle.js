@@ -2267,7 +2267,23 @@ const Main = ({ urlAddress  })=>{
 };
 function Setting({ configUrl  }) {
     const { headers , setHeader  } = useLesan();
+    const [headersState, setHeadersState] = F1([
+        {
+            key: "",
+            value: ""
+        }
+    ]);
     const [urlAddress, setUrlAddress] = F1("");
+    T1(()=>{
+        const arrHeader = [];
+        for(const key in headers){
+            arrHeader.push({
+                key,
+                value: headers[key]
+            });
+        }
+        setHeadersState(arrHeader);
+    }, []);
     return Z("div", {
         className: "setting modal-content"
     }, Z("div", {
@@ -2292,34 +2308,50 @@ function Setting({ configUrl  }) {
         className: "sidebar__section sidebar__section--headers"
     }, Z("div", {
         className: "sidebar__section-heading"
-    }, "set headers"), Object.entries(headers).map(([objKey, objValue])=>Z("div", {
-            className: "sidebar__input-double",
-            key: objKey
+    }, "set headers"), Z("div", {
+        className: "sidebar__input-double"
+    }, Z("button", {
+        className: "btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture ",
+        onClick: ()=>{
+            setHeadersState([
+                ...headersState,
+                {
+                    key: "",
+                    value: ""
+                }
+            ]);
+        }
+    }, "add header"), headersState?.map((hst, idx)=>Z(N, {
+            key: `${idx}____`
         }, Z("input", {
-            placeholder: objKey,
-            id: objKey,
-            value: objKey,
-            name: objKey,
+            placeholder: "Authotization",
+            value: hst.key,
             onChange: (e)=>{
-                objKey = e.target.value;
-            }
-        }), Z("input", {
-            placeholder: objValue,
-            id: objValue,
-            value: objValue,
-            name: objValue,
-            onChange: (e)=>{
-                objValue = e.target.value;
-            }
-        }), Z("button", {
-            className: "btn btn--add",
-            onClick: ()=>{
-                setHeader({
-                    ...headers,
-                    [objKey]: objValue
+                setHeadersState((prevState)=>{
+                    prevState[idx].key = e.target.value;
+                    return prevState;
                 });
             }
-        }, "add +")))));
+        }), Z("input", {
+            placeholder: "some string ...",
+            value: hst.value,
+            onChange: (e)=>{
+                setHeadersState((prevState)=>{
+                    prevState[idx].value = e.target.value;
+                    return prevState;
+                });
+            }
+        }))), Z("button", {
+        className: "btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture ",
+        onClick: ()=>{
+            const newHeaders = {};
+            for (const header of headersState){
+                const { key , value  } = header;
+                newHeaders[key] = value;
+            }
+            setHeader(newHeaders);
+        }
+    }, "apply"))));
 }
 const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}playground/static/get/schemas`).then((res)=>res.json());
 var MODAL_TYPES;
@@ -2408,6 +2440,18 @@ const Page = ()=>{
                     if (tab.service && tab.method && tab.schema && tab.act && tab.act in acts[tab.service][tab.method][tab.schema]) {
                         proccessTabData(tab);
                     }
+                }
+                if (parsedLocalTabData.length < 1) {
+                    parsedLocalTabData.push({
+                        service: "",
+                        method: "",
+                        schema: "",
+                        act: "",
+                        postFields: {},
+                        getFields: {},
+                        formData: {},
+                        response: null
+                    });
                 }
                 setTabsData(parsedLocalTabData);
             }
