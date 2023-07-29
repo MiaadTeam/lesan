@@ -20,23 +20,6 @@ export function E2E({
   baseUrl: string;
   bodyHeaders?: string;
 }) {
-  const handleMove = (fromIndex: any, toIndex: any) => {
-    if (fromIndex === 0 && toIndex <= 0) {
-      return;
-    } else {
-      const element = e2eFroms[fromIndex];
-      e2eFroms.splice(fromIndex, 1);
-      e2eFroms.splice(toIndex, 0, element);
-      setE2eForms([...e2eFroms]);
-    }
-  };
-
-  const handleDelete = (fromIndex: any) => {
-    e2eFroms[fromIndex];
-    e2eFroms.splice(fromIndex, 1);
-    setE2eForms([...e2eFroms]);
-  };
-
   const [e2eFroms, setE2eForms] = useState<
     {
       id: string;
@@ -73,6 +56,23 @@ export function E2E({
       captures: [],
     },
   ]);
+
+  const handleMove = (fromIndex: any, toIndex: any) => {
+    if (fromIndex === 0 && toIndex <= 0) {
+      return;
+    } else {
+      const element = e2eFroms[fromIndex];
+      e2eFroms.splice(fromIndex, 1);
+      e2eFroms.splice(toIndex, 0, element);
+      setE2eForms([...e2eFroms]);
+    }
+  };
+
+  const handleDelete = (fromIndex: any) => {
+    e2eFroms[fromIndex];
+    e2eFroms.splice(fromIndex, 1);
+    setE2eForms([...e2eFroms]);
+  };
 
   useEffect(() => {
     if (bodyHeaders) {
