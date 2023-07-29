@@ -2265,7 +2265,34 @@ const Main = ({ urlAddress  })=>{
         bodyHeaders: runE2eRequest()
     })));
 };
+function TickIcon() {
+    return Z("svg", {
+        width: 25,
+        height: 25,
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M7.75 11.9999L10.58 14.8299L16.25 9.16992",
+        stroke: "lightcoral",
+        "stroke-width": "2",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), " ", Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "bisque"
+    }));
+}
 function Setting({ configUrl  }) {
+    const handleDelete = (fromIndex)=>{
+        headersState[fromIndex];
+        headersState.splice(fromIndex, 1);
+        setHeadersState([
+            ...headersState
+        ]);
+    };
     const { headers , setHeader  } = useLesan();
     const [headersState, setHeadersState] = F1([
         {
@@ -2292,26 +2319,21 @@ function Setting({ configUrl  }) {
         className: "url-title"
     }, "Fetch Config"), Z("div", {
         className: "url-detail"
-    }, Z("button", {
-        className: "btn url-button",
-        onClick: ()=>configUrl()
-    }, "Refetch Config")), Z("div", {
-        className: "url-detail"
     }, " ", Z("input", {
         className: "url-input",
         placeholder: "Set URL",
         onChange: (e)=>setUrlAddress(e.target.value)
     }), Z("button", {
-        className: "btn url-button",
+        className: "setting_fetch-config--apply-button e2e-back-button e2e-add-capture ",
         onClick: ()=>configUrl(urlAddress)
-    }, "Apply"))), Z("div", {
+    }, Z(TickIcon, null), Z("span", null, "Apply"), " "))), Z("div", {
         className: "sidebar__section sidebar__section--headers"
     }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "set headers"), Z("div", {
-        className: "sidebar__input-double"
-    }, Z("button", {
-        className: "btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture ",
+        className: "sidebar__section-heading setting_heading"
+    }, " ", Z("span", {
+        className: "setting_heading--title"
+    }, "Set Headers"), Z("button", {
+        className: "setting_add-header--button e2e-back-button e2e-export_results-button e2e-add-capture ",
         onClick: ()=>{
             setHeadersState([
                 ...headersState,
@@ -2321,9 +2343,17 @@ function Setting({ configUrl  }) {
                 }
             ]);
         }
-    }, "add header"), headersState?.map((hst, idx)=>Z(N, {
-            key: `${idx}____`
-        }, Z("input", {
+    }, Z(AddIcon, null), Z("span", null, "Add Header"))), Z("div", {
+        className: "setting_container--setheaders"
+    }, Z("div", {
+        className: "setting_set-headers"
+    }, headersState?.map((hst, idx)=>Z("div", {
+            key: `${idx}____`,
+            className: "setting_set-headers--inputs"
+        }, Z("div", {
+            className: "setting__set-headers--key-value setting__set-headers--key"
+        }, Z("span", null, "Key:"), Z("input", {
+            className: "setting_set-headers--inputs--key",
             placeholder: "Authotization",
             value: hst.key,
             onChange: (e)=>{
@@ -2332,7 +2362,10 @@ function Setting({ configUrl  }) {
                     return prevState;
                 });
             }
-        }), Z("input", {
+        })), Z("div", {
+            className: "setting__set-headers--key-value setting__set-headers--value"
+        }, Z("span", null, "Value:"), Z("input", {
+            className: "setting_set-headers--inputs--value",
             placeholder: "some string ...",
             value: hst.value,
             onChange: (e)=>{
@@ -2341,8 +2374,11 @@ function Setting({ configUrl  }) {
                     return prevState;
                 });
             }
-        }))), Z("button", {
-        className: "btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture ",
+        })), headersState.length > 1 && Z("div", {
+            className: "setting_set-headers--delete-button e2e-move-div e2e-move-close",
+            onClick: ()=>handleDelete(idx)
+        }, Z(DeleteIcon, null))))), Z("button", {
+        className: "setting_set-headers--apply-button e2e-back-button e2e-add-capture ",
         onClick: ()=>{
             const newHeaders = {};
             for (const header of headersState){
@@ -2351,7 +2387,7 @@ function Setting({ configUrl  }) {
             }
             setHeader(newHeaders);
         }
-    }, "apply"))));
+    }, Z(TickIcon, null), Z("span", null, "Apply")))));
 }
 const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}playground/static/get/schemas`).then((res)=>res.json());
 var MODAL_TYPES;
@@ -2525,19 +2561,27 @@ const Page = ()=>{
         }
     }, "+")), Z(Main, {
         urlAddress: urlAddress
-    }), Z("div", {
+    }), Z("button", {
+        className: "btn",
+        style: {
+            position: "absolute",
+            bottom: "0",
+            right: "0"
+        },
+        onClick: ()=>configUrl()
+    }, "Refetch Config"), Z("div", {
         className: "sidebar__btns-wrapper"
     }, Z("span", {
-        className: "btn-modal",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.HISTORY)
-    }, Z("span", {
-        className: "tooltip-text"
-    }, "History"), Z(HistoryIcon, null)), Z("span", {
         className: "btn-modal",
         onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SETTING)
     }, Z("span", {
         className: "tooltip-text"
     }, "Setting"), Z(SettingIcon, null)), Z("span", {
+        className: "btn-modal",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.HISTORY)
+    }, Z("span", {
+        className: "tooltip-text"
+    }, "History"), Z(HistoryIcon, null)), Z("span", {
         className: "btn-modal",
         onClick: ()=>modalBtnClickHandler(MODAL_TYPES.GRAPH)
     }, Z("span", {

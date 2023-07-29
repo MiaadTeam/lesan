@@ -274,10 +274,13 @@ input:focus {
 .url-detail {
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 15px;
 }
 
 .url-input {
   width: 75%;
+  padding: 10px;
 }
 
 .url-button {
@@ -843,6 +846,112 @@ input:focus {
 .help .e2e-back-button {
   position: fixed;
   top: 0;
+}
+
+.setting {
+  overflow: hidden;
+}
+
+@media (max-width: 1025px) {
+  .setting {
+    overflow: scroll;
+  }
+}
+
+.setting_fetch-config--apply-button {
+  width: 6rem;
+  border-radius: 7px;
+}
+
+.setting_heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.setting_heading--title {
+  flex-grow: 1;
+}
+
+.setting_add-header--button {
+  border-bottom: none;
+  margin-bottom: 0;
+  border-radius: 7px 7px 0 0;
+  margin-right: 19px;
+  width: unset;
+}
+
+.setting_container--setheaders {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.setting_set-headers {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25px;
+  gap: 1rem;
+  border-radius: 10px;
+  border: 1px solid #808080;
+  padding-bottom: 1.5rem;
+  position: relative;
+
+  overflow: scroll;
+  height: 40vh;
+  margin-top: 5px;
+  padding-bottom: 65px;
+  padding-top: 5px;
+}
+
+.setting_set-headers--inputs {
+  display: flex;
+  padding: 0 10px;
+  gap: 10px;
+  border: 1px solid bisque;
+  margin: 20px 20px 5px 20px;
+  border-radius: 7px;
+  position: relative;
+}
+
+.setting__set-headers--key-value {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: white;
+  padding: 5px;
+}
+
+.setting__set-headers--key {
+  width: 25%;
+}
+
+.setting__set-headers--value {
+  flex-grow: 1;
+}
+
+.setting_set-headers--inputs--key {
+  width: 75%;
+}
+
+.setting_set-headers--inputs--value {
+  flex-grow: 1;
+}
+
+.setting_set-headers--delete-button {
+  position: absolute;
+  right: 0;
+  top: -25px;
+}
+
+.setting_set-headers--apply-button {
+  width: 6rem;
+  margin-right: 31px;
+  border-radius: 7px;
+  position: absolute;
+  bottom: 0;
+  right: -10px;
+  margin-bottom: 40px;
 }
 
 .container-detail {
