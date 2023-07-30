@@ -1182,7 +1182,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
             ]);
         }
     }, []);
-    const [resultView, setResultView] = F1("e2e");
+    const [view, setView] = F1("e2e");
     const [results, setResults] = F1([]);
     const exportForm = ()=>{
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(e2eFroms))}`;
@@ -1332,7 +1332,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
     };
     return Z("div", {
         className: "e2e modal-content"
-    }, resultView === "result" ? Z(N, null, Z("br", null), Z("div", {
+    }, view === "result" ? Z(N, null, Z("br", null), Z("div", {
         className: "results"
     }, Z("div", {
         className: "results-buttons"
@@ -1340,7 +1340,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
         className: "btn  e2e-back-button",
         onClick: ()=>{
             setResults([]);
-            setResultView("e2e");
+            setView("e2e");
         }
     }, Z(BackIcon, null), Z("span", null, "Back")), Z("button", {
         className: "btn  e2e-back-button e2e-export_results-button",
@@ -1360,7 +1360,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
             className: "container-re-title"
         }, "RESPONSE"), Z(JSONViewer, {
             jsonData: re.response
-        })))))) : resultView === "e2e" ? Z(N, null, Z("div", {
+        })))))) : view === "e2e" ? Z(N, null, Z("div", {
         className: "sidebar__section sidebar__section--headers"
     }, e2eFroms.map((e2eForm, idx)=>Z(N, null, Z("div", {
             className: "sidebar__input-double",
@@ -1505,7 +1505,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
     }, Z(AddIcon, null), Z("span", null, "Add")), Z("button", {
         className: "btn e2e-back-button e2e-run-botton e2e-export_results-button",
         onClick: async ()=>{
-            setResultView("result");
+            setView("result");
             await runE2eTest();
         }
     }, Z(RunIcon, null), Z("span", null, "Run E2E Test")), Z("input", {
@@ -1520,14 +1520,14 @@ function E2E({ baseUrl , bodyHeaders  }) {
         className: "btn e2e-back-button e2e-export_results-button",
         onClick: exportForm
     }, Z(ExportIcon, null), Z("span", null, "Export")), Z("button", {
-        onClick: ()=>setResultView("help"),
+        onClick: ()=>setView("help"),
         className: "btn e2e-back-button e2e-export_results-button"
-    }, Z(HelpIcon, null), Z("span", null, "Help")))) : resultView === "help" ? Z("div", {
+    }, Z(HelpIcon, null), Z("span", null, "Help")))) : view === "help" ? Z("div", {
         className: "help"
     }, " ", Z("button", {
         className: "btn  e2e-back-button",
         onClick: ()=>{
-            setResultView("e2e");
+            setView("e2e");
         }
     }, Z(BackIcon, null), Z("span", null, "Back")), " ") : "");
 }
@@ -1656,32 +1656,40 @@ function History({ setFormFromHistory  }) {
         className: "tooltip-text"
     }, "Clear History"))) : "");
 }
-function GraphIcon() {
+function DocumentIcon() {
     return Z("svg", {
         viewBox: "0 0 24 24",
         fill: "none",
         xmlns: "http://www.w3.org/2000/svg"
-    }, Z("path", {
-        opacity: "0.5",
-        d: "M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z",
-        stroke: "#1C274C",
+    }, Z("g", {
+        id: "SVGRepo_bgCarrier",
+        "stroke-width": "0"
+    }), Z("g", {
+        id: "SVGRepo_tracerCarrier",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("g", {
+        id: "SVGRepo_iconCarrier"
+    }, " ", Z("path", {
+        d: "M4 6V19C4 20.6569 5.34315 22 7 22H17C18.6569 22 20 20.6569 20 19V9C20 7.34315 18.6569 6 17 6H4ZM4 6V5",
+        stroke: "lightcoral",
         "stroke-width": "1.5"
-    }), Z("path", {
-        d: "M7 18V9",
-        stroke: "#1C274C",
+    }), " ", Z("path", {
+        d: "M18 6.00002V6.75002H18.75V6.00002H18ZM15.7172 2.32614L15.6111 1.58368L15.7172 2.32614ZM4.91959 3.86865L4.81353 3.12619H4.81353L4.91959 3.86865ZM5.07107 6.75002H18V5.25002H5.07107V6.75002ZM18.75 6.00002V4.30604H17.25V6.00002H18.75ZM15.6111 1.58368L4.81353 3.12619L5.02566 4.61111L15.8232 3.0686L15.6111 1.58368ZM4.81353 3.12619C3.91638 3.25435 3.25 4.0227 3.25 4.92895H4.75C4.75 4.76917 4.86749 4.63371 5.02566 4.61111L4.81353 3.12619ZM18.75 4.30604C18.75 2.63253 17.2678 1.34701 15.6111 1.58368L15.8232 3.0686C16.5763 2.96103 17.25 3.54535 17.25 4.30604H18.75ZM5.07107 5.25002C4.89375 5.25002 4.75 5.10627 4.75 4.92895H3.25C3.25 5.9347 4.06532 6.75002 5.07107 6.75002V5.25002Z",
+        fill: "lightcoral"
+    }), " ", Z("path", {
+        opacity: "0.5",
+        d: "M8 12H16",
+        stroke: "lightcoral",
         "stroke-width": "1.5",
         "stroke-linecap": "round"
-    }), Z("path", {
-        d: "M12 18V6",
-        stroke: "#1C274C",
+    }), " ", Z("path", {
+        opacity: "0.5",
+        d: "M8 15.5H13.5",
+        stroke: "lightcoral",
         "stroke-width": "1.5",
         "stroke-linecap": "round"
-    }), Z("path", {
-        d: "M17 18V13",
-        stroke: "#1C274C",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round"
-    }));
+    }), " "));
 }
 function HistoryIcon() {
     return Z("svg", {
@@ -1690,14 +1698,77 @@ function HistoryIcon() {
         xmlns: "http://www.w3.org/2000/svg"
     }, Z("path", {
         "fill-rule": "evenodd",
+        opacity: "0.5",
         "clip-rule": "evenodd",
         d: "M5.07868 5.06891C8.87402 1.27893 15.0437 1.31923 18.8622 5.13778C22.6824 8.95797 22.7211 15.1313 18.9262 18.9262C15.1312 22.7211 8.95793 22.6824 5.13774 18.8622C2.87389 16.5984 1.93904 13.5099 2.34047 10.5812C2.39672 10.1708 2.775 9.88377 3.18537 9.94002C3.59575 9.99627 3.88282 10.3745 3.82658 10.7849C3.4866 13.2652 4.27782 15.881 6.1984 17.8016C9.44288 21.0461 14.6664 21.0646 17.8655 17.8655C21.0646 14.6664 21.046 9.44292 17.8015 6.19844C14.5587 2.95561 9.33889 2.93539 6.13935 6.12957L6.88705 6.13333C7.30126 6.13541 7.63535 6.47288 7.63327 6.88709C7.63119 7.3013 7.29372 7.63539 6.87951 7.63331L4.33396 7.62052C3.92269 7.61845 3.58981 7.28556 3.58774 6.8743L3.57495 4.32874C3.57286 3.91454 3.90696 3.57707 4.32117 3.57498C4.73538 3.5729 5.07285 3.907 5.07493 4.32121L5.07868 5.06891Z",
-        fill: "#1C274C"
+        fill: "lightcoral"
     }), Z("path", {
-        opacity: "0.5",
         d: "M12 7.25C12.4142 7.25 12.75 7.58579 12.75 8V11.6893L15.0303 13.9697C15.3232 14.2626 15.3232 14.7374 15.0303 15.0303C14.7374 15.3232 14.2626 15.3232 13.9697 15.0303L11.5429 12.6036C11.3554 12.416 11.25 12.1617 11.25 11.8964V8C11.25 7.58579 11.5858 7.25 12 7.25Z",
-        fill: "#1C274C"
+        fill: "lightcoral"
     }));
+}
+function ReFetchIcon() {
+    return Z("svg", {
+        height: "25px",
+        width: "25px",
+        version: "1.1",
+        id: "Layer_1",
+        xmlns: "http://www.w3.org/2000/svg",
+        viewBox: "0 0 512 512",
+        fill: "#000000"
+    }, Z("g", {
+        id: "SVGRepo_bgCarrier",
+        "stroke-width": "0"
+    }), Z("g", {
+        id: "SVGRepo_tracerCarrier",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("g", {
+        id: "SVGRepo_iconCarrier"
+    }, " ", Z("circle", {
+        opacity: 0.34,
+        style: "fill:lightcoral;",
+        cx: "256.602",
+        cy: "226.267",
+        r: "171.059"
+    }), " ", Z("path", {
+        style: "fill:lightcoral",
+        d: "M482.195,226.196C482.195,101.471,380.725,0,256.001,0S29.804,101.471,29.804,226.196 c0,7.409,6.007,13.416,13.416,13.416s13.416-6.008,13.416-13.416c0-109.93,89.434-199.363,199.363-199.363 s199.363,89.434,199.363,199.363c0,109.928-89.434,199.362-199.363,199.362h-23.276l33.282-37.255 c4.937-5.525,4.458-14.007-1.067-18.944c-5.525-4.937-14.008-4.457-18.944,1.068l-47.576,53.255c-7.788,8.718-7.788,21.866,0,30.584 l47.576,53.255c2.651,2.968,6.322,4.478,10.01,4.478c3.181,0,6.375-1.126,8.934-3.41c5.526-4.937,6.004-13.419,1.067-18.944 l-33.282-37.255h23.276C380.725,452.39,482.195,350.919,482.195,226.196z"
+    }), " "));
+}
+function SchemaIcon() {
+    return Z("svg", {
+        fill: "lightcoral",
+        height: "25px",
+        width: "25px",
+        viewBox: "0 0 436.668 436.668"
+    }, Z("g", {
+        id: "SVGRepo_bgCarrier",
+        "stroke-width": "0"
+    }), Z("g", {
+        id: "SVGRepo_tracerCarrier",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("g", {
+        id: "SVGRepo_iconCarrier"
+    }, " ", Z("g", null, " ", Z("path", {
+        opacity: 0.34,
+        d: "M203.334,85.818v59.141c4.884-0.8,9.893-1.223,15-1.223s10.116,0.423,15,1.223V85.818c14.657-5.935,25-20.296,25-37.081 c0-22.092-17.909-40-40-40s-40,17.908-40,40C178.334,65.522,188.677,79.883,203.334,85.818z"
+    }), " ", Z("path", {
+        opacity: 0.34,
+        d: "M70.642,204.021l56.242,18.274c1.539-10.139,4.732-19.74,9.292-28.525L79.912,175.49 c-1.115-15.774-11.577-30.049-27.541-35.236c-21.01-6.827-43.576,4.672-50.403,25.682c-6.827,21.01,4.672,43.576,25.682,50.403 C43.614,221.525,60.468,216.126,70.642,204.021z"
+    }), " ", Z("path", {
+        opacity: 0.34,
+        d: "M152.577,301.224l-34.792,47.887c-15.346-3.813-32.156,1.725-42.022,15.305c-12.985,17.872-9.023,42.887,8.849,55.872 s42.887,9.023,55.872-8.849c9.866-13.579,9.939-31.277,1.571-44.694l34.772-47.86C167.8,314.333,159.616,308.347,152.577,301.224z"
+    }), " ", Z("path", {
+        opacity: 0.34,
+        d: "M318.883,349.112l-34.792-47.887c-7.039,7.122-15.223,13.109-24.25,17.661l34.772,47.86 c-8.369,13.417-8.296,31.115,1.571,44.694c12.985,17.872,38,21.834,55.872,8.849s21.834-38,8.849-55.872 C351.038,350.837,334.229,345.298,318.883,349.112z"
+    }), " ", Z("path", {
+        opacity: 0.34,
+        d: "M434.699,165.936c-6.827-21.01-29.393-32.508-50.403-25.682c-15.964,5.187-26.426,19.462-27.541,35.236l-56.263,18.281 c4.559,8.784,7.752,18.386,9.292,28.525l56.242-18.274c10.174,12.105,27.028,17.504,42.992,12.318 C430.028,209.512,441.526,186.946,434.699,165.936z"
+    }), " ", Z("path", {
+        d: "M280.834,236.237c0-34.462-28.037-62.5-62.5-62.5s-62.5,28.038-62.5,62.5s28.037,62.5,62.5,62.5 S280.834,270.7,280.834,236.237z"
+    }), " "), " "));
 }
 function SettingIcon() {
     return Z("svg", {
@@ -1706,14 +1777,14 @@ function SettingIcon() {
         xmlns: "http://www.w3.org/2000/svg"
     }, Z("path", {
         d: "M3 9.10986V14.8799C3 16.9999 3 16.9999 5 18.3499L10.5 21.5299C11.33 22.0099 12.68 22.0099 13.5 21.5299L19 18.3499C21 16.9999 21 16.9999 21 14.8899V9.10986C21 6.99986 21 6.99986 19 5.64986L13.5 2.46986C12.68 1.98986 11.33 1.98986 10.5 2.46986L5 5.64986C3 6.99986 3 6.99986 3 9.10986Z",
-        stroke: "#292D32",
+        stroke: "lightcoral",
         "stroke-width": "1.5",
         "stroke-linecap": "round",
-        "stroke-linejoin": "round"
+        "stroke-linejoin": "round",
+        opacity: 0.34
     }), Z("path", {
-        opacity: "0.34",
         d: "M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z",
-        stroke: "#292D32",
+        stroke: "lightcoral",
         "stroke-width": "1.5",
         "stroke-linecap": "round",
         "stroke-linejoin": "round"
@@ -1725,20 +1796,19 @@ function TestIcon() {
         fill: "none",
         xmlns: "http://www.w3.org/2000/svg"
     }, Z("path", {
+        opacity: 0.5,
         d: "M9.74872 2.49415L18.1594 7.31987M9.74872 2.49415L2.65093 14.7455C1.31093 17.0584 2.10615 20.0159 4.42709 21.3513C6.74803 22.6867 9.7158 21.8942 11.0558 19.5813L12.5511 17.0003L14.1886 14.1738L15.902 11.2163L18.1594 7.31987M9.74872 2.49415L8.91283 2M18.1594 7.31987L19 7.80374",
-        stroke: "#1C274C",
+        stroke: "lightcoral",
         "stroke-width": "1.5",
         "stroke-linecap": "round"
     }), Z("path", {
-        opacity: "0.5",
         d: "M15.9021 11.2164L13.3441 9.74463M14.1887 14.1739L9.98577 11.7557M12.5512 17.0004L9.93848 15.4972",
-        stroke: "#1C274C",
+        stroke: "lightcpral",
         "stroke-width": "1.5",
         "stroke-linecap": "round"
     }), Z("path", {
-        opacity: "0.5",
         d: "M22 14.9166C22 16.0672 21.1046 16.9999 20 16.9999C18.8954 16.9999 18 16.0672 18 14.9166C18 14.1967 18.783 13.2358 19.3691 12.6174C19.7161 12.2512 20.2839 12.2512 20.6309 12.6174C21.217 13.2358 22 14.1967 22 14.9166Z",
-        stroke: "#1C274C",
+        stroke: "lightcoral",
         "stroke-width": "1.5"
     }));
 }
@@ -2393,14 +2463,16 @@ const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}playground/static/get/sch
 var MODAL_TYPES;
 (function(MODAL_TYPES) {
     MODAL_TYPES["HISTORY"] = "HISTORY";
-    MODAL_TYPES["GRAPH"] = "GRAPH";
+    MODAL_TYPES["DOCUMENT"] = "DOCUMENT";
     MODAL_TYPES["SETTING"] = "SETTING";
     MODAL_TYPES["E2E_TEST"] = "E2E TEST";
+    MODAL_TYPES["SCHEMA"] = "SCHEMA";
 })(MODAL_TYPES || (MODAL_TYPES = {}));
 const Page = ()=>{
     const { isOpen , toggleModal  } = useModal();
     const { tabsData , setTabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , closeTab , resetPostFields , setSchemasObj , setActsObj  } = useLesan();
     const [active, setActive] = F1("");
+    const [show, setShow] = F1("");
     const parsedWindowUrl = ()=>{
         return window && window.location ? `${new URL(window.location.href).origin}/` : "http://localhost:1366/";
     };
@@ -2561,37 +2633,55 @@ const Page = ()=>{
         }
     }, "+")), Z(Main, {
         urlAddress: urlAddress
-    }), Z("button", {
-        className: "btn",
-        style: {
-            position: "absolute",
-            bottom: "0",
-            right: "0"
-        },
-        onClick: ()=>configUrl()
-    }, "Refetch Config"), Z("div", {
-        className: "sidebar__btns-wrapper"
+    }), Z("span", {
+        className: "btn btn-modal btn-refetch",
+        onClick: ()=>configUrl(),
+        onMouseEnter: ()=>setShow("refetch"),
+        onMouseLeave: ()=>setShow("")
     }, Z("span", {
-        className: "btn-modal",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SETTING)
+        className: "btn-modal-title",
+        "data-show": show === "refetch"
+    }, "Refetch Config"), Z(ReFetchIcon, null)), Z("span", {
+        className: "btn btn-modal btn-setting",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SETTING),
+        onMouseEnter: ()=>setShow("setting"),
+        onMouseLeave: ()=>setShow("")
     }, Z("span", {
-        className: "tooltip-text"
+        className: "btn-modal-title ",
+        "data-show": show === "setting"
     }, "Setting"), Z(SettingIcon, null)), Z("span", {
-        className: "btn-modal",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.HISTORY)
+        className: "btn btn-modal btn-history",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.HISTORY),
+        onMouseEnter: ()=>setShow("history"),
+        onMouseLeave: ()=>setShow("")
     }, Z("span", {
-        className: "tooltip-text"
+        className: "btn-modal-title",
+        "data-show": show === "history"
     }, "History"), Z(HistoryIcon, null)), Z("span", {
-        className: "btn-modal",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.GRAPH)
+        className: "btn btn-modal btn-graph",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SCHEMA),
+        onMouseEnter: ()=>setShow("schema"),
+        onMouseLeave: ()=>setShow("")
     }, Z("span", {
-        className: "tooltip-text"
-    }, "Graph"), Z(GraphIcon, null)), Z("span", {
-        className: "btn-modal",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.E2E_TEST)
+        className: "btn-modal-title",
+        "data-show": show === "schema"
+    }, "SCHEMA"), Z(SchemaIcon, null)), Z("span", {
+        className: "btn btn-modal btn-e2e",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.E2E_TEST),
+        onMouseEnter: ()=>setShow("e2e"),
+        onMouseLeave: ()=>setShow("")
     }, Z("span", {
-        className: "tooltip-text"
-    }, "Test"), Z(TestIcon, null))), isOpen && Z(Modal, {
+        className: "btn-modal-title",
+        "data-show": show === "e2e"
+    }, "Test"), Z(TestIcon, null)), Z("span", {
+        className: "btn btn-modal btn-doc ",
+        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.DOCUMENT),
+        onMouseEnter: ()=>setShow("doc"),
+        onMouseLeave: ()=>setShow("")
+    }, Z("span", {
+        className: "btn-modal-title",
+        "data-show": show === "doc"
+    }, "Document"), Z(DocumentIcon, null)), isOpen && Z(Modal, {
         toggle: toggleModal,
         title: active
     }, active === MODAL_TYPES.HISTORY ? Z(History, {

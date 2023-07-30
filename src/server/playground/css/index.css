@@ -291,32 +291,6 @@ input:focus {
   color: white;
 }
 
-.sidebar__btns-wrapper {
-  /* width: 100%; */
-  position: absolute;
-  bottom: 1rem;
-  /* left: calc(10% - 6.5rem); */
-  height: 2.8rem;
-  display: flex;
-  background-color: azure;
-  border-radius: 0.3rem;
-  border: 1px solid antiquewhite;
-  left: calc(10% - 5.8rem);
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .sidebar__btns-wrapper {
-    left: calc(16% - 6.5rem);
-  }
-  .sidebar__section-add-capture {
-    flex-direction: column;
-  }
-  .sidebar__section-add-capture input {
-    margin: 0;
-    width: 100%;
-  }
-}
-
 @media (min-width: 1024px) and (max-width: 1440px) {
   .sidebar__section-add-capture {
     flex-direction: column;
@@ -329,30 +303,61 @@ input:focus {
 }
 
 .btn-modal {
-  width: 2.2rem;
-  padding: 0.3rem;
+  position: absolute;
+  bottom: 300px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  left: 0;
   cursor: pointer;
-  border-right: 1px solid antiquewhite;
-  position: relative;
-}
-
-.btn-modal .tooltip-text {
-  background-color: azure;
-  width: 80px;
-  padding: 2px 0;
-  color: currentColor;
-  margin-left: -40px;
+  background-color: rgba(70, 70, 70, 0.5);
+  border: 1px solid bisque;
+  backdrop-filter: blur(10px);
+  border-radius: 7px;
 }
 
 .btn-modal:hover {
-  background-color: antiquewhite;
+  background-color: dimgray;
+}
+.btn-modal svg {
+  width: 25px;
 }
 
-.btn-modal:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
+.btn-modal-title {
+  display: none;
+  width: fit-content;
 }
 
+.btn-modal:hover .btn-modal-title[data-show="true"] {
+  display: block;
+  color: bisque;
+  transition-timing-function: linear;
+  transition-duration: 1s;
+}
+
+.btn-setting {
+  bottom: 400px;
+}
+
+.btn-history {
+  bottom: 350px;
+}
+
+.btn-schema {
+  bottom: 300px;
+}
+
+.btn-e2e {
+  bottom: 250px;
+}
+
+.btn-refetch {
+  bottom: 200px;
+}
+
+.btn-doc {
+  bottom: 150px;
+}
 /* -------------------------------------------------------------------------- */
 
 .sidebar--fields {
