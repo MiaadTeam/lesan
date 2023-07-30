@@ -2,6 +2,7 @@
 import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
 import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKeys.ts";
 import { generateFormData } from "../utils/generateFormData.ts";
+import { MODAL_TYPES } from "./context/actionType.ts";
 import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
 import DocumentIcon from "./icon/DocumentIcon.tsx";
@@ -14,22 +15,11 @@ import { Main } from "./Main.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import Modal from "./Modal.tsx";
 import { Setting } from "./Setting.tsx";
-import useModal from "./useModal.tsx";
 
 const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
   fetch(`${baseUrl}playground/static/get/schemas`).then((res) => res.json());
 
-enum MODAL_TYPES {
-  HISTORY = "HISTORY",
-  DOCUMENT = "DOCUMENT",
-  SETTING = "SETTING",
-  E2E_TEST = "E2E TEST",
-  SCHEMA = "SCHEMA",
-}
-
 export const Page = () => {
-  const { isOpen, toggleModal } = useModal();
-
   const {
     tabsData,
     setTabsData,
@@ -51,6 +41,8 @@ export const Page = () => {
     resetPostFields,
     setSchemasObj,
     setActsObj,
+    setModal,
+    modal,
   } = useLesan();
 
   const [active, setActive] = useState("");
@@ -202,6 +194,10 @@ export const Page = () => {
     );
   };
 
+  const toggleModal = () => {
+    setModal(null);
+  };
+
   const setFormFromHistory = (request: any) => {
     setService({ data: request.body.service, index: activeTab });
     setMethod({ data: request.body.contents, index: activeTab });
@@ -221,11 +217,6 @@ export const Page = () => {
 
     setFormData({ data: historyFromData, index: activeTab });
 
-    toggleModal();
-  };
-
-  const modalBtnClickHandler = (type: MODAL_TYPES) => {
-    setActive(type);
     toggleModal();
   };
 
@@ -288,7 +279,7 @@ export const Page = () => {
 
       <span
         className="btn btn-modal btn-setting"
-        onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
+        onClick={() => setModal(MODAL_TYPES.SETTING)}
         onMouseEnter={() => setShow("setting")}
         onMouseLeave={() => setShow("")}
       >
@@ -299,7 +290,7 @@ export const Page = () => {
       </span>
       <span
         className="btn btn-modal btn-history"
-        onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
+        onClick={() => setModal(MODAL_TYPES.HISTORY)}
         onMouseEnter={() => setShow("history")}
         onMouseLeave={() => setShow("")}
       >
@@ -311,7 +302,7 @@ export const Page = () => {
 
       <span
         className="btn btn-modal btn-graph"
-        onClick={() => modalBtnClickHandler(MODAL_TYPES.SCHEMA)}
+        onClick={() => setModal(MODAL_TYPES.SCHEMA)}
         onMouseEnter={() => setShow("schema")}
         onMouseLeave={() => setShow("")}
       >
@@ -322,7 +313,7 @@ export const Page = () => {
       </span>
       <span
         className="btn btn-modal btn-e2e"
-        onClick={() => modalBtnClickHandler(MODAL_TYPES.E2E_TEST)}
+        onClick={() => setModal(MODAL_TYPES.E2E_TEST)}
         onMouseEnter={() => setShow("e2e")}
         onMouseLeave={() => setShow("")}
       >
@@ -343,13 +334,13 @@ export const Page = () => {
         <DocumentIcon />
       </span>
 
-      {isOpen && (
-        <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY ? (
+      {modal !== null && (
+        <Modal toggle={toggleModal} title={modal}>
+          {modal === MODAL_TYPES.HISTORY ? (
             <History setFormFromHistory={setFormFromHistory} />
-          ) : active === MODAL_TYPES.SETTING ? (
+          ) : modal === MODAL_TYPES.SETTING ? (
             <Setting configUrl={configUrl} />
-          ) : active === MODAL_TYPES.E2E_TEST ? (
+          ) : modal === MODAL_TYPES.E2E_TEST ? (
             <E2E baseUrl={urlAddress} />
           ) : (
             <Fragment></Fragment>
