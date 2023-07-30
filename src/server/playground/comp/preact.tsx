@@ -4,8 +4,10 @@ import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKey
 import { generateFormData } from "../utils/generateFormData.ts";
 import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
-import GraphIcon from "./icon/GraphIcon.tsx";
+import DocumentIcon from "./icon/DocumentIcon.tsx";
 import HistoryIcon from "./icon/HistoryIcon.tsx";
+import ReFetchIcon from "./icon/ReFetchIcon.tsx";
+import SchemaIcon from "./icon/SchemaIcon.tsx";
 import SettingIcon from "./icon/SettingIcon.tsx";
 import TestIcon from "./icon/TestIcon.tsx";
 import { Main } from "./Main.tsx";
@@ -19,9 +21,10 @@ const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
 
 enum MODAL_TYPES {
   HISTORY = "HISTORY",
-  GRAPH = "GRAPH",
+  DOCUMENT = "DOCUMENT",
   SETTING = "SETTING",
   E2E_TEST = "E2E TEST",
+  SCHEMA = "SCHEMA",
 }
 
 export const Page = () => {
@@ -51,6 +54,7 @@ export const Page = () => {
   } = useLesan();
 
   const [active, setActive] = useState("");
+  const [show, setShow] = useState("");
 
   const parsedWindowUrl = () => {
     return window && window.location
@@ -270,37 +274,74 @@ export const Page = () => {
       </div>
       <Main urlAddress={urlAddress} />
 
-      <div className="sidebar__btns-wrapper">
-        <span
-          className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
-        >
-          <span className="tooltip-text">Setting</span>
-          <SettingIcon />
+      <span
+        className="btn btn-modal btn-refetch"
+        onClick={() => configUrl()}
+        onMouseEnter={() => setShow("refetch")}
+        onMouseLeave={() => setShow("")}
+      >
+        <span className="btn-modal-title" data-show={show === "refetch"}>
+          Refetch Config
         </span>
-        <span
-          className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
-        >
-          <span className="tooltip-text">History</span>
-          <HistoryIcon />
-        </span>
+        <ReFetchIcon />
+      </span>
 
-        <span
-          className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.GRAPH)}
-        >
-          <span className="tooltip-text">Graph</span>
-          <GraphIcon />
+      <span
+        className="btn btn-modal btn-setting"
+        onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
+        onMouseEnter={() => setShow("setting")}
+        onMouseLeave={() => setShow("")}
+      >
+        <span className="btn-modal-title " data-show={show === "setting"}>
+          Setting
         </span>
-        <span
-          className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.E2E_TEST)}
-        >
-          <span className="tooltip-text">Test</span>
-          <TestIcon />
+        <SettingIcon />
+      </span>
+      <span
+        className="btn btn-modal btn-history"
+        onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
+        onMouseEnter={() => setShow("history")}
+        onMouseLeave={() => setShow("")}
+      >
+        <span className="btn-modal-title" data-show={show === "history"}>
+          History
         </span>
-      </div>
+        <HistoryIcon />
+      </span>
+
+      <span
+        className="btn btn-modal btn-graph"
+        onClick={() => modalBtnClickHandler(MODAL_TYPES.SCHEMA)}
+        onMouseEnter={() => setShow("schema")}
+        onMouseLeave={() => setShow("")}
+      >
+        <span className="btn-modal-title" data-show={show === "schema"}>
+          SCHEMA
+        </span>
+        <SchemaIcon />
+      </span>
+      <span
+        className="btn btn-modal btn-e2e"
+        onClick={() => modalBtnClickHandler(MODAL_TYPES.E2E_TEST)}
+        onMouseEnter={() => setShow("e2e")}
+        onMouseLeave={() => setShow("")}
+      >
+        <span className="btn-modal-title" data-show={show === "e2e"}>
+          Test
+        </span>
+        <TestIcon />
+      </span>
+      <span
+        className="btn btn-modal btn-doc "
+        onClick={() => modalBtnClickHandler(MODAL_TYPES.DOCUMENT)}
+        onMouseEnter={() => setShow("doc")}
+        onMouseLeave={() => setShow("")}
+      >
+        <span className="btn-modal-title" data-show={show === "doc"}>
+          Document
+        </span>
+        <DocumentIcon />
+      </span>
 
       {isOpen && (
         <Modal toggle={toggleModal} title={active}>
