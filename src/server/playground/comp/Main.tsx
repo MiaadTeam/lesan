@@ -1,15 +1,13 @@
 /** @jsx h */
-import { Fragment, h, useEffect, useRef, useState } from "../reactDeps.ts";
+import { Fragment, h, useRef, useState } from "../reactDeps.ts";
 import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKeys.ts";
 import { uid } from "../utils/uid.ts";
-import { E2E } from "./E2E.tsx";
+import { E2eForm, MODAL_TYPES, TRequest } from "./context/actionType.ts";
 import CopyIcon from "./icon/CopyIcon.tsx";
 import RunTestIcon from "./icon/RunTestIcon.tsx";
 import SuccessIcon from "./icon/SuccessIcon.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
-import { TRequest, useLesan } from "./ManagedLesanContext.tsx";
-import Modal from "./Modal.tsx";
-import useModal from "./useModal.tsx";
+import { useLesan } from "./ManagedLesanContext.tsx";
 
 const lesanAPI = ({
   baseUrl,
@@ -20,8 +18,6 @@ const lesanAPI = ({
 }) => fetch(`${baseUrl}lesan`, options).then((res) => res.json());
 
 export const Main = ({ urlAddress }: { urlAddress: string }) => {
-  const { isOpen, toggleModal } = useModal();
-
   const {
     activeTab,
     tabsData,
@@ -39,6 +35,8 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     setResponse,
     resetGetFields,
     resetPostFields,
+    addE2eForm,
+    setModal,
   } = useLesan();
 
   const [active, setActive] = useState(false);
@@ -256,7 +254,14 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     const request: any = requestFunction();
     request.body.body = JSON.parse(request.body.body);
     const { method, ...rest } = request.body;
-    return JSON.stringify({ ...rest }, null, 2);
+    const newE2eForm: E2eForm = {
+      id: uid(),
+      bodyHeaders: JSON.stringify({ ...rest }, null, 2),
+      repeat: 1,
+      captures: [],
+    };
+    addE2eForm(newE2eForm);
+    setModal(MODAL_TYPES.E2E_TEST);
   };
 
   return (
@@ -597,8 +602,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                 <div
                   className="btn response-detail-button "
                   onClick={() => {
-                    runE2eRequest;
-                    toggleModal();
+                    runE2eRequest();
                   }}
                 >
                   <RunTestIcon />
@@ -616,11 +620,6 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
           </div>
         )}
       </div>
-      {isOpen && (
-        <Modal toggle={toggleModal} title={"E2E TEST"}>
-          <E2E baseUrl={urlAddress} bodyHeaders={runE2eRequest()} />
-        </Modal>
-      )}
     </Fragment>
   );
 };

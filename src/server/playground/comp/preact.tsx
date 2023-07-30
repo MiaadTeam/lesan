@@ -2,6 +2,7 @@
 import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
 import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKeys.ts";
 import { generateFormData } from "../utils/generateFormData.ts";
+import { MODAL_TYPES } from "./context/actionType.ts";
 import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
 import GraphIcon from "./icon/GraphIcon.tsx";
@@ -12,21 +13,11 @@ import { Main } from "./Main.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import Modal from "./Modal.tsx";
 import { Setting } from "./Setting.tsx";
-import useModal from "./useModal.tsx";
 
 const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
   fetch(`${baseUrl}playground/static/get/schemas`).then((res) => res.json());
 
-enum MODAL_TYPES {
-  HISTORY = "HISTORY",
-  GRAPH = "GRAPH",
-  SETTING = "SETTING",
-  E2E_TEST = "E2E TEST",
-}
-
 export const Page = () => {
-  const { isOpen, toggleModal } = useModal();
-
   const {
     tabsData,
     setTabsData,
@@ -48,9 +39,9 @@ export const Page = () => {
     resetPostFields,
     setSchemasObj,
     setActsObj,
+    setModal,
+    modal,
   } = useLesan();
-
-  const [active, setActive] = useState("");
 
   const parsedWindowUrl = () => {
     return window && window.location
@@ -126,22 +117,20 @@ export const Page = () => {
             const newGeneratedFormData = generateFormData(
               parsedFromData,
               {},
-              ""
+              "",
             );
             // form data section --- end
 
             // set fileds section --- begin
-            tab.postFields =
-              acts[tab.service][tab.method][tab.schema][
-                tab.act
-              ].validator.schema.set.schema;
+            tab.postFields = acts[tab.service][tab.method][tab.schema][
+              tab.act
+            ].validator.schema.set.schema;
             // set fileds section --- end
 
             // get fileds section --- begin
-            tab.getFields =
-              acts[tab.service][tab.method][tab.schema][
-                tab.act
-              ].validator.schema.get.schema;
+            tab.getFields = acts[tab.service][tab.method][tab.schema][
+              tab.act
+            ].validator.schema.get.schema;
             // get fileds section --- end
 
             parsedLocalTabData.push({
@@ -194,8 +183,12 @@ export const Page = () => {
           }
           setTabsData(parsedLocalTabData);
         }
-      }
+      },
     );
+  };
+
+  const toggleModal = () => {
+    setModal(null);
   };
 
   const setFormFromHistory = (request: any) => {
@@ -217,11 +210,6 @@ export const Page = () => {
 
     setFormData({ data: historyFromData, index: activeTab });
 
-    toggleModal();
-  };
-
-  const modalBtnClickHandler = (type: MODAL_TYPES) => {
-    setActive(type);
     toggleModal();
   };
 
@@ -273,14 +261,14 @@ export const Page = () => {
       <div className="sidebar__btns-wrapper">
         <span
           className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.SETTING)}
+          onClick={() => setModal(MODAL_TYPES.SETTING)}
         >
           <span className="tooltip-text">Setting</span>
           <SettingIcon />
         </span>
         <span
           className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.HISTORY)}
+          onClick={() => setModal(MODAL_TYPES.HISTORY)}
         >
           <span className="tooltip-text">History</span>
           <HistoryIcon />
@@ -288,31 +276,29 @@ export const Page = () => {
 
         <span
           className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.GRAPH)}
+          onClick={() => setModal(MODAL_TYPES.GRAPH)}
         >
           <span className="tooltip-text">Graph</span>
           <GraphIcon />
         </span>
         <span
           className="btn-modal"
-          onClick={() => modalBtnClickHandler(MODAL_TYPES.E2E_TEST)}
+          onClick={() => setModal(MODAL_TYPES.E2E_TEST)}
         >
           <span className="tooltip-text">Test</span>
           <TestIcon />
         </span>
       </div>
 
-      {isOpen && (
-        <Modal toggle={toggleModal} title={active}>
-          {active === MODAL_TYPES.HISTORY ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : active === MODAL_TYPES.SETTING ? (
-            <Setting configUrl={configUrl} />
-          ) : active === MODAL_TYPES.E2E_TEST ? (
-            <E2E baseUrl={urlAddress} />
-          ) : (
-            <Fragment></Fragment>
-          )}
+      {modal !== null && (
+        <Modal toggle={toggleModal} title={modal}>
+          {modal === MODAL_TYPES.HISTORY
+            ? <History setFormFromHistory={setFormFromHistory} />
+            : modal === MODAL_TYPES.SETTING
+            ? <Setting configUrl={configUrl} />
+            : modal === MODAL_TYPES.E2E_TEST
+            ? <E2E baseUrl={urlAddress} />
+            : <Fragment></Fragment>}
         </Modal>
       )}
     </div>
