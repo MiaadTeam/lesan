@@ -3,7 +3,12 @@ import { h } from "../../reactDeps.ts";
 
 export default function SettingIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="25px"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M3 9.10986V14.8799C3 16.9999 3 16.9999 5 18.3499L10.5 21.5299C11.33 22.0099 12.68 22.0099 13.5 21.5299L19 18.3499C21 16.9999 21 16.9999 21 14.8899V9.10986C21 6.99986 21 6.99986 19 5.64986L13.5 2.46986C12.68 1.98986 11.33 1.98986 10.5 2.46986L5 5.64986C3 6.99986 3 6.99986 3 9.10986Z"
         stroke="lightcoral"

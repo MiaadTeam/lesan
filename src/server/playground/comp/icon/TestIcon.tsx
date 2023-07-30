@@ -3,7 +3,12 @@ import { h } from "../../reactDeps.ts";
 
 export default function TestIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="25px"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         opacity={0.5}
         d="M9.74872 2.49415L18.1594 7.31987M9.74872 2.49415L2.65093 14.7455C1.31093 17.0584 2.10615 20.0159 4.42709 21.3513C6.74803 22.6867 9.7158 21.8942 11.0558 19.5813L12.5511 17.0003L14.1886 14.1738L15.902 11.2163L18.1594 7.31987M9.74872 2.49415L8.91283 2M18.1594 7.31987L19 7.80374"

@@ -302,12 +302,17 @@ input:focus {
   }
 }
 
-.btn-modal {
+.main-btn-wrapper {
   position: absolute;
-  bottom: 300px;
+  bottom: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-modal {
   display: flex;
   align-items: center;
-  gap: 10px;
   left: 0;
   cursor: pointer;
   background-color: rgba(70, 70, 70, 0.5);
@@ -315,53 +320,43 @@ input:focus {
   backdrop-filter: blur(10px);
   border-radius: 0 7px 7px 0;
   border-left: none;
-  /* transition: all 2s; */
+  transition: all 0.4s;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: bisque;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.btn-modal>svg {
+  position: absolute;
+  right: 0.5rem;
+  transition: all 0.8s;
+}
+
+.btn-modal>span {
+  opacity: 0;
+  margin-right: 0;
+  transition: all 0.4s;
 }
 
 .btn-modal:hover {
   background-color: dimgray;
-}
-.btn-modal svg {
-  width: 25px;
+  width: 6rem;
 }
 
-.btn-modal-title {
-  display: none;
-  /* width: 0; */
+.btn-modal:hover>span {
+  opacity: 100;
+  margin-right: 1.6rem;
+  white-space: nowrap;
 }
 
-.btn-modal:hover .btn-modal-title[data-show="true"] {
-  display: block;
-  color: bisque;
-  /* width: fit-content; */
-  /* transition: display 2s; */
-  /* transition-timing-function: linear;
-  transition-duration: 1s; */
+.btn-modal:hover>svg {
+  right: 0.2rem;
+  transform: scale(1.2);
 }
 
-.btn-setting {
-  bottom: 400px;
-}
-
-.btn-history {
-  bottom: 350px;
-}
-
-.btn-schema {
-  bottom: 300px;
-}
-
-.btn-e2e {
-  bottom: 250px;
-}
-
-.btn-refetch {
-  bottom: 200px;
-}
-
-.btn-doc {
-  bottom: 150px;
-}
 /* -------------------------------------------------------------------------- */
 
 .sidebar--fields {
@@ -421,8 +416,10 @@ input:focus {
   padding-bottom: var(--height-cnt--btn-send);
 
   /* Hide scrollbar for IE, Edge and Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -701,9 +698,11 @@ input:focus {
   50% {
     background-color: red;
   }
+
   70% {
     background-color: rgb(255, 255, 255);
   }
+
   100% {
     background-color: rgb(255, 255, 255);
   }
@@ -834,6 +833,7 @@ input:focus {
 .e2e-export_results-button {
   left: 150px;
 }
+
 .e2e-export-form-button {
   color: black;
   font-size: 14px;
@@ -1083,6 +1083,7 @@ input:focus {
   border: 1px solid whiItesmoke;
   cursor: pointer;
 }
+
 .clear-history-button:hover {
   background-color: rgb(190, 6, 6);
 }
@@ -1121,7 +1122,8 @@ input:focus {
 .tooltip-text::after {
   content: " ";
   position: absolute;
-  top: 100%; /* At the bottom of the tooltip */
+  top: 100%;
+  /* At the bottom of the tooltip */
   left: 50%;
   margin-left: -5px;
   border-width: 5px;
@@ -1224,25 +1226,32 @@ input:focus {
 .cute-string {
   color: #f1fa8c;
 }
+
 .cute-number {
   color: #50fa7b;
 }
+
 .cute-boolean {
   color: #ff79c6;
 }
+
 .cute-function {
   color: #bd93f9;
 }
+
 .cute-null {
   color: #bd93f9;
 }
+
 .cute-undefined {
   color: #bd93f9;
 }
+
 .cute-key {
   color: #66d9ef;
   margin-right: 5px;
 }
+
 .cute-colon {
   color: #f8f8f2;
   margin-left: 1px;

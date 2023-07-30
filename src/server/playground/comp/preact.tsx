@@ -117,22 +117,20 @@ export const Page = () => {
             const newGeneratedFormData = generateFormData(
               parsedFromData,
               {},
-              ""
+              "",
             );
             // form data section --- end
 
             // set fileds section --- begin
-            tab.postFields =
-              acts[tab.service][tab.method][tab.schema][
-                tab.act
-              ].validator.schema.set.schema;
+            tab.postFields = acts[tab.service][tab.method][tab.schema][
+              tab.act
+            ].validator.schema.set.schema;
             // set fileds section --- end
 
             // get fileds section --- begin
-            tab.getFields =
-              acts[tab.service][tab.method][tab.schema][
-                tab.act
-              ].validator.schema.get.schema;
+            tab.getFields = acts[tab.service][tab.method][tab.schema][
+              tab.act
+            ].validator.schema.get.schema;
             // get fileds section --- end
 
             parsedLocalTabData.push({
@@ -185,7 +183,7 @@ export const Page = () => {
           }
           setTabsData(parsedLocalTabData);
         }
-      }
+      },
     );
   };
 
@@ -260,86 +258,77 @@ export const Page = () => {
       </div>
       <Main urlAddress={urlAddress} />
 
-      <span
-        className="btn btn-modal btn-refetch"
-        onClick={() => configUrl()}
-        onMouseEnter={() => setShow("refetch")}
-        onMouseLeave={() => setShow("")}
-      >
-        <span className="btn-modal-title" data-show={show === "refetch"}>
-          Refetch Config
+      <div className="main-btn-wrapper">
+        <span
+          className="btn btn-modal btn-setting"
+          onClick={() => setModal(MODAL_TYPES.SETTING)}
+        >
+          <span className="btn-modal-title">
+            Setting
+          </span>
+          <SettingIcon />
         </span>
-        <ReFetchIcon />
-      </span>
 
-      <span
-        className="btn btn-modal btn-setting"
-        onClick={() => setModal(MODAL_TYPES.SETTING)}
-        onMouseEnter={() => setShow("setting")}
-        onMouseLeave={() => setShow("")}
-      >
-        <span className="btn-modal-title " data-show={show === "setting"}>
-          Setting
+        <span
+          className="btn btn-modal btn-history"
+          onClick={() => setModal(MODAL_TYPES.HISTORY)}
+        >
+          <span className="btn-modal-title">
+            History
+          </span>
+          <HistoryIcon />
         </span>
-        <SettingIcon />
-      </span>
-      <span
-        className="btn btn-modal btn-history"
-        onClick={() => setModal(MODAL_TYPES.HISTORY)}
-        onMouseEnter={() => setShow("history")}
-        onMouseLeave={() => setShow("")}
-      >
-        <span className="btn-modal-title" data-show={show === "history"}>
-          History
-        </span>
-        <HistoryIcon />
-      </span>
 
-      <span
-        className="btn btn-modal btn-graph"
-        onClick={() => setModal(MODAL_TYPES.SCHEMA)}
-        onMouseEnter={() => setShow("schema")}
-        onMouseLeave={() => setShow("")}
-      >
-        <span className="btn-modal-title" data-show={show === "schema"}>
-          SCHEMA
+        <span
+          className="btn btn-modal btn-graph"
+          onClick={() => setModal(MODAL_TYPES.SCHEMA)}
+        >
+          <span className="btn-modal-title">
+            Schema
+          </span>
+          <SchemaIcon />
         </span>
-        <SchemaIcon />
-      </span>
-      <span
-        className="btn btn-modal btn-e2e"
-        onClick={() => setModal(MODAL_TYPES.E2E_TEST)}
-        onMouseEnter={() => setShow("e2e")}
-        onMouseLeave={() => setShow("")}
-      >
-        <span className="btn-modal-title" data-show={show === "e2e"}>
-          Test
+
+        <span
+          className="btn btn-modal btn-e2e"
+          onClick={() => setModal(MODAL_TYPES.E2E_TEST)}
+        >
+          <span className="btn-modal-title">
+            Test
+          </span>
+          <TestIcon />
         </span>
-        <TestIcon />
-      </span>
-      <span
-        className="btn btn-modal btn-doc "
-        onClick={() => setModal(MODAL_TYPES.DOCUMENT)}
-        onMouseEnter={() => setShow("doc")}
-        onMouseLeave={() => setShow("")}
-      >
-        <span className="btn-modal-title" data-show={show === "doc"}>
-          Document
+
+        <span
+          className="btn btn-modal btn-doc "
+          onClick={() => setModal(MODAL_TYPES.DOCUMENT)}
+        >
+          <span className="btn-modal-title">
+            Document
+          </span>
+          <DocumentIcon />
         </span>
-        <DocumentIcon />
-      </span>
+
+        <span
+          className="btn btn-modal btn-refetch"
+          onClick={() => configUrl()}
+        >
+          <span className="btn-modal-title">
+            Refetch
+          </span>
+          <ReFetchIcon />
+        </span>
+      </div>
 
       {modal !== null && (
         <Modal toggle={toggleModal} title={modal}>
-          {modal === MODAL_TYPES.HISTORY ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : modal === MODAL_TYPES.SETTING ? (
-            <Setting configUrl={configUrl} />
-          ) : modal === MODAL_TYPES.E2E_TEST ? (
-            <E2E baseUrl={urlAddress} />
-          ) : (
-            <Fragment></Fragment>
-          )}
+          {modal === MODAL_TYPES.HISTORY
+            ? <History setFormFromHistory={setFormFromHistory} />
+            : modal === MODAL_TYPES.SETTING
+            ? <Setting configUrl={configUrl} />
+            : modal === MODAL_TYPES.E2E_TEST
+            ? <E2E baseUrl={urlAddress} />
+            : <Fragment></Fragment>}
         </Modal>
       )}
     </div>
