@@ -313,7 +313,9 @@ input:focus {
   background-color: rgba(70, 70, 70, 0.5);
   border: 1px solid bisque;
   backdrop-filter: blur(10px);
-  border-radius: 7px;
+  border-radius: 0 7px 7px 0;
+  border-left: none;
+  /* transition: all 2s; */
 }
 
 .btn-modal:hover {
@@ -325,14 +327,16 @@ input:focus {
 
 .btn-modal-title {
   display: none;
-  width: fit-content;
+  /* width: 0; */
 }
 
 .btn-modal:hover .btn-modal-title[data-show="true"] {
   display: block;
   color: bisque;
-  transition-timing-function: linear;
-  transition-duration: 1s;
+  /* width: fit-content; */
+  /* transition: display 2s; */
+  /* transition-timing-function: linear;
+  transition-duration: 1s; */
 }
 
 .btn-setting {
