@@ -45,7 +45,6 @@ export const Page = () => {
     modal,
   } = useLesan();
 
-  const [active, setActive] = useState("");
   const [show, setShow] = useState("");
 
   const parsedWindowUrl = () => {
@@ -58,10 +57,6 @@ export const Page = () => {
 
   useEffect(() => {
     configUrl(parsedWindowUrl());
-
-    // const localTabsData = localStorage.getItem("localTabsData");
-    // console.log("localTabsData", JSON.parse(localTabsData!));
-    // if (localTabsData) setTabsData(JSON.parse(localTabsData));
 
     const localHistory = JSON.parse(localStorage.getItem("localHistory")!);
     if (localHistory) setHistory(localHistory);
@@ -324,7 +319,7 @@ export const Page = () => {
       </span>
       <span
         className="btn btn-modal btn-doc "
-        onClick={() => modalBtnClickHandler(MODAL_TYPES.DOCUMENT)}
+        onClick={() => setModal(MODAL_TYPES.DOCUMENT)}
         onMouseEnter={() => setShow("doc")}
         onMouseLeave={() => setShow("")}
       >
