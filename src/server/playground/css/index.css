@@ -353,9 +353,10 @@ input:focus {
 }
 
 .btn-modal:hover>svg {
-  right: 0.2rem;
+  right: 0.4rem;
   transform: scale(1.2);
 }
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -855,6 +856,35 @@ input:focus {
 .help .e2e-back-button {
   position: fixed;
   top: 0;
+}
+
+.e2e_help-content {
+  color: gainsboro;
+  padding: 1rem;
+  border: 1px solid gainsboro;
+  margin-top: 2rem;
+  border-radius: 0.5rem;
+}
+
+.e2e_help--fullscreen-img {
+  width: 95%;
+  margin-left: 2.5%;
+  border: 1px solid gainsboro;
+  border-radius: 0.5rem;
+}
+
+.e2e_help--section---right-side {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.e2e_help--section---right-side>img {
+  flex: 1
+}
+
+.e2e_help--section---right-side>p {
+  flex: 1
 }
 
 .setting {

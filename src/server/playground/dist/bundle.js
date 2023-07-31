@@ -396,11 +396,23 @@ var ACTION_TYPE;
     ACTION_TYPE["DELETE_ITEM_HISTORY"] = "DELETE_ITEM_HISTORY";
     ACTION_TYPE["SET_ACTS_OBJ"] = "SET_ACTS_OBJ";
     ACTION_TYPE["SET_SCHEMAS_OBJ"] = "SET_SCHEMAS_OBJ";
+    ACTION_TYPE["SET_E2E_FORMS"] = "SET_E2E_FORMS";
+    ACTION_TYPE["ADD_E2E_FORM"] = "ADD_E2E_FORM";
+    ACTION_TYPE["OPEN_MODAL"] = "OPEN_MODAL";
     ACTION_TYPE["SET_ACTIVE_TAB"] = "SET_ACTIVE_TAB";
     ACTION_TYPE["ADD_TAB"] = "ADD_TAB";
     ACTION_TYPE["CLOSE_TAB"] = "CLOSE_TAB";
 })(ACTION_TYPE || (ACTION_TYPE = {}));
-const initialState = {
+var MODAL_TYPES;
+(function(MODAL_TYPES) {
+    MODAL_TYPES["HISTORY"] = "HISTORY";
+    MODAL_TYPES["DOCUMENT"] = "DOCUMENT";
+    MODAL_TYPES["SETTING"] = "SETTING";
+    MODAL_TYPES["E2E_TEST"] = "E2E TEST";
+    MODAL_TYPES["SCHEMA"] = "SCHEMA";
+})(MODAL_TYPES || (MODAL_TYPES = {}));
+const uid = ()=>Date.now().toString(36) + Math.random().toString(36).substr(2);
+const tabInitial = {
     tabsData: [
         {
             service: "",
@@ -413,18 +425,15 @@ const initialState = {
             response: null
         }
     ],
-    schemasObj: {},
-    actsObj: {},
-    headers: {
-        Authorization: ""
-    },
-    history: [],
     activeTab: 0,
     setActiveTab: ()=>({}),
     addTab: ()=>({}),
     closeTab: ()=>({}),
-    setTabsData: ()=>({}),
-    deleteItemHistory: ()=>({}),
+    setTabsData: ()=>({})
+};
+const schemaInitial = {
+    schemasObj: {},
+    actsObj: {},
     setService: ()=>({}),
     setMethod: ()=>({}),
     setSchema: ()=>({}),
@@ -436,11 +445,65 @@ const initialState = {
     setGetFields: ()=>({}),
     resetGetFields: ()=>({}),
     setFormData: ()=>({}),
-    setHeader: ()=>({}),
-    setHistory: ()=>({}),
     setResponse: ()=>({})
 };
-const LesanContext = se(initialState);
+const historyInitial = {
+    history: [],
+    deleteItemHistory: ()=>({}),
+    setHistory: ()=>({})
+};
+const headerInitial = {
+    headers: {
+        Authorization: ""
+    },
+    setHeader: ()=>({})
+};
+const e2eFirstInp = ()=>({
+        id: uid(),
+        bodyHeaders: `
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": ""
+  },
+  "body": {
+    "service": "main",
+    "contents": "dynamic",
+    "wants": {
+    "model": "",
+    "act": ""
+  },
+    "details": {
+      "get": {
+      },
+    "set": {
+    }
+  }
+}
+}
+            `,
+        repeat: 1,
+        captures: []
+    });
+const e2eInitial = {
+    e2eForms: [
+        e2eFirstInp()
+    ],
+    setE2eForms: ()=>({}),
+    addE2eForm: ()=>({})
+};
+const modalInitial = {
+    modal: null,
+    setModal: ()=>({})
+};
+const initialState = {
+    ...tabInitial,
+    ...schemaInitial,
+    ...historyInitial,
+    ...headerInitial,
+    ...e2eInitial,
+    ...modalInitial
+};
 function lesanReducer(state, action) {
     const { type , payload  } = action;
     switch(type){
@@ -687,10 +750,35 @@ function lesanReducer(state, action) {
                     schemasObj: payload
                 };
             }
+        case ACTION_TYPE.SET_E2E_FORMS:
+            {
+                return {
+                    ...state,
+                    e2eForms: payload
+                };
+            }
+        case ACTION_TYPE.ADD_E2E_FORM:
+            {
+                return {
+                    ...state,
+                    e2eForms: [
+                        ...state.e2eForms,
+                        payload
+                    ]
+                };
+            }
+        case ACTION_TYPE.OPEN_MODAL:
+            {
+                return {
+                    ...state,
+                    modal: payload
+                };
+            }
         default:
             throw new Error(`Unhandled action type`);
     }
 }
+const LesanContext = se(initialState);
 const LesanProvider = (props)=>{
     const [state, dispatch] = q1(lesanReducer, initialState);
     const setService = R1((payload)=>dispatch({
@@ -807,6 +895,24 @@ const LesanProvider = (props)=>{
         }), [
         dispatch
     ]);
+    const setE2eForms = R1((payload)=>dispatch({
+            type: ACTION_TYPE.SET_E2E_FORMS,
+            payload
+        }), [
+        dispatch
+    ]);
+    const addE2eForm = R1((payload)=>dispatch({
+            type: ACTION_TYPE.ADD_E2E_FORM,
+            payload
+        }), [
+        dispatch
+    ]);
+    const setModal = R1((payload)=>dispatch({
+            type: ACTION_TYPE.OPEN_MODAL,
+            payload
+        }), [
+        dispatch
+    ]);
     const value = g(()=>({
             ...state,
             setService,
@@ -827,7 +933,10 @@ const LesanProvider = (props)=>{
             setActiveTab,
             addTab,
             closeTab,
-            deleteItemHistory
+            deleteItemHistory,
+            setE2eForms,
+            addE2eForm,
+            setModal
         }), [
         state
     ]);
@@ -872,7 +981,6 @@ const generateFormData = (formData, returnFormData, keyname)=>{
     }
     return returnFormData;
 };
-const uid = ()=>Date.now().toString(36) + Math.random().toString(36).substr(2);
 function AddIcon() {
     return Z("svg", {
         width: "25px",
@@ -1121,71 +1229,31 @@ const JSONViewer = ({ jsonData  })=>{
         }
     }));
 };
-function E2E({ baseUrl , bodyHeaders  }) {
+function E2E({ baseUrl  }) {
+    const { e2eForms , setE2eForms  } = useLesan();
     const handleMove = (fromIndex, toIndex)=>{
         if (fromIndex === 0 && toIndex <= 0) {
             return;
         } else {
-            const element = e2eFroms[fromIndex];
-            e2eFroms.splice(fromIndex, 1);
-            e2eFroms.splice(toIndex, 0, element);
+            const element = e2eForms[fromIndex];
+            e2eForms.splice(fromIndex, 1);
+            e2eForms.splice(toIndex, 0, element);
             setE2eForms([
-                ...e2eFroms
+                ...e2eForms
             ]);
         }
     };
     const handleDelete = (fromIndex)=>{
-        e2eFroms[fromIndex];
-        e2eFroms.splice(fromIndex, 1);
+        e2eForms[fromIndex];
+        e2eForms.splice(fromIndex, 1);
         setE2eForms([
-            ...e2eFroms
+            ...e2eForms
         ]);
     };
-    const [e2eFroms, setE2eForms] = F1([
-        {
-            id: uid(),
-            bodyHeaders: `
-{
-  "headers": {
-    "Content-Type": "application/json",
-    "Authorization": ""
-  },
-  "body": {
-    "service": "main",
-    "contents": "dynamic",
-    "wants": {
-    "model": "",
-    "act": ""
-  },
-    "details": {
-      "get": {
-      },
-    "set": {
-    }
-  }
-}
-}
-            `,
-            repeat: 1,
-            captures: []
-        }
-    ]);
-    T1(()=>{
-        if (bodyHeaders) {
-            setE2eForms([
-                {
-                    id: uid(),
-                    repeat: 1,
-                    bodyHeaders,
-                    captures: []
-                }
-            ]);
-        }
-    }, []);
     const [view, setView] = F1("e2e");
     const [results, setResults] = F1([]);
     const exportForm = ()=>{
-        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(e2eFroms))}`;
+        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(e2eForms))}`;
         const link = document.createElement("a");
         link.href = jsonString;
         link.download = "Configdata.json";
@@ -1244,7 +1312,7 @@ function E2E({ baseUrl , bodyHeaders  }) {
     };
     const runE2eTest = async ()=>{
         const parsedCaptures = new Set();
-        for await (const e2eForm of e2eFroms){
+        for await (const e2eForm of e2eForms){
             const parsedHeaderBody = JSON.parse(e2eForm.bodyHeaders);
             replaceCaptureString(parsedHeaderBody, parsedCaptures);
             const body = {
@@ -1307,28 +1375,24 @@ function E2E({ baseUrl , bodyHeaders  }) {
         }
     };
     const plusRepeatHandler = (index)=>{
-        setE2eForms((e2eForm)=>{
-            const copy = [
-                ...e2eForm
-            ];
-            copy[index].repeat += 1;
-            return [
-                ...copy
-            ];
-        });
+        const copy = [
+            ...e2eForms
+        ];
+        copy[index].repeat += 1;
+        setE2eForms([
+            ...copy
+        ]);
     };
     const minesRepeatHandler = (index)=>{
-        setE2eForms((e2eForm)=>{
-            const copy = [
-                ...e2eForm
-            ];
-            if (copy[index].repeat > 0) {
-                copy[index].repeat -= 1;
-            }
-            return [
-                ...copy
-            ];
-        });
+        const copy = [
+            ...e2eForms
+        ];
+        if (copy[index].repeat > 0) {
+            copy[index].repeat -= 1;
+        }
+        setE2eForms([
+            ...copy
+        ]);
     };
     return Z("div", {
         className: "e2e modal-content"
@@ -1362,10 +1426,10 @@ function E2E({ baseUrl , bodyHeaders  }) {
             jsonData: re.response
         })))))) : view === "e2e" ? Z(N, null, Z("div", {
         className: "sidebar__section sidebar__section--headers"
-    }, e2eFroms.map((e2eForm, idx)=>Z(N, null, Z("div", {
+    }, e2eForms.map((e2eForm, idx)=>Z(N, null, Z("div", {
             className: "sidebar__input-double",
             key: e2eForm.id
-        }, e2eFroms.length > 1 && Z("div", {
+        }, e2eForms.length > 1 && Z("div", {
             className: "e2e-move-buttons"
         }, Z("div", {
             className: "e2e-move-div",
@@ -1386,15 +1450,13 @@ function E2E({ baseUrl , bodyHeaders  }) {
             name: `${e2eForm.id}-body`,
             rows: 18,
             onChange: (e)=>{
-                setE2eForms((e2eForm)=>{
-                    const copy = [
-                        ...e2eForm
-                    ];
-                    copy[idx].bodyHeaders = e.target.value;
-                    return [
-                        ...copy
-                    ];
-                });
+                const copy = [
+                    ...e2eForms
+                ];
+                copy[idx].bodyHeaders = e.target.value;
+                setE2eForms([
+                    ...copy
+                ]);
             }
         })), Z("div", {
             className: "sidebar__section-capture"
@@ -1408,15 +1470,13 @@ function E2E({ baseUrl , bodyHeaders  }) {
             name: `${e2eForm.id}-repeat`,
             type: "number",
             onChange: (e)=>{
-                setE2eForms((e2eForm)=>{
-                    const copy = [
-                        ...e2eForm
-                    ];
-                    copy[idx].repeat = e.target.value;
-                    return [
-                        ...copy
-                    ];
-                });
+                const copy = [
+                    ...e2eForms
+                ];
+                copy[idx].repeat = e.target.value;
+                setE2eForms([
+                    ...copy
+                ]);
             }
         }), Z("button", {
             className: "e2e-back-button e2e-export_results-button",
@@ -1429,16 +1489,16 @@ function E2E({ baseUrl , bodyHeaders  }) {
         }, "capture variables"), Z("button", {
             className: "btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture ",
             onClick: ()=>{
-                setE2eForms((e2eForm)=>{
-                    const copy = [
-                        ...e2eForm
-                    ];
-                    copy[idx].captures.push({
-                        key: "",
-                        value: ""
-                    });
-                    return copy;
+                const copy = [
+                    ...e2eForms
+                ];
+                copy[idx].captures.push({
+                    key: "",
+                    value: ""
                 });
+                setE2eForms([
+                    ...copy
+                ]);
             }
         }, "add capture variable item"), e2eForm.captures.map((capture, capId)=>Z(N, null, Z("div", {
                 className: "sidebar__section-add-capture"
@@ -1446,61 +1506,35 @@ function E2E({ baseUrl , bodyHeaders  }) {
                 placeholder: "set a variable name",
                 value: capture.key,
                 onChange: (e)=>{
-                    setE2eForms((e2eForm)=>{
-                        const copy = [
-                            ...e2eForm
-                        ];
-                        copy[idx].captures[capId].key = e.target.value;
-                        return copy;
-                    });
+                    const copy = [
+                        ...e2eForms
+                    ];
+                    copy[idx].captures[capId].key = e.target.value;
+                    setE2eForms([
+                        ...copy
+                    ]);
                 }
             }), Z("input", {
                 placeholder: "set a value for variable",
                 value: capture.value,
                 onChange: (e)=>{
-                    setE2eForms((e2eForm)=>{
-                        const copy = [
-                            ...e2eForm
-                        ];
-                        copy[idx].captures[capId].value = e.target.value;
-                        return copy;
-                    });
+                    const copy = [
+                        ...e2eForms
+                    ];
+                    copy[idx].captures[capId].value = e.target.value;
+                    setE2eForms([
+                        ...copy
+                    ]);
                 }
             })), Z("hr", null)))))))), Z("div", {
         className: "results-buttons"
     }, Z("button", {
         className: "btn  e2e-back-button e2e-export_results-button",
         onClick: ()=>{
-            setE2eForms((e2eForm)=>[
-                    ...e2eForm,
-                    {
-                        id: uid(),
-                        bodyHeaders: `
-{
-  "headers": {
-    "Content-Type": "application/json",
-    "Authorization": ""
-  },
-  "body": {
-    "service": "main",
-      "contents": "dynamic",
-    "wants": {
-      "model": "",
-      "act": ""
-    },
-    "details": {
-      "get": {
-      },
-      "set": {
-      }
-    }
-  }
-}
-                        `,
-                        repeat: 1,
-                        captures: []
-                    }
-                ]);
+            setE2eForms([
+                ...e2eForms,
+                e2eFirstInp()
+            ]);
         }
     }, Z(AddIcon, null), Z("span", null, "Add")), Z("button", {
         className: "btn e2e-back-button e2e-run-botton e2e-export_results-button",
@@ -1529,7 +1563,45 @@ function E2E({ baseUrl , bodyHeaders  }) {
         onClick: ()=>{
             setView("e2e");
         }
-    }, Z(BackIcon, null), Z("span", null, "Back")), " ") : "");
+    }, Z(BackIcon, null), Z("span", null, "Back")), Z("section", {
+        className: "e2e_help-content"
+    }, Z("p", null, "With E2E Test, you can test the whole application by sending a sequence of HTTP requests."), Z("p", null, "In the image below, you can see the first view of the E2E test modal page, which contains a button bar at the top and two separate requests."), Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/829b3288-3d69-4fd0-a1fc-22d011b8d079",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }), Z("hr", null), Z("p", null, "In the button bar, you have these buttons:", Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/4edd6034-d6b2-4de9-8c43-8f2fe511aa14",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }), Z("ul", null, Z("li", null, "Add: This button adds one request section."), Z("li", null, "Run E2E Test: This button runs all requests and shows their results."), Z("li", null, "Import: This button stands for importing an E2E config in JSON format."), Z("li", null, "Export: This button stands for exporting an existing E2E config in JSON format."), Z("li", null, "Help: This button switches to the help of the E2E modal page."))), Z("hr", null), Z("div", null, Z("p", null, "Each request section have 2 side"), Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/fa9ceb35-21dd-493a-82cc-cd7391f5fc79",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }), Z("hr", null), Z("section", {
+        className: "e2e_help--section---right-side"
+    }, Z("p", null, "The right side is a set of configurations for the repeat time of each request and capturing variables of the request response. In the Capture Variables section, you can add a pair of tuple inputs for the key name of the capture variable and its value. You can capture the value of a capture variable with braces syntax. For example, if you get back this response from a request:", Z("pre", null, "{\n", "  body: [\n", "    {\n", "      _id: 64c6839c50adc3cb65726934,\n", "      name: همدان,\n", "      enName: Hamedan,\n", "      abb: HM\n", "    }\n", "  ],\n", "  success: true\n", "  }\n", "}\n"), "You can capture _id with [body][0][_id] or for name: [body][0][name]."), Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/1cea1db3-44c2-49b5-8739-a9afa8a6e1fa",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    })), Z("hr", null), Z("section", {
+        className: "e2e_help--section---right-side"
+    }, Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/5c9899fa-8be6-42d1-8f4f-8fd965264645",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }), Z("p", null, "The left side is a text area for writing headers and the body of the request in JSON format. In this text area, you can use a text parser to implement the captured value you captured before inside these symbols ", "{}", ".")), Z("hr", null), Z("p", null, "Also, we have some buttons on the top right side of each request section. With these buttons, you can move up and down and delete requests.", Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/900a5b98-3e7f-460a-a756-403ecaedcf86",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }))), Z("hr", null), Z("div", null, Z("p", null, "After clicking on the Run E2E Test button, you can see the result of each test. Also, in the result view, you can export the results in JSON format."), Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/8c367965-a1b7-40b8-8638-60d2d0ea2609",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    })), Z("hr", null), Z("div", null, Z("p", null, "Additionally, you can go to the E2E Test modal page from the main page by clicking on the Test icon inside the response header section. This way, you can add a new test section and prepopulate the Header and Body text areas with the sent request from the main page.", Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/74dc9e93-2b41-4840-afc1-f4e8e83c9889",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }))))) : "");
 }
 function Dustbin() {
     return Z("svg", {
@@ -1658,7 +1730,8 @@ function History({ setFormFromHistory  }) {
 }
 function DocumentIcon() {
     return Z("svg", {
-        viewBox: "0 0 24 24",
+        width: "25px",
+        viewBox: "0 0 26 24",
         fill: "none",
         xmlns: "http://www.w3.org/2000/svg"
     }, Z("g", {
@@ -1693,6 +1766,7 @@ function DocumentIcon() {
 }
 function HistoryIcon() {
     return Z("svg", {
+        width: "25px",
         viewBox: "0 0 24 24",
         fill: "none",
         xmlns: "http://www.w3.org/2000/svg"
@@ -1772,6 +1846,7 @@ function SchemaIcon() {
 }
 function SettingIcon() {
     return Z("svg", {
+        width: "25px",
         viewBox: "0 0 24 24",
         fill: "none",
         xmlns: "http://www.w3.org/2000/svg"
@@ -1792,6 +1867,7 @@ function SettingIcon() {
 }
 function TestIcon() {
     return Z("svg", {
+        width: "25px",
         viewBox: "0 0 24 24",
         fill: "none",
         xmlns: "http://www.w3.org/2000/svg"
@@ -1858,31 +1934,9 @@ function SuccessIcon() {
         d: "M29.049,5.009L28.19,4.151c-0.943-0.945-2.488-0.945-3.434,0L10.172,18.737l-5.175-5.173   c-0.943-0.944-2.489-0.944-3.432,0.001l-0.858,0.857c-0.943,0.944-0.943,2.489,0,3.433l7.744,7.752   c0.944,0.943,2.489,0.943,3.433,0L29.049,8.442C29.991,7.498,29.991,5.953,29.049,5.009z"
     }));
 }
-const Modal = (props)=>Z("div", {
-        className: "modal-overlay",
-        onClick: props.toggle
-    }, Z("div", {
-        className: "modal-box",
-        onClick: (e)=>e.stopPropagation()
-    }, Z("span", {
-        className: "modal-title"
-    }, props.title), Z("div", {
-        className: "modal-content"
-    }, props.children)));
-function useModal() {
-    const [isOpen, setisOpen] = F1(false);
-    const toggleModal = ()=>{
-        setisOpen(!isOpen);
-    };
-    return {
-        isOpen,
-        toggleModal
-    };
-}
 const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
 const Main = ({ urlAddress  })=>{
-    const { isOpen , toggleModal  } = useModal();
-    const { activeTab , tabsData , actsObj , headers , history , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields  } = useLesan();
+    const { activeTab , tabsData , actsObj , headers , history , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields , addE2eForm , setModal  } = useLesan();
     const [active, setActive] = F1(false);
     const changeGetValue = (value, keyname, getObj, returnObj)=>{
         for(const key in getObj){
@@ -2032,9 +2086,16 @@ const Main = ({ urlAddress  })=>{
         const request = requestFunction();
         request.body.body = JSON.parse(request.body.body);
         const { method , ...rest } = request.body;
-        return JSON.stringify({
-            ...rest
-        }, null, 2);
+        const newE2eForm = {
+            id: uid(),
+            bodyHeaders: JSON.stringify({
+                ...rest
+            }, null, 2),
+            repeat: 1,
+            captures: []
+        };
+        addE2eForm(newE2eForm);
+        setModal(MODAL_TYPES.E2E_TEST);
     };
     return Z(N, null, Z("div", {
         className: "sidebar"
@@ -2314,8 +2375,7 @@ const Main = ({ urlAddress  })=>{
     }, "Copy Response")), Z("div", {
         className: "btn response-detail-button ",
         onClick: ()=>{
-            runE2eRequest;
-            toggleModal();
+            runE2eRequest();
         }
     }, Z(RunTestIcon, null), Z("span", {
         className: "tooltip-text"
@@ -2327,14 +2387,19 @@ const Main = ({ urlAddress  })=>{
         className: "success"
     }) : Z("div", {
         className: "fail"
-    })))), isOpen && Z(Modal, {
-        toggle: toggleModal,
-        title: "E2E TEST"
-    }, Z(E2E, {
-        baseUrl: urlAddress,
-        bodyHeaders: runE2eRequest()
-    })));
+    })))));
 };
+const Modal = (props)=>Z("div", {
+        className: "modal-overlay",
+        onClick: props.toggle
+    }, Z("div", {
+        className: "modal-box",
+        onClick: (e)=>e.stopPropagation()
+    }, Z("span", {
+        className: "modal-title"
+    }, props.title), Z("div", {
+        className: "modal-content"
+    }, props.children)));
 function TickIcon() {
     return Z("svg", {
         width: 25,
@@ -2460,18 +2525,8 @@ function Setting({ configUrl  }) {
     }, Z(TickIcon, null), Z("span", null, "Apply")))));
 }
 const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}playground/static/get/schemas`).then((res)=>res.json());
-var MODAL_TYPES;
-(function(MODAL_TYPES) {
-    MODAL_TYPES["HISTORY"] = "HISTORY";
-    MODAL_TYPES["DOCUMENT"] = "DOCUMENT";
-    MODAL_TYPES["SETTING"] = "SETTING";
-    MODAL_TYPES["E2E_TEST"] = "E2E TEST";
-    MODAL_TYPES["SCHEMA"] = "SCHEMA";
-})(MODAL_TYPES || (MODAL_TYPES = {}));
 const Page = ()=>{
-    const { isOpen , toggleModal  } = useModal();
-    const { tabsData , setTabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , closeTab , resetPostFields , setSchemasObj , setActsObj  } = useLesan();
-    const [active, setActive] = F1("");
+    const { tabsData , setTabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , closeTab , resetPostFields , setSchemasObj , setActsObj , setModal , modal  } = useLesan();
     const [show, setShow] = F1("");
     const parsedWindowUrl = ()=>{
         return window && window.location ? `${new URL(window.location.href).origin}/` : "http://localhost:1366/";
@@ -2565,6 +2620,9 @@ const Page = ()=>{
             }
         });
     };
+    const toggleModal = ()=>{
+        setModal(null);
+    };
     const setFormFromHistory = (request)=>{
         setService({
             data: request.body.service,
@@ -2602,10 +2660,6 @@ const Page = ()=>{
         });
         toggleModal();
     };
-    const modalBtnClickHandler = (type)=>{
-        setActive(type);
-        toggleModal();
-    };
     return Z("div", {
         className: "cnt"
     }, Z("div", {
@@ -2633,62 +2687,46 @@ const Page = ()=>{
         }
     }, "+")), Z(Main, {
         urlAddress: urlAddress
-    }), Z("span", {
-        className: "btn btn-modal btn-refetch",
-        onClick: ()=>configUrl(),
-        onMouseEnter: ()=>setShow("refetch"),
-        onMouseLeave: ()=>setShow("")
+    }), Z("div", {
+        className: "main-btn-wrapper"
     }, Z("span", {
-        className: "btn-modal-title",
-        "data-show": show === "refetch"
-    }, "Refetch Config"), Z(ReFetchIcon, null)), Z("span", {
         className: "btn btn-modal btn-setting",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SETTING),
-        onMouseEnter: ()=>setShow("setting"),
-        onMouseLeave: ()=>setShow("")
+        onClick: ()=>setModal(MODAL_TYPES.SETTING)
     }, Z("span", {
-        className: "btn-modal-title ",
-        "data-show": show === "setting"
+        className: "btn-modal-title"
     }, "Setting"), Z(SettingIcon, null)), Z("span", {
         className: "btn btn-modal btn-history",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.HISTORY),
-        onMouseEnter: ()=>setShow("history"),
-        onMouseLeave: ()=>setShow("")
+        onClick: ()=>setModal(MODAL_TYPES.HISTORY)
     }, Z("span", {
-        className: "btn-modal-title",
-        "data-show": show === "history"
+        className: "btn-modal-title"
     }, "History"), Z(HistoryIcon, null)), Z("span", {
-        className: "btn btn-modal btn-graph",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.SCHEMA),
-        onMouseEnter: ()=>setShow("schema"),
-        onMouseLeave: ()=>setShow("")
-    }, Z("span", {
-        className: "btn-modal-title",
-        "data-show": show === "schema"
-    }, "SCHEMA"), Z(SchemaIcon, null)), Z("span", {
         className: "btn btn-modal btn-e2e",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.E2E_TEST),
-        onMouseEnter: ()=>setShow("e2e"),
-        onMouseLeave: ()=>setShow("")
+        onClick: ()=>setModal(MODAL_TYPES.E2E_TEST)
     }, Z("span", {
-        className: "btn-modal-title",
-        "data-show": show === "e2e"
+        className: "btn-modal-title"
     }, "Test"), Z(TestIcon, null)), Z("span", {
-        className: "btn btn-modal btn-doc ",
-        onClick: ()=>modalBtnClickHandler(MODAL_TYPES.DOCUMENT),
-        onMouseEnter: ()=>setShow("doc"),
-        onMouseLeave: ()=>setShow("")
+        className: "btn btn-modal btn-graph",
+        onClick: ()=>setModal(MODAL_TYPES.SCHEMA)
     }, Z("span", {
-        className: "btn-modal-title",
-        "data-show": show === "doc"
-    }, "Document"), Z(DocumentIcon, null)), isOpen && Z(Modal, {
+        className: "btn-modal-title"
+    }, "Schema"), Z(SchemaIcon, null)), Z("span", {
+        className: "btn btn-modal btn-doc ",
+        onClick: ()=>setModal(MODAL_TYPES.DOCUMENT)
+    }, Z("span", {
+        className: "btn-modal-title"
+    }, "Document"), Z(DocumentIcon, null)), Z("span", {
+        className: "btn btn-modal btn-refetch",
+        onClick: ()=>configUrl()
+    }, Z("span", {
+        className: "btn-modal-title"
+    }, "Refetch"), Z(ReFetchIcon, null))), modal !== null && Z(Modal, {
         toggle: toggleModal,
-        title: active
-    }, active === MODAL_TYPES.HISTORY ? Z(History, {
+        title: modal
+    }, modal === MODAL_TYPES.HISTORY ? Z(History, {
         setFormFromHistory: setFormFromHistory
-    }) : active === MODAL_TYPES.SETTING ? Z(Setting, {
+    }) : modal === MODAL_TYPES.SETTING ? Z(Setting, {
         configUrl: configUrl
-    }) : active === MODAL_TYPES.E2E_TEST ? Z(E2E, {
+    }) : modal === MODAL_TYPES.E2E_TEST ? Z(E2E, {
         baseUrl: urlAddress
     }) : Z(N, null)));
 };

@@ -280,16 +280,6 @@ export const Page = () => {
         </span>
 
         <span
-          className="btn btn-modal btn-graph"
-          onClick={() => setModal(MODAL_TYPES.SCHEMA)}
-        >
-          <span className="btn-modal-title">
-            Schema
-          </span>
-          <SchemaIcon />
-        </span>
-
-        <span
           className="btn btn-modal btn-e2e"
           onClick={() => setModal(MODAL_TYPES.E2E_TEST)}
         >
@@ -297,6 +287,16 @@ export const Page = () => {
             Test
           </span>
           <TestIcon />
+        </span>
+
+        <span
+          className="btn btn-modal btn-graph"
+          onClick={() => setModal(MODAL_TYPES.SCHEMA)}
+        >
+          <span className="btn-modal-title">
+            Schema
+          </span>
+          <SchemaIcon />
         </span>
 
         <span
