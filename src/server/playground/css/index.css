@@ -424,8 +424,10 @@ input:focus {
   border-radius: 0 7px 7px 0;
   border-left: none;
   transition: all 0.4s;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 3.125rem;
+  /* max-width: max-content; */
+  /* width: 1.5rem; */
+  /* height: 1.5rem; */
   color: bisque;
   align-items: center;
   justify-content: center;
@@ -440,24 +442,26 @@ input:focus {
 
 .btn-modal > span {
   opacity: 0;
+  /* display: none; */
   margin-right: 0;
   transition: all 0.4s;
 }
 
 .btn-modal:hover {
   background-color: dimgray;
-  width: 6rem;
+  width: 8rem;
 }
 
 .btn-modal:hover > span {
   opacity: 100;
+  /* display: block; */
   margin-right: 1.6rem;
   white-space: nowrap;
 }
 
 .btn-modal:hover > svg {
   right: 0.4rem;
-  transform: scale(1.2);
+  /* transform: scale(1.2); */
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1310,7 +1314,7 @@ input:focus {
   max-width: 200px;
   min-width: 55px;
   flex-grow: 1;
-  height: 1.5rem;
+  /* height: 1.5rem; */
   position: relative;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1345,9 +1349,9 @@ input:focus {
   font-size: 1rem;
   width: 1rem;
   height: 1rem;
-  line-height: 1rem;
+  line-height: 0.8rem;
   position: absolute;
-  right: 0.2rem;
+  right: 0.5rem;
 }
 
 .tab-close:hover {
