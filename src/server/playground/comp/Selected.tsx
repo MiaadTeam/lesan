@@ -2,6 +2,7 @@
 import { h, useState, useEffect, Ref } from "../reactDeps.ts";
 import { useOutsideClick } from "./hooks/useOutsideClick.ts";
 import ChevronDownIcon from "./icon/ChevronDownIcon.tsx";
+import DeleteIcon from "./icon/deleteIcon.tsx";
 
 export function Selected({
   items,
@@ -30,25 +31,51 @@ export function Selected({
   return (
     <div>
       <div className="select" disabled={canShow}>
-        <div className="select--empty" ref={ref} onClick={() => setShow(!show)}>
-          {" "}
-          <span>{activeItem}</span>
+        <div
+          className={`select--empty ${
+            show === true ? "active-select--empty" : ""
+          }`}
+          ref={ref}
+          onClick={() => setShow(!show)}
+        >
+          <div className="select--empty--left-side">
+            {" "}
+            <span
+              className={`${
+                activeItem
+                  ? "select-empty--left-side--clear"
+                  : "select-empty--left-side--clear--inactive"
+              }`}
+              onClick={(e) => {
+                setActiveItem("");
+                onClickItem("");
+                setShow(false);
+                e.stopPropagation();
+              }}
+            >
+              x
+            </span>
+            <span>{activeItem}</span>
+          </div>
+
           <ChevronDownIcon />
         </div>
 
         {show && (
           <div className="select--sub-buttons" data-show={show}>
-            <div
+            {/* <div
               className="option"
               onClick={() => {
                 setActiveItem("");
                 onClickItem("");
                 setShow(false);
               }}
-            ></div>
+            ></div> */}
             {items?.map((item, index) => (
               <div
-                className="option"
+                className={`option ${
+                  item === activeItem ? "active-option" : ""
+                }`}
                 onClick={() => {
                   setActiveItem(item);
                   onClickItem(item);
