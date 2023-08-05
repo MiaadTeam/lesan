@@ -270,7 +270,6 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     item: string,
     type: "service" | "method" | "schema" | "action"
   ) => {
-    console.log(item);
     if (type === "service") {
       setService({
         data: item,
@@ -338,8 +337,14 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
           </div>
 
           <div className="sidebar__section sidebar__section--schema">
-            <div className="sidebar__section-heading">select schema</div>
+            <div
+              onClick={() => console.log(canShowSchema)}
+              className="sidebar__section-heading"
+            >
+              select schema
+            </div>
             <Selected
+              canShow={!canShowSchema}
               onClickItem={(item: string) => onClickItem(item, "schema")}
               items={
                 canShowSchema
@@ -359,6 +364,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
           <div className="sidebar__section sidebar__section--act">
             <div className="sidebar__section-heading">select action</div>
             <Selected
+              canShow={!canShowAct}
               onClickItem={(item: string) => onClickItem(item, "action")}
               items={
                 canShowAct
