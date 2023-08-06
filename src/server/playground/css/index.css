@@ -170,7 +170,7 @@ textarea {
   content: "";
   height: 1px;
   width: 100%;
-  background-color: gainsboroe;
+  background-color: gainsboro;
   border-radius: 10px;
 }
 
@@ -621,7 +621,7 @@ textarea {
 .send-button:hover {
   background-color: gainsboro;
   color: #021307;
-  border: 1px solid rgba(70, 70, 70, 0.5);
+  border: 2px solid rgba(70, 70, 70, 0.5);
 }
 
 .send-button span {
@@ -1315,15 +1315,16 @@ textarea {
   gap: 10px;
   width: 100%;
   position: fixed;
-  background-color: #24123b;
+  background-color: #232724;
   z-index: 5;
   padding: 8px 8px 8px 8px;
-  border-bottom: 1px solid #8f71b6;
+  border-bottom: 1px solid gainsboro;
+
   overflow-y: scroll;
 }
 
 .tab-name {
-  color: #c0b7cc;
+  color: gainsboro;
   padding: 5px;
   border-radius: 5px;
   /* background-color: teal; */
@@ -1340,19 +1341,19 @@ textarea {
 }
 
 .tab-name:hover {
-  background-color: #452a69;
+  background-color: #303632;
 }
 
 .tab-name[data-tab="true"] {
-  background-color: #2e1056;
-  border: 1px solid #6b3ca9;
+  background-color: #1d201e;
+  border: 1px solid gainsboro;
 }
 
 .add-tab {
-  color: #c0b7cc;
+  color: gainsboro;
   align-self: center;
   font-size: 1.4rem;
-  width: 1.2rem;
+  width: 1.8rem;
   text-align: center;
   padding: 5px;
   cursor: pointer;
@@ -1360,20 +1361,20 @@ textarea {
 }
 
 .add-tab:hover {
-  background-color: #452a69;
+  background-color: #56615a;
 }
 
 .tab-close {
   font-size: 1rem;
-  width: 1rem;
-  height: 1rem;
+  /* width: 1rem;
+  height: 1rem; */
   line-height: 0.8rem;
   position: absolute;
   right: 0.5rem;
 }
 
 .tab-close:hover {
-  background-color: #452a69;
+  background-color: #3a413c;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */
@@ -1432,17 +1433,17 @@ textarea {
   cursor: pointer;
   padding: 0.2rem;
   text-align: center;
-  color: lightcoral;
-}
-
-.get-values span:first-child:hover {
-  background-color: #8f8f8f;
+  color: gainsboro;
 }
 
 .get-values span:first-child {
-  background-color: rgba(51, 51, 51, 0.5);
+  background-color: rgba(129, 123, 123, 0.5);
   border-left: none;
   border-radius: 10px 0 0 10px;
+}
+
+.get-values span:first-child:hover {
+  background-color: #666666;
 }
 
 .get-values span:nth-child(2) {
@@ -1451,20 +1452,20 @@ textarea {
 }
 
 .get-values span:nth-child(2):hover {
-  background-color: #8f8f8f;
+  background-color: #666666;
 }
 
 .get-values span:nth-child(3) {
-  background-color: #696969;
+  background-color: #333;
   border-left: 1px solid gainsboro;
   border-radius: 0 10px 10px 0;
 }
 
 .get-values span:nth-child(3):hover {
-  background-color: #8f8f8f;
+  background-color: #666666;
 }
 
 .get-values span.active {
-  background-color: bisque;
+  background-color: gainsboro;
   color: #021307;
 }
