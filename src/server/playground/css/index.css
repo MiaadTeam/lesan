@@ -282,6 +282,7 @@ textarea {
   display: flex;
   flex-direction: column;
   position: relative;
+  margin: 10px 0;
 }
 
 .select[disabled="true"] {
@@ -428,7 +429,7 @@ textarea {
 
 .main-btn-wrapper {
   position: absolute;
-  bottom: 150px;
+  bottom: 30px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -597,32 +598,30 @@ textarea {
 }
 
 .send-button {
-  /* font-family: "Ubuntu", sans-serif; */
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 
-  /* width: 170px; */
   width: 85%;
   height: 40px;
   line-height: 1;
   font-size: 18px;
-  font-weight: bold;
+  /* font-weight: bold; */
   letter-spacing: 1px;
-  border: 3px solid var(--color-blue-4);
-  background: #fff;
-  color: var(--color-blue-4);
-  /* border-radius: 40px; */
-  border-radius: 20px;
+  border: 2px solid gainsboro;
+  background-color: rgba(70, 70, 70, 0.5);
+  color: bisque;
+  border-radius: 15px;
   cursor: pointer;
   overflow: hidden;
   transition: all 0.35s;
 }
 
 .send-button:hover {
-  background: var(--color-blue-4);
-  color: #fff;
+  background-color: gainsboro;
+  color: #021307;
+  border: 1px solid rgba(70, 70, 70, 0.5);
 }
 
 .send-button span {
@@ -638,7 +637,7 @@ textarea {
   width: 100%;
   height: 100%;
   background: #fff;
-  border-radius: 50%;
+  /* border-radius: 50%; */
   z-index: 1;
   opacity: 0;
   visibility: hidden;
@@ -1422,25 +1421,50 @@ textarea {
 
 .get-values {
   display: flex;
+  border: 1px solid gainsboro;
+  border-radius: 10px;
+  margin-bottom: 5px;
 }
 
 .get-values span {
   width: 1.5rem;
-  height: 1.5rem;
+  /* height: 1.5rem; */
   cursor: pointer;
-  background-color: var(--color-bg-base);
   padding: 0.2rem;
   text-align: center;
+  color: lightcoral;
+}
+
+.get-values span:first-child:hover {
+  background-color: #8f8f8f;
+}
+
+.get-values span:first-child {
+  background-color: rgba(51, 51, 51, 0.5);
+  border-left: none;
+  border-radius: 10px 0 0 10px;
 }
 
 .get-values span:nth-child(2) {
-  background-color: var(--color-blue-4);
+  background-color: #464646;
+  border-left: 1px solid gainsboro;
+}
+
+.get-values span:nth-child(2):hover {
+  background-color: #8f8f8f;
 }
 
 .get-values span:nth-child(3) {
-  background-color: var(--color-colonial-2);
+  background-color: #696969;
+  border-left: 1px solid gainsboro;
+  border-radius: 0 10px 10px 0;
+}
+
+.get-values span:nth-child(3):hover {
+  background-color: #8f8f8f;
 }
 
 .get-values span.active {
-  background-color: var(--color-success);
+  background-color: bisque;
+  color: #021307;
 }
