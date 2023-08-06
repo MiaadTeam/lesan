@@ -89,10 +89,32 @@ textarea {
   resize: none;
 }
 
-input:focus {
+.input {
+  height: 35px;
+  border: 1px solid gainsboro;
+  background-color: rgba(70, 70, 70, 0.5);
+  border-radius: 10px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  color: gainsboro;
+}
+
+.input:hover {
+  border-color: bisque;
+}
+
+.input:focus {
   outline: none;
-  border: 2px solid rgb(16, 182, 182);
-  border-radius: 5px;
+  background-color: rgba(220, 220, 220, 0.2);
+  color: bisque;
+}
+
+.input:focus::placeholder {
+  color: gainsboro;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .cnt {
@@ -146,9 +168,9 @@ input:focus {
   right: 0;
   bottom: 7px;
   content: "";
-  height: 2px;
+  height: 1px;
   width: 100%;
-  background-color: bisque;
+  background-color: gainsboroe;
   border-radius: 10px;
 }
 
@@ -273,7 +295,6 @@ input:focus {
 .select--sub-buttons[data-show="true"] {
   display: flex;
   flex-direction: column;
-  /* gap: 5px; */
   border: 1px solid gainsboro;
   border-radius: 0 0 10px 10px;
   background-color: rgba(70, 70, 70, 0.5);
@@ -425,13 +446,11 @@ input:focus {
   border-left: none;
   transition: all 0.4s;
   width: 3.125rem;
-  /* max-width: max-content; */
-  /* width: 1.5rem; */
-  /* height: 1.5rem; */
   color: bisque;
   align-items: center;
   justify-content: center;
   position: relative;
+  height: 50px;
 }
 
 .btn-modal > svg {

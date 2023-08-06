@@ -393,14 +393,12 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
               <div className="input-cnt" key={`${activeTab}.${item}-----`}>
                 <label htmlFor={item}>{item} :</label>
                 {tabsData[activeTab].postFields[item]["type"] === "enums" ? (
-                  <select
-                    className="sidebar__select"
-                    value={tabsData[activeTab].formData[`set.${item}`]}
-                    onChange={(event: any) => {
+                  <Selected
+                    onClickItem={(item: string) => {
                       setFormData({
                         data: {
                           ...tabsData[activeTab].formData,
-                          [`set.${item}`]: event.target.value,
+                          [`set.${item}`]: item,
                         },
                         index: activeTab,
                       });
@@ -409,21 +407,13 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                         JSON.stringify(tabsData)
                       );
                     }}
-                  >
-                    <option value=""></option>
-                    {Object.keys(
+                    items={Object.keys(
                       tabsData[activeTab].postFields[item]["schema"]
-                    ).map((schema, index) => (
-                      <option
-                        key={`${activeTab}.${index}------`}
-                        value={schema}
-                      >
-                        {schema}
-                      </option>
-                    ))}
-                  </select>
+                    )}
+                  />
                 ) : (
                   <input
+                    className="input"
                     placeholder={item}
                     id={item}
                     value={tabsData[activeTab].formData[`set.${item}`]}

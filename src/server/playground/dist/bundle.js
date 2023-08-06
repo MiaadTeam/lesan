@@ -1847,6 +1847,7 @@ function SchemaIcon() {
 function SettingIcon() {
     return Z("svg", {
         width: "25px",
+        height: 25,
         viewBox: "0 0 24 24",
         fill: "none",
         xmlns: "http://www.w3.org/2000/svg"
@@ -1933,6 +1934,88 @@ function SuccessIcon() {
     }, Z("path", {
         d: "M29.049,5.009L28.19,4.151c-0.943-0.945-2.488-0.945-3.434,0L10.172,18.737l-5.175-5.173   c-0.943-0.944-2.489-0.944-3.432,0.001l-0.858,0.857c-0.943,0.944-0.943,2.489,0,3.433l7.744,7.752   c0.944,0.943,2.489,0.943,3.433,0L29.049,8.442C29.991,7.498,29.991,5.953,29.049,5.009z"
     }));
+}
+function useOutsideClick(callback) {
+    const ref = V1(null);
+    T1(()=>{
+        const handleClick = (event)=>{
+            if (ref.current && !ref.current.contains(event?.target)) {
+                callback();
+            }
+        };
+        document.addEventListener("click", handleClick);
+        return ()=>{
+            document.removeEventListener("click", handleClick);
+        };
+    }, [
+        ref
+    ]);
+    return ref;
+}
+function ChevronDownIcon() {
+    return Z("svg", {
+        width: 25,
+        height: 25,
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("g", {
+        id: "SVGRepo_bgCarrier",
+        "stroke-width": "0"
+    }), Z("g", {
+        id: "SVGRepo_tracerCarrier",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), Z("g", {
+        id: "SVGRepo_iconCarrier"
+    }, " ", Z("path", {
+        d: "M6 9L12 15L18 9M12 9H12.01",
+        stroke: "lightcoral",
+        "stroke-width": "2",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }), " "));
+}
+function Selected({ items , onClickItem , incomeActiveItem , canShow  }) {
+    const [show, setShow] = F1(false);
+    const [activeItem, setActiveItem] = F1("");
+    T1(()=>{
+        setActiveItem(incomeActiveItem || "");
+    }, [
+        incomeActiveItem
+    ]);
+    const handleClickOutside = ()=>{
+        setShow(false);
+    };
+    const ref = useOutsideClick(handleClickOutside);
+    return Z("div", null, Z("div", {
+        className: "select",
+        disabled: canShow
+    }, Z("div", {
+        className: `select--empty ${show === true ? "active-select--empty" : ""}`,
+        ref: ref,
+        onClick: ()=>setShow(!show)
+    }, Z("div", {
+        className: "select--empty--left-side"
+    }, " ", Z("span", {
+        className: `${activeItem ? "select-empty--left-side--clear" : "select-empty--left-side--clear--inactive"}`,
+        onClick: (e)=>{
+            setActiveItem("");
+            onClickItem("");
+            setShow(false);
+            e.stopPropagation();
+        }
+    }, "x"), Z("span", null, activeItem)), Z(ChevronDownIcon, null)), show && Z("div", {
+        className: "select--sub-buttons",
+        "data-show": show
+    }, items?.map((item, index)=>Z("div", {
+            className: `option ${item === activeItem ? "active-option" : ""}`,
+            onClick: ()=>{
+                setActiveItem(item);
+                onClickItem(item);
+                setShow(false);
+            }
+        }, item)))));
 }
 const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
 const Main = ({ urlAddress  })=>{
@@ -2097,20 +2180,10 @@ const Main = ({ urlAddress  })=>{
         addE2eForm(newE2eForm);
         setModal(MODAL_TYPES.E2E_TEST);
     };
-    return Z(N, null, Z("div", {
-        className: "sidebar"
-    }, Z("div", {
-        className: "sidebar__sections-wrapper"
-    }, Z("div", {
-        className: "sidebar__section sidebar__section--services"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select services"), Z("select", {
-        className: "sidebar__select",
-        value: tabsData[activeTab].service,
-        onChange: (event)=>{
+    const onClickItem = (item, type)=>{
+        if (type === "service") {
             setService({
-                data: event.target.value,
+                data: item,
                 index: activeTab
             });
             setMethod({
@@ -2121,88 +2194,34 @@ const Main = ({ urlAddress  })=>{
                 data: "",
                 index: activeTab
             });
-            resetGetFields(activeTab);
-            resetPostFields(activeTab);
-            setFormData({
-                data: {},
-                index: activeTab
-            });
-            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
-    }, Z("option", {
-        value: ""
-    }), Object.keys(actsObj).map((service, index)=>Z("option", {
-            key: `${activeTab}.${index}--`,
-            value: service
-        }, service)))), Z("div", {
-        className: "sidebar__section sidebar__section--method"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select content"), Z("select", {
-        className: "sidebar__select",
-        value: tabsData[activeTab].method,
-        onChange: (event)=>{
+        if (type === "method") {
             setMethod({
-                data: event.target.value,
+                data: item,
                 index: activeTab
             });
             setSchema({
                 data: "",
                 index: activeTab
             });
-            resetGetFields(activeTab);
-            resetPostFields(activeTab);
-            setFormData({
-                data: {},
-                index: activeTab
-            });
-            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
-    }, Z("option", {
-        value: ""
-    }), Z("option", {
-        value: "dynamic"
-    }, "dynamic"), Z("option", {
-        value: "static"
-    }, "static"))), Z("div", {
-        className: "sidebar__section sidebar__section--schema"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select schema"), Z("select", {
-        className: "sidebar__select",
-        disabled: !canShowSchema,
-        value: canShowSchema ? tabsData[activeTab].schema : undefined,
-        onChange: (event)=>{
+        if (type === "schema") {
             setSchema({
-                data: event.target.value,
+                data: item,
                 index: activeTab
             });
-            resetGetFields(activeTab);
-            resetPostFields(activeTab);
-            setFormData({
-                data: {},
-                index: activeTab
-            });
-            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
-    }, Z("option", {
-        value: ""
-    }), canShowSchema ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method]).map((schema, index)=>Z("option", {
-            key: `${activeTab}.${index}---`,
-            value: schema
-        }, schema)) : null)), Z("div", {
-        className: "sidebar__section sidebar__section--act"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select action"), Z("select", {
-        className: "sidebar__select",
-        disabled: !canShowAct,
-        value: canShowAct ? tabsData[activeTab].act : undefined,
-        onChange: (event)=>{
-            const actObj = actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema][event.target.value]["validator"]["schema"];
+        setAct({
+            data: "",
+            index: activeTab
+        });
+        resetGetFields(activeTab);
+        resetPostFields(activeTab);
+        if (type === "action") {
+            const actObj = actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema][item]["validator"]["schema"];
             formRef && formRef.current && formRef.current.reset();
             setAct({
-                data: event.target.value,
+                data: item,
                 index: activeTab
             });
             setGetFields({
@@ -2213,18 +2232,56 @@ const Main = ({ urlAddress  })=>{
                 data: actObj["set"]["schema"],
                 index: activeTab
             });
-            setFormData({
-                data: {},
-                index: activeTab
-            });
-            localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
-    }, Z("option", {
-        value: ""
-    }), canShowAct ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema]).map((schema, index)=>Z("option", {
-            key: `${activeTab}.${index}----`,
-            value: schema
-        }, schema)) : null)))), canShowRequestFields && Z("div", {
+        setFormData({
+            data: {},
+            index: activeTab
+        });
+        localStorage.setItem("localTabsData", JSON.stringify(tabsData));
+    };
+    return Z(N, null, Z("div", {
+        className: "sidebar"
+    }, Z("div", {
+        className: "sidebar__sections-wrapper"
+    }, Z("div", {
+        className: "sidebar__section sidebar__section--services"
+    }, Z("div", {
+        className: "sidebar__section-heading"
+    }, "select services"), Z(Selected, {
+        onClickItem: (item)=>onClickItem(item, "service"),
+        items: Object.keys(actsObj),
+        incomeActiveItem: tabsData[activeTab].service ? tabsData[activeTab].service : null
+    })), Z("div", {
+        className: "sidebar__section sidebar__section--method"
+    }, Z("div", {
+        className: "sidebar__section-heading"
+    }, "select content"), Z(Selected, {
+        onClickItem: (item)=>onClickItem(item, "method"),
+        items: [
+            "dynamic",
+            "static"
+        ],
+        incomeActiveItem: tabsData[activeTab].method ? tabsData[activeTab].method : null
+    })), Z("div", {
+        className: "sidebar__section sidebar__section--schema"
+    }, Z("div", {
+        onClick: ()=>console.log(canShowSchema),
+        className: "sidebar__section-heading"
+    }, "select schema"), Z(Selected, {
+        canShow: !canShowSchema,
+        onClickItem: (item)=>onClickItem(item, "schema"),
+        items: canShowSchema ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method]) : [],
+        incomeActiveItem: tabsData[activeTab].schema ? tabsData[activeTab].schema : null
+    })), Z("div", {
+        className: "sidebar__section sidebar__section--act"
+    }, Z("div", {
+        className: "sidebar__section-heading"
+    }, "select action"), Z(Selected, {
+        canShow: !canShowAct,
+        onClickItem: (item)=>onClickItem(item, "action"),
+        items: canShowAct ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema]) : [],
+        incomeActiveItem: tabsData[activeTab].act ? tabsData[activeTab].act : null
+    })))), canShowRequestFields && Z("div", {
         className: "sidebar sidebar--fields"
     }, Z("form", {
         ref: formRef,
@@ -2237,25 +2294,20 @@ const Main = ({ urlAddress  })=>{
             key: `${activeTab}.${item}-----`
         }, Z("label", {
             htmlFor: item
-        }, item, " :"), tabsData[activeTab].postFields[item]["type"] === "enums" ? Z("select", {
-            className: "sidebar__select",
-            value: tabsData[activeTab].formData[`set.${item}`],
-            onChange: (event)=>{
+        }, item, " :"), tabsData[activeTab].postFields[item]["type"] === "enums" ? Z(Selected, {
+            onClickItem: (item)=>{
                 setFormData({
                     data: {
                         ...tabsData[activeTab].formData,
-                        [`set.${item}`]: event.target.value
+                        [`set.${item}`]: item
                     },
                     index: activeTab
                 });
                 localStorage.setItem("localTabsData", JSON.stringify(tabsData));
-            }
-        }, Z("option", {
-            value: ""
-        }), Object.keys(tabsData[activeTab].postFields[item]["schema"]).map((schema, index)=>Z("option", {
-                key: `${activeTab}.${index}------`,
-                value: schema
-            }, schema))) : Z("input", {
+            },
+            items: Object.keys(tabsData[activeTab].postFields[item]["schema"])
+        }) : Z("input", {
+            className: "input",
             placeholder: item,
             id: item,
             value: tabsData[activeTab].formData[`set.${item}`],
@@ -2704,7 +2756,7 @@ const Page = ()=>{
         onClick: ()=>setModal(MODAL_TYPES.E2E_TEST)
     }, Z("span", {
         className: "btn-modal-title"
-    }, "Test"), Z(TestIcon, null)), Z("span", {
+    }, "E2E Test"), Z(TestIcon, null)), Z("span", {
         className: "btn btn-modal btn-graph",
         onClick: ()=>setModal(MODAL_TYPES.SCHEMA)
     }, Z("span", {

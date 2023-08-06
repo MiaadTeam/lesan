@@ -2,7 +2,6 @@
 import { h, useState, useEffect, Ref } from "../reactDeps.ts";
 import { useOutsideClick } from "./hooks/useOutsideClick.ts";
 import ChevronDownIcon from "./icon/ChevronDownIcon.tsx";
-import DeleteIcon from "./icon/deleteIcon.tsx";
 
 export function Selected({
   items,
@@ -63,14 +62,6 @@ export function Selected({
 
         {show && (
           <div className="select--sub-buttons" data-show={show}>
-            {/* <div
-              className="option"
-              onClick={() => {
-                setActiveItem("");
-                onClickItem("");
-                setShow(false);
-              }}
-            ></div> */}
             {items?.map((item, index) => (
               <div
                 className={`option ${
