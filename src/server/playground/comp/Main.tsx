@@ -197,14 +197,18 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
       setActive(false);
     }, 450);
 
+    const t0 = performance.now();
     const jsonSendedRequest = await lesanAPI({
       baseUrl: urlAddress,
       options: requestFunction().body,
     });
+    const t1 = performance.now();
 
     setResponse({ data: jsonSendedRequest, index: activeTab });
     /* event.target.reset(); */
     /* setFormData({}); */
+
+    console.log("performance is ", t1 - t0);
 
     const newHistory = [
       {

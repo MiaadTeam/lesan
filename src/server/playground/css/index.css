@@ -58,7 +58,6 @@ body {
 *,
 *::after,
 *::before {
-  /* transition: all 0.2s ease; */
   box-sizing: border-box;
 }
 
@@ -406,6 +405,7 @@ textarea {
 .url-input {
   width: 75%;
   padding: 10px;
+  height: 43px;
 }
 
 .url-button {
@@ -1095,10 +1095,12 @@ textarea {
 
 .setting_set-headers--inputs--key {
   width: 75%;
+  cursor: text;
 }
 
 .setting_set-headers--inputs--value {
   flex-grow: 1;
+  cursor: text;
 }
 
 .setting_set-headers--delete-button {

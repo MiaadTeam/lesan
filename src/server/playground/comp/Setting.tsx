@@ -38,7 +38,7 @@ export function Setting({
         <div className="url-detail">
           {" "}
           <input
-            className="url-input"
+            className="input url-input "
             placeholder="Set URL"
             onChange={(e: any) => setUrlAddress(e.target.value)}
           />
@@ -72,7 +72,7 @@ export function Setting({
                 <div className="setting__set-headers--key-value setting__set-headers--key">
                   <span>Key:</span>
                   <input
-                    className="setting_set-headers--inputs--key"
+                    className="setting_set-headers--inputs--key input"
                     placeholder="Authotization"
                     value={hst.key}
                     onChange={(e: any) => {
@@ -86,7 +86,7 @@ export function Setting({
                 <div className="setting__set-headers--key-value setting__set-headers--value">
                   <span>Value:</span>
                   <input
-                    className="setting_set-headers--inputs--value"
+                    className="setting_set-headers--inputs--value input"
                     placeholder="some string ..."
                     value={hst.value}
                     onChange={(e: any) => {
