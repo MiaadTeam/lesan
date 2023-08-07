@@ -462,9 +462,9 @@ textarea {
 
 .btn-modal > span {
   opacity: 0;
-  /* display: none; */
   margin-right: 0;
   transition: all 0.4s;
+  white-space: nowrap;
 }
 
 .btn-modal:hover {
@@ -474,14 +474,12 @@ textarea {
 
 .btn-modal:hover > span {
   opacity: 100;
-  /* display: block; */
   margin-right: 1.6rem;
-  white-space: nowrap;
+  /* white-space: nowrap; */
 }
 
 .btn-modal:hover > svg {
   right: 0.4rem;
-  /* transform: scale(1.2); */
 }
 
 /* -------------------------------------------------------------------------- */
@@ -725,7 +723,6 @@ textarea {
 }
 
 .response-detail-button {
-  /* background-color: teal; */
   cursor: pointer;
   color: white;
   display: flex;
@@ -737,7 +734,7 @@ textarea {
 .response-detail-button .tooltip-text {
   background-color: cornflowerblue;
   white-space: nowrap;
-  width: 125px;
+  width: max-content;
   margin-left: -67px;
   padding: 5px 5px;
   transition: none;
