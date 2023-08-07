@@ -1,4 +1,4 @@
-import { ISchema, PureModel } from "../mod.ts";
+import { PureFields, TSchemas } from "../mod.ts";
 import { addPureModel } from "./addPureModel.ts";
 import { getPureModel } from "./getPureModel.ts";
 import { getPureModelByNameAndKey } from "./getPureModelByNameAndKey.ts";
@@ -9,9 +9,9 @@ import { getPureModelByNameAndKey } from "./getPureModelByNameAndKey.ts";
  * @function
  * @returns - return objects of all functions that define in this function
  */
-export const pureFns = (schemasObj: ISchema) => {
+export const pureFns = (schemasObj: TSchemas) => {
   return {
-    addPureModel: (name: string, pureModel: PureModel) =>
+    addPureModel: (name: string, pureModel: PureFields) =>
       addPureModel(schemasObj, name, pureModel),
     getPureModel: (name: string) => getPureModel(schemasObj, name),
     getPureModelByNameAndKey: (name: string, key: string) =>

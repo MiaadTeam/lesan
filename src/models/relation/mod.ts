@@ -1,4 +1,5 @@
-import { ISchema } from "../mod.ts";
+import { TSchemas } from "../mod.ts";
+import { RelationType } from "../types.ts";
 import { getRelation } from "./getRelation.ts";
 
 /**
@@ -7,11 +8,11 @@ import { getRelation } from "./getRelation.ts";
  * @param {@link ISchema} schemasObjs - input is all record of schemas
  * @returns - return objects of all functions that define in this function
  */
-export const relationFns = (schemasObjs: ISchema) => {
+export const relationFns = (schemasObjs: TSchemas) => {
   return {
     getRelation: (
       name: string,
-      relationType: "inrelation" | "outrelation",
+      relationType: RelationType,
     ) => getRelation(schemasObjs, name, relationType),
   };
 };

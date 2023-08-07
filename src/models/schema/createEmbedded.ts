@@ -1,6 +1,6 @@
-import { getPureFromInRel } from "./getPureFromInRel.ts";
-import { getPureFromOutRel } from "./getPureFromOutRel.ts";
-import { Schemas } from "./mod.ts";
+import { getPureFromMainRelations } from "./getPureFromMainRelations.ts";
+import { getPureFromRelatedRelations } from "./getPureFromRelatedRelations.ts";
+import { TSchemas } from "./mod.ts";
 
 /**
  * create embed features, embed feature is equal to all of pure features of inerRelations and outerRelations
@@ -19,9 +19,9 @@ import { Schemas } from "./mod.ts";
  *       }),
  * }
  */
-export const createEmbedded = (schemas: Schemas, schemaName: string) => {
+export const createEmbedded = (schemas: TSchemas, schemaName: string) => {
   return {
-    ...getPureFromInRel(schemas, schemaName),
-    ...getPureFromOutRel(schemas, schemaName),
+    ...getPureFromMainRelations(schemas, schemaName),
+    ...getPureFromRelatedRelations(schemas, schemaName),
   };
 };

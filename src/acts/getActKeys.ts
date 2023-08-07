@@ -7,13 +7,13 @@ import { Acts, Services } from "./types.ts";
  * @returns key of dynamic actions
  * if service doesnt have static Acts throw Exception
  */
-export const getDynamicKeys = (
+export const getActKeys = (
   acts: Services,
   serviceName: keyof typeof acts,
 ) =>
   (serviceName && acts[serviceName] &&
       (typeof acts[serviceName] !== "string"))
-    ? Object.keys((acts[serviceName] as Acts).dynamic)
+    ? Object.keys(acts[serviceName] as Acts)
     : (serviceName === "main")
-    ? Object.keys(acts.main.dynamic)
+    ? Object.keys(acts.main)
     : throwError(`serviceName not valid : ${serviceName}`);

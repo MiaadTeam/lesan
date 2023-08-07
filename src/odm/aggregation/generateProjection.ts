@@ -1,5 +1,5 @@
-import { InRelation } from "../../mod.ts";
-import { ISchema } from "../../models/mod.ts";
+import { IMainRelation } from "../../mod.ts";
+import { TSchemas } from "../../models/mod.ts";
 import { getRelation } from "../../models/relation/getRelation.ts";
 import { Projection, ProjectionPip } from "./type.ts";
 
@@ -18,7 +18,7 @@ export const checkNotLastObj = (
 
 export const generateProjection = (
   projection: Projection,
-  schemasObj: ISchema,
+  schemasObj: TSchemas,
   collectionName: string,
 ) => {
   const returnPip: ProjectionPip = [];
@@ -29,20 +29,28 @@ export const generateProjection = (
     collectionName: string,
     propName: string,
   ) => {
-    let foundAsInrelation = null;
-    let foundAsOutrelation = null;
+    let foundAsMainRelations = null;
+    let foundAsRelatedRelations = null;
 
-    const schemaInrel = getRelation(schemasObj, collectionName, "inrelation");
-    const schemaOutrel = getRelation(schemasObj, collectionName, "outrelation");
+    const schemaMainRel = getRelation(
+      schemasObj,
+      collectionName,
+      "mainRelations",
+    );
+    const schemaRelatedRel = getRelation(
+      schemasObj,
+      collectionName,
+      "relatedRelations",
+    );
 
-    for (const inrelProp in schemaInrel) {
-      (inrelProp === propName) &&
-        (foundAsInrelation = schemaInrel[inrelProp]);
+    for (const mainRelProp in schemaMainRel) {
+      (mainRelProp === propName) &&
+        (foundAsMainRelations = schemaMainRel[mainRelProp]);
     }
 
-    for (const outrelProp in schemaOutrel) {
-      (outrelProp === propName) &&
-        (foundAsOutrelation = schemaOutrel[outrelProp]);
+    for (const relatedRelProp in schemaRelatedRel) {
+      (relatedRelProp === propName) &&
+        (foundAsRelatedRelations = schemaRelatedRel[relatedRelProp]);
     }
 
     const pushLockupPip = (
@@ -67,17 +75,19 @@ export const generateProjection = (
       });
     };
 
-    foundAsInrelation
+    foundAsMainRelations
       ? pushLockupPip(
-        foundAsInrelation.schemaName,
+        foundAsMainRelations.schemaName,
         localField,
-        (foundAsInrelation as InRelation).type === "one" ? true : false,
+        (foundAsMainRelations as IMainRelation).type === "single"
+          ? true
+          : false,
       )
-      : foundAsOutrelation
-      ? pushLockupPip(foundAsOutrelation.schemaName, localField, false)
+      : foundAsRelatedRelations
+      ? pushLockupPip(foundAsRelatedRelations.schemaName, localField, false)
       : null;
 
-    if (foundAsInrelation || foundAsOutrelation) {
+    if (foundAsMainRelations || foundAsRelatedRelations) {
       for (const prop in projection) {
         typeof projection[prop] === "object" &&
           checkNotLastObj(
@@ -86,9 +96,9 @@ export const generateProjection = (
           createLookup(
             projection[prop] as Projection,
             `${localField}.${prop}`,
-            foundAsInrelation
-              ? foundAsInrelation.schemaName
-              : foundAsOutrelation!.schemaName,
+            foundAsMainRelations
+              ? foundAsMainRelations.schemaName
+              : foundAsRelatedRelations!.schemaName,
             prop,
           );
       }

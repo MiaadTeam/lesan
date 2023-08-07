@@ -1,7 +1,7 @@
 import { ensureDir } from "../mod.ts";
-import { ISchema, schemas as schemaFns } from "../models/mod.ts";
+import { schemas as schemaFns, TSchemas } from "../models/mod.ts";
 
-export const generateSchemTypes = async (schemasObj: ISchema) => {
+export const generateSchemTypes = async (schemasObj: TSchemas) => {
   const schemas = schemaFns(schemasObj).getSchemas();
 
   let str = "";
@@ -10,16 +10,16 @@ export const generateSchemTypes = async (schemasObj: ISchema) => {
     str = str + `
     export type ${schema}Inp = {
       ${
-      Object.keys(schemas[schema].inrelation).map(schemaName =>
+      Object.keys(schemas[schema].mainRelations).map(schemaName =>
         `${schemaName}: number | ${
-          schemas[schema].inrelation[schemaName].schemaName
+          schemas[schema].mainRelations[schemaName].schemaName
         }Inp`
       ).join("\n")
     }
       ${
-      Object.keys(schemas[schema].outrelation).map(schemaName =>
+      Object.keys(schemas[schema].relatedRelations).map(schemaName =>
         `${schemaName}: number | ${
-          schemas[schema].outrelation[schemaName].schemaName
+          schemas[schema].relatedRelations[schemaName].schemaName
         }Inp`
       ).join("\n")
     }

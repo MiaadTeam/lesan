@@ -1,6 +1,6 @@
-import { getPureFromInRel } from "./getPureFromInRel.ts";
+import { getPureFromMainRelations } from "./getPureFromMainRelations.ts";
 import { getPureSchema } from "./getPureSchema.ts";
-import { Schemas } from "./mod.ts";
+import { TSchemas } from "./mod.ts";
 
 /**
  * extract pure feature of inrelations schema
@@ -17,9 +17,12 @@ import { Schemas } from "./mod.ts";
  *         "content": string(),
  *       }),}
  */
-export const getPureInRel = (schemas: Schemas, schemaName: string) => {
+export const getPureOfMainRelations = (
+  schemas: TSchemas,
+  schemaName: string,
+) => {
   const pureSchema = getPureSchema(schemas, schemaName);
-  const pureInrel = getPureFromInRel(schemas, schemaName);
+  const pureInrel = getPureFromMainRelations(schemas, schemaName);
 
   return {
     ...pureSchema,

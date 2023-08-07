@@ -1,4 +1,4 @@
-import { Schemas } from "./mod.ts";
+import { TSchemas } from "./mod.ts";
 
 /**
  * get pure feature of one schema
@@ -10,7 +10,7 @@ import { Schemas } from "./mod.ts";
  *       "age": number(),
  *     },
  */
-export const getPureSchema = (schemas: Schemas, schemaName: string) => {
+export const getPureSchema = (schemas: TSchemas, schemaName: string) => {
   const schema = schemas[schemaName];
 
   if (!schema) {

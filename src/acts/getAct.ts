@@ -10,7 +10,6 @@ import { Acts, Services } from "./types.ts";
 export function getAct(
   acts: Services,
   service: keyof typeof acts,
-  type: "static" | "dynamic",
   schema: string,
   actName: string,
 ) {
@@ -19,16 +18,16 @@ export function getAct(
       `Invalid service name: ${service} `,
     );
   }
-  if (!(acts[service] as Acts)[type]) {
+  if (!(acts[service])) {
     throw new Error(
-      `Invalid action type: ${type} it just include dynamic and static`,
+      `Invalid service: can not find ${service} service`,
     );
   }
-  if (!(acts[service] as Acts)[type][schema]) {
+  if (!(acts[service] as Acts)[schema]) {
     throw new Error(`Invalid schema: ${schema}`);
   }
-  if (!(acts[service] as Acts)[type][schema][actName]) {
+  if (!(acts[service] as Acts)[schema][actName]) {
     throw new Error(`Invalid action name: ${actName}`);
   }
-  return (acts[service] as Acts)[type][schema][actName];
+  return (acts[service] as Acts)[schema][actName];
 }

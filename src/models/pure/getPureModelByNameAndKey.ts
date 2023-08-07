@@ -1,4 +1,4 @@
-import { ISchema, schemaFns } from "../mod.ts";
+import { schemaFns, TSchemas } from "../mod.ts";
 
 /**
  * get pure one feature of one schema by name of schema and key of feature
@@ -6,7 +6,7 @@ import { ISchema, schemaFns } from "../mod.ts";
  * @param key - key of feature of schema that we want to get one pure feature
  */
 export const getPureModelByNameAndKey = (
-  schemasObj: ISchema,
+  schemasObj: TSchemas,
   name: string,
   key: string,
 ) => {
