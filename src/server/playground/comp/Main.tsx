@@ -482,9 +482,13 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                     <div className="get-values">
                       <span
                         onClick={() => {
-                          const copy = { ...tabsData[activeTab].formData };
-                          delete copy[`get.${item}`];
-                          setFormData(copy);
+                          setFormData({
+                            data: {
+                              ...tabsData[activeTab].formData,
+                              [`get.${item}`]: null,
+                            },
+                            index: activeTab,
+                          });
                         }}
                       >
                       </span>
