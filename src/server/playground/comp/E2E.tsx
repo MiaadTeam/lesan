@@ -238,7 +238,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                   <span className="container-re-title">REQUEST</span>
                   <JSONViewer jsonData={re.request} />
                 </section>
-                <section className="container-re history-response">
+                <section className="container-re container-response">
                   <span className="container-re-title">RESPONSE</span>
                   <JSONViewer jsonData={re.response} />
                 </section>
@@ -338,6 +338,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                       <Fragment>
                         <div className="sidebar__section-add-capture">
                           <input
+                            className="input"
                             placeholder="set a variable name"
                             value={capture.key}
                             onChange={(e: any) => {
@@ -347,6 +348,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                             }}
                           />
                           <input
+                            className="input"
                             placeholder="set a value for variable"
                             value={capture.value}
                             onChange={(e: any) => {

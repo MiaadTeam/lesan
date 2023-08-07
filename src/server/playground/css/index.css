@@ -760,12 +760,6 @@ textarea {
   opacity: 1;
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-  .response-detail-buttons {
-    right: 59px;
-  }
-}
-
 .response-detail-title {
   margin: 0;
   font-size: 20px;
@@ -830,6 +824,15 @@ textarea {
 
   100% {
     background-color: rgb(255, 255, 255);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .response-detail-buttons {
+    right: 33px;
+  }
+  .fail {
+    right: 10px;
   }
 }
 
@@ -1123,12 +1126,16 @@ textarea {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 17px;
+  border: 1px solid gainsboro;
+  border-radius: 10px;
+  margin-top: 5px;
 }
 
 .container-re {
   width: 50%;
-  background-color: #030712;
+  background-color: rgba(147, 147, 147, 0.1);
+  border-radius: 10px 0 0 10px;
 }
 
 .container-re-detail {
@@ -1141,13 +1148,13 @@ textarea {
 .history-re-delete {
   position: absolute;
   right: 25px;
-  top: 0;
+  bottom: 6px;
   cursor: pointer;
-  color: white;
 }
 
-.history-re-delete:hover {
-  color: red;
+.history-re-delete svg {
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
 }
 
 .container-re-detail-title {
@@ -1157,8 +1164,17 @@ textarea {
 }
 
 .history-re-detail-date {
-  font-size: 0.875rem;
-  color: lightsteelblue;
+  font-size: 11px;
+  /* color: lightsteelblue; */
+  position: absolute;
+  right: 12px;
+  top: 0;
+  cursor: pointer;
+  color: white;
+}
+
+.history-response-title {
+  border-radius: 0 10px 0 0;
 }
 
 .history-re-detail-collapse {
@@ -1167,10 +1183,10 @@ textarea {
 
 .history-re-detail-button {
   margin-right: 2.5rem;
-  background-color: #2a7e2e;
+  background-color: gainsboro;
   border: none;
   border-radius: 5px;
-  color: white;
+  color: #141414;
   padding: 5px 10px;
   display: flex;
   justify-content: center;
@@ -1206,19 +1222,24 @@ textarea {
   display: block;
 }
 
-.history-response {
-  background-color: #272822;
+.container-response {
+  background-color: rgba(7, 148, 191, 0.1);
+  border-radius: 0 10px 10px 0;
+  border-left: 1px solid gainsboro;
 }
 
 .container-re-title {
   text-align: center;
-  background-color: #11567b;
+  background-color: rgba(20, 20, 20, 0.1);
   width: 100%;
-  border: solid 1px black;
-  box-sizing: border-box;
-  /* border-radius: 5px; */
+  border-bottom: 1px solid gainsboro;
   display: inline-block;
-  color: white;
+  color: bisque;
+}
+
+.history-re-title_date {
+  position: relative;
+  border-right: 1px solid bisque;
 }
 
 .clear-history {
@@ -1368,15 +1389,11 @@ textarea {
 
 .tab-close {
   font-size: 1rem;
-  /* width: 1rem;
-  height: 1rem; */
   line-height: 0.8rem;
   position: absolute;
   right: 0.5rem;
-  /* background-color: #232724; */
   color: gainsboro;
   align-self: center;
-  font-size: 1.4rem;
   width: 1.8rem;
   text-align: center;
   padding: 5px;
@@ -1460,7 +1477,7 @@ textarea {
   cursor: pointer;
   padding: 0.2rem;
   text-align: center;
-  color: gainsboro;
+  color: bisque;
 }
 
 .get-values span:first-child {
