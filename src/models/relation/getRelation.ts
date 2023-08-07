@@ -1,4 +1,5 @@
-import { ISchema, schemaFns } from "../mod.ts";
+import { schemaFns, TSchemas } from "../mod.ts";
+import { RelationType } from "../types.ts";
 
 /**
  * get inerRelatrion or outerRealtion of one schema
@@ -6,9 +7,9 @@ import { ISchema, schemaFns } from "../mod.ts";
  * @param relationType - type of relation that we want (inerRelatrion or outrelation)
  */
 export const getRelation = (
-  schemasObjs: ISchema,
+  schemasObjs: TSchemas,
   name: string,
-  relationType: "inrelation" | "outrelation",
+  relationType: RelationType,
 ) => {
   const schemas = schemaFns(schemasObjs).getSchemas();
   return schemas[name][relationType];

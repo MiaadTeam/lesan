@@ -26,17 +26,11 @@ export interface Body {
    */
   service?: string;
   /**
-   * type of contents : dynamic | static
-   */
-  contents: "dynamic" | "static";
-  /**
    * model : schema name that client wants
    * act : name of Actions
    */
-  wants: {
-    model: string;
-    act: string;
-  };
+  model: string;
+  act: string;
   /**
    * details of request set and get
    */

@@ -1,6 +1,6 @@
 import { Services } from "../acts/mod.ts";
 import { serve } from "../deps.ts";
-import { ISchema } from "../models/mod.ts";
+import { TSchemas } from "../models/mod.ts";
 import { generateSchemTypes } from "../types/mod.ts";
 import { lesanFns } from "../utils/mod.ts";
 import { addCors, addCorsObj } from "./cors.ts";
@@ -14,7 +14,7 @@ import { serveStatic } from "./serveStatic.ts";
  * @param typeGeneration -
  */
 
-export const lesanServer = (schemasObj: ISchema, actsObj: Services) => {
+export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
   const runServer = async ({
     port,
     playground,

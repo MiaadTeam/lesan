@@ -9,7 +9,6 @@ import { Acts, Services } from "./types.ts";
 export const getActsKeys = (
   acts: Services,
   service: keyof typeof acts,
-  type: "static" | "dynamic",
   schema: string,
 ) => {
   if (!acts[service] && typeof acts[service] === "string") {
@@ -17,13 +16,13 @@ export const getActsKeys = (
       `Invalid service name: ${service} `,
     );
   }
-  if (!(acts[service] as Acts)[type]) {
+  if (!(acts[service] as Acts)) {
     throw new Error(
-      `Invalid action type: ${type} it just include dynamic and static`,
+      `Invalid service name: ${service} `,
     );
   }
-  if (!(acts[service] as Acts)[type][schema]) {
+  if (!(acts[service] as Acts)[schema]) {
     throw new Error(`Invalid schema: ${schema}`);
   }
-  return Object.keys((acts[service] as Acts)[type][schema]);
+  return Object.keys((acts[service] as Acts)[schema]);
 };

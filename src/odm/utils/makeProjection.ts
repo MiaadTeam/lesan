@@ -1,29 +1,25 @@
-const getInrelationSchemaKey = (schemaName: string, schemas: any) =>
-  Object.keys(schemas[schemaName]["inrelation"]);
+import { TSchemas } from "../../models/mod.ts";
 
-const getOutrelationSchemaKey = (schemaName: string, schemas: any) =>
-  Object.keys(schemas[schemaName]["outrelation"]);
+const getInrelationSchemaKey = (schemaName: string, schemas: TSchemas) =>
+  Object.keys(schemas[schemaName]["mainRelations"]);
+
+const getOutrelationSchemaKey = (schemaName: string, schemas: TSchemas) =>
+  Object.keys(schemas[schemaName]["relatedRelations"]);
 
 type Projection = { [key: string]: 0 | 1 | Projection };
-
-type Schema = {
-  [key: string]: {
-    [key in "pure" | "inrelation" | "outrelation"]: any;
-  };
-};
 
 export const makeProjection = (
   schemaName: string,
   pureObj: any,
   get: Record<string, any>,
-  schemas: Schema,
+  schemas: TSchemas,
 ) => {
   const projection: Projection = {};
   for (const key in get) {
     if (
       getOutrelationSchemaKey(schemaName, schemas).includes(key)
     ) {
-      const name = schemas[schemaName]["outrelation"][key]["schemaName"];
+      const name = schemas[schemaName]["relatedRelations"][key]["schemaName"];
 
       projection[key] = get[key] === 1
         ? makeProjection(name, projection, schemas[name]["pure"], schemas)
@@ -34,7 +30,7 @@ export const makeProjection = (
           schemas,
         );
     } else if (getInrelationSchemaKey(schemaName, schemas).includes(key)) {
-      const name = schemas[schemaName]["inrelation"][key]["schemaName"];
+      const name = schemas[schemaName]["mainRelations"][key]["schemaName"];
 
       projection[key] = get[key] === 1
         ? makeProjection(name, projection, schemas[name]["pure"], schemas)

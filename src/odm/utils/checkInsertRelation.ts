@@ -1,35 +1,39 @@
 import { Bson, Database } from "../../deps.ts";
-import { schemaFns } from "../../models/mod.ts";
+import { schemaFns, TSchemas } from "../../models/mod.ts";
 import { getPureFromDoc } from "./mod.ts";
 
 // TODO : refactor this code please as soon as possible
 export const checkRelation = (
-  schemaName: string,
-  schemaInrel: Record<string, any>,
+  schemaName: keyof TSchemas,
+  schemaMainRelation: Record<string, any>,
   schemaObj: Record<string, any>,
   doc: Bson.Document,
   db: Database,
 ) => {
   const pureDoc = getPureFromDoc(schemaName, schemaObj, doc);
 
-  Object.keys(schemaInrel).forEach((key) => {
+  Object.keys(schemaMainRelation).forEach((key) => {
     Object.entries(
-      schemaFns(schemaObj).getSchema(schemaInrel[key]["schemaName"])
-        .outrelation,
+      schemaFns(schemaObj).getSchema(schemaMainRelation[key]["schemaName"])
+        .relatedRelations,
     ).forEach(async ([keyName, obj]) => {
-      if (schemaName === obj.schemaName && schemaInrel[key]["type"] === "one") {
+      if (
+        schemaName === obj.schemaName &&
+        schemaMainRelation[key]["type"] === "single"
+      ) {
         if (obj.sort.type === "objectId" || obj.sort.type === "date") {
           doc[key] && obj.sort.order === "asc"
-            ? await db.collection(schemaInrel[key]["schemaName"]).updateOne({
-              _id: doc[key]._id,
-            }, {
-              $push: {
-                [keyName]: {
-                  $each: [{ ...pureDoc }],
+            ? await db.collection(schemaMainRelation[key]["schemaName"])
+              .updateOne({
+                _id: doc[key]._id,
+              }, {
+                $push: {
+                  [keyName]: {
+                    $each: [{ ...pureDoc }],
+                  },
                 },
-              },
-            })
-            : await db.collection(schemaInrel[key]["schemaName"])
+              })
+            : await db.collection(schemaMainRelation[key]["schemaName"])
               .updateOne({
                 _id: doc[key]._id,
               }, {
@@ -44,32 +48,35 @@ export const checkRelation = (
           // TODO : implement number strategy
         }
       } else if (
-        schemaName === obj.schemaName && schemaInrel[key]["type"] === "many"
+        schemaName === obj.schemaName &&
+        schemaMainRelation[key]["type"] === "multiple"
       ) {
         if (obj.sort.type === "objectId" || obj.sort.type === "date") {
           doc[key] && obj.sort.order === "asc"
             ? doc[key].forEach(async (document: any) => {
-              await db.collection(schemaInrel[key]["schemaName"]).updateOne({
-                _id: document._id,
-              }, {
-                $push: {
-                  [keyName]: {
-                    $each: [{ ...pureDoc }],
+              await db.collection(schemaMainRelation[key]["schemaName"])
+                .updateOne({
+                  _id: document._id,
+                }, {
+                  $push: {
+                    [keyName]: {
+                      $each: [{ ...pureDoc }],
+                    },
                   },
-                },
-              });
+                });
             })
             : doc[key].forEach(async (document: any) => {
-              await db.collection(schemaInrel[key]["schemaName"]).updateOne({
-                _id: document._id,
-              }, {
-                $push: {
-                  [keyName]: {
-                    $each: [{ ...pureDoc }],
-                    $position: 0,
+              await db.collection(schemaMainRelation[key]["schemaName"])
+                .updateOne({
+                  _id: document._id,
+                }, {
+                  $push: {
+                    [keyName]: {
+                      $each: [{ ...pureDoc }],
+                      $position: 0,
+                    },
                   },
-                },
-              });
+                });
             });
         }
       }

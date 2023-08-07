@@ -32,7 +32,6 @@ export interface Act {
  *  dynamic for dynamic request and static for static request for example get static file
  *  @example
  *
- *   dynamic: {
  *     user: {
  *       create: {
  *         validator: (input: any) => {
@@ -51,38 +50,10 @@ export interface Act {
  *         },
  *       },
  *     },
- *   },
- *   static: {
- *     "blogFirstPage": {
- *       "get": {
- *         "validator": (input: any) => {
- *           return true;
- *         },
- *         "fn": (input: any) => {
- *           return input;
- *         },
- *       },
- *       "set": {
- *         "validator": (input: any) => {
- *           return true;
- *         },
- *         "fn": (input: any) => {
- *           return input;
- *         },
- *       },
- *     },
- *   },
  */
 export interface Acts {
-  dynamic: {
-    [key: string]: {
-      [key: string]: Act;
-    };
-  };
-  static: {
-    [key: string]: {
-      [key: string]: Act;
-    };
+  [key: string]: {
+    [key: string]: Act;
   };
 }
 
@@ -92,7 +63,6 @@ export interface Acts {
  *  @example
  *  {
  *     main:{
- *   dynamic: {
  *     user: {
  *       create: {
  *         validator: (input: any) => {
@@ -102,22 +72,9 @@ export interface Acts {
  *           return input;
  *         },
  *       },
- *   static: {
- *     "blogFirstPage": {
- *       "get": {
- *         "validator": (input: any) => {
- *           return true;
- *         },
- *         "fn": (input: any) => {
- *           return input;
- *         },
- *       },
- *     }
- *     },
  *     },
  *     "ecommerce":"https://localhost:5050/lesan",
  *      "blog":{
- *   dynamic: {
  *     user: {
  *       create: {
  *         validator: (input: any) => {
@@ -127,7 +84,6 @@ export interface Acts {
  *           return input;
  *         },
  *       },
- *      }
  *  },
  *  main services is type of Acts , other services maybe type of string or Act:
  *  if type of string we get answer of req with http Request , but if type of it equal to Acts with anwer to req directly
@@ -143,12 +99,6 @@ export interface Services {
  * @interface
  */
 export interface ActInp {
-  /**
-   * type of action static or dynamic
-   * when equal to static for get static file (isdb)
-   * else for dynamic request(request to db ideed)
-   */
-  type: "static" | "dynamic";
   /**
    * name of schema that set action for it
    */

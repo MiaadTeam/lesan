@@ -30,9 +30,8 @@ export const lesanFns = (actsObj: Services) => {
     const bodyService = body.service || "main";
     const act = acts(actsObj).getAct(
       bodyService,
-      body.contents,
-      body.wants.model,
-      body.wants.act,
+      body.model,
+      body.act,
     );
 
     act.validationRunType === "create"
@@ -53,12 +52,11 @@ export const lesanFns = (actsObj: Services) => {
     const bodyService = body.service || "main";
     const actKeys = acts(actsObj).getActsKeys(
       bodyService,
-      body.contents,
-      body.wants.model,
+      body.model,
     );
     const getedActs = actKeys;
     assert(
-      body.wants.act,
+      body.act,
       enums(getedActs),
       `the wants.act key is incorrect we just have these acts: ${[
         ...getedActs,
@@ -76,11 +74,9 @@ export const lesanFns = (actsObj: Services) => {
    */
   const checkModels = async (body: Body) => {
     const bodyService = body.service || "main";
-    const models = body.contents === "static"
-      ? (acts(actsObj).getStaticKeys(bodyService))
-      : (acts(actsObj).getDynamicKeys(bodyService));
+    const models = acts(actsObj).getActKeys(bodyService);
     assert(
-      body.wants.model,
+      body.model,
       enums(models),
       `the wants.model key is incorrect we just have these models: ${[
         ...models,
@@ -88,24 +84,6 @@ export const lesanFns = (actsObj: Services) => {
     );
 
     return await checkActs(body);
-  };
-
-  /**
-   * check Content-Type that client sends is true?
-   * @param {@link Body} body - is type of Body
-   * @returns if ContentType is true, it will run checkModels , else throwError
-   */
-  const checkContetType = async (body: Body) => {
-    const content = ["dynamic", "static"];
-    assert(
-      body.contents,
-      enums(content),
-      `the contents key is incorrect we just have these contents: ${[
-        ...content,
-      ]}`,
-    );
-
-    return await checkModels(body);
   };
 
   /**
@@ -179,7 +157,7 @@ export const lesanFns = (actsObj: Services) => {
     const serviceValue = acts(actsObj).getService(bodyService);
     return typeof serviceValue === "string"
       ? await fetchService(req.headers, body, serviceValue)
-      : await checkContetType(body);
+      : await checkModels(body);
   };
   /**
    * this is main function that call checkServices
@@ -210,7 +188,6 @@ export const lesanFns = (actsObj: Services) => {
     runAct,
     checkActs,
     checkModels,
-    checkContetType,
     serveLesan,
   };
 };
