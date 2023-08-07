@@ -1,8 +1,8 @@
-import { schemaFns } from "../../models/mod.ts";
+import { schemaFns, TSchemas } from "../../models/mod.ts";
 
 export const getPureFromDoc = (
-  collectionName: string,
-  schemaObj: Record<string, any>,
+  collectionName: keyof TSchemas,
+  schemaObj: TSchemas,
   doc: Record<string, any>,
 ) => {
   let pureObj = {};

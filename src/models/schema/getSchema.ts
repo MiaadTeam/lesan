@@ -1,4 +1,4 @@
-import { Schemas } from "./mod.ts";
+import { TSchemas } from "./mod.ts";
 
 /**
  * get one feature of schema by schemaName
@@ -23,7 +23,7 @@ import { Schemas } from "./mod.ts";
  *       },
  *     },
  */
-export const getSchema = (schemas: Schemas, schemaName: string) => {
+export const getSchema = (schemas: TSchemas, schemaName: string) => {
   const schema = schemas[schemaName];
 
   if (!schema) {

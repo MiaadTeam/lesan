@@ -1,3 +1,3 @@
-import { Schemas } from "./mod.ts";
+import { TSchemas } from "./mod.ts";
 
-export const getSchemasKeys = (schemas: Schemas) => Object.keys(schemas);
+export const getSchemasKeys = (schemas: TSchemas) => Object.keys(schemas);

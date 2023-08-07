@@ -1,15 +1,15 @@
-import { Model } from "../types.ts";
+import { IModel } from "../types.ts";
 import { createEmbedded } from "./createEmbedded.ts";
 import { createStruct } from "./createStruct.ts";
-import { getPureFromInRel } from "./getPureFromInRel.ts";
-import { getPureFromOutRel } from "./getPureFromOutRel.ts";
-import { getPureInRel } from "./getPureInRel.ts";
+import { getPureFromMainRelations } from "./getPureFromMainRelations.ts";
+import { getPureFromRelatedRelations } from "./getPureFromRelatedRelations.ts";
+import { getPureOfMainRelations } from "./getPureOfMainRelations.ts";
 import { getPureSchema } from "./getPureSchema.ts";
 import { getSchema } from "./getSchema.ts";
 import { getSchemasKeys } from "./getSchemaKeys.ts";
 import { getSchemas } from "./getSchemas.ts";
 
-export type Schemas = Record<string, Model>;
+export type TSchemas = Record<string, IModel>;
 
 /**
  * this function is create for define all things in local scope
@@ -17,22 +17,17 @@ export type Schemas = Record<string, Model>;
  * @param {@link ISchema} schemasObjs - input is all record of schemas
  * @returns - return objects of all functions that define in this function
  */
-export const schemaFns = (schemas: Schemas) => {
-  // const schema1 = {}
-
-  // const getPureInRel = (schemaName) => {
-  //   return {};
-  // };
-
+export const schemaFns = (schemas: TSchemas) => {
   return {
     getSchemas: () => getSchemas(schemas),
-    getPureInRel: (schemaName: string) => getPureInRel(schemas, schemaName),
+    getPureOfMainRelations: (schemaName: keyof TSchemas) =>
+      getPureOfMainRelations(schemas, schemaName),
     getSchema: (schemaName: string) => getSchema(schemas, schemaName),
     getPureSchema: (schemaName: string) => getPureSchema(schemas, schemaName),
-    getPureFromInRel: (schemaName: string) =>
-      getPureFromInRel(schemas, schemaName),
-    getPureFromOutRel: (schemaName: string) =>
-      getPureFromOutRel(schemas, schemaName),
+    getPureFromMainRelations: (schemaName: string) =>
+      getPureFromMainRelations(schemas, schemaName),
+    getPureFromRelatedRelations: (schemaName: string) =>
+      getPureFromRelatedRelations(schemas, schemaName),
     createEmbedded: (schemaName: string) => createEmbedded(schemas, schemaName),
     createStruct: (schemaName: string) => createStruct(schemas, schemaName),
     getSchemasKeys: () => getSchemasKeys(schemas),
@@ -41,9 +36,9 @@ export const schemaFns = (schemas: Schemas) => {
 
 export * from "./createEmbedded.ts";
 export * from "./createStruct.ts";
-export * from "./getPureFromInRel.ts";
-export * from "./getPureFromOutRel.ts";
-export * from "./getPureInRel.ts";
+export * from "./getPureFromRelatedRelations.ts";
+export * from "./getPureOfMainRelations.ts";
+export * from "./getPureOfMainRelations.ts";
 export * from "./getPureSchema.ts";
 export * from "./getSchema.ts";
 export * from "./getSchemaKeys.ts";

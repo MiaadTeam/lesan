@@ -1,25 +1,30 @@
 import { number, object } from "../npmDeps.ts";
-import { ISchema, schemas } from "./mod.ts";
+import { schemas, TSchemas } from "./mod.ts";
 
 export type Type = Record<string, number | any>;
 
-const selectInp = (schema: string, schemasObj: ISchema) => {
+const selectInp = (schema: keyof TSchemas, schemasObj: TSchemas) => {
   const foundedSchema = schemas(schemasObj).getSchema(schema);
   let returnObj: Type = {};
 
-  for (const property in foundedSchema.inrelation) {
+  for (const property in foundedSchema.mainRelations) {
     returnObj = object({
       ...returnObj,
-      [property]:
-        selectInp(foundedSchema.inrelation[property].schemaName, schemasObj) ||
+      [property]: selectInp(
+        foundedSchema.mainRelations[property].schemaName,
+        schemasObj,
+      ) ||
         number,
     });
   }
-  for (const property in foundedSchema.outrelation) {
+  for (const property in foundedSchema.relatedRelations) {
     returnObj = object({
       ...returnObj,
       [property]:
-        selectInp(foundedSchema.outrelation[property].schemaName, schemasObj) ||
+        selectInp(
+          foundedSchema.relatedRelations[property].schemaName,
+          schemasObj,
+        ) ||
         number,
     });
   }

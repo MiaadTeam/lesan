@@ -9,10 +9,10 @@ export const collectData = async (
   projection: any,
   collection: string,
   result: any = {},
-  type: "one" | "many",
+  type: "single" | "mutiple",
   options?: FindOptions,
 ) => {
-  result = type === "one"
+  result = type === "single"
     ? db
       ? await db.collection(collection).findOne(filter, {
         ...options,
@@ -28,8 +28,8 @@ export const collectData = async (
 
   for (let key in projection) {
     if (
-      Object.keys(schemas[collection]["inrelation"]).includes(key) &&
-      schemas[collection]["inrelation"][key]["type"] === "many"
+      Object.keys(schemas[collection]["mainRelations"]).includes(key) &&
+      schemas[collection]["mainRelations"][key]["type"] === "mutiple"
     ) {
       if (
         !Array.isArray(result) &&
@@ -45,7 +45,7 @@ export const collectData = async (
           projection[key],
           schemas[collection]["inrelation"][key]["schemaName"],
           {},
-          "many",
+          "mutiple",
         );
       } else if (
         Array.isArray(result) &&
@@ -60,15 +60,15 @@ export const collectData = async (
             filter,
             db,
             projection[key],
-            schemas[collection]["inrelation"][key]["schemaName"],
+            schemas[collection]["mainRelations"][key]["schemaName"],
             {},
-            "many",
+            "mutiple",
           );
         }
       }
     } else if (
-      Object.keys(schemas[collection]["inrelation"]).includes(key) &&
-      schemas[collection]["inrelation"][key]["type"] === "one"
+      Object.keys(schemas[collection]["mainRelations"]).includes(key) &&
+      schemas[collection]["mainRelations"][key]["type"] === "one"
     ) {
       if (
         !Array.isArray(result) &&
@@ -82,9 +82,9 @@ export const collectData = async (
           filter,
           db,
           projection[key],
-          schemas[collection]["inrelation"][key]["schemaName"],
+          schemas[collection]["mainRelations"][key]["schemaName"],
           {},
-          "one",
+          "single",
         );
       } else if (
         Array.isArray(result) &&
@@ -99,14 +99,14 @@ export const collectData = async (
             filter,
             db,
             projection[key],
-            schemas[collection]["inrelation"][key]["schemaName"],
+            schemas[collection]["mainRelations"][key]["schemaName"],
             {},
-            "one",
+            "mutiple",
           );
         }
       }
     } else if (
-      Object.keys(schemas[collection]["outrelation"]).includes(key)
+      Object.keys(schemas[collection]["relatedRelations"]).includes(key)
     ) {
       if (
         (result instanceof Object && !(result instanceof Array)) &&
@@ -120,9 +120,9 @@ export const collectData = async (
           filter,
           db,
           projection[key],
-          schemas[collection]["outrelation"][key]["schemaName"],
+          schemas[collection]["relatedRelations"][key]["schemaName"],
           {},
-          "many",
+          "mutiple",
         );
       } else if (
         Array.isArray(result) &&
@@ -137,9 +137,9 @@ export const collectData = async (
             filter,
             db,
             projection[key],
-            schemas[collection]["outrelation"][key]["schemaName"],
+            schemas[collection]["relatedRelations"][key]["schemaName"],
             {},
-            "many",
+            "mutiple",
           );
         }
       }

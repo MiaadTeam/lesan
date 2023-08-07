@@ -13,16 +13,12 @@ import { ActInp, Services } from "./types.ts";
 
 export const setAct = (
   acts: Services,
-  { type, schema, actName, validator, fn, preAct, validationRunType }: ActInp,
+  { schema, actName, validator, fn, preAct, validationRunType }: ActInp,
 ) => {
-  if (!acts.main[type]) {
-    throw new Error(`Invalid type: ${type}`);
+  if (!acts.main[schema]) {
+    acts.main[schema] = {};
   }
-
-  if (!acts.main[type][schema]) {
-    acts.main[type][schema] = {};
-  }
-  acts.main[type][schema][actName] = {
+  acts.main[schema][actName] = {
     validator,
     fn,
     preAct,
