@@ -89,8 +89,8 @@ export const Page = () => {
             // set fileds section --- begin
             for (const setKeys in parsedFromData.set) {
               if (
-                acts[tab.service][tab.schema][tab.act].validator
-                  .schema.set.schema[setKeys] === undefined
+                acts[tab.service][tab.schema][tab.act].validator.schema.set
+                  .schema[setKeys] === undefined
               ) {
                 delete parsedFromData.set[setKeys];
               }
@@ -102,8 +102,8 @@ export const Page = () => {
             // get fileds section --- begin
             for (const getKey in parsedFromData.get) {
               if (
-                acts[tab.service][tab.schema][tab.act].validator
-                  .schema.get.schema[getKey] === undefined
+                acts[tab.service][tab.schema][tab.act].validator.schema.get
+                  .schema[getKey] === undefined
               ) {
                 delete parsedFromData.get[getKey];
               }
@@ -113,20 +113,22 @@ export const Page = () => {
             const newGeneratedFormData = generateFormData(
               parsedFromData,
               {},
-              "",
+              ""
             );
             // form data section --- end
 
             // set fileds section --- begin
-            tab.postFields = acts[tab.service][tab.schema][
-              tab.act
-            ].validator.schema.set.schema;
+            tab.postFields =
+              acts[tab.service][tab.schema][
+                tab.act
+              ].validator.schema.set.schema;
             // set fileds section --- end
 
             // get fileds section --- begin
-            tab.getFields = acts[tab.service][tab.schema][
-              tab.act
-            ].validator.schema.get.schema;
+            tab.getFields =
+              acts[tab.service][tab.schema][
+                tab.act
+              ].validator.schema.get.schema;
             // get fileds section --- end
 
             parsedLocalTabData.push({
@@ -144,10 +146,7 @@ export const Page = () => {
               parsedLocalTabData.pop();
             }
 
-            if (
-              tab.act &&
-              !(tab.act in acts[tab.service][tab.schema])
-            ) {
+            if (tab.act && !(tab.act in acts[tab.service][tab.schema])) {
               parsedLocalTabData.pop();
             }
 
@@ -173,7 +172,7 @@ export const Page = () => {
           }
           setTabsData(parsedLocalTabData);
         }
-      },
+      }
     );
   };
 
@@ -186,10 +185,9 @@ export const Page = () => {
     setSchema({ data: request.body.model, index: activeTab });
     setAct({ data: request.body.act, index: activeTab });
 
-    const actObj =
-      (actsObj as any)[request.body.service][request.body.model][
-        request.body.act
-      ]["validator"]["schema"];
+    const actObj = (actsObj as any)[request.body.service][request.body.model][
+      request.body.act
+    ]["validator"]["schema"];
 
     setGetFields({ data: actObj["get"]["schema"], index: activeTab });
     setPostFields({ data: actObj["set"]["schema"], index: activeTab });
@@ -223,7 +221,9 @@ export const Page = () => {
                 ? tabsData[index].service
                 : `Tab ${index}`}
               <span
-                className="add-tab tab-close"
+                className={` tab-close ${
+                  activeTab === index ? "active-tab-close" : ""
+                }`}
                 onClick={(event) => {
                   event.stopPropagation();
                   closeTab(index);
@@ -295,13 +295,15 @@ export const Page = () => {
 
       {modal !== null && (
         <Modal toggle={toggleModal} title={modal}>
-          {modal === MODAL_TYPES.HISTORY
-            ? <History setFormFromHistory={setFormFromHistory} />
-            : modal === MODAL_TYPES.SETTING
-            ? <Setting configUrl={configUrl} />
-            : modal === MODAL_TYPES.E2E_TEST
-            ? <E2E baseUrl={urlAddress} />
-            : <Fragment></Fragment>}
+          {modal === MODAL_TYPES.HISTORY ? (
+            <History setFormFromHistory={setFormFromHistory} />
+          ) : modal === MODAL_TYPES.SETTING ? (
+            <Setting configUrl={configUrl} />
+          ) : modal === MODAL_TYPES.E2E_TEST ? (
+            <E2E baseUrl={urlAddress} />
+          ) : (
+            <Fragment></Fragment>
+          )}
         </Modal>
       )}
     </div>

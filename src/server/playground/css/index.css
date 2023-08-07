@@ -1373,10 +1373,35 @@ textarea {
   line-height: 0.8rem;
   position: absolute;
   right: 0.5rem;
+  /* background-color: #232724; */
+  color: gainsboro;
+  align-self: center;
+  font-size: 1.4rem;
+  width: 1.8rem;
+  text-align: center;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
 .tab-close:hover {
-  background-color: #3a413c;
+  background-color: blue;
+}
+
+.tab-name[data-tab="true"]:hover .tab-close {
+  background-color: #1d201e;
+}
+
+.tab-name[data-tab="true"]:hover .tab-close:hover {
+  background-color: #434c46;
+}
+
+.tab-name:hover .tab-close {
+  background-color: #303632;
+}
+
+.tab-name:hover .tab-close:hover {
+  background-color: #262b28;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */
