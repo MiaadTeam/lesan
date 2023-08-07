@@ -208,6 +208,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     /* event.target.reset(); */
     /* setFormData({}); */
 
+    const performanceTime: number = t1 - t0;
     console.log("performance is ", t1 - t0);
 
     const newHistory = [
