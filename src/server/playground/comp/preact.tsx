@@ -28,7 +28,6 @@ export const Page = () => {
     addTab,
     setActiveTab,
     setService,
-    setMethod,
     setSchema,
     setAct,
     setPostFields,
@@ -44,8 +43,6 @@ export const Page = () => {
     setModal,
     modal,
   } = useLesan();
-
-  const [show, setShow] = useState("");
 
   const parsedWindowUrl = () => {
     return window && window.location
@@ -66,7 +63,6 @@ export const Page = () => {
     address && setUrlAddress(address);
 
     setService({ data: "", index: activeTab });
-    setMethod({ data: "", index: activeTab });
     setSchema({ data: "", index: activeTab });
     resetGetFields(activeTab);
     resetPostFields(activeTab);
@@ -93,20 +89,20 @@ export const Page = () => {
             // set fileds section --- begin
             for (const setKeys in parsedFromData.set) {
               if (
-                acts[tab.service][tab.method][tab.schema][tab.act].validator
+                acts[tab.service][tab.schema][tab.act].validator
                   .schema.set.schema[setKeys] === undefined
               ) {
                 delete parsedFromData.set[setKeys];
               }
             }
-            // TODO : we need to check field type also in set fields inside acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.set.schema[setKeys].type
+            // TODO : we need to check field type also in set fields inside acts[tab.service][tab.schema][tab.act].validator.schema.set.schema[setKeys].type
 
             // set fileds section --- end
 
             // get fileds section --- begin
             for (const getKey in parsedFromData.get) {
               if (
-                acts[tab.service][tab.method][tab.schema][tab.act].validator
+                acts[tab.service][tab.schema][tab.act].validator
                   .schema.get.schema[getKey] === undefined
               ) {
                 delete parsedFromData.get[getKey];
@@ -117,22 +113,20 @@ export const Page = () => {
             const newGeneratedFormData = generateFormData(
               parsedFromData,
               {},
-              ""
+              "",
             );
             // form data section --- end
 
             // set fileds section --- begin
-            tab.postFields =
-              acts[tab.service][tab.method][tab.schema][
-                tab.act
-              ].validator.schema.set.schema;
+            tab.postFields = acts[tab.service][tab.schema][
+              tab.act
+            ].validator.schema.set.schema;
             // set fileds section --- end
 
             // get fileds section --- begin
-            tab.getFields =
-              acts[tab.service][tab.method][tab.schema][
-                tab.act
-              ].validator.schema.get.schema;
+            tab.getFields = acts[tab.service][tab.schema][
+              tab.act
+            ].validator.schema.get.schema;
             // get fileds section --- end
 
             parsedLocalTabData.push({
@@ -146,27 +140,22 @@ export const Page = () => {
               parsedLocalTabData.push(tab);
             }
 
-            if (tab.method && !(tab.method in acts[tab.service])) {
-              parsedLocalTabData.pop();
-            }
-
-            if (tab.schema && !(tab.schema in acts[tab.service][tab.method])) {
+            if (tab.schema && !(tab.schema in acts[tab.service])) {
               parsedLocalTabData.pop();
             }
 
             if (
               tab.act &&
-              !(tab.act in acts[tab.service][tab.method][tab.schema])
+              !(tab.act in acts[tab.service][tab.schema])
             ) {
               parsedLocalTabData.pop();
             }
 
             if (
               tab.service &&
-              tab.method &&
               tab.schema &&
               tab.act &&
-              tab.act in acts[tab.service][tab.method][tab.schema]
+              tab.act in acts[tab.service][tab.schema]
             ) {
               proccessTabData(tab);
             }
@@ -174,7 +163,6 @@ export const Page = () => {
           if (parsedLocalTabData.length < 1) {
             parsedLocalTabData.push({
               service: "",
-              method: "",
               schema: "",
               act: "",
               postFields: {},
@@ -185,7 +173,7 @@ export const Page = () => {
           }
           setTabsData(parsedLocalTabData);
         }
-      }
+      },
     );
   };
 
@@ -195,13 +183,13 @@ export const Page = () => {
 
   const setFormFromHistory = (request: any) => {
     setService({ data: request.body.service, index: activeTab });
-    setMethod({ data: request.body.contents, index: activeTab });
-    setSchema({ data: request.body.wants.model, index: activeTab });
-    setAct({ data: request.body.wants.act, index: activeTab });
+    setSchema({ data: request.body.model, index: activeTab });
+    setAct({ data: request.body.act, index: activeTab });
 
-    const actObj = (actsObj as any)[request.body.service][
-      request.body.contents
-    ][request.body.wants.model][request.body.wants.act]["validator"]["schema"];
+    const actObj =
+      (actsObj as any)[request.body.service][request.body.model][
+        request.body.act
+      ]["validator"]["schema"];
 
     setGetFields({ data: actObj["get"]["schema"], index: activeTab });
     setPostFields({ data: actObj["set"]["schema"], index: activeTab });
@@ -230,9 +218,7 @@ export const Page = () => {
               {tabsData[index].act
                 ? `${tabsData[index].schema} | ${tabsData[index].act}`
                 : tabsData[index].schema
-                ? `${tabsData[index].method} | ${tabsData[index].schema}`
-                : tabsData[index].method
-                ? `${tabsData[index].service} | ${tabsData[index].method}`
+                ? `${tabsData[index].service} | ${tabsData[index].schema}`
                 : tabsData[index].service
                 ? tabsData[index].service
                 : `Tab ${index}`}
@@ -309,15 +295,13 @@ export const Page = () => {
 
       {modal !== null && (
         <Modal toggle={toggleModal} title={modal}>
-          {modal === MODAL_TYPES.HISTORY ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : modal === MODAL_TYPES.SETTING ? (
-            <Setting configUrl={configUrl} />
-          ) : modal === MODAL_TYPES.E2E_TEST ? (
-            <E2E baseUrl={urlAddress} />
-          ) : (
-            <Fragment></Fragment>
-          )}
+          {modal === MODAL_TYPES.HISTORY
+            ? <History setFormFromHistory={setFormFromHistory} />
+            : modal === MODAL_TYPES.SETTING
+            ? <Setting configUrl={configUrl} />
+            : modal === MODAL_TYPES.E2E_TEST
+            ? <E2E baseUrl={urlAddress} />
+            : <Fragment></Fragment>}
         </Modal>
       )}
     </div>
