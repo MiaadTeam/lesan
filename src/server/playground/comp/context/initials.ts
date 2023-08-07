@@ -5,7 +5,6 @@ const tabInitial = {
   tabsData: [
     {
       service: "",
-      method: "",
       schema: "",
       act: "",
       postFields: {},
@@ -63,10 +62,8 @@ export const e2eFirstInp = () => ({
   "body": {
     "service": "main",
     "contents": "dynamic",
-    "wants": {
     "model": "",
     "act": ""
-  },
     "details": {
       "get": {
       },

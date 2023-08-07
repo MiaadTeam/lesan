@@ -381,7 +381,6 @@ function A1(_, n) {
 var ACTION_TYPE;
 (function(ACTION_TYPE) {
     ACTION_TYPE["SET_SERVICE"] = "SET_SELECTED_SERVICE";
-    ACTION_TYPE["SET_METHOD"] = "SET_SELECTED_METHOD";
     ACTION_TYPE["SET_SCHEMA"] = "SET_SCHEMA";
     ACTION_TYPE["SET_ACT"] = "SET_ACT";
     ACTION_TYPE["SET_POST_FIELDS"] = "SET_POST_FIELDS";
@@ -416,7 +415,6 @@ const tabInitial = {
     tabsData: [
         {
             service: "",
-            method: "",
             schema: "",
             act: "",
             postFields: {},
@@ -469,10 +467,8 @@ const e2eFirstInp = ()=>({
   "body": {
     "service": "main",
     "contents": "dynamic",
-    "wants": {
     "model": "",
     "act": ""
-  },
     "details": {
       "get": {
       },
@@ -515,22 +511,6 @@ function lesanReducer(state, action) {
                 copyTabsData[payload.index] = {
                     ...copyTabsData[payload.index],
                     service: payload.data
-                };
-                return {
-                    ...state,
-                    tabsData: [
-                        ...copyTabsData
-                    ]
-                };
-            }
-        case ACTION_TYPE.SET_METHOD:
-            {
-                const copyTabsData = [
-                    ...state.tabsData
-                ];
-                copyTabsData[payload.index] = {
-                    ...copyTabsData[payload.index],
-                    method: payload.data
                 };
                 return {
                     ...state,
@@ -696,7 +676,6 @@ function lesanReducer(state, action) {
                         ...state.tabsData,
                         {
                             service: "",
-                            method: "",
                             schema: "",
                             act: "",
                             postFields: {},
@@ -783,12 +762,6 @@ const LesanProvider = (props)=>{
     const [state, dispatch] = q1(lesanReducer, initialState);
     const setService = R1((payload)=>dispatch({
             type: ACTION_TYPE.SET_SERVICE,
-            payload
-        }), [
-        dispatch
-    ]);
-    const setMethod = R1((payload)=>dispatch({
-            type: ACTION_TYPE.SET_METHOD,
             payload
         }), [
         dispatch
@@ -916,7 +889,6 @@ const LesanProvider = (props)=>{
     const value = g(()=>({
             ...state,
             setService,
-            setMethod,
             setSchema,
             setAct,
             setPostFields,
@@ -1465,6 +1437,7 @@ function E2E({ baseUrl  }) {
         }, "set repeat time"), Z("div", {
             className: "repeat__number"
         }, Z("input", {
+            className: "input",
             placeholder: "set repeat number",
             value: e2eForm.repeat,
             name: `${e2eForm.id}-repeat`,
@@ -1603,18 +1576,6 @@ function E2E({ baseUrl  }) {
         className: "e2e_help--fullscreen-img"
     }))))) : "");
 }
-function Dustbin() {
-    return Z("svg", {
-        id: "Layer_1",
-        "data-name": "Layer 1",
-        xmlns: "http://www.w3.org/2000/svg",
-        viewBox: "0 0 105.7 122.88",
-        width: 20
-    }, Z("path", {
-        fill: "white",
-        d: "M30.46,14.57V5.22A5.18,5.18,0,0,1,32,1.55v0A5.19,5.19,0,0,1,35.68,0H70a5.22,5.22,0,0,1,3.67,1.53l0,0a5.22,5.22,0,0,1,1.53,3.67v9.35h27.08a3.36,3.36,0,0,1,3.38,3.37V29.58A3.38,3.38,0,0,1,102.32,33H98.51l-8.3,87.22a3,3,0,0,1-2.95,2.69H18.43a3,3,0,0,1-3-2.95L7.19,33H3.37A3.38,3.38,0,0,1,0,29.58V17.94a3.36,3.36,0,0,1,3.37-3.37Zm36.27,0V8.51H39v6.06ZM49.48,49.25a3.4,3.4,0,0,1,6.8,0v51.81a3.4,3.4,0,1,1-6.8,0V49.25ZM69.59,49a3.4,3.4,0,1,1,6.78.42L73,101.27a3.4,3.4,0,0,1-6.78-.43L69.59,49Zm-40.26.42A3.39,3.39,0,1,1,36.1,49l3.41,51.8a3.39,3.39,0,1,1-6.77.43L29.33,49.46ZM92.51,33.38H13.19l7.94,83.55H84.56l8-83.55Z"
-    }));
-}
 const useNonInitialEffect = (effect, deps)=>{
     const initialRender = V1(true);
     T1(()=>{
@@ -1629,6 +1590,18 @@ const useNonInitialEffect = (effect, deps)=>{
         }
     }, deps);
 };
+function Dustbin() {
+    return Z("svg", {
+        id: "Layer_1",
+        "data-name": "Layer 1",
+        xmlns: "http://www.w3.org/2000/svg",
+        viewBox: "0 0 105.7 122.88",
+        width: 20
+    }, Z("path", {
+        fill: "white",
+        d: "M30.46,14.57V5.22A5.18,5.18,0,0,1,32,1.55v0A5.19,5.19,0,0,1,35.68,0H70a5.22,5.22,0,0,1,3.67,1.53l0,0a5.22,5.22,0,0,1,1.53,3.67v9.35h27.08a3.36,3.36,0,0,1,3.38,3.37V29.58A3.38,3.38,0,0,1,102.32,33H98.51l-8.3,87.22a3,3,0,0,1-2.95,2.69H18.43a3,3,0,0,1-3-2.95L7.19,33H3.37A3.38,3.38,0,0,1,0,29.58V17.94a3.36,3.36,0,0,1,3.37-3.37Zm36.27,0V8.51H39v6.06ZM49.48,49.25a3.4,3.4,0,0,1,6.8,0v51.81a3.4,3.4,0,1,1-6.8,0V49.25ZM69.59,49a3.4,3.4,0,1,1,6.78.42L73,101.27a3.4,3.4,0,0,1-6.78-.43L69.59,49Zm-40.26.42A3.39,3.39,0,1,1,36.1,49l3.41,51.8a3.39,3.39,0,1,1-6.77.43L29.33,49.46ZM92.51,33.38H13.19l7.94,83.55H84.56l8-83.55Z"
+    }));
+}
 function History({ setFormFromHistory  }) {
     const { history , setHistory , deleteItemHistory  } = useLesan();
     const [show, setShow] = F1("");
@@ -1653,9 +1626,9 @@ function History({ setFormFromHistory  }) {
         }, Z("div", {
             className: "container-re-detail-title"
         }, Z("div", null, " ", Z(JSONViewer, {
-            jsonData: hi.request.body.wants.model
+            jsonData: hi.request.body.model
         })), Z("span", null, "|"), Z("div", null, Z(JSONViewer, {
-            jsonData: hi.request.body.wants.act
+            jsonData: hi.request.body.act
         }))), Z("div", {
             className: "history-re-detail-date"
         }, hi.reqTime), show === hi.id ? Z("button", {
@@ -2019,7 +1992,7 @@ function Selected({ items , onClickItem , incomeActiveItem , canShow  }) {
 }
 const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
 const Main = ({ urlAddress  })=>{
-    const { activeTab , tabsData , actsObj , headers , history , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields , addE2eForm , setModal  } = useLesan();
+    const { activeTab , tabsData , actsObj , headers , history , setService , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields , addE2eForm , setModal  } = useLesan();
     const [active, setActive] = F1(false);
     const changeGetValue = (value, keyname, getObj, returnObj)=>{
         for(const key in getObj){
@@ -2109,11 +2082,8 @@ const Main = ({ urlAddress  })=>{
             },
             body: JSON.stringify({
                 service: tabsData[activeTab].service,
-                contents: tabsData[activeTab].method,
-                wants: {
-                    model: tabsData[activeTab].schema,
-                    act: tabsData[activeTab].act
-                },
+                model: tabsData[activeTab].schema,
+                act: tabsData[activeTab].act,
                 details
             })
         };
@@ -2128,14 +2098,17 @@ const Main = ({ urlAddress  })=>{
         setTimeout(()=>{
             setActive(false);
         }, 450);
+        const t0 = performance.now();
         const jsonSendedRequest = await lesanAPI({
             baseUrl: urlAddress,
             options: requestFunction().body
         });
+        const t1 = performance.now();
         setResponse({
             data: jsonSendedRequest,
             index: activeTab
         });
+        console.log("performance is ", t1 - t0);
         const newHistory = [
             {
                 request: {
@@ -2152,9 +2125,9 @@ const Main = ({ urlAddress  })=>{
         localStorage.setItem("localHistory", JSON.stringify(newHistory));
         localStorage.setItem("localTabsData", JSON.stringify(tabsData));
     };
-    const canShowRequestFields = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema && tabsData[activeTab].postFields && tabsData[activeTab].getFields && tabsData[activeTab].act;
-    const canShowSchema = tabsData[activeTab].service && tabsData[activeTab].method;
-    const canShowAct = tabsData[activeTab].service && tabsData[activeTab].method && tabsData[activeTab].schema;
+    const canShowRequestFields = tabsData[activeTab].service && tabsData[activeTab].schema && tabsData[activeTab].postFields && tabsData[activeTab].getFields && tabsData[activeTab].act;
+    const canShowSchema = tabsData[activeTab].service;
+    const canShowAct = tabsData[activeTab].service && tabsData[activeTab].schema;
     const copyResponse = ()=>{
         const response = JSON.stringify(tabsData[activeTab].response);
         navigator.clipboard.writeText(response);
@@ -2186,20 +2159,12 @@ const Main = ({ urlAddress  })=>{
                 data: item,
                 index: activeTab
             });
-            setMethod({
-                data: "",
-                index: activeTab
-            });
             setSchema({
                 data: "",
                 index: activeTab
             });
         }
         if (type === "method") {
-            setMethod({
-                data: item,
-                index: activeTab
-            });
             setSchema({
                 data: "",
                 index: activeTab
@@ -2218,7 +2183,7 @@ const Main = ({ urlAddress  })=>{
         resetGetFields(activeTab);
         resetPostFields(activeTab);
         if (type === "action") {
-            const actObj = actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema][item]["validator"]["schema"];
+            const actObj = actsObj[tabsData[activeTab].service][tabsData[activeTab].schema][item]["validator"]["schema"];
             formRef && formRef.current && formRef.current.reset();
             setAct({
                 data: item,
@@ -2252,17 +2217,6 @@ const Main = ({ urlAddress  })=>{
         items: Object.keys(actsObj),
         incomeActiveItem: tabsData[activeTab].service ? tabsData[activeTab].service : null
     })), Z("div", {
-        className: "sidebar__section sidebar__section--method"
-    }, Z("div", {
-        className: "sidebar__section-heading"
-    }, "select content"), Z(Selected, {
-        onClickItem: (item)=>onClickItem(item, "method"),
-        items: [
-            "dynamic",
-            "static"
-        ],
-        incomeActiveItem: tabsData[activeTab].method ? tabsData[activeTab].method : null
-    })), Z("div", {
         className: "sidebar__section sidebar__section--schema"
     }, Z("div", {
         onClick: ()=>console.log(canShowSchema),
@@ -2270,7 +2224,7 @@ const Main = ({ urlAddress  })=>{
     }, "select schema"), Z(Selected, {
         canShow: !canShowSchema,
         onClickItem: (item)=>onClickItem(item, "schema"),
-        items: canShowSchema ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method]) : [],
+        items: canShowSchema ? Object.keys(actsObj[tabsData[activeTab].service]) : [],
         incomeActiveItem: tabsData[activeTab].schema ? tabsData[activeTab].schema : null
     })), Z("div", {
         className: "sidebar__section sidebar__section--act"
@@ -2279,7 +2233,7 @@ const Main = ({ urlAddress  })=>{
     }, "select action"), Z(Selected, {
         canShow: !canShowAct,
         onClickItem: (item)=>onClickItem(item, "action"),
-        items: canShowAct ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].method][tabsData[activeTab].schema]) : [],
+        items: canShowAct ? Object.keys(actsObj[tabsData[activeTab].service][tabsData[activeTab].schema]) : [],
         incomeActiveItem: tabsData[activeTab].act ? tabsData[activeTab].act : null
     })))), canShowRequestFields && Z("div", {
         className: "sidebar sidebar--fields"
@@ -2507,7 +2461,7 @@ function Setting({ configUrl  }) {
     }, "Fetch Config"), Z("div", {
         className: "url-detail"
     }, " ", Z("input", {
-        className: "url-input",
+        className: "input url-input ",
         placeholder: "Set URL",
         onChange: (e)=>setUrlAddress(e.target.value)
     }), Z("button", {
@@ -2540,7 +2494,7 @@ function Setting({ configUrl  }) {
         }, Z("div", {
             className: "setting__set-headers--key-value setting__set-headers--key"
         }, Z("span", null, "Key:"), Z("input", {
-            className: "setting_set-headers--inputs--key",
+            className: "setting_set-headers--inputs--key input",
             placeholder: "Authotization",
             value: hst.key,
             onChange: (e)=>{
@@ -2552,7 +2506,7 @@ function Setting({ configUrl  }) {
         })), Z("div", {
             className: "setting__set-headers--key-value setting__set-headers--value"
         }, Z("span", null, "Value:"), Z("input", {
-            className: "setting_set-headers--inputs--value",
+            className: "setting_set-headers--inputs--value input",
             placeholder: "some string ...",
             value: hst.value,
             onChange: (e)=>{
@@ -2578,8 +2532,7 @@ function Setting({ configUrl  }) {
 }
 const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}playground/static/get/schemas`).then((res)=>res.json());
 const Page = ()=>{
-    const { tabsData , setTabsData , activeTab , actsObj , addTab , setActiveTab , setService , setMethod , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , closeTab , resetPostFields , setSchemasObj , setActsObj , setModal , modal  } = useLesan();
-    const [show, setShow] = F1("");
+    const { tabsData , setTabsData , activeTab , actsObj , addTab , setActiveTab , setService , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , closeTab , resetPostFields , setSchemasObj , setActsObj , setModal , modal  } = useLesan();
     const parsedWindowUrl = ()=>{
         return window && window.location ? `${new URL(window.location.href).origin}/` : "http://localhost:1366/";
     };
@@ -2592,10 +2545,6 @@ const Page = ()=>{
     const configUrl = (address)=>{
         address && setUrlAddress(address);
         setService({
-            data: "",
-            index: activeTab
-        });
-        setMethod({
             data: "",
             index: activeTab
         });
@@ -2622,18 +2571,18 @@ const Page = ()=>{
                     parsedLocalTabData.pop();
                     const parsedFromData = createNestedObjectsFromKeys(tab.formData);
                     for(const setKeys in parsedFromData.set){
-                        if (acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.set.schema[setKeys] === undefined) {
+                        if (acts[tab.service][tab.schema][tab.act].validator.schema.set.schema[setKeys] === undefined) {
                             delete parsedFromData.set[setKeys];
                         }
                     }
                     for(const getKey in parsedFromData.get){
-                        if (acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.get.schema[getKey] === undefined) {
+                        if (acts[tab.service][tab.schema][tab.act].validator.schema.get.schema[getKey] === undefined) {
                             delete parsedFromData.get[getKey];
                         }
                     }
                     const newGeneratedFormData = generateFormData(parsedFromData, {}, "");
-                    tab.postFields = acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.set.schema;
-                    tab.getFields = acts[tab.service][tab.method][tab.schema][tab.act].validator.schema.get.schema;
+                    tab.postFields = acts[tab.service][tab.schema][tab.act].validator.schema.set.schema;
+                    tab.getFields = acts[tab.service][tab.schema][tab.act].validator.schema.get.schema;
                     parsedLocalTabData.push({
                         ...tab,
                         formData: newGeneratedFormData
@@ -2643,23 +2592,19 @@ const Page = ()=>{
                     if (tab.service && tab.service in acts) {
                         parsedLocalTabData.push(tab);
                     }
-                    if (tab.method && !(tab.method in acts[tab.service])) {
+                    if (tab.schema && !(tab.schema in acts[tab.service])) {
                         parsedLocalTabData.pop();
                     }
-                    if (tab.schema && !(tab.schema in acts[tab.service][tab.method])) {
+                    if (tab.act && !(tab.act in acts[tab.service][tab.schema])) {
                         parsedLocalTabData.pop();
                     }
-                    if (tab.act && !(tab.act in acts[tab.service][tab.method][tab.schema])) {
-                        parsedLocalTabData.pop();
-                    }
-                    if (tab.service && tab.method && tab.schema && tab.act && tab.act in acts[tab.service][tab.method][tab.schema]) {
+                    if (tab.service && tab.schema && tab.act && tab.act in acts[tab.service][tab.schema]) {
                         proccessTabData(tab);
                     }
                 }
                 if (parsedLocalTabData.length < 1) {
                     parsedLocalTabData.push({
                         service: "",
-                        method: "",
                         schema: "",
                         act: "",
                         postFields: {},
@@ -2680,19 +2625,15 @@ const Page = ()=>{
             data: request.body.service,
             index: activeTab
         });
-        setMethod({
-            data: request.body.contents,
-            index: activeTab
-        });
         setSchema({
-            data: request.body.wants.model,
+            data: request.body.model,
             index: activeTab
         });
         setAct({
-            data: request.body.wants.act,
+            data: request.body.act,
             index: activeTab
         });
-        const actObj = actsObj[request.body.service][request.body.contents][request.body.wants.model][request.body.wants.act]["validator"]["schema"];
+        const actObj = actsObj[request.body.service][request.body.model][request.body.act]["validator"]["schema"];
         setGetFields({
             data: actObj["get"]["schema"],
             index: activeTab
@@ -2725,7 +2666,7 @@ const Page = ()=>{
             onClick: ()=>{
                 setActiveTab(index);
             }
-        }, tabsData[index].act ? `${tabsData[index].schema} | ${tabsData[index].act}` : tabsData[index].schema ? `${tabsData[index].method} | ${tabsData[index].schema}` : tabsData[index].method ? `${tabsData[index].service} | ${tabsData[index].method}` : tabsData[index].service ? tabsData[index].service : `Tab ${index}`, Z("span", {
+        }, tabsData[index].act ? `${tabsData[index].schema} | ${tabsData[index].act}` : tabsData[index].schema ? `${tabsData[index].service} | ${tabsData[index].schema}` : tabsData[index].service ? tabsData[index].service : `Tab ${index}`, Z("span", {
             className: "add-tab tab-close",
             onClick: (event)=>{
                 event.stopPropagation();

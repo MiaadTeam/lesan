@@ -22,12 +22,6 @@ export const LesanProvider = (props: any) => {
     [dispatch],
   );
 
-  const setMethod = useCallback(
-    (payload: { data: string; index: number }) =>
-      dispatch({ type: ACTION_TYPE.SET_METHOD, payload }),
-    [dispatch],
-  );
-
   const setSchema = useCallback(
     (payload: { data: string; index: number }) =>
       dispatch({ type: ACTION_TYPE.SET_SCHEMA, payload }),
@@ -147,7 +141,6 @@ export const LesanProvider = (props: any) => {
     () => ({
       ...state,
       setService,
-      setMethod,
       setSchema,
       setAct,
       setPostFields,

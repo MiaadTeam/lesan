@@ -14,17 +14,6 @@ export function lesanReducer(state: IState, action: TAction): IState {
         tabsData: [...copyTabsData],
       };
     }
-    case ACTION_TYPE.SET_METHOD: {
-      const copyTabsData = [...state.tabsData];
-      copyTabsData[payload.index] = {
-        ...copyTabsData[payload.index],
-        method: payload.data,
-      };
-      return {
-        ...state,
-        tabsData: [...copyTabsData],
-      };
-    }
     case ACTION_TYPE.SET_SCHEMA: {
       const copyTabsData = [...state.tabsData];
       copyTabsData[payload.index] = {
@@ -134,7 +123,6 @@ export function lesanReducer(state: IState, action: TAction): IState {
           ...state.tabsData,
           {
             service: "",
-            method: "",
             schema: "",
             act: "",
             postFields: {},

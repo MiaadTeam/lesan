@@ -1,7 +1,6 @@
 /* --------------------------- Action Types Start --------------------------- */
 export enum ACTION_TYPE {
   SET_SERVICE = "SET_SELECTED_SERVICE",
-  SET_METHOD = "SET_SELECTED_METHOD",
   SET_SCHEMA = "SET_SCHEMA",
   SET_ACT = "SET_ACT",
   SET_POST_FIELDS = "SET_POST_FIELDS",
@@ -59,7 +58,6 @@ export type THistory = {
 
 export type TTabsData = {
   service: string;
-  method: string;
   schema: string;
   act: string;
   response: TResponse | null;
@@ -129,91 +127,87 @@ export interface IState {
 
 export type TAction =
   | {
-      type: ACTION_TYPE.SET_SERVICE;
-      payload: { data: string; index: number };
-    }
+    type: ACTION_TYPE.SET_SERVICE;
+    payload: { data: string; index: number };
+  }
   | {
-      type: ACTION_TYPE.SET_METHOD;
-      payload: { data: string; index: number };
-    }
+    type: ACTION_TYPE.SET_SCHEMA;
+    payload: { data: string; index: number };
+  }
   | {
-      type: ACTION_TYPE.SET_SCHEMA;
-      payload: { data: string; index: number };
-    }
+    type: ACTION_TYPE.SET_ACT;
+    payload: { data: string; index: number };
+  }
   | {
-      type: ACTION_TYPE.SET_ACT;
-      payload: { data: string; index: number };
-    }
+    type: ACTION_TYPE.SET_POST_FIELDS;
+    payload: { data: string; index: number };
+  }
   | {
-      type: ACTION_TYPE.SET_POST_FIELDS;
-      payload: { data: string; index: number };
-    }
+    type: ACTION_TYPE.RESET_POST_FIELDS;
+    payload: number;
+  }
   | {
-      type: ACTION_TYPE.RESET_POST_FIELDS;
-      payload: number;
-    }
+    type: ACTION_TYPE.SET_GET_FIELDS;
+    payload: { data: string; index: number };
+  }
   | {
-      type: ACTION_TYPE.SET_GET_FIELDS;
-      payload: { data: string; index: number };
-    }
+    type: ACTION_TYPE.RESET_GET_FIELDS;
+    payload: number;
+  }
   | {
-      type: ACTION_TYPE.RESET_GET_FIELDS;
-      payload: number;
-    }
+    type: ACTION_TYPE.SET_FORM_DATA;
+    payload: { data: any; index: number };
+  }
   | {
-      type: ACTION_TYPE.SET_FORM_DATA;
-      payload: { data: any; index: number };
-    }
+    type: ACTION_TYPE.SET_HEADER;
+    payload: TObjectArray<string>;
+  }
   | {
-      type: ACTION_TYPE.SET_HEADER;
-      payload: TObjectArray<string>;
-    }
+    type: ACTION_TYPE.SET_TABS_DATA;
+    payload: TTabsData[];
+  }
   | {
-      type: ACTION_TYPE.SET_TABS_DATA;
-      payload: TTabsData[];
-    }
+    type: ACTION_TYPE.SET_HISTORY;
+    payload: THistory[];
+  }
   | {
-      type: ACTION_TYPE.SET_HISTORY;
-      payload: THistory[];
-    }
+    type: ACTION_TYPE.SET_RESPONSE;
+    payload: { data: TResponse | null; index: number };
+  }
   | {
-      type: ACTION_TYPE.SET_RESPONSE;
-      payload: { data: TResponse | null; index: number };
-    }
+    type: ACTION_TYPE.SET_SCHEMAS_OBJ;
+    payload: Record<string, any>;
+  }
   | {
-      type: ACTION_TYPE.SET_SCHEMAS_OBJ;
-      payload: Record<string, any>;
-    }
+    type: ACTION_TYPE.SET_ACTIVE_TAB;
+    payload: number;
+  }
   | {
-      type: ACTION_TYPE.SET_ACTIVE_TAB;
-      payload: number;
-    }
+    type: ACTION_TYPE.ADD_TAB;
+    payload: null;
+  }
   | {
-      type: ACTION_TYPE.ADD_TAB;
-      payload: null;
-    }
+    type: ACTION_TYPE.CLOSE_TAB;
+    payload: number;
+  }
   | {
-      type: ACTION_TYPE.CLOSE_TAB;
-      payload: number;
-    }
+    type: ACTION_TYPE.SET_ACTS_OBJ;
+    payload: Record<string, any>;
+  }
   | {
-      type: ACTION_TYPE.SET_ACTS_OBJ;
-      payload: Record<string, any>;
-    }
+    type: ACTION_TYPE.SET_E2E_FORMS;
+    payload: E2eForm[];
+  }
   | {
-      type: ACTION_TYPE.SET_E2E_FORMS;
-      payload: E2eForm[];
-    }
+    type: ACTION_TYPE.ADD_E2E_FORM;
+    payload: E2eForm;
+  }
   | {
-      type: ACTION_TYPE.ADD_E2E_FORM;
-      payload: E2eForm;
-    }
+    type: ACTION_TYPE.OPEN_MODAL;
+    payload: MODAL_TYPES | null;
+  }
   | {
-      type: ACTION_TYPE.OPEN_MODAL;
-      payload: MODAL_TYPES | null;
-    }
-  | {
-      type: ACTION_TYPE.DELETE_ITEM_HISTORY;
-      payload: number;
-    };
+    type: ACTION_TYPE.DELETE_ITEM_HISTORY;
+    payload: number;
+  };
 /* -------------------------- Type Definitions End -------------------------- */
