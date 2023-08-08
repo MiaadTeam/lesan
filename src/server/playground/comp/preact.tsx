@@ -14,6 +14,7 @@ import TestIcon from "./icon/TestIcon.tsx";
 import { Main } from "./Main.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import Modal from "./Modal.tsx";
+import { Schema } from "./Schema.tsx";
 import { Setting } from "./Setting.tsx";
 
 const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
@@ -301,6 +302,8 @@ export const Page = () => {
             ? <Setting configUrl={configUrl} />
             : modal === MODAL_TYPES.E2E_TEST
             ? <E2E baseUrl={urlAddress} />
+            : modal === MODAL_TYPES.SCHEMA
+            ? <Schema />
             : <Fragment></Fragment>}
         </Modal>
       )}

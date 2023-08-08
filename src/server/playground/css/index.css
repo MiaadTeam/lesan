@@ -1011,6 +1011,65 @@ textarea {
   flex: 1;
 }
 
+.schema-modal {
+  width: 70%;
+  margin: 2rem auto 0 auto;
+}
+
+.schema-modal .search-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eeeeee;
+  padding: 5px 1rem;
+  border-radius: 5px;
+}
+
+.schema-modal .search-box input {
+  width: 100%;
+}
+
+.schema-modal .search-box .search-icon {
+  padding: 7px;
+}
+
+.schema-modal .schema-list {
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.schema-modal .schema-list .schema {
+  background: rgba(79, 79, 79, 0.79);
+  border: 1px solid #f8f8f2;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.schema-list .schema .schema-name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  padding: 0 10px;
+}
+
+.schema-list .schema .inside-schema {
+  margin: 0.5rem 1rem;
+  background: rgba(79, 79, 79, 0.9);
+  border: 1px solid #f8f8f2;
+  padding: 10px;
+  border-radius: 5px;
+  color: #fff;
+}
+
+.schema .inside-schema .inside {
+  display: flex;
+  justify-content: space-between;
+}
+
 .setting {
   overflow: hidden;
 }
