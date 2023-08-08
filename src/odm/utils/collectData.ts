@@ -1,9 +1,10 @@
 import { Bson, Database, Filter, FindOptions } from "../../deps.ts";
+import { TSchemas } from "../../models/mod.ts";
 
 import { throwError } from "../../utils/mod.ts";
 
 export const collectData = async (
-  schemas: any,
+  schemas: TSchemas,
   filter: Filter<Bson.Document>,
   db: Database,
   projection: any,
@@ -26,10 +27,10 @@ export const collectData = async (
     }).toArray()
     : throwError("No database connection");
 
-  for (let key in projection) {
+  for (const key in projection) {
     if (
       Object.keys(schemas[collection]["mainRelations"]).includes(key) &&
-      schemas[collection]["mainRelations"][key]["type"] === "mutiple"
+      schemas[collection]["mainRelations"][key]["type"] === "multiple"
     ) {
       if (
         !Array.isArray(result) &&
@@ -43,7 +44,7 @@ export const collectData = async (
           filter,
           db,
           projection[key],
-          schemas[collection]["inrelation"][key]["schemaName"],
+          schemas[collection]["mainRelations"][key]["schemaName"],
           {},
           "mutiple",
         );
@@ -68,7 +69,7 @@ export const collectData = async (
       }
     } else if (
       Object.keys(schemas[collection]["mainRelations"]).includes(key) &&
-      schemas[collection]["mainRelations"][key]["type"] === "one"
+      schemas[collection]["mainRelations"][key]["type"] === "single"
     ) {
       if (
         !Array.isArray(result) &&
