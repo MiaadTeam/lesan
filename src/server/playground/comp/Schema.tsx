@@ -1,13 +1,12 @@
 /** @jsx h */
-import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
+import { h, useState } from "../reactDeps.ts";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import DownIcon from "./icon/DownIcon.tsx";
 import Search from "./icon/Search.tsx";
-  
-export const Schema = (props: any) => {
+
+export const Schema = () => {
   const [isShow, setIsShow] = useState<string>("");
   const [isShowInside, setIsShowInside] = useState<string>("");
-  const [isShowDetail, setIsShowDetail] = useState<boolean>(false);
   const [schemas, setSchemas] = useState([]);
 
   const { schemasObj, actsObj } = useLesan();
@@ -17,8 +16,12 @@ export const Schema = (props: any) => {
       <div className="inside-schema">
         <div className="inside" onClick={() => setIsShowInside(childItem)}>
           <p>
-            {childItem} :{childSchema[childItem]["type"]}
+            field name : 
+            <span>
+              {childItem} : {childSchema[childItem]["type"]}
+            </span>
           </p>
+          <DownIcon />
         </div>
         {childSchema[childItem].type === "object" &&
           proceedChildSchema(childSchema[childItem].schema)}
@@ -30,7 +33,9 @@ export const Schema = (props: any) => {
     return Object.keys(schemas).map((schema: any) => (
       <div className="schema">
         <div className="schema-name" onClick={() => setIsShow(schema)}>
-          <p>{schema}</p>
+          <p>
+            Schema name : <span>{schema}</span>
+          </p>
           <DownIcon />
         </div>
         {proceedChildSchema(schemasObj[schema]["pure"])}
