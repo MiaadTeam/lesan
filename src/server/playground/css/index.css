@@ -847,6 +847,19 @@ textarea {
   backdrop-filter: blur(1px);
 }
 
+.modal-box-fullscreen {
+  display: block;
+  background: rgb(80, 80, 80, 0.5);
+  width: 100%;
+  height: calc(100% - 3rem);
+  padding: 1rem;
+  border-radius: 0.8rem;
+  overflow: visible;
+  backdrop-filter: blur(10px);
+  border: 1px solid white;
+  box-sizing: border-box;
+}
+
 .modal-box {
   display: block;
   background: rgb(80, 80, 80, 0.5);
@@ -1019,10 +1032,11 @@ textarea {
 .schema-modal .search-box {
   display: flex;
   align-items: center;
-  justify-content: center;
   background-color: #eeeeee;
   padding: 5px 1rem;
   border-radius: 5px;
+  width: 80%;
+  margin: 0 auto;
 }
 
 .schema-modal .search-box input {
@@ -1037,7 +1051,7 @@ textarea {
   margin-top: 3rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 4rem;
 }
 
 .schema {
@@ -1052,7 +1066,11 @@ textarea {
   align-items: center;
   gap: 5px;
   color: #fff;
-  padding: 0 10px;
+  padding: 0 30px;
+}
+
+.schema-list .schema .schema-name p {
+  color: #ffffff;
 }
 
 .schema-list .schema .inside-schema {
@@ -1111,6 +1129,10 @@ textarea {
 .color-7 {
   border-left: 2px dotted rgb(8, 168, 217);
   background-color: rgb(8, 168, 217, 0.1);
+}
+
+.schema .inside-schema .inside p {
+  color: #ffe4c4;
 }
 
 .setting {
@@ -1407,19 +1429,72 @@ textarea {
   border-color: rgb(255, 255, 255) transparent transparent transparent;
 }
 
-.modal-title {
-  display: inline-block;
-  background: rgba(0, 0, 0, 0.79);
+.action-modal {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   position: absolute;
+  top: -1.35rem;
+  right: 1.5rem;
+}
+
+.modal-title {
+  margin: 0 1rem;
+  display: inline-block;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.79);
   color: white;
   border: 1px solid white;
   box-sizing: border-box;
-  top: -2rem;
-  right: 1.5rem;
-  padding: 1rem;
   border-radius: 1rem;
   backdrop-filter: blur(10px);
   z-index: 7;
+}
+
+.modal-fullscreen {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: red;
+  transition: visibility 200ms ease;
+}
+
+.modal-close,
+.modal-fullscreen {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgb(245, 35, 35);
+  transition: visibility 200ms ease;
+  border: 1px solid gainsboro;
+  opacity: 0.5;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+.modal-fullscreen {
+  background-color: rgb(66, 196, 66);
+}
+
+.modal-close svg,
+.modal-fullscreen svg {
+  visibility: hidden;
+  width: 20px;
+  height: 20px;
+}
+
+.modal-close:hover,
+.modal-fullscreen:hover {
+  opacity: 1;
+}
+
+.modal-close:hover svg,
+.modal-fullscreen:hover svg {
+  visibility: visible;
+}
+
+.modal-close:hover {
+  border: none;
 }
 
 .no-history {
