@@ -1012,7 +1012,7 @@ textarea {
 }
 
 .schema-modal {
-  width: 70%;
+  width: 97%;
   margin: 2rem auto 0 auto;
 }
 
@@ -1040,10 +1040,9 @@ textarea {
   gap: 1rem;
 }
 
-.schema-modal .schema-list .schema {
+.schema {
   background: rgba(79, 79, 79, 0.79);
-  border: 1px solid #f8f8f2;
-  border-radius: 5px;
+  border-left: 2px dotted #f8f8f2;
   cursor: pointer;
 }
 
@@ -1057,17 +1056,61 @@ textarea {
 }
 
 .schema-list .schema .inside-schema {
-  margin: 0.5rem 1rem;
-  background: rgba(79, 79, 79, 0.9);
-  border: 1px solid #f8f8f2;
+  margin: 0 0 0 15px;
   padding: 10px;
-  border-radius: 5px;
   color: #fff;
+}
+
+.proceed-child-container {
+  display: none;
+}
+
+.proceed-child {
+  display: none;
+}
+.open {
+  display: block;
 }
 
 .schema .inside-schema .inside {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.color-1 {
+  border-left: 2px dotted rgb(109, 18, 13);
+  background-color: rgba(109, 18, 13, 0.1);
+}
+
+.color-2 {
+  border-left: 2px dotted rgb(194, 173, 67);
+  background-color: rgba(194, 173, 67, 0.1);
+}
+
+.color-3 {
+  border-left: 2px dotted rgb(20, 189, 43);
+  background-color: rgba(20, 189, 43, 0.1);
+}
+
+.color-4 {
+  border-left: 2px dotted rgb(21, 66, 189);
+  background-color: rgba(21, 66, 189, 0.1);
+}
+
+.color-5 {
+  border-left: 2px dotted rgb(94, 21, 189);
+  background-color: rgba(94, 21, 189, 0.1);
+}
+
+.color-6 {
+  border-left: 2px dotted rgb(189, 21, 116);
+  background-color: rgba(189, 21, 116, 0.1);
+}
+
+.color-7 {
+  border-left: 2px dotted rgb(8, 168, 217);
+  background-color: rgb(8, 168, 217, 0.1);
 }
 
 .setting {

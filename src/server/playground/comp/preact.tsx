@@ -2,6 +2,7 @@
 import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
 import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKeys.ts";
 import { generateFormData } from "../utils/generateFormData.ts";
+import Act from "./Act.tsx";
 import { MODAL_TYPES } from "./context/actionType.ts";
 import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
@@ -282,9 +283,9 @@ export const Page = () => {
 
         <span
           className="btn btn-modal btn-doc "
-          onClick={() => setModal(MODAL_TYPES.DOCUMENT)}
+          onClick={() => setModal(MODAL_TYPES.ACT)}
         >
-          <span className="btn-modal-title">Document</span>
+          <span className="btn-modal-title">Act</span>
           <DocumentIcon />
         </span>
 
@@ -296,15 +297,19 @@ export const Page = () => {
 
       {modal !== null && (
         <Modal toggle={toggleModal} title={modal}>
-          {modal === MODAL_TYPES.HISTORY
-            ? <History setFormFromHistory={setFormFromHistory} />
-            : modal === MODAL_TYPES.SETTING
-            ? <Setting configUrl={configUrl} />
-            : modal === MODAL_TYPES.E2E_TEST
-            ? <E2E baseUrl={urlAddress} />
-            : modal === MODAL_TYPES.SCHEMA
-            ? <Schema />
-            : <Fragment></Fragment>}
+          {modal === MODAL_TYPES.HISTORY ? (
+            <History setFormFromHistory={setFormFromHistory} />
+          ) : modal === MODAL_TYPES.SETTING ? (
+            <Setting configUrl={configUrl} />
+          ) : modal === MODAL_TYPES.E2E_TEST ? (
+            <E2E baseUrl={urlAddress} />
+          ) : modal === MODAL_TYPES.SCHEMA ? (
+            <Schema />
+          ) : modal === MODAL_TYPES.ACT ? (
+            <Act />
+          ) : (
+            <Fragment></Fragment>
+          )}
         </Modal>
       )}
     </div>
