@@ -1058,6 +1058,7 @@ textarea {
   background: rgba(79, 79, 79, 0.79);
   border-left: 2px dotted #f8f8f2;
   cursor: pointer;
+  border-radius: 0 7px 7px 0;
 }
 
 .schema-list .schema .schema-name {
@@ -1066,11 +1067,19 @@ textarea {
   align-items: center;
   gap: 5px;
   color: #fff;
-  padding: 0 30px;
+  padding: 5px 30px;
 }
 
-.schema-list .schema .schema-name p {
-  color: #ffffff;
+.schema-title {
+  margin: 5px 0 2px 0;
+  color: bisque;
+}
+
+.schema-type {
+  position: absolute;
+  top: 0;
+  right: 60px;
+  color: #dcdcdc75;
 }
 
 .schema-list .schema .inside-schema {
@@ -1081,6 +1090,7 @@ textarea {
 
 .proceed-child-container {
   display: none;
+  margin: 0 10px 10px 0;
 }
 
 .proceed-child {
@@ -1094,6 +1104,7 @@ textarea {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
 }
 
 .color-1 {
@@ -1129,10 +1140,6 @@ textarea {
 .color-7 {
   border-left: 2px dotted rgb(8, 168, 217);
   background-color: rgb(8, 168, 217, 0.1);
-}
-
-.schema .inside-schema .inside p {
-  color: #ffe4c4;
 }
 
 .setting {

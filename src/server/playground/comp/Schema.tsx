@@ -7,16 +7,15 @@ import Search from "./icon/Search.tsx";
 export const Schema = () => {
   const [isShow, setIsShow] = useState<string>("");
   const [isShowInside, setIsShowInside] = useState<string>("");
-  const [schemas, setSchemas] = useState([]);
 
-  const { schemasObj, actsObj } = useLesan();
+  const { schemasObj } = useLesan();
 
   const proceedChildSchema = (childSchema: Record<string, any>) => {
     return Object.keys(childSchema).map((childItem: any) => (
       <div className="inside-schema">
         <div className="inside" onClick={() => setIsShowInside(childItem)}>
           <p>
-            field name : 
+            field name :
             <span>
               {childItem} : {childSchema[childItem]["type"]}
             </span>

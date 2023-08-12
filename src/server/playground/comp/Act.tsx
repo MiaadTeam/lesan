@@ -3,9 +3,20 @@ import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import Search from "./icon/Search.tsx";
 import { uid } from "../utils/uid.ts";
+import ExportIcon from "./icon/ExportIcon.tsx";
 
 export default function Act() {
   const { actsObj } = useLesan();
+  const exportActs = () => {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(actsObj)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "acts.json";
+
+    link.click();
+  };
 
   const rainbowClass = [
     "color-1",
@@ -29,7 +40,7 @@ export default function Act() {
               document.getElementById(newUid)?.classList.toggle("open");
             }}
           >
-            <p>{act}</p>
+            <p className="schema-title">{act}</p>
             <span>...</span>
           </div>
           <div className="proceed-child-container" id={newUid}>
@@ -56,8 +67,12 @@ export default function Act() {
               document.getElementById(newUid)?.classList.toggle("open");
             }}
           >
-            <p>{childAct}</p>
-            {childActs[childAct].type && <p>{childActs[childAct].type}</p>}
+            <p className="schema-title">{childAct}</p>
+            {childActs[childAct].type && (
+              <p className="schema-title schema-type">
+                {childActs[childAct].type}
+              </p>
+            )}
             <div>
               {" "}
               {typeof childActs[childAct] === "object" &&
@@ -82,14 +97,26 @@ export default function Act() {
   };
 
   return (
-    <div className="schema-modal">
-      <div className="search-box">
-        <input className="search-input" type="text" placeholder="search..." />
-        <span className="search-icon">
-          <Search />
-        </span>
+    <Fragment>
+      <div className="schema-modal">
+        {" "}
+        <div className="results-buttons">
+          <button
+            className=" schema-export-button btn e2e-back-button e2e-export_results-button"
+            onClick={exportActs}
+          >
+            <ExportIcon />
+            <span>Export</span>
+          </button>
+        </div>
+        <div className="search-box">
+          <input className="search-input" type="text" placeholder="search..." />
+          <span className="search-icon">
+            <Search />
+          </span>
+        </div>
+        <div className="schema-list">{proceedActs(actsObj)}</div>
       </div>
-      <div className="schema-list">{proceedActs(actsObj)}</div>
-    </div>
+    </Fragment>
   );
 }
