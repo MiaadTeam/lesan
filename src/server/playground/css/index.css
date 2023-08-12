@@ -1032,8 +1032,8 @@ textarea {
 .schema-modal .search-box {
   display: flex;
   align-items: center;
-  background-color: #eeeeee;
-  padding: 5px 1rem;
+  background-color: #eeeeee54;
+  padding: 0 2px 0 10px;
   border-radius: 5px;
   width: 80%;
   margin: 0 auto;
@@ -1051,13 +1051,12 @@ textarea {
   margin-top: 3rem;
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 1rem;
 }
 
 .schema {
   background: rgba(79, 79, 79, 0.79);
   border-left: 2px dotted #f8f8f2;
-  cursor: pointer;
   border-radius: 0 7px 7px 0;
 }
 
@@ -1068,6 +1067,7 @@ textarea {
   gap: 5px;
   color: #fff;
   padding: 5px 30px;
+  cursor: pointer;
 }
 
 .schema-title {
@@ -1080,6 +1080,10 @@ textarea {
   top: 0;
   right: 60px;
   color: #dcdcdc75;
+}
+
+.schema-pointer {
+  cursor: pointer;
 }
 
 .schema-list .schema .inside-schema {

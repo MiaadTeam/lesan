@@ -27,7 +27,6 @@ export default function Act() {
     "color-6",
     "color-7",
   ];
-  const backClass = ["gray", "blue"];
 
   const proceedActs = (acts: Record<string, any>) => {
     return Object.keys(acts).map((act: any, index) => {
@@ -59,10 +58,14 @@ export default function Act() {
         <div
           className={`inside-schema ${
             rainbowClass[Math.floor(Math.random() * rainbowClass.length)]
-          } ${backClass[Math.floor(Math.random() * backClass.length)]}`}
+          }`}
         >
           <div
-            className="inside"
+            className={`inside ${
+              typeof childActs[childAct] === "object" &&
+              childActs[childAct].schema !== null &&
+              "schema-pointer"
+            }`}
             onClick={() => {
               document.getElementById(newUid)?.classList.toggle("open");
             }}
@@ -97,26 +100,24 @@ export default function Act() {
   };
 
   return (
-    <Fragment>
-      <div className="schema-modal">
-        {" "}
-        <div className="results-buttons">
-          <button
-            className=" schema-export-button btn e2e-back-button e2e-export_results-button"
-            onClick={exportActs}
-          >
-            <ExportIcon />
-            <span>Export</span>
-          </button>
-        </div>
-        <div className="search-box">
-          <input className="search-input" type="text" placeholder="search..." />
-          <span className="search-icon">
-            <Search />
-          </span>
-        </div>
-        <div className="schema-list">{proceedActs(actsObj)}</div>
+    <div className="schema-modal">
+      {" "}
+      <div className="results-buttons">
+        <button
+          className=" schema-export-button btn e2e-back-button e2e-export_results-button"
+          onClick={exportActs}
+        >
+          <ExportIcon />
+          <span>Export</span>
+        </button>
       </div>
-    </Fragment>
+      <div className="search-box">
+        <input className="input" type="text" placeholder="search..." />
+        <span className="search-icon">
+          <Search />
+        </span>
+      </div>
+      <div className="schema-list">{proceedActs(actsObj)}</div>
+    </div>
   );
 }
