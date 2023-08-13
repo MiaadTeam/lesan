@@ -1,4 +1,5 @@
-import { getPureModel, getSchema, TSchemas } from "./mod.ts";
+import { getPureModel, TSchemas } from "./mod.ts";
+import { getFlattenPureFromRelations } from "./schema/getFlattenPureFromRelations.ts";
 
 export type TProjectionType =
   | "Pure"
@@ -10,22 +11,11 @@ export type TProjectionType =
   | "MainRelationsRelatedRelations";
 
 const setFiledsToOne = (input: Record<string, any>) => {
-  /*
-   *  @LOG @DEBUG @INFO
-   *  This log written by ::==> {{ syd }}
-   *
-   *  Please remove your log after debugging
-   */
-  console.log(" ============= ");
-  console.group("input ------ ");
-  console.log();
-  console.info({ input }, " ------ ");
-  console.log();
-  console.groupEnd();
-  console.log(" ============= ");
-  const returnObj: Record<string, 1> = {};
+  const returnObj: Record<string, any> = {};
   for (const key in input) {
-    returnObj[key] = 1;
+    input[key].type === "object"
+      ? returnObj[key] = setFiledsToOne(input[key].schema)
+      : returnObj[key] = 1;
   }
   return returnObj;
 };
@@ -37,9 +27,39 @@ export const createProjection = (
 ) => {
   switch (projectionType) {
     case "Pure":
-      const schema = getPureModel(schemasObj, schemaName);
-      return setFiledsToOne(schema);
+      return setFiledsToOne(getPureModel(schemasObj, schemaName));
+    case "MainRelations":
+      return setFiledsToOne(
+        getFlattenPureFromRelations(schemasObj, schemaName, "MainRelations"),
+      );
+    case "RelatedRelations":
+      return setFiledsToOne(
+        getFlattenPureFromRelations(schemasObj, schemaName, "RelatedRelations"),
+      );
+    case "PureMainRelations":
+      return setFiledsToOne({
+        ...getPureModel(schemasObj, schemaName),
+        ...getFlattenPureFromRelations(schemasObj, schemaName, "MainRelations"),
+      });
+    case "PureRelatedRelations":
+      return setFiledsToOne({
+        ...getPureModel(schemasObj, schemaName),
+        ...getFlattenPureFromRelations(
+          schemasObj,
+          schemaName,
+          "RelatedRelations",
+        ),
+      });
+    case "PureMainRelationsRelatedRelations":
+      return setFiledsToOne({
+        ...getPureModel(schemasObj, schemaName),
+        ...getFlattenPureFromRelations(schemasObj, schemaName, "All"),
+      });
+    case "MainRelationsRelatedRelations":
+      return setFiledsToOne(
+        getFlattenPureFromRelations(schemasObj, schemaName, "All"),
+      );
     default:
-      return null;
+      return {};
   }
 };
