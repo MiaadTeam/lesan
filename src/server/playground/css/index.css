@@ -995,6 +995,13 @@ textarea {
   top: 0;
 }
 
+.e2e-re-timeNumber-request {
+  position: absolute;
+  right: 1rem;
+  color: bisque;
+  font-size: 12px;
+}
+
 .e2e_help-content {
   color: gainsboro;
   padding: 1rem;
@@ -1022,6 +1029,50 @@ textarea {
 
 .e2e_help--section---right-side > p {
   flex: 1;
+}
+
+.detail-requests {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  margin: 0 2rem;
+}
+
+.sequence-details {
+  color:rgb(177, 177, 177);
+  font-size: 14px;
+}
+
+.sequence-details h5 {
+  color: #fff;
+}
+
+.sequence-detail {
+  display: flex;
+}
+
+.sequence {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 3rem;
+  color: bisque;
+}
+
+.sequence-bodyHeader {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 1rem;
+  padding: 5px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+}
+
+.time-request,
+.number-request {
+  color: bisque;
+  font-size: 14px;
 }
 
 .schema-modal {
@@ -1213,6 +1264,7 @@ textarea {
   width: 50%;
   background-color: rgba(147, 147, 147, 0.1);
   border-radius: 10px 0 0 10px;
+  position: relative;
 }
 
 .container-re-detail {
@@ -1417,26 +1469,37 @@ textarea {
 
 .modal-close,
 .modal-fullscreen {
+  display: flex;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: rgb(245, 35, 35);
+  background-color: rgba(245, 35, 35, 0.5);
   transition: visibility 200ms ease;
   border: 1px solid gainsboro;
-  opacity: 0.5;
   cursor: pointer;
   backdrop-filter: blur(10px);
+  color: #fff;
 }
 
 .modal-fullscreen {
-  background-color: rgb(66, 196, 66);
+  background-color: rgba(66, 196, 66, 0.5);
 }
 
 .modal-close svg,
 .modal-fullscreen svg {
-  visibility: hidden;
+  opacity: 0;
   width: 20px;
   height: 20px;
+}
+
+.modal-fullscreen svg {
+  width: 13px;
+  display: flex;
+  margin: auto;
+}
+
+.modal-close svg path:first-child {
+  display: none;
 }
 
 .modal-close:hover,
@@ -1446,11 +1509,7 @@ textarea {
 
 .modal-close:hover svg,
 .modal-fullscreen:hover svg {
-  visibility: visible;
-}
-
-.modal-close:hover {
-  border: none;
+  opacity: 1;
 }
 
 .no-history {
