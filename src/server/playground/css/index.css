@@ -482,6 +482,37 @@ textarea {
   right: 0.4rem;
 }
 
+.btn-modal-document {
+  border-bottom: 1px solid bisque;
+  width: 5rem;
+  height: 0;
+  padding: 0;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s;
+  color: bisque;
+  position: relative;
+}
+
+.btn-modal-document[data-show="true"] {
+  width: 8rem;
+  transition: all 0.4s;
+}
+
+.btn-modal-document--title {
+  opacity: 0;
+}
+
+.btn-modal-document--title[data-show="true"] {
+  position: absolute;
+  bottom: -10px;
+  left: 123px;
+  margin-right: 0;
+  margin-left: 10px;
+  transition: all 0.4s;
+  white-space: nowrap;
+  opacity: 100;
+}
+
 /* -------------------------------------------------------------------------- */
 
 .sidebar--fields {
@@ -1050,7 +1081,7 @@ textarea {
 }
 
 .sequence-details {
-  color:rgb(177, 177, 177);
+  color: rgb(177, 177, 177);
   font-size: 14px;
 }
 
@@ -1608,13 +1639,10 @@ textarea {
   color: gainsboro;
   padding: 5px;
   border-radius: 5px;
-  /* background-color: teal; */
   cursor: default;
-  /* width: 120px; */
   max-width: 200px;
   min-width: 55px;
   flex-grow: 1;
-  /* height: 1.5rem; */
   position: relative;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1659,10 +1687,6 @@ textarea {
   border-radius: 5px;
 }
 
-.tab-close:hover {
-  background-color: blue;
-}
-
 .tab-name[data-tab="true"]:hover .tab-close {
   background-color: #1d201e;
 }
@@ -1677,6 +1701,14 @@ textarea {
 
 .tab-name:hover .tab-close:hover {
   background-color: #262b28;
+}
+
+.tab-name[data-tab="true"] .tab-close {
+  background-color: #1d201e;
+}
+
+.tab-name .tab-close {
+  background-color: #232724;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */

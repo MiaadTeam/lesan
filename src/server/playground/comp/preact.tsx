@@ -46,6 +46,8 @@ export const Page = () => {
     modal,
   } = useLesan();
 
+  const [show, setShow] = useState(false);
+
   const parsedWindowUrl = () => {
     return window && window.location
       ? `${new URL(window.location.href).origin}/`
@@ -249,49 +251,53 @@ export const Page = () => {
       <Main urlAddress={urlAddress} />
 
       <div className="main-btn-wrapper">
+        <span className="btn btn-modal" onClick={() => configUrl()}>
+          <span className="btn-modal-title">Refetch</span>
+          <ReFetchIcon />
+        </span>
         <span
-          className="btn btn-modal btn-setting"
+          className="btn btn-modal "
           onClick={() => setModal(MODAL_TYPES.SETTING)}
         >
           <span className="btn-modal-title">Setting</span>
           <SettingIcon />
         </span>
-
         <span
-          className="btn btn-modal btn-history"
+          className="btn btn-modal"
           onClick={() => setModal(MODAL_TYPES.HISTORY)}
         >
           <span className="btn-modal-title">History</span>
           <HistoryIcon />
         </span>
-
         <span
-          className="btn btn-modal btn-e2e"
+          className="btn btn-modal"
           onClick={() => setModal(MODAL_TYPES.E2E_TEST)}
         >
           <span className="btn-modal-title">E2E Test</span>
           <TestIcon />
         </span>
-
+        <span className="  btn-modal-document" data-show={show === true}>
+          <span className="btn-modal-document--title" data-show={show === true}>
+            Document
+          </span>
+        </span>
         <span
-          className="btn btn-modal btn-graph"
+          className="btn btn-modal btn-doc"
           onClick={() => setModal(MODAL_TYPES.SCHEMA)}
+          onMouseEnter={() => setShow(true)}
+          onMouseLeave={() => setShow(false)}
         >
           <span className="btn-modal-title">Schema</span>
           <SchemaIcon />
         </span>
-
         <span
           className="btn btn-modal btn-doc "
           onClick={() => setModal(MODAL_TYPES.ACT)}
+          onMouseEnter={() => setShow(true)}
+          onMouseLeave={() => setShow(false)}
         >
           <span className="btn-modal-title">Act</span>
           <DocumentIcon />
-        </span>
-
-        <span className="btn btn-modal btn-refetch" onClick={() => configUrl()}>
-          <span className="btn-modal-title">Refetch</span>
-          <ReFetchIcon />
         </span>
       </div>
 
