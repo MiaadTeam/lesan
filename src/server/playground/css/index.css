@@ -767,6 +767,13 @@ textarea {
   overflow: scroll;
 }
 
+.response-took {
+  position: absolute;
+  top: 50px;
+  right: 15px;
+  color: #ffe4c496;
+}
+
 .success {
   border-radius: 10px;
   background-color: rgb(255, 255, 255);
@@ -1076,15 +1083,15 @@ textarea {
 }
 
 .schema-modal {
-  width: 90%;
+  width: 97%;
   margin: 2rem auto 0 auto;
 }
 
 .schema-modal .search-box {
   display: flex;
   align-items: center;
-  background-color: #eeeeee;
-  padding: 5px 1rem;
+  background-color: #eeeeee54;
+  padding: 0 2px 0 10px;
   border-radius: 5px;
   width: 80%;
   margin: 0 auto;
@@ -1102,14 +1109,13 @@ textarea {
   margin-top: 3rem;
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 1rem;
 }
 
-.schema-modal .schema-list .schema {
-  background: rgba(70, 70, 70, 0.5);
-  border: 1px solid #f8f8f2;
-  border-radius: 5px;
-  cursor: pointer;
+.schema {
+  background: rgba(79, 79, 79, 0.79);
+  border-left: 2px dotted #f8f8f2;
+  border-radius: 0 7px 7px 0;
 }
 
 .schema-list .schema .schema-name {
@@ -1118,28 +1124,84 @@ textarea {
   align-items: center;
   gap: 5px;
   color: #fff;
-  padding: 0 30px;
+  padding: 5px 30px;
+  cursor: pointer;
 }
 
-.schema-list .schema .schema-name p {
-  color: #ffffff;
+.schema-title {
+  margin: 5px 0 2px 0;
+  color: bisque;
+}
+
+.schema-type {
+  position: absolute;
+  top: 0;
+  right: 60px;
+  color: #dcdcdc75;
+}
+
+.schema-pointer {
+  cursor: pointer;
 }
 
 .schema-list .schema .inside-schema {
-  margin: 1rem 1rem;
-  background: rgba(79, 79, 79, 0.9);
-  border: 1px solid #f8f8f2;
+  margin: 0 0 0 15px;
   padding: 10px;
-  border-radius: 5px;
+  color: #fff;
+}
+
+.proceed-child-container {
+  display: none;
+  margin: 0 10px 10px 0;
+}
+
+.proceed-child {
+  display: none;
+}
+.open {
+  display: block;
 }
 
 .schema .inside-schema .inside {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  position: relative;
 }
 
-.schema .inside-schema .inside p {
-  color: #ffe4c4;
+.color-1 {
+  border-left: 2px dotted rgb(109, 18, 13);
+  background-color: rgba(109, 18, 13, 0.1);
+}
+
+.color-2 {
+  border-left: 2px dotted rgb(194, 173, 67);
+  background-color: rgba(194, 173, 67, 0.1);
+}
+
+.color-3 {
+  border-left: 2px dotted rgb(20, 189, 43);
+  background-color: rgba(20, 189, 43, 0.1);
+}
+
+.color-4 {
+  border-left: 2px dotted rgb(21, 66, 189);
+  background-color: rgba(21, 66, 189, 0.1);
+}
+
+.color-5 {
+  border-left: 2px dotted rgb(94, 21, 189);
+  background-color: rgba(94, 21, 189, 0.1);
+}
+
+.color-6 {
+  border-left: 2px dotted rgb(189, 21, 116);
+  background-color: rgba(189, 21, 116, 0.1);
+}
+
+.color-7 {
+  border-left: 2px dotted rgb(8, 168, 217);
+  background-color: rgb(8, 168, 217, 0.1);
 }
 
 .setting {
@@ -1300,6 +1362,10 @@ textarea {
   top: 0;
   cursor: pointer;
   color: white;
+}
+
+.history-response-took {
+  left: 12px;
 }
 
 .history-response-title {
