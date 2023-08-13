@@ -1,20 +1,8 @@
 import { IMainRelation } from "../../mod.ts";
 import { TSchemas } from "../../models/mod.ts";
 import { getRelation } from "../../models/relation/getRelation.ts";
+import { checkNotLastProjecion } from "../mod.ts";
 import { Projection, ProjectionPip } from "./type.ts";
-
-export const checkNotLastObj = (
-  projection: Projection,
-) => {
-  let notLast = false;
-
-  for (const prop in projection) {
-    typeof projection[prop] === "object" &&
-      (notLast = true);
-  }
-
-  return notLast ? true : false;
-};
 
 export const generateProjection = (
   projection: Projection,
@@ -90,7 +78,7 @@ export const generateProjection = (
     if (foundAsMainRelations || foundAsRelatedRelations) {
       for (const prop in projection) {
         typeof projection[prop] === "object" &&
-          checkNotLastObj(
+          checkNotLastProjecion(
             projection[prop] as Projection,
           ) &&
           createLookup(
@@ -107,7 +95,7 @@ export const generateProjection = (
 
   for (const prop in projection) {
     typeof projection[prop] === "object" &&
-      checkNotLastObj(
+      checkNotLastProjecion(
         projection[prop] as Projection,
       ) &&
       createLookup(projection[prop] as Projection, prop, collectionName, prop);
