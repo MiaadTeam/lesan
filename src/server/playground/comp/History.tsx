@@ -1,5 +1,6 @@
 /** @jsx h */
 import { h, useEffect, useState } from "../reactDeps.ts";
+import { ConvertMilliseconds } from "../utils/convertMilliseconds.ts";
 import { useNonInitialEffect } from "./hooks/useNonInitialEffect.ts";
 import DeleteIcon from "./icon/deleteIcon.tsx";
 import DustbinIcon from "./icon/DustbinIcon.tsx";
@@ -33,12 +34,7 @@ export function History({
                   // className="history-re-title_date "
                 >
                   <span className="container-re-title">REQUEST</span>
-                  <span
-                    className="history-re-detail-date"
-                    // ""
-                  >
-                    {hi.reqTime}
-                  </span>
+                  <span className="history-re-detail-date">{hi.reqDate}</span>
                 </div>
                 <div className="container-re-detail">
                   <div className="container-re-detail-title">
@@ -96,6 +92,9 @@ export function History({
                   </span>
                   <span className="container-re-title history-response-title">
                     RESPONSE
+                  </span>
+                  <span className="history-re-detail-date history-response-took">
+                    {ConvertMilliseconds(hi.response.tookTime)}
                   </span>
                 </div>
                 <div className="container-re-detail">

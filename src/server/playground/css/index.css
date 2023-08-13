@@ -767,6 +767,13 @@ textarea {
   overflow: scroll;
 }
 
+.response-took {
+  position: absolute;
+  top: 50px;
+  right: 15px;
+  color: #ffe4c496;
+}
+
 .success {
   border-radius: 10px;
   background-color: rgb(255, 255, 255);
@@ -829,6 +836,9 @@ textarea {
     right: 33px;
   }
   .fail {
+    right: 10px;
+  }
+  .success {
     right: 10px;
   }
 }
@@ -995,6 +1005,13 @@ textarea {
   top: 0;
 }
 
+.e2e-re-timeNumber-request {
+  position: absolute;
+  right: 1rem;
+  color: bisque;
+  font-size: 12px;
+}
+
 .e2e_help-content {
   color: gainsboro;
   padding: 1rem;
@@ -1024,6 +1041,50 @@ textarea {
   flex: 1;
 }
 
+.detail-requests {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  margin: 0 2rem;
+}
+
+.sequence-details {
+  color:rgb(177, 177, 177);
+  font-size: 14px;
+}
+
+.sequence-details h5 {
+  color: #fff;
+}
+
+.sequence-detail {
+  display: flex;
+}
+
+.sequence {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 3rem;
+  color: bisque;
+}
+
+.sequence-bodyHeader {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 1rem;
+  padding: 5px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+}
+
+.time-request,
+.number-request {
+  color: bisque;
+  font-size: 14px;
+}
+
 .schema-modal {
   width: 97%;
   margin: 2rem auto 0 auto;
@@ -1032,8 +1093,8 @@ textarea {
 .schema-modal .search-box {
   display: flex;
   align-items: center;
-  background-color: #eeeeee;
-  padding: 5px 1rem;
+  background-color: #eeeeee54;
+  padding: 0 2px 0 10px;
   border-radius: 5px;
   width: 80%;
   margin: 0 auto;
@@ -1051,13 +1112,13 @@ textarea {
   margin-top: 3rem;
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 1rem;
 }
 
 .schema {
   background: rgba(79, 79, 79, 0.79);
   border-left: 2px dotted #f8f8f2;
-  cursor: pointer;
+  border-radius: 0 7px 7px 0;
 }
 
 .schema-list .schema .schema-name {
@@ -1066,11 +1127,24 @@ textarea {
   align-items: center;
   gap: 5px;
   color: #fff;
-  padding: 0 30px;
+  padding: 5px 30px;
+  cursor: pointer;
 }
 
-.schema-list .schema .schema-name p {
-  color: #ffffff;
+.schema-title {
+  margin: 5px 0 2px 0;
+  color: bisque;
+}
+
+.schema-type {
+  position: absolute;
+  top: 0;
+  right: 60px;
+  color: #dcdcdc75;
+}
+
+.schema-pointer {
+  cursor: pointer;
 }
 
 .schema-list .schema .inside-schema {
@@ -1081,6 +1155,7 @@ textarea {
 
 .proceed-child-container {
   display: none;
+  margin: 0 10px 10px 0;
 }
 
 .proceed-child {
@@ -1094,6 +1169,7 @@ textarea {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
 }
 
 .color-1 {
@@ -1129,10 +1205,6 @@ textarea {
 .color-7 {
   border-left: 2px dotted rgb(8, 168, 217);
   background-color: rgb(8, 168, 217, 0.1);
-}
-
-.schema .inside-schema .inside p {
-  color: #ffe4c4;
 }
 
 .setting {
@@ -1257,6 +1329,7 @@ textarea {
   width: 50%;
   background-color: rgba(147, 147, 147, 0.1);
   border-radius: 10px 0 0 10px;
+  position: relative;
 }
 
 .container-re-detail {
@@ -1292,6 +1365,10 @@ textarea {
   top: 0;
   cursor: pointer;
   color: white;
+}
+
+.history-response-took {
+  left: 12px;
 }
 
 .history-response-title {
@@ -1461,26 +1538,37 @@ textarea {
 
 .modal-close,
 .modal-fullscreen {
+  display: flex;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: rgb(245, 35, 35);
+  background-color: rgba(245, 35, 35, 0.5);
   transition: visibility 200ms ease;
   border: 1px solid gainsboro;
-  opacity: 0.5;
   cursor: pointer;
   backdrop-filter: blur(10px);
+  color: #fff;
 }
 
 .modal-fullscreen {
-  background-color: rgb(66, 196, 66);
+  background-color: rgba(66, 196, 66, 0.5);
 }
 
 .modal-close svg,
 .modal-fullscreen svg {
-  visibility: hidden;
+  opacity: 0;
   width: 20px;
   height: 20px;
+}
+
+.modal-fullscreen svg {
+  width: 13px;
+  display: flex;
+  margin: auto;
+}
+
+.modal-close svg path:first-child {
+  display: none;
 }
 
 .modal-close:hover,
@@ -1490,11 +1578,7 @@ textarea {
 
 .modal-close:hover svg,
 .modal-fullscreen:hover svg {
-  visibility: visible;
-}
-
-.modal-close:hover {
-  border: none;
+  opacity: 1;
 }
 
 .no-history {

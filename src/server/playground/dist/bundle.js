@@ -405,7 +405,7 @@ var ACTION_TYPE;
 var MODAL_TYPES;
 (function(MODAL_TYPES) {
     MODAL_TYPES["HISTORY"] = "HISTORY";
-    MODAL_TYPES["DOCUMENT"] = "DOCUMENT";
+    MODAL_TYPES["ACT"] = "ACT";
     MODAL_TYPES["SETTING"] = "SETTING";
     MODAL_TYPES["E2E_TEST"] = "E2E TEST";
     MODAL_TYPES["SCHEMA"] = "SCHEMA";
@@ -953,7 +953,22 @@ const generateFormData = (formData, returnFormData, keyname)=>{
     }
     return returnFormData;
 };
-function AddIcon() {
+function Search() {
+    return Z("svg", {
+        width: "30px",
+        height: "35px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M16.6725 16.6412L21 21M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z",
+        stroke: "#000000",
+        "stroke-width": "2",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+    }));
+}
+function ExportIcon() {
     return Z("svg", {
         width: "25px",
         height: "25px",
@@ -961,7 +976,9 @@ function AddIcon() {
         fill: "none",
         xmlns: "http://www.w3.org/2000/svg"
     }, Z("path", {
-        d: "M11 8C11 7.44772 11.4477 7 12 7C12.5523 7 13 7.44772 13 8V11H16C16.5523 11 17 11.4477 17 12C17 12.5523 16.5523 13 16 13H13V16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16V13H8C7.44771 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11H11V8Z",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M11.2501 7.06066L8.03039 10.2803L6.96973 9.21967L12.0001 4.18934L17.0304 9.21967L15.9697 10.2803L12.7501 7.06066L12.7501 16.5L11.2501 16.5L11.2501 7.06066Z",
         fill: "lightcoral"
     }), Z("path", {
         "fill-rule": "evenodd",
@@ -969,6 +986,81 @@ function AddIcon() {
         d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
         fill: "bisque"
     }));
+}
+function Act() {
+    const { actsObj  } = useLesan();
+    const exportActs = ()=>{
+        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(actsObj))}`;
+        const link = document.createElement("a");
+        link.href = jsonString;
+        link.download = "acts.json";
+        link.click();
+    };
+    const rainbowClass = [
+        "color-1",
+        "color-2",
+        "color-3",
+        "color-4",
+        "color-5",
+        "color-6",
+        "color-7"
+    ];
+    const proceedActs = (acts)=>{
+        return Object.keys(acts).map((act, index)=>{
+            const newUid = uid();
+            return Z("div", {
+                className: "schema"
+            }, Z("div", {
+                className: "schema-name",
+                onClick: ()=>{
+                    document.getElementById(newUid)?.classList.toggle("open");
+                }
+            }, Z("p", {
+                className: "schema-title"
+            }, act), Z("span", null, "...")), Z("div", {
+                className: "proceed-child-container",
+                id: newUid
+            }, proceedChildActs(actsObj[act])));
+        });
+    };
+    const proceedChildActs = (childActs)=>{
+        return Object.keys(childActs).map((childAct, index)=>{
+            const newUid = uid();
+            return Z("div", {
+                className: `inside-schema ${rainbowClass[Math.floor(Math.random() * rainbowClass.length)]}`
+            }, Z("div", {
+                className: `inside ${typeof childActs[childAct] === "object" && childActs[childAct].schema !== null && "schema-pointer"}`,
+                onClick: ()=>{
+                    document.getElementById(newUid)?.classList.toggle("open");
+                }
+            }, Z("p", {
+                className: "schema-title"
+            }, childAct), childActs[childAct].type && Z("p", {
+                className: "schema-title schema-type"
+            }, childActs[childAct].type), Z("div", null, " ", typeof childActs[childAct] === "object" && childActs[childAct].schema !== null && Z("span", null, "..."))), Z("div", {
+                id: newUid,
+                className: "proceed-child"
+            }, typeof childActs[childAct] === "object" && childActs[childAct] !== null && childActs[childAct].schema !== null && proceedChildActs(childActs[childAct].validator ? childActs[childAct].validator.schema : childActs[childAct].schema ? childActs[childAct].schema : childActs[childAct])));
+        });
+    };
+    return Z("div", {
+        className: "schema-modal"
+    }, " ", Z("div", {
+        className: "results-buttons"
+    }, Z("button", {
+        className: " schema-export-button btn e2e-back-button e2e-export_results-button",
+        onClick: exportActs
+    }, Z(ExportIcon, null), Z("span", null, "Export"))), Z("div", {
+        className: "search-box"
+    }, Z("input", {
+        className: "input",
+        type: "text",
+        placeholder: "search..."
+    }), Z("span", {
+        className: "search-icon"
+    }, Z(Search, null))), Z("div", {
+        className: "schema-list"
+    }, proceedActs(actsObj)));
 }
 function BackIcon() {
     return Z("svg", {
@@ -989,6 +1081,71 @@ function BackIcon() {
         "stroke-width": "1.5",
         "stroke-linecap": "round",
         "stroke-linejoin": "round"
+    }), Z("path", {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
+        fill: "bisque"
+    }));
+}
+const Help = ({ setView  })=>{
+    return Z("div", {
+        className: "help"
+    }, " ", Z("button", {
+        className: "btn  e2e-back-button",
+        onClick: ()=>{
+            setView("e2e");
+        }
+    }, Z(BackIcon, null), Z("span", null, "Back")), Z("section", {
+        className: "e2e_help-content"
+    }, Z("p", null, "With E2E Test, you can test the whole application by sending a sequence of HTTP requests."), Z("p", null, "In the image below, you can see the first view of the E2E test modal page, which contains a button bar at the top and two separate requests."), Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/829b3288-3d69-4fd0-a1fc-22d011b8d079",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }), Z("hr", null), Z("p", null, "In the button bar, you have these buttons:", Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/4edd6034-d6b2-4de9-8c43-8f2fe511aa14",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }), Z("ul", null, Z("li", null, "Add: This button adds one request section."), Z("li", null, "Run E2E Test: This button runs all requests and shows their results."), Z("li", null, "Import: This button stands for importing an E2E config in JSON format."), Z("li", null, "Export: This button stands for exporting an existing E2E config in JSON format."), Z("li", null, "Help: This button switches to the help of the E2E modal page."))), Z("hr", null), Z("div", null, Z("p", null, "Each request section have 2 side"), Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/fa9ceb35-21dd-493a-82cc-cd7391f5fc79",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }), Z("hr", null), Z("section", {
+        className: "e2e_help--section---right-side"
+    }, Z("p", null, "The right side is a set of configurations for the repeat time of each request and capturing variables of the request response. In the Capture Variables section, you can add a pair of tuple inputs for the key name of the capture variable and its value. You can capture the value of a capture variable with braces syntax. For example, if you get back this response from a request:", Z("pre", null, "{\n", "  body: [\n", "    {\n", "      _id: 64c6839c50adc3cb65726934,\n", "      name: همدان,\n", "      enName: Hamedan,\n", "      abb: HM\n", "    }\n", "  ],\n", "  success: true\n", "  }\n", "}\n"), "You can capture _id with [body][0][_id] or for name: [body][0][name]."), Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/1cea1db3-44c2-49b5-8739-a9afa8a6e1fa",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    })), Z("hr", null), Z("section", {
+        className: "e2e_help--section---right-side"
+    }, Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/5c9899fa-8be6-42d1-8f4f-8fd965264645",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }), Z("p", null, "The left side is a text area for writing headers and the body of the request in JSON format. In this text area, you can use a text parser to implement the captured value you captured before inside these symbols ", "{}", ".")), Z("hr", null), Z("p", null, "Also, we have some buttons on the top right side of each request section. With these buttons, you can move up and down and delete requests.", Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/900a5b98-3e7f-460a-a756-403ecaedcf86",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    }))), Z("hr", null), Z("div", null, Z("p", null, "After clicking on the Run E2E Test button, you can see the result of each test. Also, in the result view, you can export the results in JSON format."), Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/8c367965-a1b7-40b8-8638-60d2d0ea2609",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    })), Z("hr", null), Z("div", null, Z("p", null, "Additionally, you can go to the E2E Test modal page from the main page by clicking on the Test icon inside the response header section. This way, you can add a new test section and prepopulate the Header and Body text areas with the sent request from the main page.", Z("img", {
+        src: "https://github.com/MiaadTeam/lesan/assets/6236123/74dc9e93-2b41-4840-afc1-f4e8e83c9889",
+        alt: "full screen e2e",
+        className: "e2e_help--fullscreen-img"
+    })))));
+};
+function AddIcon() {
+    return Z("svg", {
+        width: "25px",
+        height: "25px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M11 8C11 7.44772 11.4477 7 12 7C12.5523 7 13 7.44772 13 8V11H16C16.5523 11 17 11.4477 17 12C17 12.5523 16.5523 13 16 13H13V16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16V13H8C7.44771 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11H11V8Z",
+        fill: "lightcoral"
     }), Z("path", {
         "fill-rule": "evenodd",
         "clip-rule": "evenodd",
@@ -1035,25 +1192,6 @@ function DownIcon() {
         "stroke-width": "1.5",
         "stroke-linecap": "round",
         "stroke-linejoin": "round"
-    }));
-}
-function ExportIcon() {
-    return Z("svg", {
-        width: "25px",
-        height: "25px",
-        viewBox: "0 0 24 24",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
-    }, Z("path", {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M11.2501 7.06066L8.03039 10.2803L6.96973 9.21967L12.0001 4.18934L17.0304 9.21967L15.9697 10.2803L12.7501 7.06066L12.7501 16.5L11.2501 16.5L11.2501 7.06066Z",
-        fill: "lightcoral"
-    }), Z("path", {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M23 12C23 18.0751 18.0751 23 12 23C5.92487 23 1 18.0751 1 12C1 5.92487 5.92487 1 12 1C18.0751 1 23 5.92487 23 12ZM3.00683 12C3.00683 16.9668 7.03321 20.9932 12 20.9932C16.9668 20.9932 20.9932 16.9668 20.9932 12C20.9932 7.03321 16.9668 3.00683 12 3.00683C7.03321 3.00683 3.00683 7.03321 3.00683 12Z",
-        fill: "bisque"
     }));
 }
 function HelpIcon() {
@@ -1145,13 +1283,13 @@ var ClassNames;
     ClassNames["key"] = "cute-key";
 })(ClassNames || (ClassNames = {}));
 const pre = {
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial",
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial',
     display: "inline-block",
     borderRadius: 3,
-    padding: "10px 15px",
+    padding: "10px 10px",
     color: "#f8f8f2",
     textShadow: "1px 1px black",
-    whiteSpace: 'pre-wrap'
+    whiteSpace: "pre-wrap"
 };
 const regEx = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g;
 const syntaxHighlight = (json)=>{
@@ -1203,6 +1341,11 @@ const JSONViewer = ({ jsonData  })=>{
 };
 function E2E({ baseUrl  }) {
     const { e2eForms , setE2eForms  } = useLesan();
+    const [requestDetail, setRequestDetail] = F1({
+        allReqPerformance: 0,
+        numberRequest: 0,
+        sequenceDetail: []
+    });
     const handleMove = (fromIndex, toIndex)=>{
         if (fromIndex === 0 && toIndex <= 0) {
             return;
@@ -1284,6 +1427,13 @@ function E2E({ baseUrl  }) {
     };
     const runE2eTest = async ()=>{
         const parsedCaptures = new Set();
+        const allReqPerformance0 = performance.now();
+        const requestDetail = {
+            allReqPerformance: 0,
+            numberRequest: 0,
+            sequenceDetail: []
+        };
+        let numberRequest = 0;
         for await (const e2eForm of e2eForms){
             const parsedHeaderBody = JSON.parse(e2eForm.bodyHeaders);
             replaceCaptureString(parsedHeaderBody, parsedCaptures);
@@ -1296,11 +1446,17 @@ function E2E({ baseUrl  }) {
                 body: JSON.stringify(parsedHeaderBody.body)
             };
             let jsonSendedRequest;
+            const sequenceTime0 = performance.now();
+            let sequenceRepeat = 0;
             for(let repeat = 0; repeat < e2eForm.repeat; repeat++){
+                const tResTime0 = performance.now();
                 jsonSendedRequest = await lesanAPI({
                     baseUrl: baseUrl,
                     options: body
                 });
+                const tResTime1 = performance.now();
+                sequenceRepeat += 1;
+                numberRequest += 1;
                 setResults((results)=>[
                         ...results,
                         {
@@ -1309,10 +1465,17 @@ function E2E({ baseUrl  }) {
                                 ...body,
                                 body: parsedHeaderBody.body
                             },
-                            response: jsonSendedRequest
+                            response: jsonSendedRequest,
+                            responseTime: tResTime1 - tResTime0
                         }
                     ]);
             }
+            const sequenceTime1 = performance.now();
+            requestDetail.sequenceDetail.push({
+                bodyHeader: e2eForm.bodyHeaders,
+                repeat: sequenceRepeat,
+                time: sequenceTime1 - sequenceTime0
+            });
             const captures = [
                 ...e2eForm.captures
             ].filter((capture)=>capture.key && capture.value);
@@ -1345,6 +1508,12 @@ function E2E({ baseUrl  }) {
                 }
             });
         }
+        const allReqPerformance1 = performance.now();
+        setRequestDetail({
+            ...requestDetail,
+            numberRequest,
+            allReqPerformance: allReqPerformance1 - allReqPerformance0
+        });
     };
     const plusRepeatHandler = (index)=>{
         const copy = [
@@ -1391,12 +1560,34 @@ function E2E({ baseUrl  }) {
         }, "REQUEST"), Z(JSONViewer, {
             jsonData: re.request
         })), Z("section", {
-            className: "container-re history-response"
+            className: "container-re container-response"
         }, Z("span", {
             className: "container-re-title"
-        }, "RESPONSE"), Z(JSONViewer, {
+        }, "RESPONSE"), Z("span", {
+            className: "e2e-re-timeNumber-request"
+        }, re.responseTime, "ms"), Z(JSONViewer, {
             jsonData: re.response
-        })))))) : view === "e2e" ? Z(N, null, Z("div", {
+        }))))), Z("div", {
+        className: "detail-requests"
+    }, Z("div", {
+        className: "sequence-details"
+    }, requestDetail.sequenceDetail.map((sequence, index)=>Z("div", {
+            className: "sequence-detail"
+        }, Z("div", {
+            className: "sequence"
+        }, Z("h5", null, "sequence ", index + 1, " : "), Z("div", {
+            className: "sequence-repeat"
+        }, Z("span", null, "repeat: ", sequence.repeat)), Z("div", {
+            className: "sequence-time"
+        }, Z("span", null, "repeat time: ", sequence.time, "ms"))), Z("div", {
+            className: "sequence-bodyHeader"
+        }, Z("p", null, "body header: "), Z(JSONViewer, {
+            jsonData: JSON.parse(sequence.bodyHeader)
+        }))))), Z("div", null, Z("div", {
+        className: "number-request"
+    }, Z("span", null, "number requests: ", requestDetail?.numberRequest)), Z("div", {
+        className: "time-request"
+    }, Z("span", null, "time requests: ", requestDetail.allReqPerformance, "ms"))))) : view === "e2e" ? Z(N, null, Z("div", {
         className: "sidebar__section sidebar__section--headers"
     }, e2eForms.map((e2eForm, idx)=>Z(N, null, Z("div", {
             className: "sidebar__input-double",
@@ -1476,6 +1667,7 @@ function E2E({ baseUrl  }) {
         }, "add capture variable item"), e2eForm.captures.map((capture, capId)=>Z(N, null, Z("div", {
                 className: "sidebar__section-add-capture"
             }, Z("input", {
+                className: "input",
                 placeholder: "set a variable name",
                 value: capture.key,
                 onChange: (e)=>{
@@ -1488,6 +1680,7 @@ function E2E({ baseUrl  }) {
                     ]);
                 }
             }), Z("input", {
+                className: "input",
                 placeholder: "set a value for variable",
                 value: capture.value,
                 onChange: (e)=>{
@@ -1529,52 +1722,15 @@ function E2E({ baseUrl  }) {
     }, Z(ExportIcon, null), Z("span", null, "Export")), Z("button", {
         onClick: ()=>setView("help"),
         className: "btn e2e-back-button e2e-export_results-button"
-    }, Z(HelpIcon, null), Z("span", null, "Help")))) : view === "help" ? Z("div", {
-        className: "help"
-    }, " ", Z("button", {
-        className: "btn  e2e-back-button",
-        onClick: ()=>{
-            setView("e2e");
-        }
-    }, Z(BackIcon, null), Z("span", null, "Back")), Z("section", {
-        className: "e2e_help-content"
-    }, Z("p", null, "With E2E Test, you can test the whole application by sending a sequence of HTTP requests."), Z("p", null, "In the image below, you can see the first view of the E2E test modal page, which contains a button bar at the top and two separate requests."), Z("img", {
-        src: "https://github.com/MiaadTeam/lesan/assets/6236123/829b3288-3d69-4fd0-a1fc-22d011b8d079",
-        alt: "full screen e2e",
-        className: "e2e_help--fullscreen-img"
-    }), Z("hr", null), Z("p", null, "In the button bar, you have these buttons:", Z("img", {
-        src: "https://github.com/MiaadTeam/lesan/assets/6236123/4edd6034-d6b2-4de9-8c43-8f2fe511aa14",
-        alt: "full screen e2e",
-        className: "e2e_help--fullscreen-img"
-    }), Z("ul", null, Z("li", null, "Add: This button adds one request section."), Z("li", null, "Run E2E Test: This button runs all requests and shows their results."), Z("li", null, "Import: This button stands for importing an E2E config in JSON format."), Z("li", null, "Export: This button stands for exporting an existing E2E config in JSON format."), Z("li", null, "Help: This button switches to the help of the E2E modal page."))), Z("hr", null), Z("div", null, Z("p", null, "Each request section have 2 side"), Z("img", {
-        src: "https://github.com/MiaadTeam/lesan/assets/6236123/fa9ceb35-21dd-493a-82cc-cd7391f5fc79",
-        alt: "full screen e2e",
-        className: "e2e_help--fullscreen-img"
-    }), Z("hr", null), Z("section", {
-        className: "e2e_help--section---right-side"
-    }, Z("p", null, "The right side is a set of configurations for the repeat time of each request and capturing variables of the request response. In the Capture Variables section, you can add a pair of tuple inputs for the key name of the capture variable and its value. You can capture the value of a capture variable with braces syntax. For example, if you get back this response from a request:", Z("pre", null, "{\n", "  body: [\n", "    {\n", "      _id: 64c6839c50adc3cb65726934,\n", "      name: همدان,\n", "      enName: Hamedan,\n", "      abb: HM\n", "    }\n", "  ],\n", "  success: true\n", "  }\n", "}\n"), "You can capture _id with [body][0][_id] or for name: [body][0][name]."), Z("img", {
-        src: "https://github.com/MiaadTeam/lesan/assets/6236123/1cea1db3-44c2-49b5-8739-a9afa8a6e1fa",
-        alt: "full screen e2e",
-        className: "e2e_help--fullscreen-img"
-    })), Z("hr", null), Z("section", {
-        className: "e2e_help--section---right-side"
-    }, Z("img", {
-        src: "https://github.com/MiaadTeam/lesan/assets/6236123/5c9899fa-8be6-42d1-8f4f-8fd965264645",
-        alt: "full screen e2e",
-        className: "e2e_help--fullscreen-img"
-    }), Z("p", null, "The left side is a text area for writing headers and the body of the request in JSON format. In this text area, you can use a text parser to implement the captured value you captured before inside these symbols ", "{}", ".")), Z("hr", null), Z("p", null, "Also, we have some buttons on the top right side of each request section. With these buttons, you can move up and down and delete requests.", Z("img", {
-        src: "https://github.com/MiaadTeam/lesan/assets/6236123/900a5b98-3e7f-460a-a756-403ecaedcf86",
-        alt: "full screen e2e",
-        className: "e2e_help--fullscreen-img"
-    }))), Z("hr", null), Z("div", null, Z("p", null, "After clicking on the Run E2E Test button, you can see the result of each test. Also, in the result view, you can export the results in JSON format."), Z("img", {
-        src: "https://github.com/MiaadTeam/lesan/assets/6236123/8c367965-a1b7-40b8-8638-60d2d0ea2609",
-        alt: "full screen e2e",
-        className: "e2e_help--fullscreen-img"
-    })), Z("hr", null), Z("div", null, Z("p", null, "Additionally, you can go to the E2E Test modal page from the main page by clicking on the Test icon inside the response header section. This way, you can add a new test section and prepopulate the Header and Body text areas with the sent request from the main page.", Z("img", {
-        src: "https://github.com/MiaadTeam/lesan/assets/6236123/74dc9e93-2b41-4840-afc1-f4e8e83c9889",
-        alt: "full screen e2e",
-        className: "e2e_help--fullscreen-img"
-    }))))) : "");
+    }, Z(HelpIcon, null), Z("span", null, "Help")))) : view === "help" ? Z(Help, {
+        setView: setView
+    }) : "");
+}
+function ConvertMilliseconds(milliseconds) {
+    const hours = Math.floor(milliseconds / 3600000);
+    const minutes = Math.floor(milliseconds % 3600000 / 60000);
+    const seconds = Math.floor(milliseconds % 360000 % 60000 / 1000);
+    return hours > 0 ? `${hours}h ${minutes}m ${seconds}s` : minutes > 0 ? `${minutes}m ${seconds}s` : seconds > 0 ? `${seconds}s` : `${milliseconds}ms`;
 }
 const useNonInitialEffect = (effect, deps)=>{
     const initialRender = V1(true);
@@ -1619,19 +1775,23 @@ function History({ setFormFromHistory  }) {
             id: hi.id
         }, Z("section", {
             className: "container-re"
+        }, Z("div", {
+            style: {
+                position: "relative"
+            }
         }, Z("span", {
             className: "container-re-title"
-        }, "REQUEST"), Z("div", {
+        }, "REQUEST"), Z("span", {
+            className: "history-re-detail-date"
+        }, hi.reqDate)), Z("div", {
             className: "container-re-detail"
         }, Z("div", {
             className: "container-re-detail-title"
-        }, Z("div", null, " ", Z(JSONViewer, {
+        }, " ", Z(JSONViewer, {
             jsonData: hi.request.body.model
-        })), Z("span", null, "|"), Z("div", null, Z(JSONViewer, {
+        }), Z("span", null, "|"), Z("div", null, Z(JSONViewer, {
             jsonData: hi.request.body.act
-        }))), Z("div", {
-            className: "history-re-detail-date"
-        }, hi.reqTime), show === hi.id ? Z("button", {
+        }))), show === hi.id ? Z("button", {
             onClick: ()=>setShow(""),
             className: "history-re-detail-button"
         }, "Hide", Z("span", {
@@ -1650,7 +1810,7 @@ function History({ setFormFromHistory  }) {
         }, " ", Z(JSONViewer, {
             jsonData: hi.request
         }))), Z("section", {
-            className: "container-re history-response"
+            className: "container-re container-response"
         }, Z("div", {
             className: "history-re-title_delete",
             style: {
@@ -1662,9 +1822,11 @@ function History({ setFormFromHistory  }) {
             }
         }, Z("span", {
             className: "history-re-delete"
-        }, "x"), Z("span", {
-            className: "container-re-title"
-        }, "RESPONSE")), Z("div", {
+        }, Z(DeleteIcon, null)), Z("span", {
+            className: "container-re-title history-response-title"
+        }, "RESPONSE"), Z("span", {
+            className: "history-re-detail-date history-response-took"
+        }, ConvertMilliseconds(hi.response.tookTime))), Z("div", {
             className: "container-re-detail"
         }, Z("div", {
             className: "history-re-detail-title"
@@ -2104,20 +2266,26 @@ const Main = ({ urlAddress  })=>{
             options: requestFunction().body
         });
         const t1 = performance.now();
+        const tookTime = t1 - t0;
         setResponse({
-            data: jsonSendedRequest,
+            data: {
+                ...jsonSendedRequest,
+                tookTime
+            },
             index: activeTab
         });
-        console.log("performance is ", t1 - t0);
         const newHistory = [
             {
                 request: {
                     ...requestFunction().body,
                     body: JSON.parse(requestFunction().body.body)
                 },
-                response: jsonSendedRequest,
+                response: {
+                    ...jsonSendedRequest,
+                    tookTime
+                },
                 id: uid(),
-                reqTime: sendRequest
+                reqDate: sendRequest
             },
             ...history
         ];
@@ -2317,11 +2485,13 @@ const Main = ({ urlAddress  })=>{
             className: "get-values"
         }, Z("span", {
             onClick: ()=>{
-                const copy = {
-                    ...tabsData[activeTab].formData
-                };
-                delete copy[`get.${item}`];
-                setFormData(copy);
+                setFormData({
+                    data: {
+                        ...tabsData[activeTab].formData,
+                        [`get.${item}`]: null
+                    },
+                    index: activeTab
+                });
             }
         }), Z("span", {
             className: tabsData[activeTab].formData[`get.${item}`] === 0 ? "active" : "",
@@ -2387,25 +2557,151 @@ const Main = ({ urlAddress  })=>{
         className: "tooltip-text"
     }, "Run E2E Test")))), Z("div", {
         className: "response-detail-info"
-    }, Z(JSONViewer, {
-        jsonData: tabsData[activeTab].response
-    }), tabsData[activeTab].response && tabsData[activeTab].response?.success === true ? Z("div", {
+    }, Z("div", {
+        style: {
+            display: "flex",
+            flexDirection: "column"
+        }
+    }, " ", Z(JSONViewer, {
+        jsonData: {
+            body: tabsData[activeTab].response?.body,
+            success: tabsData[activeTab].response?.success
+        }
+    })), Z("span", {
+        className: "response-took"
+    }, "took:", ConvertMilliseconds(tabsData[activeTab].response?.tookTime)), tabsData[activeTab].response && tabsData[activeTab].response?.success === true ? Z("div", {
         className: "success"
     }) : Z("div", {
         className: "fail"
     })))));
 };
-const Modal = (props)=>Z("div", {
+const FullScreenExit = ()=>{
+    return Z("svg", {
+        width: "15px",
+        height: "15px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M20.04 10.1109L18.0252 8.09612L21.7071 4.41421C22.0976 4.02369 22.0976 3.39052 21.7071 3L21 2.29289C20.6095 1.90237 19.9763 1.90237 19.5858 2.29289L15.9039 5.9748L14.04 4.11089C13.754 3.82489 13.3239 3.73933 12.9502 3.89411C12.5765 4.04889 12.3329 4.41353 12.3329 4.81799V10.818C12.3329 11.3703 12.7806 11.818 13.3329 11.818H19.3329C19.7373 11.818 20.102 11.5744 20.2568 11.2007C20.4115 10.827 20.326 10.3969 20.04 10.1109Z",
+        fill: "#fff"
+    }), Z("path", {
+        d: "M3.96 13.8891L5.97478 15.9039L2.29289 19.5858C1.90237 19.9763 1.90237 20.6095 2.29289 21L3 21.7071C3.39052 22.0976 4.02369 22.0976 4.41421 21.7071L8.0961 18.0252L9.96 19.8891C10.246 20.1751 10.6761 20.2607 11.0498 20.1059C11.4235 19.9511 11.6671 19.5865 11.6671 19.182V13.182C11.6671 12.6297 11.2194 12.182 10.6671 12.182H4.66711C4.26265 12.182 3.89801 12.4256 3.74323 12.7993C3.58845 13.173 3.674 13.6031 3.96 13.8891Z",
+        fill: "#fff"
+    }));
+};
+const FullScreen = ()=>{
+    return Z("svg", {
+        width: "15px",
+        height: "15px",
+        viewBox: "0 0 24 24",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+    }, Z("path", {
+        d: "M7.69233 18.2781L9.70711 20.2929C9.9931 20.5789 10.0787 21.009 9.92388 21.3827C9.7691 21.7564 9.40446 22 9 22H3C2.44772 22 2 21.5523 2 21V15C2 14.5955 2.24364 14.2309 2.61732 14.0761C2.99099 13.9213 3.42111 14.0069 3.70711 14.2929L5.571 16.1568L9.25289 12.4749C9.64342 12.0844 10.2766 12.0844 10.6671 12.4749L11.3742 13.182C11.7647 13.5725 11.7647 14.2057 11.3742 14.5962L7.69233 18.2781Z",
+        fill: "#fff"
+    }), Z("path", {
+        d: "M16.3077 5.72187L14.2929 3.70711C14.0069 3.42111 13.9213 2.99099 14.0761 2.61732C14.2309 2.24364 14.5955 2 15 2H21C21.5523 2 22 2.44772 22 3V9C22 9.40446 21.7564 9.7691 21.3827 9.92388C21.009 10.0787 20.5789 9.9931 20.2929 9.70711L18.429 7.84319L14.7471 11.5251C14.3566 11.9156 13.7234 11.9156 13.3329 11.5251L12.6258 10.818C12.2352 10.4275 12.2352 9.7943 12.6258 9.40378L16.3077 5.72187Z",
+        fill: "#fff"
+    }));
+};
+const Modal = (props)=>{
+    const [toggleFullScreen, setToggleFullScreen] = F1(false);
+    return Z("div", {
         className: "modal-overlay",
         onClick: props.toggle
     }, Z("div", {
-        className: "modal-box",
+        className: toggleFullScreen ? "modal-box-fullscreen" : "modal-box",
         onClick: (e)=>e.stopPropagation()
+    }, Z("div", {
+        className: "action-modal"
     }, Z("span", {
+        className: "modal-close",
+        onClick: props.toggle
+    }, Z(DeleteIcon, null)), Z("span", {
+        className: "modal-fullscreen",
+        onClick: ()=>setToggleFullScreen(!toggleFullScreen)
+    }, toggleFullScreen ? Z(FullScreenExit, null) : Z(FullScreen, null)), Z("span", {
         className: "modal-title"
-    }, props.title), Z("div", {
+    }, props.title)), Z("div", {
         className: "modal-content"
     }, props.children)));
+};
+const Schema = ()=>{
+    const { schemasObj  } = useLesan();
+    const exportSchemas = ()=>{
+        const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(schemasObj))}`;
+        const link = document.createElement("a");
+        link.href = jsonString;
+        link.download = "schemas.json";
+        link.click();
+    };
+    const rainbowClass = [
+        "color-1",
+        "color-2",
+        "color-3",
+        "color-4",
+        "color-5",
+        "color-6",
+        "color-7"
+    ];
+    const proceedSchemas = (schemas)=>{
+        return Object.keys(schemas).map((schema)=>{
+            const newUid = uid();
+            return Z("div", {
+                className: "schema"
+            }, Z("div", {
+                className: "schema-name",
+                onClick: ()=>{
+                    document.getElementById(newUid)?.classList.toggle("open");
+                }
+            }, Z("p", {
+                className: "schema-title"
+            }, schema), Z("span", null, "...")), Z("div", {
+                className: "proceed-child-container",
+                id: newUid
+            }, proceedChildSchema(schemasObj[schema])));
+        });
+    };
+    const proceedChildSchema = (childSchema)=>{
+        return Object.keys(childSchema).map((childItem)=>{
+            const newUid = uid();
+            return Z("div", {
+                className: `inside-schema ${rainbowClass[Math.floor(Math.random() * rainbowClass.length)]}`
+            }, Z("div", {
+                className: `inside ${typeof childSchema[childItem] === "object" && childSchema[childItem].schema !== null && "schema-pointer"}`,
+                onClick: ()=>{
+                    document.getElementById(newUid)?.classList.toggle("open");
+                }
+            }, Z("p", {
+                className: "schema-title"
+            }, childItem, " ", childSchema[childItem]["type"]), Z("p", {
+                className: "schema-title schema-type"
+            }, " ", childSchema[childItem]["type"]), typeof childSchema[childItem] === "object" && childSchema[childItem].schema !== null && Z("span", null, "...")), Z("div", {
+                id: newUid,
+                className: "proceed-child"
+            }, typeof childSchema[childItem] === "object" && childSchema[childItem] !== null && childSchema[childItem].schema !== null && proceedChildSchema(childSchema[childItem].pure ? childSchema[childItem].pure : childSchema[childItem].relatedRelations ? childSchema[childItem].relatedRelations : childSchema[childItem].mainRelation ? childSchema[childItem].mainRelation : childSchema[childItem])));
+        });
+    };
+    return Z("div", {
+        className: "schema-modal"
+    }, Z("div", {
+        className: "results-buttons"
+    }, Z("button", {
+        className: " schema-export-button btn e2e-back-button e2e-export_results-button",
+        onClick: exportSchemas
+    }, Z(ExportIcon, null), Z("span", null, "Export"))), Z("div", {
+        className: "search-box"
+    }, Z("input", {
+        className: "input",
+        type: "text",
+        placeholder: "search..."
+    }), Z("span", {
+        className: "search-icon"
+    }, Z(Search, null))), Z("div", {
+        className: "schema-list"
+    }, proceedSchemas(schemasObj)));
+};
 function TickIcon() {
     return Z("svg", {
         width: 25,
@@ -2667,7 +2963,7 @@ const Page = ()=>{
                 setActiveTab(index);
             }
         }, tabsData[index].act ? `${tabsData[index].schema} | ${tabsData[index].act}` : tabsData[index].schema ? `${tabsData[index].service} | ${tabsData[index].schema}` : tabsData[index].service ? tabsData[index].service : `Tab ${index}`, Z("span", {
-            className: "add-tab tab-close",
+            className: ` tab-close ${activeTab === index ? "active-tab-close" : ""}`,
             onClick: (event)=>{
                 event.stopPropagation();
                 closeTab(index);
@@ -2704,10 +3000,10 @@ const Page = ()=>{
         className: "btn-modal-title"
     }, "Schema"), Z(SchemaIcon, null)), Z("span", {
         className: "btn btn-modal btn-doc ",
-        onClick: ()=>setModal(MODAL_TYPES.DOCUMENT)
+        onClick: ()=>setModal(MODAL_TYPES.ACT)
     }, Z("span", {
         className: "btn-modal-title"
-    }, "Document"), Z(DocumentIcon, null)), Z("span", {
+    }, "Act"), Z(DocumentIcon, null)), Z("span", {
         className: "btn btn-modal btn-refetch",
         onClick: ()=>configUrl()
     }, Z("span", {
@@ -2721,6 +3017,6 @@ const Page = ()=>{
         configUrl: configUrl
     }) : modal === MODAL_TYPES.E2E_TEST ? Z(E2E, {
         baseUrl: urlAddress
-    }) : Z(N, null)));
+    }) : modal === MODAL_TYPES.SCHEMA ? Z(Schema, null) : modal === MODAL_TYPES.ACT ? Z(Act, null) : Z(N, null)));
 };
 oe(Z(ManagedLesanContext, null, Z(Page, null)), document.getElementById("root"));
