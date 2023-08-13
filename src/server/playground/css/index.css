@@ -767,6 +767,13 @@ textarea {
   overflow: scroll;
 }
 
+.response-took {
+  position: absolute;
+  top: 50px;
+  right: 15px;
+  color: #ffe4c496;
+}
+
 .success {
   border-radius: 10px;
   background-color: rgb(255, 255, 255);
@@ -1303,6 +1310,10 @@ textarea {
   top: 0;
   cursor: pointer;
   color: white;
+}
+
+.history-response-took {
+  left: 12px;
 }
 
 .history-response-title {

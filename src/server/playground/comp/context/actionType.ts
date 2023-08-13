@@ -47,11 +47,12 @@ export type TRequest = {
 export type TResponse = {
   body: Record<string, any> | Record<string, any>[];
   success: boolean;
+  tookTime: number;
 };
 
 export type THistory = {
   request: TRequest;
-  reqTime: any;
+  reqDate: any;
   response: TResponse;
   id: string;
 };

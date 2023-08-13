@@ -3,6 +3,7 @@ import { Fragment, h, useRef, useState } from "../reactDeps.ts";
 import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKeys.ts";
 import { uid } from "../utils/uid.ts";
 import { E2eForm, MODAL_TYPES, TRequest } from "./context/actionType.ts";
+import { ConvertMilliseconds } from "../utils/convertMilliseconds.ts";
 import CopyIcon from "./icon/CopyIcon.tsx";
 import RunTestIcon from "./icon/RunTestIcon.tsx";
 import SuccessIcon from "./icon/SuccessIcon.tsx";
@@ -45,17 +46,17 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     value: 0 | 1 | null,
     keyname: string,
     getObj: Record<string, any>,
-    returnObj: Record<string, any>,
+    returnObj: Record<string, any>
   ) => {
     for (const key in getObj) {
       getObj[key].type === "enums"
         ? (returnObj[`${keyname}.${key}`] = value)
         : changeGetValue(
-          value,
-          `${keyname}.${key}`,
-          getObj[key].schema,
-          returnObj,
-        );
+            value,
+            `${keyname}.${key}`,
+            getObj[key].schema,
+            returnObj
+          );
     }
     return returnObj;
   };
@@ -99,68 +100,67 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     >
       <div className="sidebar__section-heading--subfields">{keyName}</div>
       {Object.keys(getField["schema"]).map((item, index) =>
-        getField["schema"][item].type === "enums"
-          ? (
-            <div
-              className="input-cnt get-items"
-              key={`${activeTab}.${item}-${index}`}
-            >
-              <label htmlFor={item}>
-                {keyName}.{item}:
-              </label>
-              <div className="get-values">
-                <span
-                  onClick={() => {
-                    const copy = { ...tabsData[activeTab].formData };
-                    delete copy[`get.${keyName}.${item}`];
-                    setFormData({ data: copy, index: activeTab });
-                  }}
-                >
-                </span>
-                <span
-                  className={tabsData[activeTab]
-                      .formData[`get.${keyName}.${item}`] === 0
+        getField["schema"][item].type === "enums" ? (
+          <div
+            className="input-cnt get-items"
+            key={`${activeTab}.${item}-${index}`}
+          >
+            <label htmlFor={item}>
+              {keyName}.{item}:
+            </label>
+            <div className="get-values">
+              <span
+                onClick={() => {
+                  const copy = { ...tabsData[activeTab].formData };
+                  delete copy[`get.${keyName}.${item}`];
+                  setFormData({ data: copy, index: activeTab });
+                }}
+              ></span>
+              <span
+                className={
+                  tabsData[activeTab].formData[`get.${keyName}.${item}`] === 0
                     ? "active"
-                    : ""}
-                  onClick={() => {
-                    setFormData({
-                      index: activeTab,
-                      data: {
-                        ...tabsData[activeTab].formData,
-                        [`get.${keyName}.${item}`]: 0,
-                      },
-                    });
-                  }}
-                >
-                  0
-                </span>
-                <span
-                  className={tabsData[activeTab]
-                      .formData[`get.${keyName}.${item}`] === 1
+                    : ""
+                }
+                onClick={() => {
+                  setFormData({
+                    index: activeTab,
+                    data: {
+                      ...tabsData[activeTab].formData,
+                      [`get.${keyName}.${item}`]: 0,
+                    },
+                  });
+                }}
+              >
+                0
+              </span>
+              <span
+                className={
+                  tabsData[activeTab].formData[`get.${keyName}.${item}`] === 1
                     ? "active"
-                    : ""}
-                  onClick={() => {
-                    setFormData({
-                      data: {
-                        ...tabsData[activeTab].formData,
-                        [`get.${keyName}.${item}`]: 1,
-                      },
-                      index: activeTab,
-                    });
-                  }}
-                >
-                  1
-                </span>
-              </div>
+                    : ""
+                }
+                onClick={() => {
+                  setFormData({
+                    data: {
+                      ...tabsData[activeTab].formData,
+                      [`get.${keyName}.${item}`]: 1,
+                    },
+                    index: activeTab,
+                  });
+                }}
+              >
+                1
+              </span>
             </div>
-          )
-          : (
-            renderGetFields({
-              getField: getField["schema"][item],
-              keyName: `${keyName}.${item}`,
-              margin: margin + 1,
-            })
-          )
+          </div>
+        ) : (
+          renderGetFields({
+            getField: getField["schema"][item],
+            keyName: `${keyName}.${item}`,
+            margin: margin + 1,
+          })
+        )
       )}
     </div>
   );
@@ -200,13 +200,12 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
       options: requestFunction().body,
     });
     const t1 = performance.now();
+    const tookTime = t1 - t0;
 
-    setResponse({ data: jsonSendedRequest, index: activeTab });
     /* event.target.reset(); */
     /* setFormData({}); */
 
-    const performanceTime: number = t1 - t0;
-    console.log("performance is ", t1 - t0);
+    setResponse({ data: { ...jsonSendedRequest, tookTime }, index: activeTab });
 
     const newHistory = [
       {
@@ -214,9 +213,9 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
           ...requestFunction().body,
           body: JSON.parse(requestFunction().body.body),
         },
-        response: jsonSendedRequest,
+        response: { ...jsonSendedRequest, tookTime },
         id: uid(),
-        reqTime: sendRequest,
+        reqDate: sendRequest,
       },
       ...history,
     ];
@@ -226,7 +225,8 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     localStorage.setItem("localTabsData", JSON.stringify(tabsData));
   };
 
-  const canShowRequestFields = tabsData[activeTab].service &&
+  const canShowRequestFields =
+    tabsData[activeTab].service &&
     tabsData[activeTab].schema &&
     tabsData[activeTab].postFields &&
     tabsData[activeTab].getFields &&
@@ -234,8 +234,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
 
   const canShowSchema = tabsData[activeTab].service;
 
-  const canShowAct = tabsData[activeTab].service &&
-    tabsData[activeTab].schema;
+  const canShowAct = tabsData[activeTab].service && tabsData[activeTab].schema;
 
   const copyResponse = () => {
     const response = JSON.stringify(tabsData[activeTab].response);
@@ -265,7 +264,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
 
   const onClickItem = (
     item: string,
-    type: "service" | "method" | "schema" | "action",
+    type: "service" | "method" | "schema" | "action"
   ) => {
     if (type === "service") {
       setService({
@@ -314,9 +313,9 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             <Selected
               onClickItem={(item: string) => onClickItem(item, "service")}
               items={Object.keys(actsObj)}
-              incomeActiveItem={tabsData[activeTab].service
-                ? tabsData[activeTab].service
-                : null}
+              incomeActiveItem={
+                tabsData[activeTab].service ? tabsData[activeTab].service : null
+              }
             />
           </div>
 
@@ -330,14 +329,14 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             <Selected
               canShow={!canShowSchema}
               onClickItem={(item: string) => onClickItem(item, "schema")}
-              items={canShowSchema
-                ? Object.keys(
-                  (actsObj as any)[tabsData[activeTab].service],
-                )
-                : []}
-              incomeActiveItem={tabsData[activeTab].schema
-                ? tabsData[activeTab].schema
-                : null}
+              items={
+                canShowSchema
+                  ? Object.keys((actsObj as any)[tabsData[activeTab].service])
+                  : []
+              }
+              incomeActiveItem={
+                tabsData[activeTab].schema ? tabsData[activeTab].schema : null
+              }
             />
           </div>
 
@@ -346,16 +345,18 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             <Selected
               canShow={!canShowAct}
               onClickItem={(item: string) => onClickItem(item, "action")}
-              items={canShowAct
-                ? Object.keys(
-                  (actsObj as any)[tabsData[activeTab].service][
-                    tabsData[activeTab].schema
-                  ],
-                )
-                : []}
-              incomeActiveItem={tabsData[activeTab].act
-                ? tabsData[activeTab].act
-                : null}
+              items={
+                canShowAct
+                  ? Object.keys(
+                      (actsObj as any)[tabsData[activeTab].service][
+                        tabsData[activeTab].schema
+                      ]
+                    )
+                  : []
+              }
+              incomeActiveItem={
+                tabsData[activeTab].act ? tabsData[activeTab].act : null
+              }
             />
           </div>
         </div>
@@ -370,42 +371,41 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             {Object.keys(tabsData[activeTab].postFields).map((item) => (
               <div className="input-cnt" key={`${activeTab}.${item}-----`}>
                 <label htmlFor={item}>{item} :</label>
-                {tabsData[activeTab].postFields[item]["type"] === "enums"
-                  ? (
-                    <Selected
-                      onClickItem={(item: string) => {
-                        setFormData({
-                          data: {
-                            ...tabsData[activeTab].formData,
-                            [`set.${item}`]: item,
-                          },
-                          index: activeTab,
-                        });
-                        localStorage.setItem(
-                          "localTabsData",
-                          JSON.stringify(tabsData),
-                        );
-                      }}
-                      items={Object.keys(
-                        tabsData[activeTab].postFields[item]["schema"],
-                      )}
-                    />
-                  )
-                  : (
-                    <input
-                      className="input"
-                      placeholder={item}
-                      id={item}
-                      value={tabsData[activeTab].formData[`set.${item}`]}
-                      name={`set.${item}`}
-                      type={tabsData[activeTab].postFields[item]["type"] ===
-                          "number"
+                {tabsData[activeTab].postFields[item]["type"] === "enums" ? (
+                  <Selected
+                    onClickItem={(item: string) => {
+                      setFormData({
+                        data: {
+                          ...tabsData[activeTab].formData,
+                          [`set.${item}`]: item,
+                        },
+                        index: activeTab,
+                      });
+                      localStorage.setItem(
+                        "localTabsData",
+                        JSON.stringify(tabsData)
+                      );
+                    }}
+                    items={Object.keys(
+                      tabsData[activeTab].postFields[item]["schema"]
+                    )}
+                  />
+                ) : (
+                  <input
+                    className="input"
+                    placeholder={item}
+                    id={item}
+                    value={tabsData[activeTab].formData[`set.${item}`]}
+                    name={`set.${item}`}
+                    type={
+                      tabsData[activeTab].postFields[item]["type"] === "number"
                         ? "number"
-                        : "string"}
-                      alt={tabsData[activeTab].postFields[item]["type"]}
-                      onChange={handleChange}
-                    />
-                  )}
+                        : "string"
+                    }
+                    alt={tabsData[activeTab].postFields[item]["type"]}
+                    onChange={handleChange}
+                  />
+                )}
               </div>
             ))}
             <div className="sidebar__section-heading sidebar__section-heading--fields">
@@ -421,7 +421,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                       null,
                       "get",
                       tabsData[activeTab].getFields,
-                      {},
+                      {}
                     );
 
                     setFormData({
@@ -429,15 +429,14 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                       index: activeTab,
                     });
                   }}
-                >
-                </span>
+                ></span>
                 <span
                   onClick={() => {
                     const copy = changeGetValue(
                       0,
                       "get",
                       tabsData[activeTab].getFields,
-                      {},
+                      {}
                     );
                     setFormData({
                       data: {
@@ -456,7 +455,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                       1,
                       "get",
                       tabsData[activeTab].getFields,
-                      {},
+                      {}
                     );
                     setFormData({
                       data: {
@@ -473,70 +472,69 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             </div>
 
             {Object.keys(tabsData[activeTab].getFields).map((item) =>
-              tabsData[activeTab].getFields[item].type === "enums"
-                ? (
-                  <div
-                    className="input-cnt get-items"
-                    key={`${activeTab}.${item}-------`}
-                  >
-                    <label htmlFor={item}>{item}:</label>
-                    <div className="get-values">
-                      <span
-                        onClick={() => {
-                          setFormData({
-                            data: {
-                              ...tabsData[activeTab].formData,
-                              [`get.${item}`]: null,
-                            },
-                            index: activeTab,
-                          });
-                        }}
-                      >
-                      </span>
-                      <span
-                        className={tabsData[activeTab]
-                            .formData[`get.${item}`] === 0
+              tabsData[activeTab].getFields[item].type === "enums" ? (
+                <div
+                  className="input-cnt get-items"
+                  key={`${activeTab}.${item}-------`}
+                >
+                  <label htmlFor={item}>{item}:</label>
+                  <div className="get-values">
+                    <span
+                      onClick={() => {
+                        setFormData({
+                          data: {
+                            ...tabsData[activeTab].formData,
+                            [`get.${item}`]: null,
+                          },
+                          index: activeTab,
+                        });
+                      }}
+                    ></span>
+                    <span
+                      className={
+                        tabsData[activeTab].formData[`get.${item}`] === 0
                           ? "active"
-                          : ""}
-                        onClick={() => {
-                          setFormData({
-                            data: {
-                              ...tabsData[activeTab].formData,
-                              [`get.${item}`]: 0,
-                            },
-                            index: activeTab,
-                          });
-                        }}
-                      >
-                        0
-                      </span>
-                      <span
-                        className={tabsData[activeTab]
-                            .formData[`get.${item}`] === 1
+                          : ""
+                      }
+                      onClick={() => {
+                        setFormData({
+                          data: {
+                            ...tabsData[activeTab].formData,
+                            [`get.${item}`]: 0,
+                          },
+                          index: activeTab,
+                        });
+                      }}
+                    >
+                      0
+                    </span>
+                    <span
+                      className={
+                        tabsData[activeTab].formData[`get.${item}`] === 1
                           ? "active"
-                          : ""}
-                        onClick={() => {
-                          setFormData({
-                            data: {
-                              ...tabsData[activeTab].formData,
-                              [`get.${item}`]: 1,
-                            },
-                            index: activeTab,
-                          });
-                        }}
-                      >
-                        1
-                      </span>
-                    </div>
+                          : ""
+                      }
+                      onClick={() => {
+                        setFormData({
+                          data: {
+                            ...tabsData[activeTab].formData,
+                            [`get.${item}`]: 1,
+                          },
+                          index: activeTab,
+                        });
+                      }}
+                    >
+                      1
+                    </span>
                   </div>
-                )
-                : (
-                  renderGetFields({
-                    getField: tabsData[activeTab].getFields[item],
-                    keyName: item,
-                    margin: 0,
-                  })
-                )
+                </div>
+              ) : (
+                renderGetFields({
+                  getField: tabsData[activeTab].getFields[item],
+                  keyName: item,
+                  margin: 0,
+                })
+              )
             )}
             <div class="wrapper">
               <button class="send-button" data-active={active}>
@@ -584,11 +582,26 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
               </div>
             </div>
             <div className="response-detail-info">
-              <JSONViewer jsonData={tabsData[activeTab].response} />
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {" "}
+                <JSONViewer
+                  jsonData={{
+                    body: tabsData[activeTab].response?.body,
+                    success: tabsData[activeTab].response?.success,
+                  }}
+                />
+              </div>
+
+              <span className="response-took">
+                took:
+                {ConvertMilliseconds(tabsData[activeTab].response?.tookTime!)}
+              </span>
               {tabsData[activeTab].response &&
-                  tabsData[activeTab].response?.success === true
-                ? <div className="success"></div>
-                : <div className="fail"></div>}
+              tabsData[activeTab].response?.success === true ? (
+                <div className="success"></div>
+              ) : (
+                <div className="fail"></div>
+              )}
             </div>
           </div>
         )}
