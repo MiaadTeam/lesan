@@ -838,6 +838,9 @@ textarea {
   .fail {
     right: 10px;
   }
+  .success {
+    right: 10px;
+  }
 }
 
 .modal-overlay {
