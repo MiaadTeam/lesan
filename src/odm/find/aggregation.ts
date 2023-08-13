@@ -9,27 +9,29 @@ import { throwError } from "../../utils/mod.ts";
 import { generateProjection } from "../aggregation/mod.ts";
 import { Projection } from "../aggregation/type.ts";
 
-export const aggregation = async (
+export const aggregation = (
   {
     db,
     schemasObj,
     collection,
-    pipline,
+    pipeline,
     options,
-    get,
+    projection,
   }: {
     db: Database;
     schemasObj: TSchemas;
     collection: string;
-    pipline: AggregatePipeline<Bson.Document>[];
+    pipeline: AggregatePipeline<Bson.Document>[];
     options?: AggregateOptions | undefined;
-    get?: Projection;
+    projection?: Projection;
   },
 ) => {
-  const projection = get ? generateProjection(get, schemasObj, collection) : [];
-  pipline = [...pipline, ...projection];
+  const genProjection = projection
+    ? generateProjection(projection, schemasObj, collection)
+    : [];
+  pipeline = [...pipeline, ...genProjection];
 
   return db
-    ? await db.collection(collection).aggregate(pipline, options).toArray()
+    ? db.collection(collection).aggregate(pipeline, options)
     : throwError("No database connection");
 };

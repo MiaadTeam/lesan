@@ -35,7 +35,7 @@ export const selectStructFns = (schemasObj: TSchemas) => {
       };
     }
 
-    const iterateRelation = (
+    const mainRelations = (
       schema: keyof TSchemas,
       depth: number,
       pureObj: Record<string, unknown>,
@@ -67,7 +67,7 @@ export const selectStructFns = (schemasObj: TSchemas) => {
     const numberDepth = (depth: number, pureObj: Record<string, any>) => {
       depth--;
       return depth > -1
-        ? iterateRelation(schema, depth, pureObj)
+        ? mainRelations(schema, depth, pureObj)
         : optional(object(pureObj));
     };
 

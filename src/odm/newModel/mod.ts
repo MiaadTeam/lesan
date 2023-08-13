@@ -52,7 +52,7 @@ export const newModel = (
       schemas[relations[relation].schemaName]
         .relatedRelations[relatedRelation.name] = {
           mainRelationName: relation,
-          schemaName: relations[relation].schemaName,
+          schemaName: name,
           limit: relatedRelation.limit,
           sort: relatedRelation.sort,
         };
@@ -66,22 +66,27 @@ export const newModel = (
     relatedRelations: {},
   };
 
+  interface IFindModelInputs {
+    filters?: Filter<Bson.Document>;
+    projection?: Projection;
+    options?: FindOptions;
+  }
+
   return {
-    find: (query: Bson.Document, projection: Projection) =>
-      find(schemasObj, db, name, query, projection),
+    find: (
+      { filters, projection, options }: IFindModelInputs,
+    ) => find({ db, collection: name, filters, projection, options }),
 
     findOne: (
-      filter: Filter<Bson.Document>,
-      get: Projection,
-      options?: FindOptions,
-    ) => findOne(db, schemasObj, name, filter, get, options),
+      { filters, projection, options }: IFindModelInputs,
+    ) => findOne({ db, collection: name, filters, projection, options }),
 
     insertOne: (
-      { doc, relation, options, get }: {
+      { doc, relations, options, projection }: {
         doc: InsertDocument<Bson.Document>;
-        relation?: Record<string, ObjectId | ObjectId[]>;
+        relations?: Record<string, ObjectId | ObjectId[]>;
         options?: InsertOptions;
-        get: Projection;
+        projection?: Projection;
       },
     ) =>
       insertOne({
@@ -89,9 +94,9 @@ export const newModel = (
         schemasObj,
         collection: name,
         doc,
-        relation,
+        relations,
         options,
-        get,
+        projection,
       }),
 
     updateOne: (
@@ -146,15 +151,22 @@ export const newModel = (
 
     aggregation: (
       {
-        pipline,
+        pipeline,
         options,
-        get,
+        projection,
       }: {
-        pipline: AggregatePipeline<Bson.Document>[];
+        pipeline: AggregatePipeline<Bson.Document>[];
         options?: AggregateOptions | undefined;
-        get?: Projection;
+        projection?: Projection;
       },
     ) =>
-      aggregation({ db, schemasObj, collection: name, pipline, options, get }),
+      aggregation({
+        db,
+        schemasObj,
+        collection: name,
+        pipeline,
+        options,
+        projection,
+      }),
   };
 };
