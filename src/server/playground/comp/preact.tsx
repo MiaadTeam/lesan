@@ -217,13 +217,27 @@ export const Page = () => {
                 setActiveTab(index);
               }}
             >
-              {tabsData[index].act
-                ? `${tabsData[index].schema} | ${tabsData[index].act}`
-                : tabsData[index].schema
-                ? `${tabsData[index].service} | ${tabsData[index].schema}`
-                : tabsData[index].service
-                ? tabsData[index].service
-                : `Tab ${index}`}
+              {" "}
+              <span
+                title={
+                  tabsData[index].act
+                    ? `${tabsData[index].schema} | ${tabsData[index].act}`
+                    : tabsData[index].schema
+                    ? `${tabsData[index].service} | ${tabsData[index].schema}`
+                    : tabsData[index].service
+                    ? tabsData[index].service
+                    : `Tab ${index}`
+                }
+              >
+                {" "}
+                {tabsData[index].act
+                  ? `${tabsData[index].schema} | ${tabsData[index].act}`
+                  : tabsData[index].schema
+                  ? `${tabsData[index].service} | ${tabsData[index].schema}`
+                  : tabsData[index].service
+                  ? tabsData[index].service
+                  : `Tab ${index}`}
+              </span>
               <span
                 className={` tab-close ${
                   activeTab === index ? "active-tab-close" : ""
@@ -232,6 +246,7 @@ export const Page = () => {
                   event.stopPropagation();
                   closeTab(index);
                 }}
+                title="Close tab"
               >
                 x
               </span>
@@ -240,6 +255,7 @@ export const Page = () => {
         ))}
         <span
           className="add-tab"
+          title="Open a new tab"
           onClick={() => {
             addTab(null);
             localStorage.setItem("localTabsData", JSON.stringify(tabsData));

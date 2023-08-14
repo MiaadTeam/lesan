@@ -556,7 +556,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
               <div className="response-detail-buttons">
                 <div
                   className="btn response-detail-button "
-                  onClick={copyRequest}
+                  onClick={() => copyRequest()}
                 >
                   <CopyIcon />
                   <span className="tooltip-text">Copy Request</span>
@@ -564,7 +564,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                 <div
                   className="btn response-detail-button "
                   onClick={() => {
-                    copyResponse;
+                    copyResponse();
                   }}
                 >
                   <CopyIcon />
