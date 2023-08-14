@@ -765,8 +765,8 @@ textarea {
 .response-detail-button .tooltip-text {
   background-color: cornflowerblue;
   white-space: nowrap;
-  width: max-content;
-  margin-left: -67px;
+  width: 130px;
+  margin-left: -65px;
   padding: 5px 5px;
   transition: none;
   top: 100%;
@@ -775,7 +775,7 @@ textarea {
 }
 
 .response-detail-button:hover svg {
-  fill: darkgoldenrod;
+  fill: bisque;
 }
 
 .response-detail-button .tooltip-text::after {
@@ -1175,6 +1175,44 @@ textarea {
   color: #dcdcdc75;
 }
 
+.schema-help {
+  cursor: pointer;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  position: relative;
+}
+
+.schema-help .tooltip-text {
+  background-color: rgba(70, 70, 70, 0.5);
+  white-space: nowrap;
+  width: 300px;
+  margin-left: -150px;
+  padding: 5px 5px;
+  transition: none;
+  bottom: 130%;
+  margin-top: 5px;
+  height: fit-content;
+  text-align: unset;
+  border: 1px solid gainsboro;
+  backdrop-filter: blur(10px);
+}
+
+.schema-help .tooltip-text::after {
+  top: 100%;
+  border-color: bisque transparent transparent transparent;
+}
+
+.schema-help:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.schema-info {
+  display: flex;
+  gap: 135px;
+}
 .schema-pointer {
   cursor: pointer;
 }
