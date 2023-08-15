@@ -1734,7 +1734,6 @@ function E2E({ baseUrl  }) {
                     value
                 };
             });
-            let getedValues;
             parsedCapuresValue.forEach((capture)=>{
                 if (capture.value.length > 0) {
                     let getedValue = jsonSendedRequest;
@@ -1745,10 +1744,6 @@ function E2E({ baseUrl  }) {
                         key: capture.key,
                         value: getedValue
                     });
-                    getedValues = [
-                        ...getedValue,
-                        ...e2eForm.captures
-                    ];
                 }
             });
             requestDetail.sequenceDetail.push({
@@ -1756,10 +1751,7 @@ function E2E({ baseUrl  }) {
                 repeat: sequenceRepeat,
                 time: sequenceTime1 - sequenceTime0,
                 success: succeccCount,
-                fails: failsCount,
-                captures: [
-                    ...getedValues
-                ]
+                fails: failsCount
             });
         }
         const allReqPerformance1 = performance.now();
@@ -1844,7 +1836,7 @@ function E2E({ baseUrl  }) {
             className: "container-re-title"
         }, "Description"), Z("div", {
             className: "detail-sequence"
-        }, Z("p", null, "you send ", Z("span", null, sequence.repeat), " times of this request"), Z("p", null, "the avrage time for each request is", Z("span", null, " ", sequence.time / sequence.repeat, "ms")), Z("p", null, "and whole time is", Z("span", null, " ", sequence.time, "ms ")), Z("p", null, "this sequence sends", Z("span", null, " ", sequence.success, " "), " success request and", " ", Z("span", null, sequence.fails), " it be fails"), sequence.captures.length && Z("p", null, "you capture theese in this sequence :", sequence.captures.map((capture)=>Z("div", null, Z("span", null, capture.value, " as "), Z("span", null, capture.key, " with value of "))))))))) : view === "e2e" ? Z(N, null, Z("div", {
+        }, Z("p", null, "you send ", Z("span", null, sequence.repeat), " times of this request"), Z("p", null, "the avrage time for each request is", Z("span", null, " ", sequence.time / sequence.repeat, "ms")), Z("p", null, "and whole time is", Z("span", null, " ", sequence.time, "ms ")), Z("p", null, "this sequence sends", Z("span", null, " ", sequence.success, " "), " success request and", " ", Z("span", null, sequence.fails), " it be fails")))))) : view === "e2e" ? Z(N, null, Z("div", {
         className: "sidebar__section sidebar__section--headers"
     }, e2eForms.map((e2eForm, idx)=>Z(N, null, Z("div", {
             className: "sidebar__input-double",
@@ -1956,7 +1948,7 @@ function E2E({ baseUrl  }) {
         className: "results-buttons",
         "data-show": isShowE2eButton === true
     }, Z("button", {
-        className: "btn  e2e-back-button e2e-export_results-button",
+        className: "btn btn-e2e-action e2e-back-button e2e-export_results-button",
         onClick: ()=>{
             setE2eForms([
                 ...e2eForms,
@@ -1964,7 +1956,7 @@ function E2E({ baseUrl  }) {
             ]);
         }
     }, Z(AddIcon, null), Z("span", null, "Add")), Z("button", {
-        className: "btn e2e-back-button e2e-run-botton e2e-export_results-button",
+        className: "btn btn-e2e-action e2e-back-button e2e-run-botton e2e-export_results-button",
         onClick: async ()=>{
             setView("result");
             await runE2eTest();
@@ -1976,13 +1968,13 @@ function E2E({ baseUrl  }) {
         hidden: true
     }), Z("label", {
         htmlFor: "actual-btn",
-        className: "btn e2e-back-button e2e-export_results-button"
+        className: "btn btn-e2e-action e2e-back-button e2e-export_results-button"
     }, Z(ImportIcon, null), Z("span", null, "Import")), Z("button", {
-        className: "btn e2e-back-button e2e-export_results-button",
+        className: "btn btn-e2e-action e2e-back-button e2e-export_results-button",
         onClick: exportForm
     }, Z(ExportIcon, null), Z("span", null, "Export")), Z("button", {
         onClick: ()=>setView("help"),
-        className: "btn e2e-back-button e2e-export_results-button"
+        className: "btn btn-e2e-action e2e-back-button e2e-export_results-button"
     }, Z(HelpIcon, null), Z("span", null, "Help")))) : view === "help" ? Z(Help, {
         setView: setView
     }) : "");
@@ -2836,30 +2828,6 @@ const Main = ({ urlAddress  })=>{
         className: "fail"
     })))));
 };
-const ScrollTopButton = ()=>{
-    const [visible, setVisible] = F1(false);
-    const toggleVisible = ()=>{
-        const scrolled = document.documentElement.scrollTop;
-        if (scrolled > 300) {
-            setVisible(true);
-        } else if (scrolled <= 300) {
-            setVisible(false);
-        }
-    };
-    const scrollToTop = ()=>{
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    };
-    window.addEventListener("scroll", toggleVisible);
-    return Z("button", null, Z("span", {
-        onClick: ()=>scrollToTop(),
-        style: {
-            display: visible ? "inline" : "none"
-        }
-    }, " ", Z(ChevronDownIcon, null)));
-};
 const FullScreenExit = ()=>{
     return Z("svg", {
         width: "15px",
@@ -2895,7 +2863,7 @@ const Modal = (props)=>{
     return Z("div", {
         className: "modal-overlay",
         onClick: props.toggle
-    }, Z(ScrollTopButton, null), Z("div", {
+    }, Z("div", {
         className: toggleFullScreen ? "modal-box-fullscreen" : "modal-box",
         onClick: (e)=>e.stopPropagation()
     }, Z("div", {
