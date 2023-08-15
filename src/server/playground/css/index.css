@@ -134,7 +134,7 @@ textarea {
   padding-top: 53px;
 }
 
-@media (min-width: 769px) and (max-width: 1025px) {
+@media (min-width: 768px) and (max-width: 1025px) {
   .sidebar {
     width: 30%;
   }
@@ -454,6 +454,10 @@ textarea {
   height: 50px;
 }
 
+.media--main-btn-wrapper {
+  display: none;
+}
+
 .btn-modal > svg {
   position: absolute;
   right: 0.5rem;
@@ -475,13 +479,115 @@ textarea {
 .btn-modal:hover > span {
   opacity: 100;
   margin-right: 1.6rem;
-  /* white-space: nowrap; */
 }
 
 .btn-modal:hover > svg {
   right: 0.4rem;
 }
 
+.btn-modal-document {
+  border-bottom: 1px solid bisque;
+  width: 5rem;
+  height: 0;
+  padding: 0;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s;
+  color: bisque;
+  position: relative;
+}
+
+.btn-modal-document[data-show="true"] {
+  width: 8rem;
+  transition: all 0.4s;
+}
+
+.btn-modal-document--title {
+  opacity: 0;
+}
+
+.btn-modal-document--title[data-show="true"] {
+  position: absolute;
+  bottom: -10px;
+  left: 123px;
+  margin-right: 0;
+  margin-left: 10px;
+  transition: all 0.4s;
+  white-space: nowrap;
+  opacity: 100;
+}
+
+@media (max-height: 768px) {
+  .btn-modal {
+    height: 35px;
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+  }
+
+  .btn-modal span {
+    opacity: 100;
+    margin-right: 0;
+    transition: all 0.4s;
+    white-space: nowrap;
+  }
+
+  .btn-modal > svg {
+    position: absolute;
+    right: 8px;
+    transition: all 0.8s;
+  }
+
+  .btn-modal:hover {
+    background-color: dimgray;
+    width: 100%;
+  }
+
+  .btn-modal:hover > svg {
+    right: 8px;
+  }
+
+  .main-btn-wrapper {
+    display: none;
+  }
+
+  .main-btn-wrapper[data-show="true"] {
+    display: flex;
+    gap: 5px;
+    width: 28%;
+    left: 7px;
+    border: 1px solid bisque;
+    border-radius: 7px 7px 0 0;
+    border-bottom: none;
+    bottom: 0;
+    padding: 10px 10px 39px 10px;
+    backdrop-filter: blur(40px);
+  }
+
+  .media--main-btn-wrapper {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 27px;
+    width: 23%;
+    border: 1px solid gainsboro;
+    border-radius: 10px 10px 0 0;
+    background-color: rgba(70, 70, 70, 0.5);
+    color: bisque;
+    height: 28px;
+    font-size: medium;
+    border-bottom: none;
+    z-index: 5;
+    cursor: pointer;
+  }
+
+  .media--main-btn-wrapper:hover {
+    background-color: dimgray;
+  }
+
+  .btn-modal-document {
+    display: none;
+  }
+}
 /* -------------------------------------------------------------------------- */
 
 .sidebar--fields {
@@ -491,7 +597,7 @@ textarea {
   padding-top: 53px;
 }
 
-@media (min-width: 769px) and (max-width: 1025px) {
+@media (min-width: 768px) and (max-width: 1025px) {
   .sidebar--fields {
     width: 30%;
   }
@@ -682,7 +788,7 @@ textarea {
   background-color: #272822;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 768px) {
   .response {
     width: 40%;
   }
@@ -734,8 +840,8 @@ textarea {
 .response-detail-button .tooltip-text {
   background-color: cornflowerblue;
   white-space: nowrap;
-  width: max-content;
-  margin-left: -67px;
+  width: 130px;
+  margin-left: -65px;
   padding: 5px 5px;
   transition: none;
   top: 100%;
@@ -744,7 +850,7 @@ textarea {
 }
 
 .response-detail-button:hover svg {
-  fill: darkgoldenrod;
+  fill: bisque;
 }
 
 .response-detail-button .tooltip-text::after {
@@ -831,11 +937,14 @@ textarea {
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1024px) {
   .response-detail-buttons {
     right: 33px;
   }
   .fail {
+    right: 10px;
+  }
+  .success {
     right: 10px;
   }
 }
@@ -878,6 +987,7 @@ textarea {
   backdrop-filter: blur(10px);
   border: 1px solid white;
   box-sizing: border-box;
+  position: relative;
 }
 
 .modal-content {
@@ -1001,7 +1111,7 @@ textarea {
 }
 
 .results-buttons {
-  position: fixed;
+  position: absolute;
   top: 0;
   display: flex;
   width: 70%;
@@ -1143,6 +1253,44 @@ textarea {
   color: #dcdcdc75;
 }
 
+.schema-help {
+  cursor: pointer;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  position: relative;
+}
+
+.schema-help .tooltip-text {
+  background-color: rgba(70, 70, 70, 0.5);
+  white-space: nowrap;
+  width: 300px;
+  margin-left: -150px;
+  padding: 5px 5px;
+  transition: none;
+  bottom: 130%;
+  margin-top: 5px;
+  height: fit-content;
+  text-align: unset;
+  border: 1px solid gainsboro;
+  backdrop-filter: blur(10px);
+}
+
+.schema-help .tooltip-text::after {
+  top: 100%;
+  border-color: bisque transparent transparent transparent;
+}
+
+.schema-help:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.schema-info {
+  display: flex;
+  gap: 135px;
+}
 .schema-pointer {
   cursor: pointer;
 }
@@ -1657,13 +1805,10 @@ textarea {
   color: gainsboro;
   padding: 5px;
   border-radius: 5px;
-  /* background-color: teal; */
   cursor: default;
-  /* width: 120px; */
   max-width: 200px;
   min-width: 55px;
   flex-grow: 1;
-  /* height: 1.5rem; */
   position: relative;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1708,10 +1853,6 @@ textarea {
   border-radius: 5px;
 }
 
-.tab-close:hover {
-  background-color: blue;
-}
-
 .tab-name[data-tab="true"]:hover .tab-close {
   background-color: #1d201e;
 }
@@ -1726,6 +1867,14 @@ textarea {
 
 .tab-name:hover .tab-close:hover {
   background-color: #262b28;
+}
+
+.tab-name[data-tab="true"] .tab-close {
+  background-color: #1d201e;
+}
+
+.tab-name .tab-close {
+  background-color: #232724;
 }
 
 /* ------------------------------- JSON Viewer ------------------------------ */

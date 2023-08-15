@@ -1,13 +1,62 @@
 /** @jsx h */
-import { getPureFromMainRelations } from "../../../models/schema/getPureFromMainRelations.ts";
-import { h, useState } from "../reactDeps.ts";
+import { h, useState, useEffect } from "../reactDeps.ts";
 import { uid } from "../utils/uid.ts";
+import { JSONViewer } from "./JSONVeiwer.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import ExportIcon from "./icon/ExportIcon.tsx";
+import HelpIcon from "./icon/HelpIcon.tsx";
 import Search from "./icon/Search.tsx";
 
 export const Schema = () => {
   const { schemasObj } = useLesan();
+  const [reProduceSchemaObj, setreProduceSchemaObj] = useState<
+    Record<string, any>
+  >({});
+
+  useEffect(() => {
+    const myNewObj: Record<string, any> = {};
+    for (const schema in schemasObj) {
+      myNewObj[schema] = {
+        ...myNewObj[schema],
+        pure: schemasObj[schema].pure,
+      };
+      for (const mainRels in schemasObj[schema].mainRelations) {
+        myNewObj[schema] = {
+          ...myNewObj[schema],
+          mainRelations: {
+            ...myNewObj[schema].mainRelations,
+            [mainRels]: {
+              type: "relation",
+              extraDetails: schemasObj[schema].mainRelations[mainRels],
+              schema: {
+                ...schemasObj[
+                  schemasObj[schema].mainRelations[mainRels].schemaName
+                ].pure,
+              },
+            },
+          },
+        };
+      }
+      for (const relatedRels in schemasObj[schema].relatedRelations) {
+        myNewObj[schema] = {
+          ...myNewObj[schema],
+          relatedRelations: {
+            ...myNewObj[schema].relatedRelations,
+            [relatedRels]: {
+              type: "relation",
+              extraDetails: schemasObj[schema].relatedRelations[relatedRels],
+              schema: {
+                ...schemasObj[
+                  schemasObj[schema].relatedRelations[relatedRels].schemaName
+                ].pure,
+              },
+            },
+          },
+        };
+      }
+    }
+    setreProduceSchemaObj(myNewObj);
+  }, []);
 
   const exportSchemas = () => {
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
@@ -45,7 +94,7 @@ export const Schema = () => {
             <span>...</span>
           </div>
           <div className="proceed-child-container" id={newUid}>
-            {proceedChildSchema(schemasObj[schema])}
+            {proceedChildSchema(schemas[schema])}
 
             {/* {proceedChildSchema(schemasObj[schema]["pure"])} */}
           </div>
@@ -73,15 +122,26 @@ export const Schema = () => {
               document.getElementById(newUid)?.classList.toggle("open");
             }}
           >
-            <p className="schema-title">
-              {childItem} {childSchema[childItem]["type"]}
-            </p>
-            <p className="schema-title schema-type">
+            <p className="schema-title">{childItem}</p>
+            <div className="schema-info">
               {" "}
-              {childSchema[childItem]["type"]}
-            </p>
-            {typeof childSchema[childItem] === "object" &&
-              childSchema[childItem].schema !== null && <span>...</span>}
+              <p className="schema-title schema-type">
+                {" "}
+                {childSchema[childItem]["type"]}
+              </p>
+              <div className="schema-help">
+                {childSchema[childItem]["extraDetails"] && <HelpIcon />}
+                {childSchema[childItem]["extraDetails"] && (
+                  <div className=" tooltip-text">
+                    <JSONViewer
+                      jsonData={childSchema[childItem]["extraDetails"]}
+                    />
+                  </div>
+                )}
+              </div>
+              {typeof childSchema[childItem] === "object" &&
+                childSchema[childItem].schema !== null && <span>...</span>}
+            </div>
           </div>
           <div id={newUid} className="proceed-child">
             {typeof childSchema[childItem] === "object" &&
@@ -94,6 +154,8 @@ export const Schema = () => {
                   ? childSchema[childItem].relatedRelations
                   : childSchema[childItem].mainRelation
                   ? childSchema[childItem].mainRelation
+                  : childSchema[childItem].type === "relation"
+                  ? childSchema[childItem].schema
                   : childSchema[childItem]
               )}
             {/* {childSchema[childItem].type === "object" &&
@@ -121,7 +183,7 @@ export const Schema = () => {
           <Search />
         </span>
       </div>
-      <div className="schema-list">{proceedSchemas(schemasObj)}</div>
+      <div className="schema-list">{proceedSchemas(reProduceSchemaObj)}</div>
     </div>
   );
 };

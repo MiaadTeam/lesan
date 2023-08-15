@@ -46,6 +46,9 @@ export const Page = () => {
     modal,
   } = useLesan();
 
+  const [show, setShow] = useState("");
+  const [mediaShow, setMediaShow] = useState(false);
+
   const parsedWindowUrl = () => {
     return window && window.location
       ? `${new URL(window.location.href).origin}/`
@@ -215,13 +218,27 @@ export const Page = () => {
                 setActiveTab(index);
               }}
             >
-              {tabsData[index].act
-                ? `${tabsData[index].schema} | ${tabsData[index].act}`
-                : tabsData[index].schema
-                ? `${tabsData[index].service} | ${tabsData[index].schema}`
-                : tabsData[index].service
-                ? tabsData[index].service
-                : `Tab ${index}`}
+              {" "}
+              <span
+                title={
+                  tabsData[index].act
+                    ? `${tabsData[index].schema} | ${tabsData[index].act}`
+                    : tabsData[index].schema
+                    ? `${tabsData[index].service} | ${tabsData[index].schema}`
+                    : tabsData[index].service
+                    ? tabsData[index].service
+                    : `Tab ${index}`
+                }
+              >
+                {" "}
+                {tabsData[index].act
+                  ? `${tabsData[index].schema} | ${tabsData[index].act}`
+                  : tabsData[index].schema
+                  ? `${tabsData[index].service} | ${tabsData[index].schema}`
+                  : tabsData[index].service
+                  ? tabsData[index].service
+                  : `Tab ${index}`}
+              </span>
               <span
                 className={` tab-close ${
                   activeTab === index ? "active-tab-close" : ""
@@ -230,6 +247,7 @@ export const Page = () => {
                   event.stopPropagation();
                   closeTab(index);
                 }}
+                title="Close tab"
               >
                 x
               </span>
@@ -238,6 +256,7 @@ export const Page = () => {
         ))}
         <span
           className="add-tab"
+          title="Open a new tab"
           onClick={() => {
             addTab(null);
             localStorage.setItem("localTabsData", JSON.stringify(tabsData));
@@ -248,50 +267,66 @@ export const Page = () => {
       </div>
       <Main urlAddress={urlAddress} />
 
-      <div className="main-btn-wrapper">
+      {/* under 768px heigh button */}
+      <button
+        className="media--main-btn-wrapper "
+        onClick={() => {
+          mediaShow === false ? setMediaShow(true) : setMediaShow(false);
+        }}
+      >
+        main
+      </button>
+      <div className="main-btn-wrapper" data-show={mediaShow === true}>
+        <span className="btn btn-modal " onClick={() => configUrl()}>
+          <span className="btn-modal-title">Refetch</span>
+          <ReFetchIcon />
+        </span>
         <span
-          className="btn btn-modal btn-setting"
+          className="btn btn-modal "
           onClick={() => setModal(MODAL_TYPES.SETTING)}
         >
           <span className="btn-modal-title">Setting</span>
           <SettingIcon />
         </span>
-
         <span
-          className="btn btn-modal btn-history"
+          className="btn btn-modal"
           onClick={() => setModal(MODAL_TYPES.HISTORY)}
         >
           <span className="btn-modal-title">History</span>
           <HistoryIcon />
         </span>
-
         <span
-          className="btn btn-modal btn-e2e"
+          className="btn btn-modal"
           onClick={() => setModal(MODAL_TYPES.E2E_TEST)}
         >
           <span className="btn-modal-title">E2E Test</span>
           <TestIcon />
         </span>
-
+        <span className="  btn-modal-document" data-show={show === "document"}>
+          <span
+            className="btn-modal-document--title"
+            data-show={show === "document"}
+          >
+            Document
+          </span>
+        </span>
         <span
-          className="btn btn-modal btn-graph"
+          className="btn btn-modal btn-doc"
           onClick={() => setModal(MODAL_TYPES.SCHEMA)}
+          onMouseEnter={() => setShow("document")}
+          onMouseLeave={() => setShow("")}
         >
           <span className="btn-modal-title">Schema</span>
           <SchemaIcon />
         </span>
-
         <span
           className="btn btn-modal btn-doc "
           onClick={() => setModal(MODAL_TYPES.ACT)}
+          onMouseEnter={() => setShow("document")}
+          onMouseLeave={() => setShow("")}
         >
           <span className="btn-modal-title">Act</span>
           <DocumentIcon />
-        </span>
-
-        <span className="btn btn-modal btn-refetch" onClick={() => configUrl()}>
-          <span className="btn-modal-title">Refetch</span>
-          <ReFetchIcon />
         </span>
       </div>
 
