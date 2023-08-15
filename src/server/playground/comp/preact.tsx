@@ -2,7 +2,7 @@
 import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
 import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKeys.ts";
 import { generateFormData } from "../utils/generateFormData.ts";
-import Act from "./Act.tsx";
+import { Act } from "./Act.tsx";
 import { MODAL_TYPES } from "./context/actionType.ts";
 import { E2E } from "./E2E.tsx";
 import { History } from "./History.tsx";
@@ -17,6 +17,7 @@ import { useLesan } from "./ManagedLesanContext.tsx";
 import Modal from "./Modal.tsx";
 import { Schema } from "./Schema.tsx";
 import { Setting } from "./Setting.tsx";
+import { useOutsideClick } from "./hooks/useOutsideClick.ts";
 
 const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
   fetch(`${baseUrl}playground/static/get/schemas`).then((res) => res.json());
@@ -56,6 +57,10 @@ export const Page = () => {
   };
 
   const [urlAddress, setUrlAddress] = useState("");
+  const handleClickOutside = () => {
+    setMediaShow(false);
+  };
+  const ref: any = useOutsideClick(handleClickOutside);
 
   useEffect(() => {
     configUrl(parsedWindowUrl());
@@ -207,7 +212,11 @@ export const Page = () => {
   };
 
   return (
-    <div className="cnt">
+    <div
+      className="cnt"
+
+      //  onClick={() => setMediaShow(false)}
+    >
       <div className="tabs-container" style={{ display: "flex" }}>
         {tabsData.map((tab, index) => (
           <Fragment>
@@ -269,13 +278,16 @@ export const Page = () => {
 
       {/* under 768px heigh button */}
       <button
+        ref={ref}
         className="media--main-btn-wrapper "
         onClick={() => {
-          mediaShow === false ? setMediaShow(true) : setMediaShow(false);
+          setMediaShow(!mediaShow);
         }}
       >
         main
       </button>
+      {/*  */}
+
       <div className="main-btn-wrapper" data-show={mediaShow === true}>
         <span className="btn btn-modal " onClick={() => configUrl()}>
           <span className="btn-modal-title">Refetch</span>

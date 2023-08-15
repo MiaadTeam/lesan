@@ -1214,6 +1214,125 @@ function HelpIcon() {
         fill: "bisque"
     }));
 }
+const Hide = ()=>{
+    return Z("svg", {
+        fill: "bisque",
+        width: "20px",
+        height: "20px",
+        viewBox: "0 0 64 64",
+        version: "1.1",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: "fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"
+    }, Z("rect", {
+        id: "Icons",
+        x: "-960",
+        y: "-256",
+        width: "1280",
+        height: "800",
+        style: "fill:none;"
+    }), Z("g", {
+        id: "Icons1"
+    }, Z("g", {
+        id: "Strike"
+    }), Z("g", {
+        id: "H1"
+    }), Z("g", {
+        id: "H2"
+    }), Z("g", {
+        id: "H3"
+    }), Z("g", {
+        id: "list-ul"
+    }), Z("g", {
+        id: "hamburger-1"
+    }), Z("g", {
+        id: "hamburger-2"
+    }), Z("g", {
+        id: "list-ol"
+    }), Z("g", {
+        id: "list-task"
+    }), Z("g", {
+        id: "trash"
+    }), Z("g", {
+        id: "vertical-menu"
+    }), Z("g", {
+        id: "horizontal-menu"
+    }), Z("g", {
+        id: "sidebar-2"
+    }), Z("g", {
+        id: "Pen"
+    }), Z("g", {
+        id: "Pen1"
+    }), Z("g", {
+        id: "clock"
+    }), Z("g", {
+        id: "external-link"
+    }), Z("g", {
+        id: "hr"
+    }), Z("g", {
+        id: "info"
+    }), Z("g", {
+        id: "warning"
+    }), Z("g", {
+        id: "plus-circle"
+    }), Z("g", {
+        id: "minus-circle"
+    }), Z("g", {
+        id: "vue"
+    }), Z("g", {
+        id: "cog"
+    }), Z("g", {
+        id: "logo"
+    }), Z("g", {
+        id: "radio-check"
+    }), Z("g", {
+        id: "eye-slash"
+    }, Z("path", {
+        d: "M13.673,10.345l-3.097,3.096l39.853,39.854l3.097,-3.097l-39.853,-39.853Z"
+    }), Z("path", {
+        d: "M17.119,19.984l2.915,2.915c-3.191,2.717 -5.732,6.099 -7.374,9.058l-0.005,0.01c4.573,7.646 11.829,14.872 20.987,13.776c2.472,-0.296 4.778,-1.141 6.885,-2.35l2.951,2.95c-4.107,2.636 -8.815,4.032 -13.916,3.342c-9.198,-1.244 -16.719,-8.788 -21.46,-17.648c2.226,-4.479 5.271,-8.764 9.017,-12.053Zm6.63,-4.32c2.572,-1.146 5.355,-1.82 8.327,-1.868c0.165,-0.001 2.124,0.092 3.012,0.238c0.557,0.092 1.112,0.207 1.659,0.35c8.725,2.273 15.189,10.054 19.253,17.653c-1.705,3.443 -3.938,6.398 -6.601,9.277l-2.827,-2.827c1.967,-2.12 3.622,-4.161 4.885,-6.45c0,0 -1.285,-2.361 -2.248,-3.643c-0.619,-0.824 -1.27,-1.624 -1.954,-2.395c-0.54,-0.608 -2.637,-2.673 -3.136,-3.103c-3.348,-2.879 -7.279,-5.138 -11.994,-5.1c-1.826,0.029 -3.582,0.389 -5.249,0.995l-3.127,-3.127Z",
+        style: "fill-rule:nonzero;"
+    }), Z("path", {
+        d: "M25.054,27.92l2.399,2.398c-0.157,0.477 -0.243,0.987 -0.243,1.516c0,2.672 2.169,4.841 4.841,4.841c0.529,0 1.039,-0.085 1.516,-0.243l2.399,2.399c-1.158,0.65 -2.494,1.02 -3.915,1.02c-4.425,0 -8.017,-3.592 -8.017,-8.017c0,-1.421 0.371,-2.756 1.02,-3.914Zm6.849,-4.101c0.049,-0.001 0.099,-0.002 0.148,-0.002c4.425,0 8.017,3.593 8.017,8.017c0,0.05 0,0.099 -0.001,0.148l-8.164,-8.163Z"
+    })), Z("g", {
+        id: "eye"
+    }), Z("g", {
+        id: "toggle-off"
+    }), Z("g", {
+        id: "shredder"
+    }), Z("g", {
+        id: "spinner--loading--dots-"
+    }), Z("g", {
+        id: "react"
+    }), Z("g", {
+        id: "check-selected"
+    }), Z("g", {
+        id: "turn-off"
+    }), Z("g", {
+        id: "code-block"
+    }), Z("g", {
+        id: "user"
+    }), Z("g", {
+        id: "coffee-bean"
+    }), Z("g", {
+        id: "coffee-beans"
+    }, Z("g", {
+        id: "coffee-bean1"
+    })), Z("g", {
+        id: "coffee-bean-filled"
+    }), Z("g", {
+        id: "coffee-beans-filled"
+    }, Z("g", {
+        id: "coffee-bean2"
+    })), Z("g", {
+        id: "clipboard"
+    }), Z("g", {
+        id: "clipboard-paste"
+    }), Z("g", {
+        id: "clipboard-copy"
+    }), Z("g", {
+        id: "Layer1"
+    })));
+};
 function ImportIcon() {
     return Z("svg", {
         width: "25px",
@@ -1251,6 +1370,122 @@ function RunIcon() {
         fill: "bisque"
     }));
 }
+const Show = ()=>{
+    return Z("svg", {
+        fill: "bisque",
+        width: "20px",
+        height: "20px",
+        viewBox: "0 0 64 64",
+        version: "1.1",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: "fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"
+    }, Z("rect", {
+        id: "Icons",
+        x: "-896",
+        y: "-256",
+        width: "1280",
+        height: "800",
+        style: "fill:none;"
+    }), Z("g", {
+        id: "Icons1"
+    }, Z("g", {
+        id: "Strike"
+    }), Z("g", {
+        id: "H1"
+    }), Z("g", {
+        id: "H2"
+    }), Z("g", {
+        id: "H3"
+    }), Z("g", {
+        id: "list-ul"
+    }), Z("g", {
+        id: "hamburger-1"
+    }), Z("g", {
+        id: "hamburger-2"
+    }), Z("g", {
+        id: "list-ol"
+    }), Z("g", {
+        id: "list-task"
+    }), Z("g", {
+        id: "trash"
+    }), Z("g", {
+        id: "vertical-menu"
+    }), Z("g", {
+        id: "horizontal-menu"
+    }), Z("g", {
+        id: "sidebar-2"
+    }), Z("g", {
+        id: "Pen"
+    }), Z("g", {
+        id: "Pen1"
+    }), Z("g", {
+        id: "clock"
+    }), Z("g", {
+        id: "external-link"
+    }), Z("g", {
+        id: "hr"
+    }), Z("g", {
+        id: "info"
+    }), Z("g", {
+        id: "warning"
+    }), Z("g", {
+        id: "plus-circle"
+    }), Z("g", {
+        id: "minus-circle"
+    }), Z("g", {
+        id: "vue"
+    }), Z("g", {
+        id: "cog"
+    }), Z("g", {
+        id: "logo"
+    }), Z("g", {
+        id: "radio-check"
+    }), Z("g", {
+        id: "eye-slash"
+    }), Z("g", {
+        id: "eye"
+    }, Z("path", {
+        d: "M32.513,13.926c10.574,0.15 19.141,9.894 23.487,18.074c0,0 -1.422,2.892 -2.856,4.895c-0.694,0.969 -1.424,1.913 -2.191,2.826c-0.547,0.65 -1.112,1.283 -1.698,1.898c-5.237,5.5 -12.758,9.603 -20.7,8.01c-8.823,-1.77 -15.732,-9.498 -20.058,-17.629c0,0 1.248,-2.964 2.69,-4.964c0.646,-0.897 1.324,-1.77 2.034,-2.617c0.544,-0.649 1.108,-1.282 1.691,-1.897c4.627,-4.876 10.564,-8.63 17.601,-8.596Zm-0.037,4c-5.89,-0.022 -10.788,3.267 -14.663,7.35c-0.527,0.555 -1.035,1.127 -1.527,1.713c-0.647,0.772 -1.265,1.569 -1.854,2.386c-0.544,0.755 -1.057,1.805 -1.451,2.59c3.773,6.468 9.286,12.323 16.361,13.742c6.563,1.317 12.688,-2.301 17.016,-6.846c0.529,-0.555 1.04,-1.128 1.534,-1.715c0.7,-0.833 1.366,-1.694 1.999,-2.579c0.557,-0.778 1.144,-1.767 1.588,-2.567c-3.943,-6.657 -10.651,-13.944 -19.003,-14.074Z"
+    }), Z("path", {
+        d: "M32.158,23.948c4.425,0 8.018,3.593 8.018,8.017c0,4.425 -3.593,8.017 -8.018,8.017c-4.424,0 -8.017,-3.592 -8.017,-8.017c0,-4.424 3.593,-8.017 8.017,-8.017Zm0,4.009c2.213,0 4.009,1.796 4.009,4.008c0,2.213 -1.796,4.009 -4.009,4.009c-2.212,0 -4.008,-1.796 -4.008,-4.009c0,-2.212 1.796,-4.008 4.008,-4.008Z"
+    })), Z("g", {
+        id: "toggle-off"
+    }), Z("g", {
+        id: "shredder"
+    }), Z("g", {
+        id: "spinner--loading--dots-"
+    }), Z("g", {
+        id: "react"
+    }), Z("g", {
+        id: "check-selected"
+    }), Z("g", {
+        id: "turn-off"
+    }), Z("g", {
+        id: "code-block"
+    }), Z("g", {
+        id: "user"
+    }), Z("g", {
+        id: "coffee-bean"
+    }), Z("g", {
+        id: "coffee-beans"
+    }, Z("g", {
+        id: "coffee-bean1"
+    })), Z("g", {
+        id: "coffee-bean-filled"
+    }), Z("g", {
+        id: "coffee-beans-filled"
+    }, Z("g", {
+        id: "coffee-bean2"
+    })), Z("g", {
+        id: "clipboard"
+    }), Z("g", {
+        id: "clipboard-paste"
+    }), Z("g", {
+        id: "clipboard-copy"
+    }), Z("g", {
+        id: "Layer1"
+    })));
+};
 function UpIcon() {
     return Z("svg", {
         width: "25px",
@@ -1341,6 +1576,8 @@ const JSONViewer = ({ jsonData  })=>{
 };
 function E2E({ baseUrl  }) {
     const { e2eForms , setE2eForms  } = useLesan();
+    const [isShowE2eResponse, setIsShowE2eResponse] = F1(true);
+    const [isShowE2eButton, setIsShowE2eButton] = F1(false);
     const [requestDetail, setRequestDetail] = F1({
         allReqPerformance: 0,
         numberRequest: 0,
@@ -1448,6 +1685,8 @@ function E2E({ baseUrl  }) {
             let jsonSendedRequest;
             const sequenceTime0 = performance.now();
             let sequenceRepeat = 0;
+            let succeccCount = 0;
+            let failsCount = 0;
             for(let repeat = 0; repeat < e2eForm.repeat; repeat++){
                 const tResTime0 = performance.now();
                 jsonSendedRequest = await lesanAPI({
@@ -1457,6 +1696,11 @@ function E2E({ baseUrl  }) {
                 const tResTime1 = performance.now();
                 sequenceRepeat += 1;
                 numberRequest += 1;
+                if (jsonSendedRequest.success) {
+                    succeccCount += 1;
+                } else {
+                    failsCount += 1;
+                }
                 setResults((results)=>[
                         ...results,
                         {
@@ -1471,11 +1715,6 @@ function E2E({ baseUrl  }) {
                     ]);
             }
             const sequenceTime1 = performance.now();
-            requestDetail.sequenceDetail.push({
-                bodyHeader: e2eForm.bodyHeaders,
-                repeat: sequenceRepeat,
-                time: sequenceTime1 - sequenceTime0
-            });
             const captures = [
                 ...e2eForm.captures
             ].filter((capture)=>capture.key && capture.value);
@@ -1495,6 +1734,7 @@ function E2E({ baseUrl  }) {
                     value
                 };
             });
+            let getedValues;
             parsedCapuresValue.forEach((capture)=>{
                 if (capture.value.length > 0) {
                     let getedValue = jsonSendedRequest;
@@ -1505,7 +1745,21 @@ function E2E({ baseUrl  }) {
                         key: capture.key,
                         value: getedValue
                     });
+                    getedValues = [
+                        ...getedValue,
+                        ...e2eForm.captures
+                    ];
                 }
+            });
+            requestDetail.sequenceDetail.push({
+                bodyHeader: e2eForm.bodyHeaders,
+                repeat: sequenceRepeat,
+                time: sequenceTime1 - sequenceTime0,
+                success: succeccCount,
+                fails: failsCount,
+                captures: [
+                    ...getedValues
+                ]
             });
         }
         const allReqPerformance1 = performance.now();
@@ -1514,6 +1768,7 @@ function E2E({ baseUrl  }) {
             numberRequest,
             allReqPerformance: allReqPerformance1 - allReqPerformance0
         });
+        console.log(requestDetail);
     };
     const plusRepeatHandler = (index)=>{
         const copy = [
@@ -1550,11 +1805,18 @@ function E2E({ baseUrl  }) {
     }, Z(BackIcon, null), Z("span", null, "Back")), Z("button", {
         className: "btn  e2e-back-button e2e-export_results-button",
         onClick: exportResults
-    }, Z(ExportIcon, null), Z("span", null, "Export"))), results.map((re)=>Z("div", {
+    }, Z(ExportIcon, null), Z("span", null, "Export"))), Z("div", {
+        className: "container-e2e",
+        onClick: ()=>setIsShowE2eResponse(!isShowE2eResponse)
+    }, Z("span", {
+        className: "container-header"
+    }, "REQUESTS"), Z("span", {
+        className: "container-header"
+    }, isShowE2eResponse ? Z(Hide, null) : Z(Show, null))), isShowE2eResponse && results.map((re)=>Z("div", {
             key: re.id,
             className: "container-detail"
         }, Z("section", {
-            className: "container-re "
+            className: "container-re"
         }, Z("span", {
             className: "container-re-title"
         }, "REQUEST"), Z(JSONViewer, {
@@ -1567,27 +1829,22 @@ function E2E({ baseUrl  }) {
             className: "e2e-re-timeNumber-request"
         }, re.responseTime, "ms"), Z(JSONViewer, {
             jsonData: re.response
-        }))))), Z("div", {
-        className: "detail-requests"
-    }, Z("div", {
-        className: "sequence-details"
-    }, requestDetail.sequenceDetail.map((sequence, index)=>Z("div", {
-            className: "sequence-detail"
-        }, Z("div", {
-            className: "sequence"
-        }, Z("h5", null, "sequence ", index + 1, " : "), Z("div", {
-            className: "sequence-repeat"
-        }, Z("span", null, "repeat: ", sequence.repeat)), Z("div", {
-            className: "sequence-time"
-        }, Z("span", null, "repeat time: ", sequence.time, "ms"))), Z("div", {
-            className: "sequence-bodyHeader"
-        }, Z("p", null, "body header: "), Z(JSONViewer, {
+        }))))), requestDetail.sequenceDetail.map((sequence, index)=>Z("div", {
+            key: index,
+            className: "container-detail"
+        }, Z("section", {
+            className: "sequence-re"
+        }, Z("span", {
+            className: "container-re-title"
+        }, "Body Header"), Z(JSONViewer, {
             jsonData: JSON.parse(sequence.bodyHeader)
-        }))))), Z("div", null, Z("div", {
-        className: "number-request"
-    }, Z("span", null, "number requests: ", requestDetail?.numberRequest)), Z("div", {
-        className: "time-request"
-    }, Z("span", null, "time requests: ", requestDetail.allReqPerformance, "ms"))))) : view === "e2e" ? Z(N, null, Z("div", {
+        })), Z("section", {
+            className: "sequence-re sequence-response "
+        }, Z("span", {
+            className: "container-re-title"
+        }, "Description"), Z("div", {
+            className: "detail-sequence"
+        }, Z("p", null, "you send ", Z("span", null, sequence.repeat), " times of this request"), Z("p", null, "the avrage time for each request is", Z("span", null, " ", sequence.time / sequence.repeat, "ms")), Z("p", null, "and whole time is", Z("span", null, " ", sequence.time, "ms ")), Z("p", null, "this sequence sends", Z("span", null, " ", sequence.success, " "), " success request and", " ", Z("span", null, sequence.fails), " it be fails"), sequence.captures.length && Z("p", null, "you capture theese in this sequence :", sequence.captures.map((capture)=>Z("div", null, Z("span", null, capture.value, " as "), Z("span", null, capture.key, " with value of "))))))))) : view === "e2e" ? Z(N, null, Z("div", {
         className: "sidebar__section sidebar__section--headers"
     }, e2eForms.map((e2eForm, idx)=>Z(N, null, Z("div", {
             className: "sidebar__input-double",
@@ -1692,8 +1949,12 @@ function E2E({ baseUrl  }) {
                         ...copy
                     ]);
                 }
-            })), Z("hr", null)))))))), Z("div", {
-        className: "results-buttons"
+            })), Z("hr", null)))))))), Z("button", {
+        className: "btn btn-show-results-buttons ",
+        onClick: ()=>setIsShowE2eButton(!isShowE2eButton)
+    }, "show btn"), Z("div", {
+        className: "results-buttons",
+        "data-show": isShowE2eButton === true
     }, Z("button", {
         className: "btn  e2e-back-button e2e-export_results-button",
         onClick: ()=>{
@@ -2538,13 +2799,13 @@ const Main = ({ urlAddress  })=>{
         className: "response-detail-buttons"
     }, Z("div", {
         className: "btn response-detail-button ",
-        onClick: copyRequest
+        onClick: ()=>copyRequest()
     }, Z(CopyIcon, null), Z("span", {
         className: "tooltip-text"
     }, "Copy Request")), Z("div", {
         className: "btn response-detail-button ",
         onClick: ()=>{
-            copyResponse;
+            copyResponse();
         }
     }, Z(CopyIcon, null), Z("span", {
         className: "tooltip-text"
@@ -2575,6 +2836,30 @@ const Main = ({ urlAddress  })=>{
         className: "fail"
     })))));
 };
+const ScrollTopButton = ()=>{
+    const [visible, setVisible] = F1(false);
+    const toggleVisible = ()=>{
+        const scrolled = document.documentElement.scrollTop;
+        if (scrolled > 300) {
+            setVisible(true);
+        } else if (scrolled <= 300) {
+            setVisible(false);
+        }
+    };
+    const scrollToTop = ()=>{
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    };
+    window.addEventListener("scroll", toggleVisible);
+    return Z("button", null, Z("span", {
+        onClick: ()=>scrollToTop(),
+        style: {
+            display: visible ? "inline" : "none"
+        }
+    }, " ", Z(ChevronDownIcon, null)));
+};
 const FullScreenExit = ()=>{
     return Z("svg", {
         width: "15px",
@@ -2584,10 +2869,10 @@ const FullScreenExit = ()=>{
         xmlns: "http://www.w3.org/2000/svg"
     }, Z("path", {
         d: "M20.04 10.1109L18.0252 8.09612L21.7071 4.41421C22.0976 4.02369 22.0976 3.39052 21.7071 3L21 2.29289C20.6095 1.90237 19.9763 1.90237 19.5858 2.29289L15.9039 5.9748L14.04 4.11089C13.754 3.82489 13.3239 3.73933 12.9502 3.89411C12.5765 4.04889 12.3329 4.41353 12.3329 4.81799V10.818C12.3329 11.3703 12.7806 11.818 13.3329 11.818H19.3329C19.7373 11.818 20.102 11.5744 20.2568 11.2007C20.4115 10.827 20.326 10.3969 20.04 10.1109Z",
-        fill: "#fff"
+        fill: "bisque"
     }), Z("path", {
         d: "M3.96 13.8891L5.97478 15.9039L2.29289 19.5858C1.90237 19.9763 1.90237 20.6095 2.29289 21L3 21.7071C3.39052 22.0976 4.02369 22.0976 4.41421 21.7071L8.0961 18.0252L9.96 19.8891C10.246 20.1751 10.6761 20.2607 11.0498 20.1059C11.4235 19.9511 11.6671 19.5865 11.6671 19.182V13.182C11.6671 12.6297 11.2194 12.182 10.6671 12.182H4.66711C4.26265 12.182 3.89801 12.4256 3.74323 12.7993C3.58845 13.173 3.674 13.6031 3.96 13.8891Z",
-        fill: "#fff"
+        fill: "bisque"
     }));
 };
 const FullScreen = ()=>{
@@ -2599,10 +2884,10 @@ const FullScreen = ()=>{
         xmlns: "http://www.w3.org/2000/svg"
     }, Z("path", {
         d: "M7.69233 18.2781L9.70711 20.2929C9.9931 20.5789 10.0787 21.009 9.92388 21.3827C9.7691 21.7564 9.40446 22 9 22H3C2.44772 22 2 21.5523 2 21V15C2 14.5955 2.24364 14.2309 2.61732 14.0761C2.99099 13.9213 3.42111 14.0069 3.70711 14.2929L5.571 16.1568L9.25289 12.4749C9.64342 12.0844 10.2766 12.0844 10.6671 12.4749L11.3742 13.182C11.7647 13.5725 11.7647 14.2057 11.3742 14.5962L7.69233 18.2781Z",
-        fill: "#fff"
+        fill: "bisque"
     }), Z("path", {
         d: "M16.3077 5.72187L14.2929 3.70711C14.0069 3.42111 13.9213 2.99099 14.0761 2.61732C14.2309 2.24364 14.5955 2 15 2H21C21.5523 2 22 2.44772 22 3V9C22 9.40446 21.7564 9.7691 21.3827 9.92388C21.009 10.0787 20.5789 9.9931 20.2929 9.70711L18.429 7.84319L14.7471 11.5251C14.3566 11.9156 13.7234 11.9156 13.3329 11.5251L12.6258 10.818C12.2352 10.4275 12.2352 9.7943 12.6258 9.40378L16.3077 5.72187Z",
-        fill: "#fff"
+        fill: "bisque"
     }));
 };
 const Modal = (props)=>{
@@ -2610,7 +2895,7 @@ const Modal = (props)=>{
     return Z("div", {
         className: "modal-overlay",
         onClick: props.toggle
-    }, Z("div", {
+    }, Z(ScrollTopButton, null), Z("div", {
         className: toggleFullScreen ? "modal-box-fullscreen" : "modal-box",
         onClick: (e)=>e.stopPropagation()
     }, Z("div", {
@@ -2629,6 +2914,47 @@ const Modal = (props)=>{
 };
 const Schema = ()=>{
     const { schemasObj  } = useLesan();
+    const [reProduceSchemaObj, setreProduceSchemaObj] = F1({});
+    T1(()=>{
+        const myNewObj = {};
+        for(const schema in schemasObj){
+            myNewObj[schema] = {
+                ...myNewObj[schema],
+                pure: schemasObj[schema].pure
+            };
+            for(const mainRels in schemasObj[schema].mainRelations){
+                myNewObj[schema] = {
+                    ...myNewObj[schema],
+                    mainRelations: {
+                        ...myNewObj[schema].mainRelations,
+                        [mainRels]: {
+                            type: "relation",
+                            extraDetails: schemasObj[schema].mainRelations[mainRels],
+                            schema: {
+                                ...schemasObj[schemasObj[schema].mainRelations[mainRels].schemaName].pure
+                            }
+                        }
+                    }
+                };
+            }
+            for(const relatedRels in schemasObj[schema].relatedRelations){
+                myNewObj[schema] = {
+                    ...myNewObj[schema],
+                    relatedRelations: {
+                        ...myNewObj[schema].relatedRelations,
+                        [relatedRels]: {
+                            type: "relation",
+                            extraDetails: schemasObj[schema].relatedRelations[relatedRels],
+                            schema: {
+                                ...schemasObj[schemasObj[schema].relatedRelations[relatedRels].schemaName].pure
+                            }
+                        }
+                    }
+                };
+            }
+        }
+        setreProduceSchemaObj(myNewObj);
+    }, []);
     const exportSchemas = ()=>{
         const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(schemasObj))}`;
         const link = document.createElement("a");
@@ -2660,7 +2986,7 @@ const Schema = ()=>{
             }, schema), Z("span", null, "...")), Z("div", {
                 className: "proceed-child-container",
                 id: newUid
-            }, proceedChildSchema(schemasObj[schema])));
+            }, proceedChildSchema(schemas[schema])));
         });
     };
     const proceedChildSchema = (childSchema)=>{
@@ -2675,12 +3001,20 @@ const Schema = ()=>{
                 }
             }, Z("p", {
                 className: "schema-title"
-            }, childItem, " ", childSchema[childItem]["type"]), Z("p", {
+            }, childItem), Z("div", {
+                className: "schema-info"
+            }, " ", Z("p", {
                 className: "schema-title schema-type"
-            }, " ", childSchema[childItem]["type"]), typeof childSchema[childItem] === "object" && childSchema[childItem].schema !== null && Z("span", null, "...")), Z("div", {
+            }, " ", childSchema[childItem]["type"]), Z("div", {
+                className: "schema-help"
+            }, childSchema[childItem]["extraDetails"] && Z(HelpIcon, null), childSchema[childItem]["extraDetails"] && Z("div", {
+                className: " tooltip-text"
+            }, Z(JSONViewer, {
+                jsonData: childSchema[childItem]["extraDetails"]
+            }))), typeof childSchema[childItem] === "object" && childSchema[childItem].schema !== null && Z("span", null, "..."))), Z("div", {
                 id: newUid,
                 className: "proceed-child"
-            }, typeof childSchema[childItem] === "object" && childSchema[childItem] !== null && childSchema[childItem].schema !== null && proceedChildSchema(childSchema[childItem].pure ? childSchema[childItem].pure : childSchema[childItem].relatedRelations ? childSchema[childItem].relatedRelations : childSchema[childItem].mainRelation ? childSchema[childItem].mainRelation : childSchema[childItem])));
+            }, typeof childSchema[childItem] === "object" && childSchema[childItem] !== null && childSchema[childItem].schema !== null && proceedChildSchema(childSchema[childItem].pure ? childSchema[childItem].pure : childSchema[childItem].relatedRelations ? childSchema[childItem].relatedRelations : childSchema[childItem].mainRelation ? childSchema[childItem].mainRelation : childSchema[childItem].type === "relation" ? childSchema[childItem].schema : childSchema[childItem])));
         });
     };
     return Z("div", {
@@ -2700,7 +3034,7 @@ const Schema = ()=>{
         className: "search-icon"
     }, Z(Search, null))), Z("div", {
         className: "schema-list"
-    }, proceedSchemas(schemasObj)));
+    }, proceedSchemas(reProduceSchemaObj)));
 };
 function TickIcon() {
     return Z("svg", {
@@ -2829,10 +3163,16 @@ function Setting({ configUrl  }) {
 const getSchemasAPI = ({ baseUrl  })=>fetch(`${baseUrl}playground/static/get/schemas`).then((res)=>res.json());
 const Page = ()=>{
     const { tabsData , setTabsData , activeTab , actsObj , addTab , setActiveTab , setService , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , closeTab , resetPostFields , setSchemasObj , setActsObj , setModal , modal  } = useLesan();
+    const [show, setShow] = F1("");
+    const [mediaShow, setMediaShow] = F1(false);
     const parsedWindowUrl = ()=>{
         return window && window.location ? `${new URL(window.location.href).origin}/` : "http://localhost:1366/";
     };
     const [urlAddress, setUrlAddress] = F1("");
+    const handleClickOutside = ()=>{
+        setMediaShow(false);
+    };
+    const ref = useOutsideClick(handleClickOutside);
     T1(()=>{
         configUrl(parsedWindowUrl());
         const localHistory = JSON.parse(localStorage.getItem("localHistory"));
@@ -2962,53 +3302,74 @@ const Page = ()=>{
             onClick: ()=>{
                 setActiveTab(index);
             }
-        }, tabsData[index].act ? `${tabsData[index].schema} | ${tabsData[index].act}` : tabsData[index].schema ? `${tabsData[index].service} | ${tabsData[index].schema}` : tabsData[index].service ? tabsData[index].service : `Tab ${index}`, Z("span", {
+        }, " ", Z("span", {
+            title: tabsData[index].act ? `${tabsData[index].schema} | ${tabsData[index].act}` : tabsData[index].schema ? `${tabsData[index].service} | ${tabsData[index].schema}` : tabsData[index].service ? tabsData[index].service : `Tab ${index}`
+        }, " ", tabsData[index].act ? `${tabsData[index].schema} | ${tabsData[index].act}` : tabsData[index].schema ? `${tabsData[index].service} | ${tabsData[index].schema}` : tabsData[index].service ? tabsData[index].service : `Tab ${index}`), Z("span", {
             className: ` tab-close ${activeTab === index ? "active-tab-close" : ""}`,
             onClick: (event)=>{
                 event.stopPropagation();
                 closeTab(index);
-            }
+            },
+            title: "Close tab"
         }, "x")))), Z("span", {
         className: "add-tab",
+        title: "Open a new tab",
         onClick: ()=>{
             addTab(null);
             localStorage.setItem("localTabsData", JSON.stringify(tabsData));
         }
     }, "+")), Z(Main, {
         urlAddress: urlAddress
-    }), Z("div", {
-        className: "main-btn-wrapper"
+    }), Z("button", {
+        ref: ref,
+        className: "media--main-btn-wrapper ",
+        onClick: ()=>{
+            setMediaShow(!mediaShow);
+        }
+    }, "main"), Z("div", {
+        className: "main-btn-wrapper",
+        "data-show": mediaShow === true
     }, Z("span", {
-        className: "btn btn-modal btn-setting",
+        className: "btn btn-modal ",
+        onClick: ()=>configUrl()
+    }, Z("span", {
+        className: "btn-modal-title"
+    }, "Refetch"), Z(ReFetchIcon, null)), Z("span", {
+        className: "btn btn-modal ",
         onClick: ()=>setModal(MODAL_TYPES.SETTING)
     }, Z("span", {
         className: "btn-modal-title"
     }, "Setting"), Z(SettingIcon, null)), Z("span", {
-        className: "btn btn-modal btn-history",
+        className: "btn btn-modal",
         onClick: ()=>setModal(MODAL_TYPES.HISTORY)
     }, Z("span", {
         className: "btn-modal-title"
     }, "History"), Z(HistoryIcon, null)), Z("span", {
-        className: "btn btn-modal btn-e2e",
+        className: "btn btn-modal",
         onClick: ()=>setModal(MODAL_TYPES.E2E_TEST)
     }, Z("span", {
         className: "btn-modal-title"
     }, "E2E Test"), Z(TestIcon, null)), Z("span", {
-        className: "btn btn-modal btn-graph",
-        onClick: ()=>setModal(MODAL_TYPES.SCHEMA)
+        className: "  btn-modal-document",
+        "data-show": show === "document"
+    }, Z("span", {
+        className: "btn-modal-document--title",
+        "data-show": show === "document"
+    }, "Document")), Z("span", {
+        className: "btn btn-modal btn-doc",
+        onClick: ()=>setModal(MODAL_TYPES.SCHEMA),
+        onMouseEnter: ()=>setShow("document"),
+        onMouseLeave: ()=>setShow("")
     }, Z("span", {
         className: "btn-modal-title"
     }, "Schema"), Z(SchemaIcon, null)), Z("span", {
         className: "btn btn-modal btn-doc ",
-        onClick: ()=>setModal(MODAL_TYPES.ACT)
+        onClick: ()=>setModal(MODAL_TYPES.ACT),
+        onMouseEnter: ()=>setShow("document"),
+        onMouseLeave: ()=>setShow("")
     }, Z("span", {
         className: "btn-modal-title"
-    }, "Act"), Z(DocumentIcon, null)), Z("span", {
-        className: "btn btn-modal btn-refetch",
-        onClick: ()=>configUrl()
-    }, Z("span", {
-        className: "btn-modal-title"
-    }, "Refetch"), Z(ReFetchIcon, null))), modal !== null && Z(Modal, {
+    }, "Act"), Z(DocumentIcon, null))), modal !== null && Z(Modal, {
         toggle: toggleModal,
         title: modal
     }, modal === MODAL_TYPES.HISTORY ? Z(History, {
