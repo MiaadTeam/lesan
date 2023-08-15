@@ -979,6 +979,18 @@ textarea {
   left: 150px;
 }
 
+.e2e-export_results-button-hide {
+  display: none;
+}
+
+.btn-show-results-buttons {
+  display: none;
+}
+
+.actionShow-btn {
+  display: none;
+}
+
 .e2e-export-form-button {
   color: black;
   font-size: 14px;
@@ -992,7 +1004,7 @@ textarea {
   position: fixed;
   top: 0;
   display: flex;
-  width: 100%;
+  width: 70%;
   gap: 20px;
   z-index: 1;
 }
@@ -1044,42 +1056,33 @@ textarea {
   align-items: flex-end;
   gap: 2rem;
   margin: 0 2rem;
+  /* width: 100%; */
 }
 
-.sequence-details {
-  color:rgb(177, 177, 177);
-  font-size: 14px;
+.sequence-re {
+  width: 50%;
+  background-color: rgba(147, 147, 147, 0.1);
+  border-radius: 10px 0 0 10px;
+  position: relative;
 }
 
-.sequence-details h5 {
-  color: #fff;
+.sequence-response {
+  background-color: #2b3b4e;
+  border-radius: 0 10px 10px 0;
+  border-left: 1px solid gainsboro;
 }
 
-.sequence-detail {
-  display: flex;
+.detail-sequence {
+  padding: 1rem;
+  color: red;
 }
 
-.sequence {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 3rem;
+.detail-sequence p {
   color: bisque;
 }
 
-.sequence-bodyHeader {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-top: 1rem;
-  padding: 5px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-}
-
-.time-request,
-.number-request {
-  color: bisque;
-  font-size: 14px;
+.detail-sequence p span {
+  color: #f1fa8c;
 }
 
 .schema-modal {
@@ -1209,6 +1212,39 @@ textarea {
 }
 
 @media (max-width: 1025px) {
+  .results-buttons {
+    display: none;
+  }
+
+  .results-buttons[data-show="true"] {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    background-color: rgba(29, 32, 30, 0.8);
+    padding: 1rem;
+  }
+
+  .e2e-export_results-button {
+    border: 1px solid bisque;
+    border-radius: 10px;
+  }
+
+  .btn-show-results-buttons {
+    display: flex;
+    cursor: pointer;
+    background-color: rgba(70, 70, 70, 0.5);
+    border-radius: 0 0 10px 10px;
+    padding: 6px;
+    font-size: 15px;
+    color: bisque;
+    border: 1px solid bisque;
+    backdrop-filter: blur(10px);
+  }
+
+  .actionShow-btn {
+    display: flex;
+  }
+
   .setting {
     overflow: scroll;
   }
@@ -1252,7 +1288,6 @@ textarea {
   border: 1px solid #808080;
   padding-bottom: 1.5rem;
   position: relative;
-
   overflow: scroll;
   height: 40vh;
   margin-top: 5px;
@@ -1310,6 +1345,23 @@ textarea {
   bottom: 0;
   right: -10px;
   margin-bottom: 40px;
+}
+
+.container-e2e {
+  border-radius: 7px;
+  border: 1px solid bisque;
+  padding: 0.1rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.5rem 0 0.5rem 0;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.container-e2e span {
+  color: bisque;
+  height: 20px;
 }
 
 .container-detail {
