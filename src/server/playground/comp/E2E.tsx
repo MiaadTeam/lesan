@@ -10,8 +10,10 @@ import DeleteIcon from "./icon/deleteIcon.tsx";
 import DownIcon from "./icon/DownIcon.tsx";
 import ExportIcon from "./icon/ExportIcon.tsx";
 import HelpIcon from "./icon/HelpIcon.tsx";
+import Hide from "./icon/Hide.tsx";
 import ImportIcon from "./icon/ImportIcon.tsx";
 import RunIcon from "./icon/RunIcon.tsx";
+import { Show } from "./icon/Show.tsx";
 import UpIcon from "./icon/UpIcon.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
@@ -25,8 +27,13 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
       bodyHeader: string;
       time: number;
       repeat: number;
+      success: number;
+      fails: number;
+      captures: { key: string; value: string; captured: any }[];
     }[];
   };
+  const [isShowE2eResponse, setIsShowE2eResponse] = useState<boolean>(true);
+  const [isShowE2eButton, setIsShowE2eButton] = useState<boolean>(false);
   const [requestDetail, setRequestDetail] = useState<TReqDetails>({
     allReqPerformance: 0,
     numberRequest: 0,
@@ -172,6 +179,8 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
 
       const sequenceTime0 = performance.now();
       let sequenceRepeat = 0;
+      let succeccCount = 0;
+      let failsCount = 0;
       for (let repeat = 0; repeat < e2eForm.repeat; repeat++) {
         const tResTime0 = performance.now();
         jsonSendedRequest = await lesanAPI({
@@ -181,6 +190,11 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
         const tResTime1 = performance.now();
         sequenceRepeat += 1;
         numberRequest += 1;
+        if (jsonSendedRequest.success) {
+          succeccCount += 1;
+        } else {
+          failsCount += 1;
+        }
 
         setResults((results) => [
           ...results,
@@ -193,11 +207,6 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
         ]);
       }
       const sequenceTime1 = performance.now();
-      requestDetail.sequenceDetail.push({
-        bodyHeader: e2eForm.bodyHeaders,
-        repeat: sequenceRepeat,
-        time: sequenceTime1 - sequenceTime0,
-      });
 
       const captures = [...e2eForm.captures].filter(
         (capture) => capture.key && capture.value
@@ -217,7 +226,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
         value.shift();
         return { key: capture.key, value };
       });
-
+      let getedValues: any;
       parsedCapuresValue.forEach((capture) => {
         if (capture.value.length > 0) {
           let getedValue: any = jsonSendedRequest;
@@ -225,7 +234,17 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             getedValue = getedValue[capValue];
           });
           parsedCaptures.add({ key: capture.key, value: getedValue });
+          getedValues = [...getedValue, ...e2eForm.captures];
         }
+      });
+
+      requestDetail.sequenceDetail.push({
+        bodyHeader: e2eForm.bodyHeaders,
+        repeat: sequenceRepeat,
+        time: sequenceTime1 - sequenceTime0,
+        success: succeccCount,
+        fails: failsCount,
+        captures: [...getedValues],
       });
     }
 
@@ -235,6 +254,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
       numberRequest,
       allReqPerformance: allReqPerformance1 - allReqPerformance0,
     });
+    console.log(requestDetail);
   };
 
   // plus repeat
@@ -278,51 +298,74 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                 <span>Export</span>
               </button>
             </div>
-            {results.map((re) => (
-              <div key={re.id} className="container-detail">
-                <section className="container-re ">
-                  <span className="container-re-title">REQUEST</span>
-                  <JSONViewer jsonData={re.request} />
-                </section>
-                <section className="container-re container-response">
-                  <span className="container-re-title">RESPONSE</span>
-                  <span className="e2e-re-timeNumber-request">
-                    {re.responseTime}ms
-                  </span>
-                  <JSONViewer jsonData={re.response} />
-                </section>
-              </div>
-            ))}
-          </div>
-          <div className="detail-requests">
-            <div className="sequence-details">
-              {requestDetail.sequenceDetail.map((sequence, index) => (
-                <div className="sequence-detail">
-                  <div className="sequence">
-                    <h5>sequence {index + 1} : </h5>
-                    <div className="sequence-repeat">
-                      <span>repeat: {sequence.repeat}</span>
-                    </div>
-                    <div className="sequence-time">
-                      <span>repeat time: {sequence.time}ms</span>
-                    </div>
-                  </div>
-                  <div className="sequence-bodyHeader">
-                    <p>body header: </p>
-                    <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
-                  </div>
+            <div
+              className="container-e2e"
+              onClick={() => setIsShowE2eResponse(!isShowE2eResponse)}
+            >
+              <span className="container-header">REQUESTS</span>
+              <span className="container-header">
+                {isShowE2eResponse ? <Hide /> : <Show />}
+              </span>
+            </div>
+            {isShowE2eResponse &&
+              results.map((re) => (
+                <div key={re.id} className="container-detail">
+                  <section className="container-re">
+                    <span className="container-re-title">REQUEST</span>
+                    <JSONViewer jsonData={re.request} />
+                  </section>
+                  <section className="container-re container-response">
+                    <span className="container-re-title">RESPONSE</span>
+                    <span className="e2e-re-timeNumber-request">
+                      {re.responseTime}ms
+                    </span>
+
+                    <JSONViewer jsonData={re.response} />
+                  </section>
                 </div>
               ))}
-            </div>
-            <div>
-              <div className="number-request">
-                <span>number requests: {requestDetail?.numberRequest}</span>
-              </div>
-              <div className="time-request">
-                <span>time requests: {requestDetail.allReqPerformance}ms</span>
-              </div>
-            </div>
           </div>
+          {requestDetail.sequenceDetail.map((sequence, index) => (
+            <div key={index} className="container-detail">
+              <section className="sequence-re">
+                <span className="container-re-title">Body Header</span>
+                <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
+              </section>
+              <section className="sequence-re sequence-response ">
+                <span className="container-re-title">Description</span>
+                <div className="detail-sequence">
+                  <p>
+                    you send <span>{sequence.repeat}</span> times of this
+                    request
+                  </p>
+                  <p>
+                    the avrage time for each request is
+                    <span> {sequence.time / sequence.repeat}ms</span>
+                  </p>
+                  <p>
+                    and whole time is
+                    <span> {sequence.time}ms </span>
+                  </p>
+                  <p>
+                    this sequence sends
+                    <span> {sequence.success} </span> success request and{" "}
+                    <span>{sequence.fails}</span> it be fails
+                  </p>
+                  {sequence.captures.length && (
+                    <p>
+                      you capture theese in this sequence :
+                      {sequence.captures.map((capture) => (
+                        <div>
+                          <span>{capture.value} as </span>
+                          <span>{capture.key} with value of </span>
+                        </div>
+                      ))}
+                    </p>
+                  )}
+                </div>
+              </section>
+            </div>
+          ))}
         </Fragment>
       ) : view === "e2e" ? (
         <Fragment>
@@ -444,7 +487,13 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               </Fragment>
             ))}
           </div>
-          <div className="results-buttons">
+          <button
+            className="btn btn-show-results-buttons "
+            onClick={() => setIsShowE2eButton(!isShowE2eButton)}
+          >
+            show btn
+          </button>
+          <div className="results-buttons" data-show={isShowE2eButton === true}>
             <button
               className="btn  e2e-back-button e2e-export_results-button"
               onClick={() => {
