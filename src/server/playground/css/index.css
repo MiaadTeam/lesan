@@ -134,7 +134,7 @@ textarea {
   padding-top: 53px;
 }
 
-@media (min-width: 769px) and (max-width: 1025px) {
+@media (min-width: 768px) and (max-width: 1025px) {
   .sidebar {
     width: 30%;
   }
@@ -454,6 +454,10 @@ textarea {
   height: 50px;
 }
 
+.media--main-btn-wrapper {
+  display: none;
+}
+
 .btn-modal > svg {
   position: absolute;
   right: 0.5rem;
@@ -475,7 +479,6 @@ textarea {
 .btn-modal:hover > span {
   opacity: 100;
   margin-right: 1.6rem;
-  /* white-space: nowrap; */
 }
 
 .btn-modal:hover > svg {
@@ -513,6 +516,78 @@ textarea {
   opacity: 100;
 }
 
+@media (max-height: 768px) {
+  .btn-modal {
+    height: 35px;
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+  }
+
+  .btn-modal span {
+    opacity: 100;
+    margin-right: 0;
+    transition: all 0.4s;
+    white-space: nowrap;
+  }
+
+  .btn-modal > svg {
+    position: absolute;
+    right: 8px;
+    transition: all 0.8s;
+  }
+
+  .btn-modal:hover {
+    background-color: dimgray;
+    width: 100%;
+  }
+
+  .btn-modal:hover > svg {
+    right: 8px;
+  }
+
+  .main-btn-wrapper {
+    display: none;
+  }
+
+  .main-btn-wrapper[data-show="true"] {
+    display: flex;
+    gap: 5px;
+    width: 28%;
+    left: 7px;
+    border: 1px solid bisque;
+    border-radius: 7px 7px 0 0;
+    border-bottom: none;
+    bottom: 0;
+    padding: 10px 10px 39px 10px;
+    backdrop-filter: blur(40px);
+  }
+
+  .media--main-btn-wrapper {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 27px;
+    width: 23%;
+    border: 1px solid gainsboro;
+    border-radius: 10px 10px 0 0;
+    background-color: rgba(70, 70, 70, 0.5);
+    color: bisque;
+    height: 28px;
+    font-size: medium;
+    border-bottom: none;
+    z-index: 5;
+    cursor: pointer;
+  }
+
+  .media--main-btn-wrapper:hover {
+    background-color: dimgray;
+  }
+
+  .btn-modal-document {
+    display: none;
+  }
+}
 /* -------------------------------------------------------------------------- */
 
 .sidebar--fields {
@@ -522,7 +597,7 @@ textarea {
   padding-top: 53px;
 }
 
-@media (min-width: 769px) and (max-width: 1025px) {
+@media (min-width: 768px) and (max-width: 1025px) {
   .sidebar--fields {
     width: 30%;
   }
@@ -713,7 +788,7 @@ textarea {
   background-color: #272822;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 768px) {
   .response {
     width: 40%;
   }
@@ -862,7 +937,7 @@ textarea {
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1024px) {
   .response-detail-buttons {
     right: 33px;
   }

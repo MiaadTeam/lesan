@@ -46,7 +46,8 @@ export const Page = () => {
     modal,
   } = useLesan();
 
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState("");
+  const [mediaShow, setMediaShow] = useState(false);
 
   const parsedWindowUrl = () => {
     return window && window.location
@@ -266,8 +267,17 @@ export const Page = () => {
       </div>
       <Main urlAddress={urlAddress} />
 
-      <div className="main-btn-wrapper">
-        <span className="btn btn-modal" onClick={() => configUrl()}>
+      {/* under 768px heigh button */}
+      <button
+        className="media--main-btn-wrapper "
+        onClick={() => {
+          mediaShow === false ? setMediaShow(true) : setMediaShow(false);
+        }}
+      >
+        main
+      </button>
+      <div className="main-btn-wrapper" data-show={mediaShow === true}>
+        <span className="btn btn-modal " onClick={() => configUrl()}>
           <span className="btn-modal-title">Refetch</span>
           <ReFetchIcon />
         </span>
@@ -292,16 +302,19 @@ export const Page = () => {
           <span className="btn-modal-title">E2E Test</span>
           <TestIcon />
         </span>
-        <span className="  btn-modal-document" data-show={show === true}>
-          <span className="btn-modal-document--title" data-show={show === true}>
+        <span className="  btn-modal-document" data-show={show === "document"}>
+          <span
+            className="btn-modal-document--title"
+            data-show={show === "document"}
+          >
             Document
           </span>
         </span>
         <span
           className="btn btn-modal btn-doc"
           onClick={() => setModal(MODAL_TYPES.SCHEMA)}
-          onMouseEnter={() => setShow(true)}
-          onMouseLeave={() => setShow(false)}
+          onMouseEnter={() => setShow("document")}
+          onMouseLeave={() => setShow("")}
         >
           <span className="btn-modal-title">Schema</span>
           <SchemaIcon />
@@ -309,8 +322,8 @@ export const Page = () => {
         <span
           className="btn btn-modal btn-doc "
           onClick={() => setModal(MODAL_TYPES.ACT)}
-          onMouseEnter={() => setShow(true)}
-          onMouseLeave={() => setShow(false)}
+          onMouseEnter={() => setShow("document")}
+          onMouseLeave={() => setShow("")}
         >
           <span className="btn-modal-title">Act</span>
           <DocumentIcon />
