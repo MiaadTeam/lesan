@@ -134,7 +134,7 @@ textarea {
   padding-top: 53px;
 }
 
-@media (min-width: 768px) and (max-width: 1025px) {
+@media (min-width: 760px) and (max-width: 1025px) {
   .sidebar {
     width: 30%;
   }
@@ -597,7 +597,7 @@ textarea {
   padding-top: 53px;
 }
 
-@media (min-width: 768px) and (max-width: 1025px) {
+@media (min-width: 760px) and (max-width: 1025px) {
   .sidebar--fields {
     width: 30%;
   }
@@ -788,7 +788,7 @@ textarea {
   background-color: #272822;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 760px) {
   .response {
     width: 40%;
   }
@@ -937,7 +937,7 @@ textarea {
   }
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (min-width: 760px) and (max-width: 1024px) {
   .response-detail-buttons {
     right: 33px;
   }
