@@ -1087,6 +1087,8 @@ textarea {
 
 .e2e-export_results-button {
   left: 150px;
+  display: flex;
+  justify-content: space-around;
 }
 
 .e2e-export_results-button-hide {
@@ -1370,6 +1372,9 @@ textarea {
     width: 20%;
     background-color: rgba(29, 32, 30, 0.8);
     padding: 1rem;
+    border: 1px solid bisque;
+    border-radius: 0 0 10px 10px;
+    padding-top: 3rem;
   }
 
   .e2e-export_results-button {
@@ -1387,6 +1392,10 @@ textarea {
     color: bisque;
     border: 1px solid bisque;
     backdrop-filter: blur(10px);
+    position: absolute;
+    left: 3.5rem;
+    top: 0;
+    z-index: 100;
   }
 
   .actionShow-btn {
