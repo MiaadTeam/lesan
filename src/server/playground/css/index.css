@@ -1085,10 +1085,11 @@ textarea {
   white-space: nowrap;
 }
 
-.e2e-export_results-button {
+.btn-e2e-action {
   left: 150px;
   display: flex;
   justify-content: space-around;
+  padding: 2px 3px;
 }
 
 .e2e-export_results-button-hide {
@@ -1373,28 +1374,35 @@ textarea {
     background-color: rgba(29, 32, 30, 0.8);
     padding: 1rem;
     border: 1px solid bisque;
+    backdrop-filter: blur(10px);
     border-radius: 0 0 10px 10px;
     padding-top: 3rem;
   }
 
-  .e2e-export_results-button {
-    border: 1px solid bisque;
+  .btn-e2e-action {
+    border: none;
     border-radius: 10px;
+    width: 100%;
+    height: 35px;
+    background-color: rgb(61, 61, 61);
+    white-space: nowrap;
+    transform: background 200ms ease;
   }
 
   .btn-show-results-buttons {
     display: flex;
     cursor: pointer;
-    background-color: rgba(70, 70, 70, 0.5);
+    background-color: rgba(70, 70, 70, 0.3);
     border-radius: 0 0 10px 10px;
     padding: 6px;
     font-size: 15px;
     color: bisque;
     border: 1px solid bisque;
-    backdrop-filter: blur(10px);
     position: absolute;
-    left: 3.5rem;
+    left: 2rem;
     top: 0;
+    width: 16%;
+    justify-content: center;
     z-index: 100;
   }
 

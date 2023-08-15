@@ -29,7 +29,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
       repeat: number;
       success: number;
       fails: number;
-      captures: { key: string; value: string; captured: any }[];
+      // captures: { key: string; value: string; captured: any }[];
     }[];
   };
   const [isShowE2eResponse, setIsShowE2eResponse] = useState<boolean>(true);
@@ -226,7 +226,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
         value.shift();
         return { key: capture.key, value };
       });
-      let getedValues: any;
+      // let getedValues: any;
       parsedCapuresValue.forEach((capture) => {
         if (capture.value.length > 0) {
           let getedValue: any = jsonSendedRequest;
@@ -234,7 +234,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             getedValue = getedValue[capValue];
           });
           parsedCaptures.add({ key: capture.key, value: getedValue });
-          getedValues = [...getedValue, ...e2eForm.captures];
+          // getedValues = [...getedValue, ...e2eForm.captures];
         }
       });
 
@@ -244,7 +244,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
         time: sequenceTime1 - sequenceTime0,
         success: succeccCount,
         fails: failsCount,
-        captures: [...getedValues],
+        // captures: [...getedValues],
       });
     }
 
@@ -351,7 +351,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                     <span> {sequence.success} </span> success request and{" "}
                     <span>{sequence.fails}</span> it be fails
                   </p>
-                  {sequence.captures.length && (
+                  {/* {sequence.captures.length && (
                     <p>
                       you capture theese in this sequence :
                       {sequence.captures.map((capture) => (
@@ -361,7 +361,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                         </div>
                       ))}
                     </p>
-                  )}
+                  )} */}
                 </div>
               </section>
             </div>
@@ -495,7 +495,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
           </button>
           <div className="results-buttons" data-show={isShowE2eButton === true}>
             <button
-              className="btn  e2e-back-button e2e-export_results-button"
+              className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
               onClick={() => {
                 setE2eForms([...e2eForms, e2eFirstInp()]);
               }}
@@ -504,7 +504,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               <span>Add</span>
             </button>
             <button
-              className="btn e2e-back-button e2e-run-botton e2e-export_results-button"
+              className="btn btn-e2e-action e2e-back-button e2e-run-botton e2e-export_results-button"
               onClick={async () => {
                 setView("result");
                 await runE2eTest();
@@ -521,13 +521,13 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             ></input>
             <label
               htmlFor="actual-btn"
-              className="btn e2e-back-button e2e-export_results-button"
+              className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
             >
               <ImportIcon />
               <span>Import</span>
             </label>
             <button
-              className="btn e2e-back-button e2e-export_results-button"
+              className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
               onClick={exportForm}
             >
               <ExportIcon />
@@ -535,7 +535,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             </button>
             <button
               onClick={() => setView("help")}
-              className="btn e2e-back-button e2e-export_results-button"
+              className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
             >
               <HelpIcon />
               <span>Help</span>
