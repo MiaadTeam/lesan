@@ -1089,7 +1089,7 @@ textarea {
   left: 150px;
   display: flex;
   justify-content: space-around;
-  padding: 2px 3px;
+  transition: all 0.8s;
 }
 
 .e2e-export_results-button-hide {
@@ -1386,7 +1386,26 @@ textarea {
     height: 35px;
     background-color: rgb(61, 61, 61);
     white-space: nowrap;
+    font-size: 12px;
     transform: background 200ms ease;
+    justify-content: space-between;
+    padding: 2px 8px;
+  }
+
+  .btn-e2e-action span {
+    transition: all 0.5s;
+  }
+
+  .btn-e2e-action:hover span {
+    margin-right: 15px;
+  }
+
+  .btn-e2e-action svg {
+    width: 18px;
+  }
+
+  .e2e-run-botton span {
+    font-size: 10px;
   }
 
   .btn-show-results-buttons {
@@ -1408,6 +1427,10 @@ textarea {
 
   .actionShow-btn {
     display: flex;
+  }
+
+  .e2e-add-capture {
+    font-size: 11px;
   }
 
   .setting {
@@ -1783,6 +1806,10 @@ textarea {
 
 .modal-close svg path:first-child {
   display: none;
+}
+
+.modal-close svg path {
+  stroke: #fff;
 }
 
 .modal-close:hover,
