@@ -284,7 +284,7 @@ export const Page = () => {
           setMediaShow(!mediaShow);
         }}
       >
-        main
+        menu
       </button>
       {/*  */}
 

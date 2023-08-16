@@ -452,7 +452,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                         setE2eForms([...copy]);
                       }}
                     >
-                      add capture variable item
+                      add capture
                     </button>
 
                     {e2eForm.captures.map((capture, capId) => (
