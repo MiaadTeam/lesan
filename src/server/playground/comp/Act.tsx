@@ -5,7 +5,7 @@ import Search from "./icon/Search.tsx";
 import { uid } from "../utils/uid.ts";
 import ExportIcon from "./icon/ExportIcon.tsx";
 
-export default function Act() {
+export function Act() {
   const { actsObj } = useLesan();
   const exportActs = () => {
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
