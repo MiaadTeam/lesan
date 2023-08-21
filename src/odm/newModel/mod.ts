@@ -47,6 +47,8 @@ export const newModel = (
       type: relations[relation].type,
       optional: relations[relation].optional,
     };
+    relations[relation].sort &&
+      (mainRelations[relation].sort = relations[relation].sort);
 
     relations[relation].relatedRelations.forEach((relatedRelation) => {
       schemas[relations[relation].schemaName]

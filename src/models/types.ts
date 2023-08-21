@@ -13,6 +13,11 @@ export type TRelation = {
   schemaName: string;
   type: "single" | "multiple";
   optional: boolean;
+  sort?: {
+    field: string;
+    order: "asc" | "desc";
+    type: "number" | "date" | "objectId";
+  };
   relatedRelations: {
     name: string;
     limit: null | number;
@@ -41,6 +46,14 @@ export interface IMainRelation {
   type: "single" | "multiple";
 
   optional: boolean;
+  /**
+   * sort : {field , order} - field of sort , and order of sort
+   */
+  sort?: {
+    field: string;
+    order: "asc" | "desc";
+    type: "number" | "date" | "objectId";
+  };
 }
 
 /**
@@ -49,7 +62,7 @@ export interface IMainRelation {
  *  and usually the number of it greater thant of 50
  * @public
  */
-export interface IRelatedRelatin {
+export interface IRelatedRelation {
   /**
    * name of schema that this schema has relation with
    */
@@ -82,5 +95,5 @@ export interface IModel {
   pure: PureFields;
   relations: Record<string, TRelation>;
   mainRelations: Record<string, IMainRelation>;
-  relatedRelations: Record<string, IRelatedRelatin>;
+  relatedRelations: Record<string, IRelatedRelation>;
 }
