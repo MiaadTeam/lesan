@@ -5,8 +5,9 @@ import {
   InsertOptions,
   ObjectId,
 } from "../../deps.ts";
+import { RelationDataType } from "../../mod.ts";
 import { createProjection } from "../../models/createProjection.ts";
-import { TSchemas, schemaFns } from "../../models/mod.ts";
+import { schemaFns, TSchemas } from "../../models/mod.ts";
 import { getNumericPosition } from "../../utils/getNumericPosition.ts";
 import { throwError } from "../../utils/mod.ts";
 import { Projection } from "../aggregation/type.ts";
@@ -18,21 +19,25 @@ const insertRelatedRelationForFirstTime = async ({
   updateKeyName,
   updateId,
   updatedDoc,
+  type,
 }: {
   db: Database;
   collection: string;
   updateKeyName: string;
   updateId: ObjectId;
   updatedDoc: Bson.Document;
+  type: RelationDataType;
 }) => {
   console.log(
-    "inside insertRelatedRelationForFirstTime and we gonna to update"
+    "inside insertRelatedRelationForFirstTime and we gonna to update",
   );
   const updatedRel = await db.collection(collection).updateOne(
     {
       _id: updateId,
     },
-    { $set: { [updateKeyName]: [updatedDoc] } }
+    {
+      $set: { [updateKeyName]: type === "single" ? updatedDoc : [updatedDoc] },
+    },
   );
 
   console.log("updatedRel", updatedRel, collection);
@@ -65,7 +70,7 @@ const pushRelatedRelation = async ({
     {
       _id: updateId,
     },
-    { ...updateCommand }
+    { ...updateCommand },
   );
 
   popLast &&
@@ -73,7 +78,7 @@ const pushRelatedRelation = async ({
       { _id: updateId },
       {
         $pop: { [updateKeyName]: 1 },
-      }
+      },
     ));
 
   return updatedRel;
@@ -106,7 +111,7 @@ const updateRelatedRelationNumeric = async ({
     existRelation,
     newNumber,
     fieldName,
-    type
+    type,
   );
   const updatedRel = await db.collection(collection).updateOne(
     {
@@ -119,14 +124,14 @@ const updateRelatedRelationNumeric = async ({
           $position: position,
         },
       },
-    }
+    },
   );
   pop &&
     (await db.collection(collection).updateOne(
       { _id: updateId },
       {
         $pop: { [updateKeyName]: pop === "first" ? -1 : 1 },
-      }
+      },
     ));
   console.log("updateRelatedRelationNumeric", {
     updatedRel,
@@ -177,26 +182,6 @@ const updateRelatedRelationLessLimit = async ({
   return relation.sort.order === "asc"
     ? relation.sort.type === "number"
       ? await updateRelatedRelationNumeric({
-          db,
-          existRelation,
-          newNumber,
-          fieldName,
-          collection,
-          updateKeyName,
-          updateId,
-          updatedDoc,
-          type: "asc",
-        })
-      : await pushRelatedRelation({
-          db,
-          collection,
-          updateId,
-          updateKeyName,
-          updatedDoc,
-          poshToTop: false,
-        })
-    : relation.sort.type === "number"
-    ? await updateRelatedRelationNumeric({
         db,
         existRelation,
         newNumber,
@@ -205,16 +190,36 @@ const updateRelatedRelationLessLimit = async ({
         updateKeyName,
         updateId,
         updatedDoc,
-        type: "desc",
+        type: "asc",
       })
-    : await pushRelatedRelation({
+      : await pushRelatedRelation({
         db,
         collection,
         updateId,
         updateKeyName,
         updatedDoc,
-        poshToTop: true,
-      });
+        poshToTop: false,
+      })
+    : relation.sort.type === "number"
+    ? await updateRelatedRelationNumeric({
+      db,
+      existRelation,
+      newNumber,
+      fieldName,
+      collection,
+      updateKeyName,
+      updateId,
+      updatedDoc,
+      type: "desc",
+    })
+    : await pushRelatedRelation({
+      db,
+      collection,
+      updateId,
+      updateKeyName,
+      updatedDoc,
+      poshToTop: true,
+    });
 };
 
 export const insertOne = async ({
@@ -259,7 +264,7 @@ export const insertOne = async ({
     const pureProjection = createProjection(
       schemasObj,
       foundedSchema.relations[rel].schemaName,
-      "Pure"
+      "Pure",
     );
 
     if (foundedSchema.relations[rel].optional) {
@@ -297,27 +302,35 @@ export const insertOne = async ({
 
         generatedDoc[`${rel}`] = pureOfFoundedSingleMainRelation;
 
-        for (const relatedRel in foundedSchema.relations[rel]
-          .relatedRelations) {
+        for (
+          const relatedRel in foundedSchema.relations[rel]
+            .relatedRelations
+        ) {
           let foundRelatedRel = [];
 
           const updateKeyName =
             foundedSchema.relations[rel].relatedRelations[relatedRel].name;
-          const relation =
+          const relatedRelation =
             foundedSchema.relations[rel].relatedRelations[relatedRel];
           const relationSchemName = foundedSchema.relations[rel].schemaName;
-          const lengthOfRel = foundedSingleMainRelation![relation.name]
-            ? foundedSingleMainRelation![relation.name].length
+          const lengthOfRel = foundedSingleMainRelation![relatedRelation.name]
+            ? foundedSingleMainRelation![relatedRelation.name].length
             : 0;
           const updateId = foundedSingleMainRelation!._id;
           const updatedDoc = { _id, ...doc };
-          const fieldName = relation.sort.field;
+          const fieldName = relatedRelation.sort
+            ? relatedRelation.sort.field
+            : "";
 
-          if (foundedSingleMainRelation![relation.name]) {
-            if (relation.limit) {
-              if (lengthOfRel < relation.limit!) {
+          if (foundedSingleMainRelation![relatedRelation.name]) {
+            if (relatedRelation.limit) {
+              if (!relatedRelation.sort) {
+                throwError("you most be set sort field");
+              }
+
+              if (lengthOfRel < relatedRelation.limit!) {
                 await updateRelatedRelationLessLimit({
-                  relation,
+                  relation: relatedRelation,
                   db,
                   updateKeyName,
                   existRelation: foundedSingleMainRelation![updateKeyName],
@@ -328,12 +341,12 @@ export const insertOne = async ({
                   updatedDoc,
                 });
               } else {
-                if (relation.sort.order === "asc") {
-                  if (relation.sort.type === "number") {
+                if (relatedRelation.sort!.order === "asc") {
+                  if (relatedRelation.sort!.type === "number") {
                     console.log(
                       "--- ==>> inside limit and with asc sort order and type is numeric",
                       {
-                        relation,
+                        relatedRelation,
                         fieldValue: doc[fieldName],
                         updateKeyName,
                         lastRelationValue:
@@ -342,13 +355,13 @@ export const insertOne = async ({
                           ][fieldName],
                         lenghtOfRelation:
                           foundedSingleMainRelation![updateKeyName].length,
-                      }
+                      },
                     );
                     if (
                       doc[fieldName] <=
-                      foundedSingleMainRelation![updateKeyName][
-                        lengthOfRel - 1
-                      ][fieldName]
+                        foundedSingleMainRelation![updateKeyName][
+                          lengthOfRel - 1
+                        ][fieldName]
                     ) {
                       await updateRelatedRelationNumeric({
                         db,
@@ -366,9 +379,9 @@ export const insertOne = async ({
                     }
                   }
                 } else {
-                  if (relation.sort.type === "number") {
+                  if (relatedRelation.sort!.type === "number") {
                     console.log("--- ==>> inside desc and sort type is num ", {
-                      relation,
+                      relatedRelation,
                       docField: doc[fieldName],
                       foundedSingleMainRelationField:
                         foundedSingleMainRelation![updateKeyName][
@@ -377,9 +390,9 @@ export const insertOne = async ({
                     });
                     if (
                       doc[fieldName] >=
-                      foundedSingleMainRelation![updateKeyName][
-                        lengthOfRel - 1
-                      ][fieldName]
+                        foundedSingleMainRelation![updateKeyName][
+                          lengthOfRel - 1
+                        ][fieldName]
                     ) {
                       await updateRelatedRelationNumeric({
                         db,
@@ -396,7 +409,10 @@ export const insertOne = async ({
                       });
                     }
                   } else {
-                    console.log("--- ==>> inside desc and not num ", relation);
+                    console.log(
+                      "--- ==>> inside desc and not num ",
+                      relatedRelation,
+                    );
                     await pushRelatedRelation({
                       db,
                       collection: relationSchemName,
@@ -410,17 +426,32 @@ export const insertOne = async ({
                 }
               }
             } else {
-              await updateRelatedRelationLessLimit({
-                relation,
-                db,
-                updateKeyName,
-                existRelation: foundedSingleMainRelation![updateKeyName],
-                newNumber: doc[relation.sort.field],
-                fieldName: relation.sort.field,
-                collection: relationSchemName,
-                updateId: foundedSingleMainRelation!._id,
-                updatedDoc: { _id, ...doc },
-              });
+              if (relatedRelation.type === "single") {
+                await insertRelatedRelationForFirstTime({
+                  db,
+                  collection: foundedSchema.relations[rel].schemaName,
+                  updateKeyName:
+                    foundedSchema.relations[rel].relatedRelations[relatedRel]
+                      .name,
+                  updateId: foundedSingleMainRelation!._id,
+                  updatedDoc: { _id, ...doc },
+                  type:
+                    foundedSchema.relations[rel].relatedRelations[relatedRel]
+                      .type,
+                });
+              } else {
+                await updateRelatedRelationLessLimit({
+                  relation: relatedRelation,
+                  db,
+                  updateKeyName,
+                  existRelation: foundedSingleMainRelation![updateKeyName],
+                  newNumber: doc[relatedRelation.sort!.field],
+                  fieldName: relatedRelation.sort!.field,
+                  collection: relationSchemName,
+                  updateId: foundedSingleMainRelation!._id,
+                  updatedDoc: { _id, ...doc },
+                });
+              }
             }
           } else {
             await insertRelatedRelationForFirstTime({
@@ -430,9 +461,13 @@ export const insertOne = async ({
                 foundedSchema.relations[rel].relatedRelations[relatedRel].name,
               updateId: foundedSingleMainRelation!._id,
               updatedDoc: { _id, ...doc },
+              type:
+                foundedSchema.relations[rel].relatedRelations[relatedRel].type,
             });
           }
         }
+      } else {
+        console.log("inside multi main relations", { foundedSchema });
       }
     }
   }

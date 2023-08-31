@@ -9,9 +9,11 @@ export interface PureFields {
   [key: string]: Struct<any>;
 }
 
+export type RelationDataType = "single" | "multiple";
+
 export type TRelation = {
   schemaName: string;
-  type: "single" | "multiple";
+  type: RelationDataType;
   optional: boolean;
   sort?: {
     field: string;
@@ -20,8 +22,9 @@ export type TRelation = {
   };
   relatedRelations: {
     name: string;
-    limit: null | number;
-    sort: {
+    type: RelationDataType;
+    limit?: null | number;
+    sort?: {
       field: string;
       order: "asc" | "desc";
       type: "number" | "date" | "objectId";
@@ -43,7 +46,7 @@ export interface IMainRelation {
    * type of relation if equal to one: this schema record one object from other schema else
    * this schema record array of object from other schema
    */
-  type: "single" | "multiple";
+  type: RelationDataType;
 
   optional: boolean;
   /**
@@ -72,13 +75,18 @@ export interface IRelatedRelation {
    */
   mainRelationName: string;
   /**
+   * type of relation if equal to one: this schema record one object from other schema else
+   * this schema record array of object from other schema
+   */
+  type: RelationDataType;
+  /**
    * number of value that we want to keep
    */
-  limit: null | number;
+  limit?: null | number;
   /**
    * sort : {field , order} - field of sort , and order of sort
    */
-  sort: {
+  sort?: {
     field: string;
     order: "asc" | "desc";
     type: "number" | "date" | "objectId";

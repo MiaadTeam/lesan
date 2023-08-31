@@ -55,9 +55,12 @@ export const newModel = (
         .relatedRelations[relatedRelation.name] = {
           mainRelationName: relation,
           schemaName: name,
-          limit: relatedRelation.limit,
-          sort: relatedRelation.sort,
+          type: relatedRelation.type,
         };
+      relatedRelation.limit && (schemas[relations[relation].schemaName]
+        .relatedRelations[relatedRelation.name].limit = relatedRelation.limit);
+      relatedRelation.sort && (schemas[relations[relation].schemaName]
+        .relatedRelations[relatedRelation.name].sort = relatedRelation.sort);
     });
   }
 
