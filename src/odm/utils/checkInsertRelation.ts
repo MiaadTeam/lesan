@@ -3,6 +3,7 @@ import { schemaFns, TSchemas } from "../../models/mod.ts";
 import { getPureFromDoc } from "./mod.ts";
 
 // TODO : refactor this code please as soon as possible
+// TODO : temporarly add ! to obj.sort so shuold be check in the futuer
 export const checkRelation = (
   schemaName: keyof TSchemas,
   schemaMainRelation: Record<string, any>,
@@ -21,8 +22,8 @@ export const checkRelation = (
         schemaName === obj.schemaName &&
         schemaMainRelation[key]["type"] === "single"
       ) {
-        if (obj.sort.type === "objectId" || obj.sort.type === "date") {
-          doc[key] && obj.sort.order === "asc"
+        if (obj.sort!.type === "objectId" || obj.sort!.type === "date") {
+          doc[key] && obj.sort!.order === "asc"
             ? await db.collection(schemaMainRelation[key]["schemaName"])
               .updateOne({
                 _id: doc[key]._id,
@@ -44,15 +45,15 @@ export const checkRelation = (
                   },
                 },
               });
-        } else if (obj.sort.type === "number") {
+        } else if (obj.sort!.type === "number") {
           // TODO : implement number strategy
         }
       } else if (
         schemaName === obj.schemaName &&
         schemaMainRelation[key]["type"] === "multiple"
       ) {
-        if (obj.sort.type === "objectId" || obj.sort.type === "date") {
-          doc[key] && obj.sort.order === "asc"
+        if (obj.sort!.type === "objectId" || obj.sort!.type === "date") {
+          doc[key] && obj.sort!.order === "asc"
             ? doc[key].forEach(async (document: any) => {
               await db.collection(schemaMainRelation[key]["schemaName"])
                 .updateOne({

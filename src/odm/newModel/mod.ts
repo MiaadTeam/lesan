@@ -50,18 +50,21 @@ export const newModel = (
     relations[relation].sort &&
       (mainRelations[relation].sort = relations[relation].sort);
 
-    relations[relation].relatedRelations.forEach((relatedRelation) => {
+    for (const relatedRelation in relations[relation].relatedRelations) {
+      const iteratedRelatedRelation =
+        relations[relation].relatedRelations[relatedRelation];
       schemas[relations[relation].schemaName]
-        .relatedRelations[relatedRelation.name] = {
+        .relatedRelations[relatedRelation] = {
           mainRelationName: relation,
           schemaName: name,
-          type: relatedRelation.type,
+          type: iteratedRelatedRelation.type,
         };
-      relatedRelation.limit && (schemas[relations[relation].schemaName]
-        .relatedRelations[relatedRelation.name].limit = relatedRelation.limit);
-      relatedRelation.sort && (schemas[relations[relation].schemaName]
-        .relatedRelations[relatedRelation.name].sort = relatedRelation.sort);
-    });
+      iteratedRelatedRelation.limit && (schemas[relations[relation].schemaName]
+        .relatedRelations[relatedRelation].limit =
+          iteratedRelatedRelation.limit);
+      iteratedRelatedRelation.sort && (schemas[relations[relation].schemaName]
+        .relatedRelations[relatedRelation].sort = iteratedRelatedRelation.sort);
+    }
   }
 
   schemas[name] = {

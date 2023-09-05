@@ -21,15 +21,16 @@ export type TRelation = {
     type: "number" | "date" | "objectId";
   };
   relatedRelations: {
-    name: string;
-    type: RelationDataType;
-    limit?: null | number;
-    sort?: {
-      field: string;
-      order: "asc" | "desc";
-      type: "number" | "date" | "objectId";
+    [key: string]: {
+      type: RelationDataType;
+      limit?: null | number;
+      sort?: {
+        field: string;
+        order: "asc" | "desc";
+        type: "number" | "date" | "objectId";
+      };
     };
-  }[];
+  };
 };
 
 /**

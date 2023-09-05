@@ -308,13 +308,11 @@ export const insertOne = async ({
         ) {
           let foundRelatedRel = [];
 
-          const updateKeyName =
-            foundedSchema.relations[rel].relatedRelations[relatedRel].name;
           const relatedRelation =
             foundedSchema.relations[rel].relatedRelations[relatedRel];
           const relationSchemName = foundedSchema.relations[rel].schemaName;
-          const lengthOfRel = foundedSingleMainRelation![relatedRelation.name]
-            ? foundedSingleMainRelation![relatedRelation.name].length
+          const lengthOfRel = foundedSingleMainRelation![relatedRel]
+            ? foundedSingleMainRelation![relatedRel].length
             : 0;
           const updateId = foundedSingleMainRelation!._id;
           const updatedDoc = { _id, ...doc };
@@ -322,7 +320,7 @@ export const insertOne = async ({
             ? relatedRelation.sort.field
             : "";
 
-          if (foundedSingleMainRelation![relatedRelation.name]) {
+          if (foundedSingleMainRelation![relatedRel]) {
             if (relatedRelation.limit) {
               if (!relatedRelation.sort) {
                 throwError("you most be set sort field");
@@ -332,8 +330,8 @@ export const insertOne = async ({
                 await updateRelatedRelationLessLimit({
                   relation: relatedRelation,
                   db,
-                  updateKeyName,
-                  existRelation: foundedSingleMainRelation![updateKeyName],
+                  updateKeyName: relatedRel,
+                  existRelation: foundedSingleMainRelation![relatedRel],
                   newNumber: doc[fieldName],
                   fieldName,
                   collection: relationSchemName,
@@ -348,26 +346,25 @@ export const insertOne = async ({
                       {
                         relatedRelation,
                         fieldValue: doc[fieldName],
-                        updateKeyName,
+                        updateKeyName: relatedRel,
                         lastRelationValue:
-                          foundedSingleMainRelation![updateKeyName][
-                            foundedSingleMainRelation![updateKeyName].length - 1
+                          foundedSingleMainRelation![relatedRel][
+                            foundedSingleMainRelation![relatedRel].length - 1
                           ][fieldName],
                         lenghtOfRelation:
-                          foundedSingleMainRelation![updateKeyName].length,
+                          foundedSingleMainRelation![relatedRel].length,
                       },
                     );
                     if (
                       doc[fieldName] <=
-                        foundedSingleMainRelation![updateKeyName][
+                        foundedSingleMainRelation![relatedRel][
                           lengthOfRel - 1
                         ][fieldName]
                     ) {
                       await updateRelatedRelationNumeric({
                         db,
-                        updateKeyName,
-                        existRelation:
-                          foundedSingleMainRelation![updateKeyName],
+                        updateKeyName: relatedRel,
+                        existRelation: foundedSingleMainRelation![relatedRel],
                         newNumber: doc[fieldName],
                         fieldName,
                         collection: relationSchemName,
@@ -384,21 +381,20 @@ export const insertOne = async ({
                       relatedRelation,
                       docField: doc[fieldName],
                       foundedSingleMainRelationField:
-                        foundedSingleMainRelation![updateKeyName][
+                        foundedSingleMainRelation![relatedRel][
                           lengthOfRel - 1
                         ][fieldName],
                     });
                     if (
                       doc[fieldName] >=
-                        foundedSingleMainRelation![updateKeyName][
+                        foundedSingleMainRelation![relatedRel][
                           lengthOfRel - 1
                         ][fieldName]
                     ) {
                       await updateRelatedRelationNumeric({
                         db,
-                        updateKeyName,
-                        existRelation:
-                          foundedSingleMainRelation![updateKeyName],
+                        updateKeyName: relatedRel,
+                        existRelation: foundedSingleMainRelation![relatedRel],
                         newNumber: doc[fieldName],
                         fieldName,
                         collection: relationSchemName,
@@ -416,7 +412,7 @@ export const insertOne = async ({
                     await pushRelatedRelation({
                       db,
                       collection: relationSchemName,
-                      updateKeyName,
+                      updateKeyName: relatedRel,
                       updateId,
                       updatedDoc,
                       poshToTop: true,
@@ -430,9 +426,7 @@ export const insertOne = async ({
                 await insertRelatedRelationForFirstTime({
                   db,
                   collection: foundedSchema.relations[rel].schemaName,
-                  updateKeyName:
-                    foundedSchema.relations[rel].relatedRelations[relatedRel]
-                      .name,
+                  updateKeyName: relatedRel,
                   updateId: foundedSingleMainRelation!._id,
                   updatedDoc: { _id, ...doc },
                   type:
@@ -443,8 +437,8 @@ export const insertOne = async ({
                 await updateRelatedRelationLessLimit({
                   relation: relatedRelation,
                   db,
-                  updateKeyName,
-                  existRelation: foundedSingleMainRelation![updateKeyName],
+                  updateKeyName: relatedRel,
+                  existRelation: foundedSingleMainRelation![relatedRel],
                   newNumber: doc[relatedRelation.sort!.field],
                   fieldName: relatedRelation.sort!.field,
                   collection: relationSchemName,
@@ -457,8 +451,7 @@ export const insertOne = async ({
             await insertRelatedRelationForFirstTime({
               db,
               collection: foundedSchema.relations[rel].schemaName,
-              updateKeyName:
-                foundedSchema.relations[rel].relatedRelations[relatedRel].name,
+              updateKeyName: relatedRel,
               updateId: foundedSingleMainRelation!._id,
               updatedDoc: { _id, ...doc },
               type:

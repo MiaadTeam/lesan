@@ -32,9 +32,9 @@ export const updateById = async ({
       db,
       schemasObj,
       collection,
-      pipline: [{ $match: { _id } }],
-      get,
-    });
+      pipeline: [{ $match: { _id } }],
+      projection: get,
+    }).toArray();
 
   const updatedData = await db.collection(collection).updateOne(
     { _id },

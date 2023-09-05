@@ -24,9 +24,9 @@ export const deleteById = async ({
       db,
       schemasObj,
       collection,
-      pipline: [{ $match: { _id } }],
-      get,
-    });
+      pipeline: [{ $match: { _id } }],
+      projection: get,
+    }).toArray();
 
   const deletedData = await db.collection(collection).deleteOne(
     { _id },
