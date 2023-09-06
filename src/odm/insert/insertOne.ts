@@ -413,7 +413,7 @@ export const insertOne = async ({
 
   const newObjId = new ObjectId();
 
-  const generatedDoc: Record<string, any> = { newObjId, ...doc };
+  const generatedDoc: Record<string, any> = { _id: newObjId, ...doc };
 
   const insertedQQ = await db.collection("QQ").insertOne({
     type: "insertOne",
