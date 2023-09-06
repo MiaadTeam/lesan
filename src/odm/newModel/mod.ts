@@ -22,7 +22,7 @@ import { deleteById } from "../delete/deleteById.ts";
 import { aggregation } from "../find/aggregation.ts";
 import { find } from "../find/find.ts";
 import { findOne } from "../find/findOne.ts";
-import { insertOne } from "../insert/insertOne.ts";
+import { insertOne, TInsertRelations } from "../insert/insertOne.ts";
 import { updateById } from "../update/updateById.ts";
 import { updateOne } from "../update/updateOne.ts";
 
@@ -92,7 +92,7 @@ export const newModel = (
     insertOne: (
       { doc, relations, options, projection }: {
         doc: InsertDocument<Bson.Document>;
-        relations?: Record<string, ObjectId | ObjectId[]>;
+        relations?: TInsertRelations;
         options?: InsertOptions;
         projection?: Projection;
       },

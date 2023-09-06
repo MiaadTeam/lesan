@@ -222,6 +222,174 @@ const updateRelatedRelationLessLimit = async ({
     });
 };
 
+const proccessRelatedRelation = async ({
+  db,
+  relatedRelation,
+  relatedRel,
+  lengthOfRel,
+  fieldName,
+  updateId,
+  updatedDoc,
+  collection,
+  doc,
+  foundedSingleMainRelation,
+  foundedSchema,
+  rel,
+  newObjId,
+}: {
+  db: any;
+  relatedRelation: any;
+  lengthOfRel: number;
+
+  fieldName: string;
+  collection: string;
+  relatedRel: string;
+  updateId: ObjectId;
+  updatedDoc: Bson.Document;
+
+  doc: any;
+  foundedSingleMainRelation: any;
+  foundedSchema: any;
+  rel: any;
+  newObjId: ObjectId;
+}) => {
+  if (relatedRelation.limit) {
+    if (!relatedRelation.sort) {
+      throwError("you most be set sort field");
+    }
+    if (relatedRelation.type !== "multiple") {
+      throwError("you most be set relation type to multiple");
+    }
+
+    if (lengthOfRel < relatedRelation.limit!) {
+      await updateRelatedRelationLessLimit({
+        relation: relatedRelation,
+        db,
+        updateKeyName: relatedRel,
+        existRelation: foundedSingleMainRelation![relatedRel],
+        newNumber: doc[fieldName],
+        fieldName,
+        collection,
+        updateId,
+        updatedDoc,
+      });
+    } else {
+      if (relatedRelation.sort!.order === "asc") {
+        if (relatedRelation.sort!.type === "number") {
+          console.log(
+            "--- ==>> inside limit and with asc sort order and type is numeric",
+            {
+              relatedRelation,
+              fieldValue: doc[fieldName],
+              updateKeyName: relatedRel,
+              lastRelationValue: foundedSingleMainRelation![relatedRel][
+                foundedSingleMainRelation![relatedRel].length - 1
+              ][fieldName],
+              lenghtOfRelation: foundedSingleMainRelation![relatedRel].length,
+            },
+          );
+          if (
+            doc[fieldName] <=
+              foundedSingleMainRelation![relatedRel][
+                lengthOfRel - 1
+              ][fieldName]
+          ) {
+            await updateRelatedRelationNumeric({
+              db,
+              updateKeyName: relatedRel,
+              existRelation: foundedSingleMainRelation![relatedRel],
+              newNumber: doc[fieldName],
+              fieldName,
+              collection,
+              updateId,
+              updatedDoc,
+              type: "asc",
+              pop: "last",
+            });
+          }
+        }
+      } else {
+        if (relatedRelation.sort!.type === "number") {
+          console.log("--- ==>> inside desc and sort type is num ", {
+            relatedRelation,
+            docField: doc[fieldName],
+            foundedSingleMainRelationField:
+              foundedSingleMainRelation![relatedRel][
+                lengthOfRel - 1
+              ][fieldName],
+          });
+          if (
+            doc[fieldName] >=
+              foundedSingleMainRelation![relatedRel][
+                lengthOfRel - 1
+              ][fieldName]
+          ) {
+            await updateRelatedRelationNumeric({
+              db,
+              updateKeyName: relatedRel,
+              existRelation: foundedSingleMainRelation![relatedRel],
+              newNumber: doc[fieldName],
+              fieldName,
+              collection,
+              updateId,
+              updatedDoc,
+              type: "desc",
+              pop: "last",
+            });
+          }
+        } else {
+          console.log(
+            "--- ==>> inside desc and not num ",
+            relatedRelation,
+          );
+          await pushRelatedRelation({
+            db,
+            collection,
+            updateKeyName: relatedRel,
+            updateId,
+            updatedDoc,
+            poshToTop: true,
+            popLast: true,
+          });
+        }
+      }
+    }
+  } else {
+    if (relatedRelation.type === "single") {
+      await insertRelatedRelationForFirstTime({
+        db,
+        collection: foundedSchema.relations[rel].schemaName,
+        updateKeyName: relatedRel,
+        updateId: foundedSingleMainRelation!._id,
+        updatedDoc: { _id: newObjId, ...doc },
+        type: foundedSchema.relations[rel].relatedRelations[relatedRel]
+          .type,
+      });
+    } else {
+      await updateRelatedRelationLessLimit({
+        relation: relatedRelation,
+        db,
+        updateKeyName: relatedRel,
+        existRelation: foundedSingleMainRelation![relatedRel],
+        newNumber: doc[relatedRelation.sort!.field],
+        fieldName: relatedRelation.sort!.field,
+        collection,
+        updateId: foundedSingleMainRelation!._id,
+        updatedDoc: { _id: newObjId, ...doc },
+      });
+    }
+  }
+};
+
+export type TInsertRelations = {
+  [key: string]: {
+    _ids: ObjectId | ObjectId[];
+    relatedRelations?: {
+      [key: string]: boolean;
+    };
+  };
+};
+
 export const insertOne = async ({
   db,
   schemasObj,
@@ -235,7 +403,7 @@ export const insertOne = async ({
   schemasObj: TSchemas;
   collection: string;
   doc: InsertDocument<Bson.Document>;
-  relations?: Record<string, ObjectId | ObjectId[]>;
+  relations?: TInsertRelations;
   options?: InsertOptions;
   projection?: Projection;
 }) => {
@@ -243,9 +411,9 @@ export const insertOne = async ({
 
   const populatedMainRelations = [];
 
-  const _id = new ObjectId();
+  const newObjId = new ObjectId();
 
-  const generatedDoc: Record<string, any> = { _id, ...doc };
+  const generatedDoc: Record<string, any> = { newObjId, ...doc };
 
   const insertedQQ = await db.collection("QQ").insertOne({
     type: "insertOne",
@@ -273,24 +441,24 @@ export const insertOne = async ({
         const foundedSingleRelation = await findOne({
           db,
           collection: foundedSchema.relations[rel].schemaName,
-          filters: { _id: relations![rel] },
+          filters: { _id: relations![rel]._ids },
           projection: pureProjection,
         });
       }
     } else {
       if (relations![rel] === undefined) {
-        throwError(`can not find this relatation : ${relations![rel]}`);
+        throwError(`can not find this relatation : ${rel}`);
       }
 
       if (foundedSchema.relations[rel].type === "single") {
         const foundedSingleMainRelation = await findOne({
           db,
           collection: foundedSchema.relations[rel].schemaName,
-          filters: { _id: relations![rel] },
+          filters: { _id: relations![rel]._ids },
         });
 
         if (!foundedSingleMainRelation) {
-          throwError(`can not find this relatation : ${relations![rel]}`);
+          throwError(`can not find this relatation : ${rel}`);
         }
 
         const pureOfFoundedSingleMainRelation: Record<string, any> = {};
@@ -306,157 +474,49 @@ export const insertOne = async ({
           const relatedRel in foundedSchema.relations[rel]
             .relatedRelations
         ) {
-          let foundRelatedRel = [];
-
           const relatedRelation =
             foundedSchema.relations[rel].relatedRelations[relatedRel];
           const relationSchemName = foundedSchema.relations[rel].schemaName;
-          const lengthOfRel = foundedSingleMainRelation![relatedRel]
+          const lengthOfRel: number = foundedSingleMainRelation![relatedRel]
             ? foundedSingleMainRelation![relatedRel].length
             : 0;
-          const updateId = foundedSingleMainRelation!._id;
-          const updatedDoc = { _id, ...doc };
+          const updateId: ObjectId = foundedSingleMainRelation!._id;
+          const updatedDoc = { _id: newObjId, ...doc };
           const fieldName = relatedRelation.sort
             ? relatedRelation.sort.field
             : "";
 
-          if (foundedSingleMainRelation![relatedRel]) {
-            if (relatedRelation.limit) {
-              if (!relatedRelation.sort) {
-                throwError("you most be set sort field");
-              }
-
-              if (lengthOfRel < relatedRelation.limit!) {
-                await updateRelatedRelationLessLimit({
-                  relation: relatedRelation,
-                  db,
-                  updateKeyName: relatedRel,
-                  existRelation: foundedSingleMainRelation![relatedRel],
-                  newNumber: doc[fieldName],
-                  fieldName,
-                  collection: relationSchemName,
-                  updateId,
-                  updatedDoc,
-                });
-              } else {
-                if (relatedRelation.sort!.order === "asc") {
-                  if (relatedRelation.sort!.type === "number") {
-                    console.log(
-                      "--- ==>> inside limit and with asc sort order and type is numeric",
-                      {
-                        relatedRelation,
-                        fieldValue: doc[fieldName],
-                        updateKeyName: relatedRel,
-                        lastRelationValue:
-                          foundedSingleMainRelation![relatedRel][
-                            foundedSingleMainRelation![relatedRel].length - 1
-                          ][fieldName],
-                        lenghtOfRelation:
-                          foundedSingleMainRelation![relatedRel].length,
-                      },
-                    );
-                    if (
-                      doc[fieldName] <=
-                        foundedSingleMainRelation![relatedRel][
-                          lengthOfRel - 1
-                        ][fieldName]
-                    ) {
-                      await updateRelatedRelationNumeric({
-                        db,
-                        updateKeyName: relatedRel,
-                        existRelation: foundedSingleMainRelation![relatedRel],
-                        newNumber: doc[fieldName],
-                        fieldName,
-                        collection: relationSchemName,
-                        updateId,
-                        updatedDoc,
-                        type: "asc",
-                        pop: "last",
-                      });
-                    }
-                  }
-                } else {
-                  if (relatedRelation.sort!.type === "number") {
-                    console.log("--- ==>> inside desc and sort type is num ", {
-                      relatedRelation,
-                      docField: doc[fieldName],
-                      foundedSingleMainRelationField:
-                        foundedSingleMainRelation![relatedRel][
-                          lengthOfRel - 1
-                        ][fieldName],
-                    });
-                    if (
-                      doc[fieldName] >=
-                        foundedSingleMainRelation![relatedRel][
-                          lengthOfRel - 1
-                        ][fieldName]
-                    ) {
-                      await updateRelatedRelationNumeric({
-                        db,
-                        updateKeyName: relatedRel,
-                        existRelation: foundedSingleMainRelation![relatedRel],
-                        newNumber: doc[fieldName],
-                        fieldName,
-                        collection: relationSchemName,
-                        updateId,
-                        updatedDoc,
-                        type: "desc",
-                        pop: "last",
-                      });
-                    }
-                  } else {
-                    console.log(
-                      "--- ==>> inside desc and not num ",
-                      relatedRelation,
-                    );
-                    await pushRelatedRelation({
-                      db,
-                      collection: relationSchemName,
-                      updateKeyName: relatedRel,
-                      updateId,
-                      updatedDoc,
-                      poshToTop: true,
-                      popLast: true,
-                    });
-                  }
-                }
-              }
+          if (
+            relations && relations[rel] && relations[rel].relatedRelations &&
+            relations[rel].relatedRelations![relatedRel] === true
+          ) {
+            if (foundedSingleMainRelation![relatedRel]) {
+              await proccessRelatedRelation({
+                db,
+                relatedRelation,
+                relatedRel,
+                lengthOfRel,
+                fieldName,
+                updateId,
+                updatedDoc,
+                collection: relationSchemName,
+                doc,
+                foundedSingleMainRelation,
+                foundedSchema,
+                rel,
+                newObjId,
+              });
             } else {
-              if (relatedRelation.type === "single") {
-                await insertRelatedRelationForFirstTime({
-                  db,
-                  collection: foundedSchema.relations[rel].schemaName,
-                  updateKeyName: relatedRel,
-                  updateId: foundedSingleMainRelation!._id,
-                  updatedDoc: { _id, ...doc },
-                  type:
-                    foundedSchema.relations[rel].relatedRelations[relatedRel]
-                      .type,
-                });
-              } else {
-                await updateRelatedRelationLessLimit({
-                  relation: relatedRelation,
-                  db,
-                  updateKeyName: relatedRel,
-                  existRelation: foundedSingleMainRelation![relatedRel],
-                  newNumber: doc[relatedRelation.sort!.field],
-                  fieldName: relatedRelation.sort!.field,
-                  collection: relationSchemName,
-                  updateId: foundedSingleMainRelation!._id,
-                  updatedDoc: { _id, ...doc },
-                });
-              }
+              await insertRelatedRelationForFirstTime({
+                db,
+                collection: foundedSchema.relations[rel].schemaName,
+                updateKeyName: relatedRel,
+                updateId: foundedSingleMainRelation!._id,
+                updatedDoc: { newObjId, ...doc },
+                type: foundedSchema.relations[rel].relatedRelations[relatedRel]
+                  .type,
+              });
             }
-          } else {
-            await insertRelatedRelationForFirstTime({
-              db,
-              collection: foundedSchema.relations[rel].schemaName,
-              updateKeyName: relatedRel,
-              updateId: foundedSingleMainRelation!._id,
-              updatedDoc: { _id, ...doc },
-              type:
-                foundedSchema.relations[rel].relatedRelations[relatedRel].type,
-            });
           }
         }
       } else {
