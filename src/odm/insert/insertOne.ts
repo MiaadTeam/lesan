@@ -11,6 +11,7 @@ import { schemaFns, TSchemas } from "../../models/mod.ts";
 import { getNumericPosition } from "../../utils/getNumericPosition.ts";
 import { throwError } from "../../utils/mod.ts";
 import { Projection } from "../aggregation/type.ts";
+import { find } from "../find/find.ts";
 import { findOne } from "../find/findOne.ts";
 
 const insertRelatedRelationForFirstTime = async ({
@@ -512,7 +513,7 @@ export const insertOne = async ({
                 collection: foundedSchema.relations[rel].schemaName,
                 updateKeyName: relatedRel,
                 updateId: foundedSingleMainRelation!._id,
-                updatedDoc: { newObjId, ...doc },
+                updatedDoc: { _id: newObjId, ...doc },
                 type: foundedSchema.relations[rel].relatedRelations[relatedRel]
                   .type,
               });
@@ -520,7 +521,109 @@ export const insertOne = async ({
           }
         }
       } else {
-        console.log("inside multi main relations", { foundedSchema });
+        console.log("inside multi main relations", {
+          foundedSchema,
+          relations,
+        });
+
+        const foundedMultiMainRelation = await find({
+          db,
+          collection: foundedSchema.relations[rel].schemaName,
+          filters: { _id: { "$in": relations![rel]._ids } },
+        }).toArray();
+
+        if (!foundedMultiMainRelation) {
+          throwError(`can not find this relatation : ${rel}`);
+        }
+
+        if (
+          foundedMultiMainRelation.length !==
+            (relations![rel]._ids as ObjectId[]).length
+        ) {
+          throwError(`we have problem with this relatation : ${rel}`);
+        }
+
+        const filterByObject = (
+          array: Record<string, any>[],
+          filter: object,
+        ) => {
+          const filtered: Record<string, any>[] = [];
+          for (const obj of array) {
+            const newObj: Record<string, any> = {};
+            for (const key in filter) {
+              newObj[key] = obj[key];
+            }
+            filtered.push(newObj);
+          }
+          return filtered;
+        };
+
+        const pureOfFoundedMultiMainRelation = filterByObject(
+          foundedMultiMainRelation,
+          pureProjection,
+        );
+
+        console.log(
+          "pureOfFoundedMultiMainRelation ",
+          "foundedMultiMainRelation",
+          pureOfFoundedMultiMainRelation,
+          foundedMultiMainRelation,
+        );
+
+        generatedDoc[`${rel}`] = pureOfFoundedMultiMainRelation;
+
+        for (
+          const relatedRel in foundedSchema.relations[rel]
+            .relatedRelations
+        ) {
+          const relatedRelation =
+            foundedSchema.relations[rel].relatedRelations[relatedRel];
+          const relationSchemName = foundedSchema.relations[rel].schemaName;
+          const updatedDoc = { _id: newObjId, ...doc };
+          const fieldName = relatedRelation.sort
+            ? relatedRelation.sort.field
+            : "";
+          foundedMultiMainRelation.forEach(async (FMR) => {
+            if (
+              relations && relations[rel] && relations[rel].relatedRelations &&
+              relations[rel].relatedRelations![relatedRel] === true
+            ) {
+              const lengthOfRel: number = FMR![relatedRel]
+                ? FMR![relatedRel].length
+                : 0;
+              const updateId: ObjectId = FMR._id;
+
+              if (FMR![relatedRel]) {
+                await proccessRelatedRelation({
+                  db,
+                  relatedRelation,
+                  relatedRel,
+                  lengthOfRel,
+                  fieldName,
+                  updateId,
+                  updatedDoc,
+                  collection: relationSchemName,
+                  doc,
+                  foundedSingleMainRelation: FMR,
+                  foundedSchema,
+                  rel,
+                  newObjId,
+                });
+              } else {
+                await insertRelatedRelationForFirstTime({
+                  db,
+                  collection: foundedSchema.relations[rel].schemaName,
+                  updateKeyName: relatedRel,
+                  updateId: FMR._id,
+                  updatedDoc: { _id: newObjId, ...doc },
+                  type:
+                    foundedSchema.relations[rel].relatedRelations[relatedRel]
+                      .type,
+                });
+              }
+            }
+          });
+        }
       }
     }
   }
