@@ -382,6 +382,202 @@ const proccessRelatedRelation = async ({
   }
 };
 
+const handleMultiRelation = async ({
+  db,
+  foundedSchema,
+  relations,
+  rel,
+  pureProjection,
+  generatedDoc,
+  newObjId,
+  doc,
+}: {
+  db: any;
+  foundedSchema: any;
+  relations: any;
+  rel: any;
+  pureProjection: any;
+  generatedDoc: any;
+  newObjId: any;
+  doc: any;
+}) => {
+  const foundedMultiMainRelation = await find({
+    db,
+    collection: foundedSchema.relations[rel].schemaName,
+    filters: { _id: { "$in": relations![rel]._ids } },
+  }).toArray();
+
+  if (!foundedMultiMainRelation) {
+    throwError(`can not find this relatation : ${rel}`);
+  }
+
+  if (
+    foundedMultiMainRelation.length !==
+      (relations![rel]._ids as ObjectId[]).length
+  ) {
+    throwError(`we have problem with this relatation : ${rel}`);
+  }
+
+  const filterByObject = (
+    array: Record<string, any>[],
+    filter: object,
+  ) => {
+    const filtered: Record<string, any>[] = [];
+    for (const obj of array) {
+      const newObj: Record<string, any> = {};
+      for (const key in filter) {
+        newObj[key] = obj[key];
+      }
+      filtered.push(newObj);
+    }
+    return filtered;
+  };
+
+  const pureOfFoundedMultiMainRelation = filterByObject(
+    foundedMultiMainRelation,
+    pureProjection,
+  );
+
+  generatedDoc[`${rel}`] = pureOfFoundedMultiMainRelation;
+
+  for (
+    const relatedRel in foundedSchema.relations[rel]
+      .relatedRelations
+  ) {
+    const relatedRelation =
+      foundedSchema.relations[rel].relatedRelations[relatedRel];
+    const relationSchemName = foundedSchema.relations[rel].schemaName;
+    const updatedDoc = { _id: newObjId, ...doc };
+    const fieldName = relatedRelation.sort ? relatedRelation.sort.field : "";
+    foundedMultiMainRelation.forEach(async (FMR) => {
+      if (
+        relations && relations[rel] && relations[rel].relatedRelations &&
+        relations[rel].relatedRelations![relatedRel] === true
+      ) {
+        const lengthOfRel: number = FMR![relatedRel]
+          ? FMR![relatedRel].length
+          : 0;
+        const updateId: ObjectId = FMR._id;
+
+        if (FMR![relatedRel]) {
+          await proccessRelatedRelation({
+            db,
+            relatedRelation,
+            relatedRel,
+            lengthOfRel,
+            fieldName,
+            updateId,
+            updatedDoc,
+            collection: relationSchemName,
+            doc,
+            foundedSingleMainRelation: FMR,
+            foundedSchema,
+            rel,
+            newObjId,
+          });
+        } else {
+          await insertRelatedRelationForFirstTime({
+            db,
+            collection: foundedSchema.relations[rel].schemaName,
+            updateKeyName: relatedRel,
+            updateId: FMR._id,
+            updatedDoc: { _id: newObjId, ...doc },
+            type: foundedSchema.relations[rel].relatedRelations[relatedRel]
+              .type,
+          });
+        }
+      }
+    });
+  }
+};
+
+const handleSingleRelation = async ({
+  db,
+  relations,
+  rel,
+  foundedSchema,
+  pureProjection,
+  generatedDoc,
+  newObjId,
+  doc,
+}: {
+  db: any;
+  relations: any;
+  rel: any;
+  foundedSchema: any;
+  pureProjection: any;
+  generatedDoc: any;
+  newObjId: any;
+  doc: any;
+}) => {
+  const foundedSingleMainRelation = await findOne({
+    db,
+    collection: foundedSchema.relations[rel].schemaName,
+    filters: { _id: relations![rel]._ids },
+  });
+
+  if (!foundedSingleMainRelation) {
+    throwError(`can not find this relatation : ${rel}`);
+  }
+
+  const pureOfFoundedSingleMainRelation: Record<string, any> = {};
+
+  for (const pureKey in pureProjection) {
+    pureOfFoundedSingleMainRelation[pureKey] =
+      foundedSingleMainRelation![pureKey];
+  }
+
+  generatedDoc[`${rel}`] = pureOfFoundedSingleMainRelation;
+
+  for (
+    const relatedRel in foundedSchema.relations[rel]
+      .relatedRelations
+  ) {
+    const relatedRelation =
+      foundedSchema.relations[rel].relatedRelations[relatedRel];
+    const relationSchemName = foundedSchema.relations[rel].schemaName;
+    const lengthOfRel: number = foundedSingleMainRelation![relatedRel]
+      ? foundedSingleMainRelation![relatedRel].length
+      : 0;
+    const updateId: ObjectId = foundedSingleMainRelation!._id;
+    const updatedDoc = { _id: newObjId, ...doc };
+    const fieldName = relatedRelation.sort ? relatedRelation.sort.field : "";
+
+    if (
+      relations && relations[rel] && relations[rel].relatedRelations &&
+      relations[rel].relatedRelations![relatedRel] === true
+    ) {
+      if (foundedSingleMainRelation![relatedRel]) {
+        await proccessRelatedRelation({
+          db,
+          relatedRelation,
+          relatedRel,
+          lengthOfRel,
+          fieldName,
+          updateId,
+          updatedDoc,
+          collection: relationSchemName,
+          doc,
+          foundedSingleMainRelation,
+          foundedSchema,
+          rel,
+          newObjId,
+        });
+      } else {
+        await insertRelatedRelationForFirstTime({
+          db,
+          collection: foundedSchema.relations[rel].schemaName,
+          updateKeyName: relatedRel,
+          updateId: foundedSingleMainRelation!._id,
+          updatedDoc: { _id: newObjId, ...doc },
+          type: foundedSchema.relations[rel].relatedRelations[relatedRel]
+            .type,
+        });
+      }
+    }
+  }
+};
+
 export type TInsertRelations = {
   [key: string]: {
     _ids: ObjectId | ObjectId[];
@@ -389,6 +585,55 @@ export type TInsertRelations = {
       [key: string]: boolean;
     };
   };
+};
+
+const handleInsertOne = async ({
+  db,
+  relations,
+  rel,
+  foundedSchema,
+  pureProjection,
+  generatedDoc,
+  newObjId,
+  doc,
+}: {
+  db: any;
+  relations: any;
+  rel: any;
+  foundedSchema: any;
+  pureProjection: any;
+  generatedDoc: any;
+  newObjId: any;
+  doc: any;
+}) => {
+  if (foundedSchema.relations[rel].type === "single") {
+    await handleSingleRelation({
+      db,
+      relations,
+      rel,
+      foundedSchema,
+      pureProjection,
+      generatedDoc,
+      newObjId,
+      doc,
+    });
+  } else {
+    console.log("inside multi main relations", {
+      foundedSchema,
+      relations,
+    });
+
+    await handleMultiRelation({
+      db,
+      foundedSchema,
+      relations,
+      rel,
+      pureProjection,
+      generatedDoc,
+      newObjId,
+      doc,
+    });
+  }
 };
 
 export const insertOne = async ({
@@ -437,194 +682,32 @@ export const insertOne = async ({
     );
 
     if (foundedSchema.relations[rel].optional) {
-      // TODO we do not completed here ... should be check if it exists do anything its needs
-      if (foundedSchema.relations[rel].type === "single") {
-        const foundedSingleRelation = await findOne({
+      if (relations && relations[rel]) {
+        await handleInsertOne({
           db,
-          collection: foundedSchema.relations[rel].schemaName,
-          filters: { _id: relations![rel]._ids },
-          projection: pureProjection,
+          relations,
+          rel,
+          foundedSchema,
+          pureProjection,
+          generatedDoc,
+          newObjId,
+          doc,
         });
       }
     } else {
-      if (relations![rel] === undefined) {
+      if (relations === undefined || relations[rel] === undefined) {
         throwError(`can not find this relatation : ${rel}`);
       }
-
-      if (foundedSchema.relations[rel].type === "single") {
-        const foundedSingleMainRelation = await findOne({
-          db,
-          collection: foundedSchema.relations[rel].schemaName,
-          filters: { _id: relations![rel]._ids },
-        });
-
-        if (!foundedSingleMainRelation) {
-          throwError(`can not find this relatation : ${rel}`);
-        }
-
-        const pureOfFoundedSingleMainRelation: Record<string, any> = {};
-
-        for (const pureKey in pureProjection) {
-          pureOfFoundedSingleMainRelation[pureKey] =
-            foundedSingleMainRelation![pureKey];
-        }
-
-        generatedDoc[`${rel}`] = pureOfFoundedSingleMainRelation;
-
-        for (
-          const relatedRel in foundedSchema.relations[rel]
-            .relatedRelations
-        ) {
-          const relatedRelation =
-            foundedSchema.relations[rel].relatedRelations[relatedRel];
-          const relationSchemName = foundedSchema.relations[rel].schemaName;
-          const lengthOfRel: number = foundedSingleMainRelation![relatedRel]
-            ? foundedSingleMainRelation![relatedRel].length
-            : 0;
-          const updateId: ObjectId = foundedSingleMainRelation!._id;
-          const updatedDoc = { _id: newObjId, ...doc };
-          const fieldName = relatedRelation.sort
-            ? relatedRelation.sort.field
-            : "";
-
-          if (
-            relations && relations[rel] && relations[rel].relatedRelations &&
-            relations[rel].relatedRelations![relatedRel] === true
-          ) {
-            if (foundedSingleMainRelation![relatedRel]) {
-              await proccessRelatedRelation({
-                db,
-                relatedRelation,
-                relatedRel,
-                lengthOfRel,
-                fieldName,
-                updateId,
-                updatedDoc,
-                collection: relationSchemName,
-                doc,
-                foundedSingleMainRelation,
-                foundedSchema,
-                rel,
-                newObjId,
-              });
-            } else {
-              await insertRelatedRelationForFirstTime({
-                db,
-                collection: foundedSchema.relations[rel].schemaName,
-                updateKeyName: relatedRel,
-                updateId: foundedSingleMainRelation!._id,
-                updatedDoc: { _id: newObjId, ...doc },
-                type: foundedSchema.relations[rel].relatedRelations[relatedRel]
-                  .type,
-              });
-            }
-          }
-        }
-      } else {
-        console.log("inside multi main relations", {
-          foundedSchema,
-          relations,
-        });
-
-        const foundedMultiMainRelation = await find({
-          db,
-          collection: foundedSchema.relations[rel].schemaName,
-          filters: { _id: { "$in": relations![rel]._ids } },
-        }).toArray();
-
-        if (!foundedMultiMainRelation) {
-          throwError(`can not find this relatation : ${rel}`);
-        }
-
-        if (
-          foundedMultiMainRelation.length !==
-            (relations![rel]._ids as ObjectId[]).length
-        ) {
-          throwError(`we have problem with this relatation : ${rel}`);
-        }
-
-        const filterByObject = (
-          array: Record<string, any>[],
-          filter: object,
-        ) => {
-          const filtered: Record<string, any>[] = [];
-          for (const obj of array) {
-            const newObj: Record<string, any> = {};
-            for (const key in filter) {
-              newObj[key] = obj[key];
-            }
-            filtered.push(newObj);
-          }
-          return filtered;
-        };
-
-        const pureOfFoundedMultiMainRelation = filterByObject(
-          foundedMultiMainRelation,
-          pureProjection,
-        );
-
-        console.log(
-          "pureOfFoundedMultiMainRelation ",
-          "foundedMultiMainRelation",
-          pureOfFoundedMultiMainRelation,
-          foundedMultiMainRelation,
-        );
-
-        generatedDoc[`${rel}`] = pureOfFoundedMultiMainRelation;
-
-        for (
-          const relatedRel in foundedSchema.relations[rel]
-            .relatedRelations
-        ) {
-          const relatedRelation =
-            foundedSchema.relations[rel].relatedRelations[relatedRel];
-          const relationSchemName = foundedSchema.relations[rel].schemaName;
-          const updatedDoc = { _id: newObjId, ...doc };
-          const fieldName = relatedRelation.sort
-            ? relatedRelation.sort.field
-            : "";
-          foundedMultiMainRelation.forEach(async (FMR) => {
-            if (
-              relations && relations[rel] && relations[rel].relatedRelations &&
-              relations[rel].relatedRelations![relatedRel] === true
-            ) {
-              const lengthOfRel: number = FMR![relatedRel]
-                ? FMR![relatedRel].length
-                : 0;
-              const updateId: ObjectId = FMR._id;
-
-              if (FMR![relatedRel]) {
-                await proccessRelatedRelation({
-                  db,
-                  relatedRelation,
-                  relatedRel,
-                  lengthOfRel,
-                  fieldName,
-                  updateId,
-                  updatedDoc,
-                  collection: relationSchemName,
-                  doc,
-                  foundedSingleMainRelation: FMR,
-                  foundedSchema,
-                  rel,
-                  newObjId,
-                });
-              } else {
-                await insertRelatedRelationForFirstTime({
-                  db,
-                  collection: foundedSchema.relations[rel].schemaName,
-                  updateKeyName: relatedRel,
-                  updateId: FMR._id,
-                  updatedDoc: { _id: newObjId, ...doc },
-                  type:
-                    foundedSchema.relations[rel].relatedRelations[relatedRel]
-                      .type,
-                });
-              }
-            }
-          });
-        }
-      }
+      await handleInsertOne({
+        db,
+        relations,
+        rel,
+        foundedSchema,
+        pureProjection,
+        generatedDoc,
+        newObjId,
+        doc,
+      });
     }
   }
 
