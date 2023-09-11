@@ -1913,7 +1913,7 @@ function E2E({ baseUrl  }) {
                     ...copy
                 ]);
             }
-        }, "add capture variable item"), e2eForm.captures.map((capture, capId)=>Z(N, null, Z("div", {
+        }, "add capture"), e2eForm.captures.map((capture, capId)=>Z(N, null, Z("div", {
                 className: "sidebar__section-add-capture"
             }, Z("input", {
                 className: "input",
@@ -2670,11 +2670,11 @@ const Main = ({ urlAddress  })=>{
         }, Z("label", {
             htmlFor: item
         }, item, " :"), tabsData[activeTab].postFields[item]["type"] === "enums" ? Z(Selected, {
-            onClickItem: (item)=>{
+            onClickItem: (clickedItem)=>{
                 setFormData({
                     data: {
                         ...tabsData[activeTab].formData,
-                        [`set.${item}`]: item
+                        [`set.${item}`]: clickedItem
                     },
                     index: activeTab
                 });
@@ -3294,7 +3294,7 @@ const Page = ()=>{
         onClick: ()=>{
             setMediaShow(!mediaShow);
         }
-    }, "main"), Z("div", {
+    }, "menu"), Z("div", {
         className: "main-btn-wrapper",
         "data-show": mediaShow === true
     }, Z("span", {
