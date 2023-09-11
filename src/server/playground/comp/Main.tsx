@@ -383,6 +383,8 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                           JSON.stringify(tabsData),
                         );
                       }}
+                      incomeActiveItem={tabsData[activeTab]
+                        .formData[`set.${item}`]}
                       items={Object.keys(
                         tabsData[activeTab].postFields[item]["schema"],
                       )}

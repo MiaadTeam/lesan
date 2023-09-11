@@ -2680,6 +2680,7 @@ const Main = ({ urlAddress  })=>{
                 });
                 localStorage.setItem("localTabsData", JSON.stringify(tabsData));
             },
+            incomeActiveItem: tabsData[activeTab].formData[`set.${item}`],
             items: Object.keys(tabsData[activeTab].postFields[item]["schema"])
         }) : Z("input", {
             className: "input",
