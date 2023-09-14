@@ -18,7 +18,7 @@ import {
 import { PureFields, schemaFns, TSchemas } from "../../models/mod.ts";
 import { Projection } from "../aggregation/type.ts";
 import { deleteMethod } from "../delete/delete.ts";
-import { deleteById } from "../delete/deleteById.ts";
+import { deleteOne } from "../delete/deleteOne.ts";
 import { aggregation } from "../find/aggregation.ts";
 import { find } from "../find/find.ts";
 import { findOne } from "../find/findOne.ts";
@@ -139,22 +139,22 @@ export const newModel = (
     delete: (query: Bson.Document, options?: DeleteOptions) =>
       deleteMethod(db, name, query, options),
 
-    deleteById: ({
-      _id,
+    deleteOne: ({
+      filter,
       options,
-      get,
+      hardCascade,
     }: {
-      _id: ObjectId | string;
+      filter: Filter<Document>;
       options?: DeleteOptions;
-      get?: Projection;
+      hardCascade?: boolean;
     }) =>
-      deleteById({
+      deleteOne({
         db,
         schemasObj,
         collection: name,
-        _id,
+        filter,
         options,
-        get,
+        hardCascade,
       }),
 
     aggregation: (

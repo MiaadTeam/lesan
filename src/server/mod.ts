@@ -6,6 +6,13 @@ import { lesanFns } from "../utils/mod.ts";
 import { addCors, addCorsObj } from "./cors.ts";
 import { serveStatic } from "./serveStatic.ts";
 
+function replacer(key: any, value: any) {
+  if (typeof value === "string") {
+    return value.replace(/"/g, "").replace(/,/g, ", ").replace(/:/g, ": ");
+  } else {
+    return value;
+  }
+}
 /**
  * this function is for run Server and get request of client and send response of request for client
  *  @param port - port of listen
@@ -56,12 +63,11 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
         return new Response(
           JSON.stringify({
             body: {
-              message: `Something gone wrong =>> :: ${
-                e.message || "We do not know anything about the issue!!! sorry"
-              }`,
+              message: e.message ||
+                "We do not know anything about the issue!!! sorry",
             },
             success: false,
-          }),
+          }, replacer),
           {
             status: e.status || 501,
             headers: {
