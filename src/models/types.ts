@@ -5,13 +5,13 @@ import { Struct } from "../npmDeps.ts";
  * pure feature is an intrinsic feature of an schema. Which are embedded in other schemas
  * @public
  */
-export interface PureFields {
+export interface IPureFields {
   [key: string]: Struct<any>;
 }
 
 export type RelationDataType = "single" | "multiple";
 
-export type TRelation = {
+export interface TRelation {
   schemaName: string;
   type: RelationDataType;
   optional: boolean;
@@ -31,7 +31,11 @@ export type TRelation = {
       };
     };
   };
-};
+}
+
+export interface IRelationsFileds {
+  [key: string]: TRelation;
+}
 
 /**
  * if schema has relation with other schema and in SQL that we keep foreign key.
@@ -101,7 +105,7 @@ export type RelationType = "mainRelations" | "relatedRelations" | "relations";
  * @public
  */
 export interface IModel {
-  pure: PureFields;
+  pure: IPureFields;
   relations: Record<string, TRelation>;
   mainRelations: Record<string, IMainRelation>;
   relatedRelations: Record<string, IRelatedRelation>;

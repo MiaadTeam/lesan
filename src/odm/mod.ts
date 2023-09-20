@@ -1,5 +1,10 @@
 import { Database } from "../deps.ts";
-import { PureFields, TRelation, TSchemas } from "../models/mod.ts";
+import {
+  IPureFields,
+  IRelationsFileds,
+  TRelation,
+  TSchemas,
+} from "../models/mod.ts";
 import { schemaFns } from "../models/mod.ts";
 import { assert, enums } from "../npmDeps.ts";
 import { throwError } from "../utils/throwError.ts";
@@ -24,12 +29,12 @@ export const odm = (schemasObj: TSchemas) => {
   return {
     setDb,
     getCollection,
-    newModel: (
+    newModel: <PF extends IPureFields, TR extends IRelationsFileds>(
       name: string,
-      pureFields: PureFields,
-      relations: Record<string, TRelation>,
+      pureFields: PF,
+      relations: TR,
     ) =>
-      newModel(
+      newModel<PF, TR>(
         mongoDb,
         schemasObj,
         name,

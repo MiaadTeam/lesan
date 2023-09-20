@@ -1,4 +1,4 @@
-import { PureFields, TSchemas } from "../mod.ts";
+import { IPureFields, TSchemas } from "../mod.ts";
 import { addPureModel } from "./addPureModel.ts";
 import { getPureModel } from "./getPureModel.ts";
 import { getPureModelByNameAndKey } from "./getPureModelByNameAndKey.ts";
@@ -11,7 +11,7 @@ import { getPureModelByNameAndKey } from "./getPureModelByNameAndKey.ts";
  */
 export const pureFns = (schemasObj: TSchemas) => {
   return {
-    addPureModel: (name: string, pureModel: PureFields) =>
+    addPureModel: (name: string, pureModel: IPureFields) =>
       addPureModel(schemasObj, name, pureModel),
     getPureModel: (name: string) => getPureModel(schemasObj, name),
     getPureModelByNameAndKey: (name: string, key: string) =>

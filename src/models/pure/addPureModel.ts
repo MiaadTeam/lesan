@@ -1,4 +1,4 @@
-import { PureFields, schemaFns, TSchemas } from "../mod.ts";
+import { IPureFields, schemaFns, TSchemas } from "../mod.ts";
 
 /**
  * add pure feature of model to schema
@@ -14,7 +14,7 @@ import { PureFields, schemaFns, TSchemas } from "../mod.ts";
 export const addPureModel = (
   schemasObj: TSchemas,
   name: string,
-  pureModel: PureFields,
+  pureModel: IPureFields,
 ) => {
   const schemas = schemaFns(schemasObj).getSchemas();
   return schemas[name] = {
