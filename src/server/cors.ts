@@ -3,7 +3,7 @@ export const addCors = (cors: "*" | string[], origin: string | null) => {
   header.set("content-type", "application/json");
   header.set(
     "Access-Control-Allow-Headers",
-    "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, token, accept, origin, Cache-Control, X-Requested-With",
+    "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, token, origin, Cache-Control, X-Requested-With, Authorization, Accept, Accept-Version, Content-MD5, Date",
   );
   header.set(
     "Access-Control-Allow-Methods",
@@ -33,7 +33,7 @@ export const addCorsObj = (
 ) => {
   const header: Record<string, any> = {
     "Access-Control-Allow-Headers":
-      "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, token, accept, origin, Cache-Control, X-Requested-With",
+      "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, token, origin, Cache-Control, X-Requested-With, Authorization, Accept, Accept-Version, Content-MD5, Date",
     "Access-Control-Allow-Methods": "POST, OPTIONS, GET, PUT",
   };
   if (cors === "*") {
