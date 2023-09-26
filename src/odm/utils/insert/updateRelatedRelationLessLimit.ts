@@ -1,4 +1,5 @@
 import { Bson, Database, ObjectId } from "../../../deps.ts";
+import { TRelatedRelation } from "../../../mod.ts";
 import { pushRelatedRelation } from "./pushRelatedRelations.ts";
 import { updateRelatedRelationNumeric } from "./updateRelatedRelationNumeric.ts";
 
@@ -13,7 +14,7 @@ export const updateRelatedRelationLessLimit = async ({
   updateId,
   updatedDoc,
 }: {
-  relation: any;
+  relation: TRelatedRelation;
   db: Database;
   existRelation: Record<string, any>[];
   newNumber: number;
@@ -23,8 +24,8 @@ export const updateRelatedRelationLessLimit = async ({
   updateId: ObjectId;
   updatedDoc: Bson.Document;
 }) => {
-  return relation.sort.order === "asc"
-    ? relation.sort.type === "number"
+  return relation.sort!.order === "asc"
+    ? relation.sort!.type === "number"
       ? await updateRelatedRelationNumeric({
         db,
         existRelation,
@@ -44,7 +45,7 @@ export const updateRelatedRelationLessLimit = async ({
         updatedDoc,
         poshToTop: false,
       })
-    : relation.sort.type === "number"
+    : relation.sort!.type === "number"
     ? await updateRelatedRelationNumeric({
       db,
       existRelation,

@@ -1,10 +1,12 @@
-import { ObjectId } from "../../../deps.ts";
+import { Bson, Database, InsertDocument, ObjectId } from "../../../deps.ts";
+import { IModel, IRelationsFileds } from "../../../mod.ts";
 import { throwError } from "../../../utils/mod.ts";
 import { findOne } from "../../find/findOne.ts";
+import { TInsertRelations } from "../../insert/insertOne.ts";
 import { insertRelatedRelationForFirstTime } from "./insertRelatedRelationForFirstTime.ts";
 import { proccessRelatedRelation } from "./proccessRelatedRelation.ts";
 
-export const handleSingleRelation = async ({
+export const handleSingleRelation = async <TR extends IRelationsFileds>({
   db,
   relations,
   rel,
@@ -14,14 +16,14 @@ export const handleSingleRelation = async ({
   newObjId,
   doc,
 }: {
-  db: any;
-  relations: any;
-  rel: any;
-  foundedSchema: any;
-  pureProjection: any;
-  generatedDoc: any;
-  newObjId: any;
-  doc: any;
+  db: Database;
+  relations: TInsertRelations<TR>;
+  rel: string;
+  foundedSchema: IModel;
+  pureProjection: Record<string, any>;
+  generatedDoc: Record<string, any>;
+  newObjId: Bson.ObjectId;
+  doc: InsertDocument<Bson.Document>;
 }) => {
   const foundedSingleMainRelation = await findOne({
     db,
@@ -60,7 +62,7 @@ export const handleSingleRelation = async ({
       relations && relations[rel] && relations[rel].relatedRelations &&
       relations[rel].relatedRelations![relatedRel] === true
     ) {
-      if (foundedSingleMainRelation![relatedRel]) {
+      if (foundedSingleMainRelation && foundedSingleMainRelation![relatedRel]) {
         await proccessRelatedRelation({
           db,
           relatedRelation,

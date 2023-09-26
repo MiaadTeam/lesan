@@ -80,19 +80,20 @@ export const insertOne = async <TR extends IRelationsFileds>({
         });
       }
     } else {
-      if (relations === undefined || relations[rel] === undefined) {
+      if (relations && relations[rel]) {
+        await handleInsertOne({
+          db,
+          relations,
+          rel,
+          foundedSchema,
+          pureProjection,
+          generatedDoc,
+          newObjId,
+          doc,
+        });
+      } else {
         throwError(`can not find this relatation : ${rel}`);
       }
-      await handleInsertOne({
-        db,
-        relations,
-        rel,
-        foundedSchema,
-        pureProjection,
-        generatedDoc,
-        newObjId,
-        doc,
-      });
     }
   }
 

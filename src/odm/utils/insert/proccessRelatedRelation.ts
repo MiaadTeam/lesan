@@ -1,4 +1,5 @@
-import { Bson, ObjectId } from "../../../deps.ts";
+import { Bson, Database, InsertDocument, ObjectId } from "../../../deps.ts";
+import { IModel, TRelatedRelation } from "../../../mod.ts";
 import { throwError } from "../../../utils/mod.ts";
 import { insertRelatedRelationForFirstTime } from "./insertRelatedRelationForFirstTime.ts";
 import { pushRelatedRelation } from "./pushRelatedRelations.ts";
@@ -20,21 +21,19 @@ export const proccessRelatedRelation = async ({
   rel,
   newObjId,
 }: {
-  db: any;
-  relatedRelation: any;
+  db: Database;
+  relatedRelation: TRelatedRelation;
   lengthOfRel: number;
-
   fieldName: string;
   collection: string;
   relatedRel: string;
   updateId: ObjectId;
   updatedDoc: Bson.Document;
-
-  doc: any;
-  foundedSingleMainRelation: any;
-  foundedSchema: any;
-  rel: any;
-  newObjId: ObjectId;
+  rel: string;
+  foundedSchema: IModel;
+  newObjId: Bson.ObjectId;
+  doc: InsertDocument<Bson.Document>;
+  foundedSingleMainRelation: Bson.Document;
 }) => {
   if (relatedRelation.limit) {
     if (!relatedRelation.sort) {

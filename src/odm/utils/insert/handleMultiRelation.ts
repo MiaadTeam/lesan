@@ -1,10 +1,12 @@
-import { ObjectId } from "../../../deps.ts";
+import { Bson, Database, InsertDocument, ObjectId } from "../../../deps.ts";
+import { IModel, IRelationsFileds } from "../../../mod.ts";
 import { throwError } from "../../../utils/mod.ts";
 import { find } from "../../find/find.ts";
+import { TInsertRelations } from "../../insert/insertOne.ts";
 import { insertRelatedRelationForFirstTime } from "./insertRelatedRelationForFirstTime.ts";
 import { proccessRelatedRelation } from "./proccessRelatedRelation.ts";
 
-export const handleMultiRelation = async ({
+export const handleMultiRelation = async <TR extends IRelationsFileds>({
   db,
   foundedSchema,
   relations,
@@ -14,14 +16,14 @@ export const handleMultiRelation = async ({
   newObjId,
   doc,
 }: {
-  db: any;
-  foundedSchema: any;
-  relations: any;
-  rel: any;
-  pureProjection: any;
-  generatedDoc: any;
-  newObjId: any;
-  doc: any;
+  db: Database;
+  relations: TInsertRelations<TR>;
+  rel: string;
+  foundedSchema: IModel;
+  pureProjection: Record<string, any>;
+  generatedDoc: Record<string, any>;
+  newObjId: Bson.ObjectId;
+  doc: InsertDocument<Bson.Document>;
 }) => {
   const foundedMultiMainRelation = await find({
     db,

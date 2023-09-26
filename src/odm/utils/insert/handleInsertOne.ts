@@ -1,7 +1,10 @@
+import { Bson, Database, InsertDocument } from "../../../deps.ts";
+import { IModel, IRelationsFileds } from "../../../mod.ts";
+import { TInsertRelations } from "../../insert/insertOne.ts";
 import { handleMultiRelation } from "./handleMultiRelation.ts";
 import { handleSingleRelation } from "./handleSingleRelation.ts";
 
-export const handleInsertOne = async ({
+export const handleInsertOne = async <TR extends IRelationsFileds>({
   db,
   relations,
   rel,
@@ -11,14 +14,14 @@ export const handleInsertOne = async ({
   newObjId,
   doc,
 }: {
-  db: any;
-  relations: any;
-  rel: any;
-  foundedSchema: any;
-  pureProjection: any;
-  generatedDoc: any;
-  newObjId: any;
-  doc: any;
+  db: Database;
+  relations: TInsertRelations<TR>;
+  rel: string;
+  foundedSchema: IModel;
+  pureProjection: Record<string, any>;
+  generatedDoc: Record<string, any>;
+  newObjId: Bson.ObjectId;
+  doc: InsertDocument<Bson.Document>;
 }) => {
   if (foundedSchema.relations[rel].type === "single") {
     await handleSingleRelation({

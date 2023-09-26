@@ -11,6 +11,16 @@ export interface IPureFields {
 
 export type RelationDataType = "single" | "multiple";
 
+export type TRelatedRelation = {
+  type: RelationDataType;
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: "asc" | "desc";
+    type: "number" | "date" | "objectId";
+  };
+};
+
 export interface TRelation {
   schemaName: string;
   type: RelationDataType;
@@ -21,15 +31,7 @@ export interface TRelation {
     type: "number" | "date" | "objectId";
   };
   relatedRelations: {
-    [key: string]: {
-      type: RelationDataType;
-      limit?: null | number;
-      sort?: {
-        field: string;
-        order: "asc" | "desc";
-        type: "number" | "date" | "objectId";
-      };
-    };
+    [key: string]: TRelatedRelation;
   };
 }
 
