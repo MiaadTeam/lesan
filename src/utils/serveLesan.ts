@@ -165,7 +165,11 @@ export const lesanFns = (actsObj: Services) => {
    * @param port - port of request
    * @returns return response of request
    */
-  const serveLesan = async (req: Request, port: number) => {
+  const serveLesan = async (
+    req: Request,
+    port: number,
+    cors: "*" | string[] | undefined,
+  ) => {
     const response = async () => {
       contextFns.addHeaderToContext(req.headers);
       return await checkServices(req, port);
@@ -175,10 +179,7 @@ export const lesanFns = (actsObj: Services) => {
       JSON.stringify({ body: await response(), success: true }),
       {
         headers: {
-          // temporarly add cors to request
-          // TODO should export cors fn to user and add some custom input to that
-          ...addCorsObj(),
-
+          ...addCorsObj(cors, req.headers.get("origin")),
           "Content-Type": "application/json",
         },
       },

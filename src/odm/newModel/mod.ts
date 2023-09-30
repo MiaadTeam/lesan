@@ -8,14 +8,14 @@ import {
   IMainRelation,
   InsertDocument,
   InsertOptions,
+  IRelationsFileds,
   ObjectId,
   objectIdValidation,
   optional,
-  TRelation,
   UpdateFilter,
   UpdateOptions,
 } from "../../mod.ts";
-import { PureFields, schemaFns, TSchemas } from "../../models/mod.ts";
+import { IPureFields, schemaFns, TSchemas } from "../../models/mod.ts";
 import { Projection } from "../aggregation/type.ts";
 import { deleteMethod } from "../delete/delete.ts";
 import { deleteOne } from "../delete/deleteOne.ts";
@@ -26,12 +26,15 @@ import { insertOne, TInsertRelations } from "../insert/insertOne.ts";
 import { updateById } from "../update/updateById.ts";
 import { updateOne } from "../update/updateOne.ts";
 
-export const newModel = (
+export const newModel = <
+  PF extends IPureFields,
+  TR extends IRelationsFileds,
+>(
   db: Database,
   schemasObj: TSchemas,
   name: string,
-  pureFields: PureFields,
-  relations: Record<string, TRelation>,
+  pureFields: PF,
+  relations: TR,
 ) => {
   const schemas = schemaFns(schemasObj).getSchemas();
 
@@ -92,12 +95,12 @@ export const newModel = (
     insertOne: (
       { doc, relations, options, projection }: {
         doc: InsertDocument<Bson.Document>;
-        relations?: TInsertRelations;
+        relations?: TInsertRelations<TR>;
         options?: InsertOptions;
         projection?: Projection;
       },
     ) =>
-      insertOne({
+      insertOne<TR>({
         db,
         schemasObj,
         collection: name,

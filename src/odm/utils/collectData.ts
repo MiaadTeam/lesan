@@ -1,151 +1,105 @@
 import { Bson, Database, Filter, FindOptions } from "../../deps.ts";
-import { TSchemas } from "../../models/mod.ts";
+import { IMainRelation, TSchemas } from "../../models/mod.ts";
+import { getRelation } from "../../models/relation/getRelation.ts";
 
 import { throwError } from "../../utils/mod.ts";
+import { Projection } from "../aggregation/type.ts";
+import { checkNotLastProjecion } from "./checkNotLastProjection.ts";
 
 export const collectData = async (
-  schemas: TSchemas,
-  filter: Filter<Bson.Document>,
   db: Database,
-  projection: any,
-  collection: string,
-  result: any = {},
-  type: "single" | "mutiple",
-  options?: FindOptions,
+  schemasObj: TSchemas,
+  projection: Projection,
+  collectionName: string,
+  filter?: Filter<Bson.Document>,
+  findOptions?: FindOptions,
 ) => {
-  result = type === "single"
-    ? db
-      ? await db.collection(collection).findOne(filter, {
-        ...options,
-        projection,
-      })
-      : throwError("No database connection")
-    : db
-    ? await db.collection(collection).find({ _id: { $in: filter } }, {
-      ...options,
-      projection,
-    }).toArray()
-    : throwError("No database connection");
+  const returnPip: any = [];
 
-  for (const key in projection) {
-    if (
-      Object.keys(schemas[collection]["mainRelations"]).includes(key) &&
-      schemas[collection]["mainRelations"][key]["type"] === "multiple"
-    ) {
-      if (
-        !Array.isArray(result) &&
-        Object.keys(projection[key]).length !==
-          Object.keys(result[key][0]).length
-      ) {
-        filter = result[key].map((value: any) => value._id);
+  const findData = async (
+    projection: Projection,
+    collectionName: string,
+    propName: string,
+    filter?: Filter<Bson.Document>,
+    findOptions?: FindOptions,
+  ) => {
+    let foundAsMainRelations = null;
+    let foundAsRelatedRelations = null;
 
-        result[key] = await collectData(
-          schemas,
-          filter,
-          db,
-          projection[key],
-          schemas[collection]["mainRelations"][key]["schemaName"],
-          {},
-          "mutiple",
-        );
-      } else if (
-        Array.isArray(result) &&
-        Object.keys(projection[key]).length !==
-          Object.keys(result[0][key]).length
-      ) {
-        for (const item of result) {
-          filter = item[key].map((value: any) => value._id);
+    const schemaMainRel = getRelation(
+      schemasObj,
+      collectionName,
+      "mainRelations",
+    );
+    const schemaRelatedRel = getRelation(
+      schemasObj,
+      collectionName,
+      "relatedRelations",
+    );
 
-          item[key] = await collectData(
-            schemas,
+    for (const mainRelProp in schemaMainRel) {
+      (mainRelProp === propName) &&
+        (foundAsMainRelations = schemaMainRel[mainRelProp]);
+    }
+
+    for (const relatedRelProp in schemaRelatedRel) {
+      (relatedRelProp === propName) &&
+        (foundAsRelatedRelations = schemaRelatedRel[relatedRelProp]);
+    }
+
+    const findAndPushData = async (
+      collectionName: string,
+      filter?: Filter<Bson.Document>,
+      findOptions?: FindOptions,
+    ) => {
+      return await db.collection(collectionName).find(filter, findOptions)
+        .toArray();
+    };
+
+    foundAsMainRelations
+      ? findAndPushData(
+        collectionName,
+        filter,
+        findOptions,
+      )
+      : foundAsRelatedRelations
+      ? findAndPushData(collectionName, filter, findOptions)
+      : null;
+
+    if (foundAsMainRelations || foundAsRelatedRelations) {
+      for (const prop in projection) {
+        typeof projection[prop] === "object" &&
+          checkNotLastProjecion(
+            projection[prop] as Projection,
+          ) &&
+          await findData(
+            projection[prop] as Projection,
+            collectionName,
+            prop,
             filter,
-            db,
-            projection[key],
-            schemas[collection]["mainRelations"][key]["schemaName"],
-            {},
-            "mutiple",
+            findOptions,
           );
-        }
-      }
-    } else if (
-      Object.keys(schemas[collection]["mainRelations"]).includes(key) &&
-      schemas[collection]["mainRelations"][key]["type"] === "single"
-    ) {
-      if (
-        !Array.isArray(result) &&
-        Object.keys(projection[key]).length !==
-          Object.keys(result[key]).length
-      ) {
-        filter = { _id: result[key]._id };
-
-        result[key] = await collectData(
-          schemas,
-          filter,
-          db,
-          projection[key],
-          schemas[collection]["mainRelations"][key]["schemaName"],
-          {},
-          "single",
-        );
-      } else if (
-        Array.isArray(result) &&
-        Object.keys(projection[key]).length !==
-          Object.keys(result[0][key]).length
-      ) {
-        for (const item of result) {
-          filter = { _id: item[key]._id };
-
-          item[key] = await collectData(
-            schemas,
-            filter,
-            db,
-            projection[key],
-            schemas[collection]["mainRelations"][key]["schemaName"],
-            {},
-            "mutiple",
-          );
-        }
-      }
-    } else if (
-      Object.keys(schemas[collection]["relatedRelations"]).includes(key)
-    ) {
-      if (
-        (result instanceof Object && !(result instanceof Array)) &&
-        Object.keys(projection[key]).length !==
-          Object.keys(result[key][0]).length
-      ) {
-        filter = result[key].map((value: any) => value._id);
-
-        result[key] = await collectData(
-          schemas,
-          filter,
-          db,
-          projection[key],
-          schemas[collection]["relatedRelations"][key]["schemaName"],
-          {},
-          "mutiple",
-        );
-      } else if (
-        Array.isArray(result) &&
-        Object.keys(projection).length !==
-          Object.keys(result[0][key]).length
-      ) {
-        for (const item of result) {
-          filter = item[key].map((value: any) => value._id);
-
-          item[key] = await collectData(
-            schemas,
-            filter,
-            db,
-            projection[key],
-            schemas[collection]["relatedRelations"][key]["schemaName"],
-            {},
-            "mutiple",
-          );
-        }
       }
     }
+  };
+
+  for (const prop in projection) {
+    typeof projection[prop] === "object" &&
+      checkNotLastProjecion(
+        projection[prop] as Projection,
+      ) &&
+      await findData(
+        projection[prop] as Projection,
+        collectionName,
+        prop,
+        filter,
+        findOptions,
+      );
   }
 
-  return result;
+  returnPip.push({
+    "$project": { ...projection },
+  });
+
+  return returnPip;
 };

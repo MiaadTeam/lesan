@@ -27,11 +27,13 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
     playground,
     typeGeneration,
     staticPath,
+    cors,
   }: {
     port: number;
     playground: boolean;
     typeGeneration: boolean;
     staticPath?: string[];
+    cors?: "*" | string[];
   } = {
     port: 8000,
     playground: false,
@@ -41,13 +43,12 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
     typeGeneration && (await generateSchemTypes(schemasObj));
     const handler = async (request: Request): Promise<Response> => {
       try {
-        // temporarly add cors to request
-        // TODO should export cors fn to user and add some custom input to that
         if (request.method === "OPTIONS") {
-          return new Response(undefined, {
-            headers: addCors(),
-          });
-          // return;
+          if (cors) {
+            return new Response(undefined, {
+              headers: addCors(cors, request.headers.get("origin")),
+            });
+          }
         }
 
         return request.method === "GET"
@@ -58,8 +59,16 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
             playground,
             staticPath || [],
           )
-          : await lesanFns(actsObj).serveLesan(request, port);
+          : await lesanFns(actsObj).serveLesan(request, port, cors);
       } catch (e) {
+        let headers = {
+          "Content-Type": "application/json",
+        };
+        headers = {
+          ...addCorsObj(cors, request.headers.get("origin")),
+          ...headers,
+        };
+
         return new Response(
           JSON.stringify({
             body: {
@@ -70,10 +79,7 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
           }, replacer),
           {
             status: e.status || 501,
-            headers: {
-              ...addCorsObj(),
-              "Content-Type": "application/json",
-            },
+            headers,
           },
         );
       }
