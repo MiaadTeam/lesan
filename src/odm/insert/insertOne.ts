@@ -13,7 +13,7 @@ import { Projection } from "../aggregation/type.ts";
 import { handleInsertOne } from "../utils/insert/mod.ts";
 
 export type TInsertRelations<T extends IRelationsFileds> = {
-  [mainKey in keyof T]: {
+  [mainKey in keyof T]?: {
     _ids: ObjectId | ObjectId[];
     relatedRelations?: {
       [key in keyof T[mainKey]["relatedRelations"]]: boolean;
@@ -75,8 +75,6 @@ export const insertOne = async <TR extends IRelationsFileds>({
           foundedSchema,
           pureProjection,
           generatedDoc,
-          newObjId,
-          doc,
         });
       }
     } else {
@@ -88,8 +86,6 @@ export const insertOne = async <TR extends IRelationsFileds>({
           foundedSchema,
           pureProjection,
           generatedDoc,
-          newObjId,
-          doc,
         });
       } else {
         throwError(`can not find this relatation : ${rel}`);
