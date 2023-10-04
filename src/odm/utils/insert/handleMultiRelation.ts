@@ -13,8 +13,6 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
   rel,
   pureProjection,
   generatedDoc,
-  newObjId,
-  doc,
 }: {
   db: Database;
   relations: TInsertRelations<TR>;
@@ -22,8 +20,6 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
   foundedSchema: IModel;
   pureProjection: Record<string, any>;
   generatedDoc: Record<string, any>;
-  newObjId: Bson.ObjectId;
-  doc: InsertDocument<Bson.Document>;
 }) => {
   const foundedMultiMainRelation = await find({
     db,
@@ -71,7 +67,6 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
     const relatedRelation =
       foundedSchema.relations[rel].relatedRelations[relatedRel];
     const relationSchemName = foundedSchema.relations[rel].schemaName;
-    const updatedDoc = { _id: newObjId, ...doc };
     const fieldName = relatedRelation.sort ? relatedRelation.sort.field : "";
     foundedMultiMainRelation.forEach(async (FMR) => {
       if (
@@ -91,13 +86,11 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
             lengthOfRel,
             fieldName,
             updateId,
-            updatedDoc,
+            updatedDoc: generatedDoc,
             collection: relationSchemName,
-            doc,
             foundedSingleMainRelation: FMR,
             foundedSchema,
             rel,
-            newObjId,
           });
         } else {
           await insertRelatedRelationForFirstTime({
@@ -105,7 +98,7 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
             collection: foundedSchema.relations[rel].schemaName,
             updateKeyName: relatedRel,
             updateId: FMR._id,
-            updatedDoc: { _id: newObjId, ...doc },
+            updatedDoc: generatedDoc,
             type: foundedSchema.relations[rel].relatedRelations[relatedRel]
               .type,
           });

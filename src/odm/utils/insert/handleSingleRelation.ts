@@ -13,8 +13,6 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
   foundedSchema,
   pureProjection,
   generatedDoc,
-  newObjId,
-  doc,
 }: {
   db: Database;
   relations: TInsertRelations<TR>;
@@ -22,8 +20,6 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
   foundedSchema: IModel;
   pureProjection: Record<string, any>;
   generatedDoc: Record<string, any>;
-  newObjId: Bson.ObjectId;
-  doc: InsertDocument<Bson.Document>;
 }) => {
   const foundedSingleMainRelation = await findOne({
     db,
@@ -55,7 +51,6 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
       ? foundedSingleMainRelation![relatedRel].length
       : 0;
     const updateId: ObjectId = foundedSingleMainRelation!._id;
-    const updatedDoc = { _id: newObjId, ...doc };
     const fieldName = relatedRelation.sort ? relatedRelation.sort.field : "";
 
     if (
@@ -70,13 +65,11 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
           lengthOfRel,
           fieldName,
           updateId,
-          updatedDoc,
+          updatedDoc: generatedDoc,
           collection: relationSchemName,
-          doc,
           foundedSingleMainRelation,
           foundedSchema,
           rel,
-          newObjId,
         });
       } else {
         await insertRelatedRelationForFirstTime({
@@ -84,7 +77,7 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
           collection: foundedSchema.relations[rel].schemaName,
           updateKeyName: relatedRel,
           updateId: foundedSingleMainRelation!._id,
-          updatedDoc: { _id: newObjId, ...doc },
+          updatedDoc: generatedDoc,
           type: foundedSchema.relations[rel].relatedRelations[relatedRel]
             .type,
         });

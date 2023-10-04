@@ -15,11 +15,9 @@ export const proccessRelatedRelation = async ({
   updateId,
   updatedDoc,
   collection,
-  doc,
   foundedSingleMainRelation,
   foundedSchema,
   rel,
-  newObjId,
 }: {
   db: Database;
   relatedRelation: TRelatedRelation;
@@ -31,8 +29,6 @@ export const proccessRelatedRelation = async ({
   updatedDoc: Bson.Document;
   rel: string;
   foundedSchema: IModel;
-  newObjId: Bson.ObjectId;
-  doc: InsertDocument<Bson.Document>;
   foundedSingleMainRelation: Bson.Document;
 }) => {
   if (relatedRelation.limit) {
@@ -49,7 +45,7 @@ export const proccessRelatedRelation = async ({
         db,
         updateKeyName: relatedRel,
         existRelation: foundedSingleMainRelation![relatedRel],
-        newNumber: doc[fieldName],
+        newNumber: updatedDoc[fieldName],
         fieldName,
         collection,
         updateId,
@@ -62,7 +58,7 @@ export const proccessRelatedRelation = async ({
             "--- ==>> inside limit and with asc sort order and type is numeric",
             {
               relatedRelation,
-              fieldValue: doc[fieldName],
+              fieldValue: updatedDoc[fieldName],
               updateKeyName: relatedRel,
               lastRelationValue: foundedSingleMainRelation![relatedRel][
                 foundedSingleMainRelation![relatedRel].length - 1
@@ -71,7 +67,7 @@ export const proccessRelatedRelation = async ({
             },
           );
           if (
-            doc[fieldName] <=
+            updatedDoc[fieldName] <=
               foundedSingleMainRelation![relatedRel][
                 lengthOfRel - 1
               ][fieldName]
@@ -80,7 +76,7 @@ export const proccessRelatedRelation = async ({
               db,
               updateKeyName: relatedRel,
               existRelation: foundedSingleMainRelation![relatedRel],
-              newNumber: doc[fieldName],
+              newNumber: updatedDoc[fieldName],
               fieldName,
               collection,
               updateId,
@@ -94,14 +90,14 @@ export const proccessRelatedRelation = async ({
         if (relatedRelation.sort!.type === "number") {
           console.log("--- ==>> inside desc and sort type is num ", {
             relatedRelation,
-            docField: doc[fieldName],
+            docField: updatedDoc[fieldName],
             foundedSingleMainRelationField:
               foundedSingleMainRelation![relatedRel][
                 lengthOfRel - 1
               ][fieldName],
           });
           if (
-            doc[fieldName] >=
+            updatedDoc[fieldName] >=
               foundedSingleMainRelation![relatedRel][
                 lengthOfRel - 1
               ][fieldName]
@@ -110,7 +106,7 @@ export const proccessRelatedRelation = async ({
               db,
               updateKeyName: relatedRel,
               existRelation: foundedSingleMainRelation![relatedRel],
-              newNumber: doc[fieldName],
+              newNumber: updatedDoc[fieldName],
               fieldName,
               collection,
               updateId,
@@ -143,7 +139,7 @@ export const proccessRelatedRelation = async ({
         collection: foundedSchema.relations[rel].schemaName,
         updateKeyName: relatedRel,
         updateId: foundedSingleMainRelation!._id,
-        updatedDoc: { _id: newObjId, ...doc },
+        updatedDoc,
         type: foundedSchema.relations[rel].relatedRelations[relatedRel]
           .type,
       });
@@ -153,11 +149,11 @@ export const proccessRelatedRelation = async ({
         db,
         updateKeyName: relatedRel,
         existRelation: foundedSingleMainRelation![relatedRel],
-        newNumber: doc[relatedRelation.sort!.field],
+        newNumber: updatedDoc[relatedRelation.sort!.field],
         fieldName: relatedRelation.sort!.field,
         collection,
         updateId: foundedSingleMainRelation!._id,
-        updatedDoc: { _id: newObjId, ...doc },
+        updatedDoc,
       });
     }
   }
