@@ -23,6 +23,7 @@ import { aggregation } from "../find/aggregation.ts";
 import { find } from "../find/find.ts";
 import { findOne } from "../find/findOne.ts";
 import { insertOne, TInsertRelations } from "../insert/insertOne.ts";
+import { addRelation } from "../relation/addRelation.ts";
 import { updateById } from "../update/updateById.ts";
 import { updateOne } from "../update/updateOne.ts";
 
@@ -107,6 +108,20 @@ export const newModel = <
         doc,
         relations,
         options,
+        projection,
+      }),
+
+    addRelation: ({ _id, relations, projection }: {
+      relations: TInsertRelations<TR>;
+      projection?: Projection;
+      _id: Bson.ObjectId;
+    }) =>
+      addRelation<TR>({
+        db,
+        schemasObj,
+        collection: name,
+        _id,
+        relations,
         projection,
       }),
 
