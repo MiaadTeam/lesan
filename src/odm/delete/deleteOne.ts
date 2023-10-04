@@ -40,16 +40,8 @@ const proccessDeletion = async (
     const findedMr = await db.collection(mr.collection).find({
       [`${mr.fieldName}._id`]: _id,
     }, { projection: { _id: 1 } }).toArray();
-    console.log("findedMr inside deleteData proccessDeletion : ", {
-      findedMr,
-      mr,
-      collection: mr.collection,
-      searchDocument: `${mr.fieldName}._id: ${_id}`,
-      length: findedMr.length,
-    });
     if (findedMr.length > 0) {
       const ids = findedMr.map((fmr) => fmr._id);
-      console.log("ids", ids);
       await db.collection(mr.collection).deleteMany({
         _id: {
           $in: ids,
