@@ -111,10 +111,11 @@ export const newModel = <
         projection,
       }),
 
-    addRelation: ({ _id, relations, projection }: {
+    addRelation: ({ _id, relations, projection, replace }: {
       relations: TInsertRelations<TR>;
       projection?: Projection;
       _id: Bson.ObjectId;
+      replace?: boolean;
     }) =>
       addRelation<TR>({
         db,
@@ -123,6 +124,7 @@ export const newModel = <
         _id,
         relations,
         projection,
+        replace,
       }),
 
     updateOne: (

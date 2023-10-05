@@ -54,18 +54,6 @@ export const proccessRelatedRelation = async ({
     } else {
       if (relatedRelation.sort!.order === "asc") {
         if (relatedRelation.sort!.type === "number") {
-          console.log(
-            "--- ==>> inside limit and with asc sort order and type is numeric",
-            {
-              relatedRelation,
-              fieldValue: updatedDoc[fieldName],
-              updateKeyName: relatedRel,
-              lastRelationValue: foundedSingleMainRelation![relatedRel][
-                foundedSingleMainRelation![relatedRel].length - 1
-              ][fieldName],
-              lenghtOfRelation: foundedSingleMainRelation![relatedRel].length,
-            },
-          );
           if (
             updatedDoc[fieldName] <=
               foundedSingleMainRelation![relatedRel][
@@ -88,14 +76,6 @@ export const proccessRelatedRelation = async ({
         }
       } else {
         if (relatedRelation.sort!.type === "number") {
-          console.log("--- ==>> inside desc and sort type is num ", {
-            relatedRelation,
-            docField: updatedDoc[fieldName],
-            foundedSingleMainRelationField:
-              foundedSingleMainRelation![relatedRel][
-                lengthOfRel - 1
-              ][fieldName],
-          });
           if (
             updatedDoc[fieldName] >=
               foundedSingleMainRelation![relatedRel][
@@ -116,10 +96,6 @@ export const proccessRelatedRelation = async ({
             });
           }
         } else {
-          console.log(
-            "--- ==>> inside desc and not num ",
-            relatedRelation,
-          );
           await pushRelatedRelation({
             db,
             collection,

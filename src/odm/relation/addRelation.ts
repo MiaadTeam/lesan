@@ -4,7 +4,8 @@ import { IRelationsFileds, schemaFns, TSchemas } from "../../models/mod.ts";
 import { throwError } from "../../utils/throwError.ts";
 import { Projection } from "../aggregation/type.ts";
 import { TInsertRelations } from "../insert/insertOne.ts";
-import { handleInsertOne } from "../utils/insert/handleInsertOne.ts";
+import { handleMultiRelation } from "../utils/insert/handleMultiRelation.ts";
+import { handleSingleRelation } from "../utils/insert/handleSingleRelation.ts";
 
 export const addRelation = async <TR extends IRelationsFileds>({
   db,
@@ -13,6 +14,7 @@ export const addRelation = async <TR extends IRelationsFileds>({
   _id,
   relations,
   projection,
+  replace,
 }: {
   db: Database;
   schemasObj: TSchemas;
@@ -20,6 +22,7 @@ export const addRelation = async <TR extends IRelationsFileds>({
   _id: ObjectId;
   relations: TInsertRelations<TR>;
   projection?: Projection;
+  replace?: boolean;
 }) => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);
   const foundedDoc = await db.collection(collection).findOne({ _id });
@@ -35,37 +38,45 @@ export const addRelation = async <TR extends IRelationsFileds>({
     for (const pureKey in foundedDocPureProjection) {
       generatedDoc[pureKey] = foundedDoc![pureKey];
     }
+    const pureDocProjection = createProjection(
+      schemasObj,
+      collection,
+      "Pure",
+    );
 
-    for (const rel in foundedSchema.relations) {
-      const pureProjection = createProjection(
+    for (const rel in relations) {
+      const pureRelProjection = createProjection(
         schemasObj,
         foundedSchema.relations[rel].schemaName,
         "Pure",
       );
-
-      if (foundedSchema.relations[rel].optional) {
-        if (relations && relations[rel]) {
-          await handleInsertOne({
+      if (foundedSchema.relations[rel]) {
+        if (foundedSchema.relations[rel].type === "single") {
+          if (foundedDoc[rel] && replace === undefined || replace === false) {
+            throwError(
+              `the ${rel} relation is already added if you want to replaced this please add replace option`,
+            );
+          }
+          await handleSingleRelation({
             db,
             relations,
             rel,
             foundedSchema,
-            pureProjection,
+            pureRelProjection,
+            pureDocProjection,
             generatedDoc,
-          });
-        }
-      } else {
-        if (relations && relations[rel]) {
-          await handleInsertOne({
-            db,
-            relations,
-            rel,
-            foundedSchema,
-            pureProjection,
-            generatedDoc,
+            replace,
           });
         } else {
-          throwError(`can not find this relatation : ${rel}`);
+          await handleMultiRelation({
+            db,
+            foundedSchema,
+            relations,
+            rel,
+            pureRelProjection,
+            pureDocProjection,
+            generatedDoc,
+          });
         }
       }
     }

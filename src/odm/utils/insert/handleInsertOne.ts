@@ -9,14 +9,16 @@ export const handleInsertOne = async <TR extends IRelationsFileds>({
   relations,
   rel,
   foundedSchema,
-  pureProjection,
+  pureRelProjection,
+  pureDocProjection,
   generatedDoc,
 }: {
   db: Database;
   relations: TInsertRelations<TR>;
   rel: string;
   foundedSchema: IModel;
-  pureProjection: Record<string, any>;
+  pureRelProjection: Record<string, any>;
+  pureDocProjection: Record<string, any>;
   generatedDoc: Record<string, any>;
 }) => {
   if (foundedSchema.relations[rel].type === "single") {
@@ -25,21 +27,18 @@ export const handleInsertOne = async <TR extends IRelationsFileds>({
       relations,
       rel,
       foundedSchema,
-      pureProjection,
+      pureDocProjection,
+      pureRelProjection,
       generatedDoc,
     });
   } else {
-    console.log("inside multi main relations", {
-      foundedSchema,
-      relations,
-    });
-
     await handleMultiRelation({
       db,
       foundedSchema,
       relations,
       rel,
-      pureProjection,
+      pureDocProjection,
+      pureRelProjection,
       generatedDoc,
     });
   }

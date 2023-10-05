@@ -55,12 +55,17 @@ export const insertOne = async <TR extends IRelationsFileds>({
     options,
     schema: foundedSchema,
   });
+  const pureDocProjection = createProjection(
+    schemasObj,
+    collection,
+    "Pure",
+  );
 
   // allan bayad ham ba senatio QQ pish beram ham senario somthing is wrong:: aval ye generatedDoc besazam baad hame relationharo peyda konam berizam to ye done arraye ba noe relationha baad age hamechi dorost bood QQ ro start bezanam baad relationharo brooz konam baad insert document to bezanam va baad QQ isFinished ro true konam
 
   let somethingIsWrong = false;
   for (const rel in foundedSchema.relations) {
-    const pureProjection = createProjection(
+    const pureRelProjection = createProjection(
       schemasObj,
       foundedSchema.relations[rel].schemaName,
       "Pure",
@@ -73,7 +78,8 @@ export const insertOne = async <TR extends IRelationsFileds>({
           relations,
           rel,
           foundedSchema,
-          pureProjection,
+          pureRelProjection,
+          pureDocProjection,
           generatedDoc,
         });
       }
@@ -84,7 +90,8 @@ export const insertOne = async <TR extends IRelationsFileds>({
           relations,
           rel,
           foundedSchema,
-          pureProjection,
+          pureRelProjection,
+          pureDocProjection,
           generatedDoc,
         });
       } else {

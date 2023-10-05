@@ -3,6 +3,8 @@ import { IModel, IRelationsFileds } from "../../../mod.ts";
 import { throwError } from "../../../utils/mod.ts";
 import { find } from "../../find/find.ts";
 import { TInsertRelations } from "../../insert/insertOne.ts";
+import { filterDocByProjection } from "../filterDocByProjection.ts";
+import { filterDocsByProjection } from "../filterDocsByProjection.ts";
 import { insertRelatedRelationForFirstTime } from "./insertRelatedRelationForFirstTime.ts";
 import { proccessRelatedRelation } from "./proccessRelatedRelation.ts";
 
@@ -11,20 +13,27 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
   foundedSchema,
   relations,
   rel,
-  pureProjection,
+  pureDocProjection,
+  pureRelProjection,
   generatedDoc,
 }: {
   db: Database;
   relations: TInsertRelations<TR>;
   rel: string;
   foundedSchema: IModel;
-  pureProjection: Record<string, any>;
+  pureRelProjection: Record<string, any>;
+  pureDocProjection: Record<string, any>;
   generatedDoc: Record<string, any>;
 }) => {
+  const pureOfGeneratedDoc = filterDocByProjection(
+    generatedDoc,
+    pureDocProjection,
+  );
+
   const foundedMultiMainRelation = await find({
     db,
     collection: foundedSchema.relations[rel].schemaName,
-    filters: { _id: { "$in": relations![rel]._ids } },
+    filters: { _id: { "$in": relations![rel]!._ids } },
   }).toArray();
 
   if (!foundedMultiMainRelation) {
@@ -33,29 +42,14 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
 
   if (
     foundedMultiMainRelation.length !==
-      (relations![rel]._ids as ObjectId[]).length
+      (relations![rel]!._ids as ObjectId[]).length
   ) {
     throwError(`we have problem with this relatation : ${rel}`);
   }
 
-  const filterByObject = (
-    array: Record<string, any>[],
-    filter: object,
-  ) => {
-    const filtered: Record<string, any>[] = [];
-    for (const obj of array) {
-      const newObj: Record<string, any> = {};
-      for (const key in filter) {
-        newObj[key] = obj[key];
-      }
-      filtered.push(newObj);
-    }
-    return filtered;
-  };
-
-  const pureOfFoundedMultiMainRelation = filterByObject(
+  const pureOfFoundedMultiMainRelation = filterDocsByProjection(
     foundedMultiMainRelation,
-    pureProjection,
+    pureRelProjection,
   );
 
   generatedDoc[`${rel}`] = pureOfFoundedMultiMainRelation;
@@ -70,8 +64,8 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
     const fieldName = relatedRelation.sort ? relatedRelation.sort.field : "";
     foundedMultiMainRelation.forEach(async (FMR) => {
       if (
-        relations && relations[rel] && relations[rel].relatedRelations &&
-        relations[rel].relatedRelations![relatedRel] === true
+        relations && relations[rel] && relations[rel]!.relatedRelations &&
+        relations[rel]!.relatedRelations![relatedRel] === true
       ) {
         const lengthOfRel: number = FMR![relatedRel]
           ? FMR![relatedRel].length
@@ -86,7 +80,7 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
             lengthOfRel,
             fieldName,
             updateId,
-            updatedDoc: generatedDoc,
+            updatedDoc: pureOfGeneratedDoc,
             collection: relationSchemName,
             foundedSingleMainRelation: FMR,
             foundedSchema,
@@ -98,7 +92,7 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
             collection: foundedSchema.relations[rel].schemaName,
             updateKeyName: relatedRel,
             updateId: FMR._id,
-            updatedDoc: generatedDoc,
+            updatedDoc: pureOfGeneratedDoc,
             type: foundedSchema.relations[rel].relatedRelations[relatedRel]
               .type,
           });

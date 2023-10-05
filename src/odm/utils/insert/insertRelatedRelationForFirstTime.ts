@@ -18,9 +18,6 @@ export const insertRelatedRelationForFirstTime = async ({
   updatedDoc: Bson.Document;
   type: RelationDataType;
 }) => {
-  console.log(
-    "inside insertRelatedRelationForFirstTime and we gonna to update",
-  );
   const updatedRel = await db.collection(collection).updateOne(
     {
       _id: updateId,
@@ -30,6 +27,5 @@ export const insertRelatedRelationForFirstTime = async ({
     },
   );
 
-  console.log("updatedRel", updatedRel, collection);
   return updatedRel;
 };
