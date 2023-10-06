@@ -375,7 +375,7 @@ const addUserLiveProvince: ActFn = async (body) => {
 };
 coreApp.acts.setAct({
   schema: "user",
-  actName: "addUserRelation",
+  actName: "addUserLivedProvinces",
   validator: addUserLivedProvinceValidator(),
   fn: addUserLiveProvince,
 });
