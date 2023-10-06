@@ -67,6 +67,14 @@ export const addRelation = async <TR extends IRelationsFileds>({
             generatedDoc,
             replace,
           });
+          console.log("in handle single relation : ", {
+            generatedDoc,
+            rel,
+            foundedRel: generatedDoc[rel],
+          });
+          await db.collection(collection).updateOne({ _id: foundedDoc._id }, {
+            $set: { [rel]: generatedDoc[rel] },
+          });
         } else {
           await handleMultiRelation({
             db,
@@ -78,6 +86,10 @@ export const addRelation = async <TR extends IRelationsFileds>({
             generatedDoc,
           });
         }
+
+        await db.collection(collection).updateOne({ _id: foundedDoc._id }, {
+          $addToSet: { [rel]: { $each: generatedDoc[rel] } },
+        });
       }
     }
   } else {
