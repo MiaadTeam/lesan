@@ -448,44 +448,6 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                   field: tabsData[activeTab].postFields[item],
                   formData: tabsData[activeTab].formData,
                 })}
-                {/* {tabsData[activeTab].postFields[item]["type"] === "enums" ? (
-                  <Selected
-                    onClickItem={(clickedItem: string) => {
-                      setFormData({
-                        data: {
-                          ...tabsData[activeTab].formData,
-                          [`set.${item}`]: clickedItem,
-                        },
-                        index: activeTab,
-                      });
-                      localStorage.setItem(
-                        "localTabsData",
-                        JSON.stringify(tabsData)
-                      );
-                    }}
-                    incomeActiveItem={
-                      tabsData[activeTab].formData[`set.${item}`]
-                    }
-                    items={Object.keys(
-                      tabsData[activeTab].postFields[item]["schema"]
-                    )}
-                  />
-                ) : (
-                  <input
-                    className="input"
-                    placeholder={item}
-                    id={item}
-                    value={tabsData[activeTab].formData[`set.${item}`]}
-                    name={`set.${item}`}
-                    type={
-                      tabsData[activeTab].postFields[item]["type"] === "number"
-                        ? "number"
-                        : "string"
-                    }
-                    alt={tabsData[activeTab].postFields[item]["type"]}
-                    onChange={handleChange}
-                  />
-                )} */}
               </div>
             ))}
             <div className="sidebar__section-heading sidebar__section-heading--fields">
