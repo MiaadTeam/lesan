@@ -1,6 +1,12 @@
-import { Database, DeleteOptions, Filter, ObjectId } from "../../deps.ts";
 import { IMainRelation } from "../../mod.ts";
 import { TSchemas } from "../../models/mod.ts";
+import {
+  Db,
+  DeleteOptions,
+  Document,
+  Filter,
+  ObjectId,
+} from "../../npmDeps.ts";
 import { throwError } from "../../utils/mod.ts";
 
 interface IFindMainRelation extends IMainRelation {
@@ -28,7 +34,7 @@ const processFindMainRelatins = (
 
 const proccessDeletion = async (
   { db, schemasObj, collection, _id }: {
-    db: Database;
+    db: Db;
     schemasObj: TSchemas;
     collection: string;
     _id: ObjectId;
@@ -59,7 +65,7 @@ const proccessDeletion = async (
   }
 };
 
-export const deleteOne = async ({
+export const deleteOne = async <PureFields extends Document = Document>({
   db,
   schemasObj,
   collection,
@@ -67,14 +73,16 @@ export const deleteOne = async ({
   options,
   hardCascade,
 }: {
-  db: Database;
+  db: Db;
   schemasObj: TSchemas;
   collection: string;
-  filter: Filter<Document>;
+  filter: Filter<PureFields>;
   options?: DeleteOptions;
   hardCascade?: boolean;
 }) => {
-  const foundedDoc = await db.collection(collection).findOne(filter);
+  const foundedDoc = await db.collection(collection).findOne(
+    filter as Filter<Document>,
+  );
   const deleteProcces = async () => {
     const processFindMainRelatins = (
       { schemasObj, collection }: { schemasObj: TSchemas; collection: string },
@@ -115,7 +123,7 @@ export const deleteOne = async ({
         });
       }
       await db.collection(collection).deleteOne(
-        filter,
+        filter as Filter<Document>,
         options,
       );
       return true;

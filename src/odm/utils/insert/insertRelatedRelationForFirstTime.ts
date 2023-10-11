@@ -1,7 +1,5 @@
-import { Bson } from "../../../deps.ts";
-import { ObjectId } from "../../../deps.ts";
-import { Database } from "../../../deps.ts";
 import { RelationDataType } from "../../../mod.ts";
+import { Db, Document, ObjectId } from "../../../npmDeps.ts";
 
 export const insertRelatedRelationForFirstTime = async ({
   db,
@@ -11,11 +9,11 @@ export const insertRelatedRelationForFirstTime = async ({
   updatedDoc,
   type,
 }: {
-  db: Database;
+  db: Db;
   collection: string;
   updateKeyName: string;
   updateId: ObjectId;
-  updatedDoc: Bson.Document;
+  updatedDoc: Document;
   type: RelationDataType;
 }) => {
   const updatedRel = await db.collection(collection).updateOne(

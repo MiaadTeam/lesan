@@ -1,10 +1,10 @@
 import {
-  Bson,
-  Database,
-  InsertDocument,
-  InsertOptions,
+  Db,
+  Document,
+  InsertOneOptions,
   ObjectId,
-} from "../../deps.ts";
+  OptionalUnlessRequiredId,
+} from "../../npmDeps.ts";
 import { IRelationsFileds } from "../../mod.ts";
 import { createProjection } from "../../models/createProjection.ts";
 import { schemaFns, TSchemas } from "../../models/mod.ts";
@@ -21,7 +21,10 @@ export type TInsertRelations<T extends IRelationsFileds> = {
   };
 };
 
-export const insertOne = async <TR extends IRelationsFileds>({
+export const insertOne = async <
+  TR extends IRelationsFileds,
+  PureFields extends Document,
+>({
   db,
   schemasObj,
   collection,
@@ -30,12 +33,12 @@ export const insertOne = async <TR extends IRelationsFileds>({
   options,
   projection,
 }: {
-  db: Database;
+  db: Db;
   schemasObj: TSchemas;
   collection: string;
-  doc: InsertDocument<Bson.Document>;
+  doc: OptionalUnlessRequiredId<PureFields>;
   relations?: TInsertRelations<TR>;
-  options?: InsertOptions;
+  options?: InsertOneOptions;
   projection?: Projection;
 }) => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);

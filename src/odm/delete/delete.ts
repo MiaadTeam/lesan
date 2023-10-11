@@ -1,15 +1,16 @@
-import { Database } from "../../deps.ts";
-import { DeleteOptions } from "../../deps.ts";
-import { Bson } from "../../deps.ts";
+import { Db, DeleteOptions, Document, Filter } from "../../npmDeps.ts";
 import { throwError } from "../../utils/mod.ts";
 
-export const deleteMethod = async (
-  db: Database,
+export const deleteMethod = async <PureFields extends Document>(
+  db: Db,
   collection: string,
-  query: Bson.Document,
+  query?: Filter<PureFields>,
   options?: DeleteOptions,
 ) => {
   return db
-    ? await db.collection(collection).delete(query, options)
+    ? await db.collection(collection).deleteMany(
+      query as Filter<Document>,
+      options,
+    )
     : throwError("No database connection");
 };

@@ -1,4 +1,4 @@
-import { ObjectId } from "./deps.ts";
+import { ObjectId } from "./npmDeps.ts";
 import { instance, size, string } from "./npmDeps.ts";
 import { Body } from "./utils/checkWants.ts";
 

@@ -14,10 +14,9 @@ import {
 
 const coreApp = lesan();
 
-const client = new MongoClient();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-await client.connect("mongodb://127.0.0.1:27017/");
-const db = client.database("sample");
+const db = client.db("sample");
 
 coreApp.odm.setDb(db);
 
@@ -106,9 +105,9 @@ const users = coreApp.odm.newModel("user", userPure, {
     schemaName: "province",
     type: "multiple",
     sort: {
-      type: "objectId",
       field: "_id",
       order: "desc",
+      type: "objectId",
     },
     relatedRelations: {
       users: {
@@ -152,8 +151,13 @@ const addCountryValidator = () => {
 };
 
 const addCountry: ActFn = async (body) => {
+  const { name, population, abb } = body.details.set;
   return await countries.insertOne({
-    doc: body.details.set,
+    doc: {
+      name,
+      population,
+      abb,
+    },
     projection: body.details.get,
   });
 };
@@ -185,7 +189,7 @@ const getCountries: ActFn = async (body) => {
   limit = limit || 50;
   const skip = limit * (page - 1);
   return await countries
-    .find({ projection: get })
+    .find({ projection: get, filters: {} })
     .skip(skip)
     .limit(limit)
     .toArray();
@@ -237,9 +241,9 @@ const addProvinceValidator = () => {
   });
 };
 const addProvince: ActFn = async (body) => {
-  const { country, isCapital, ...rest } = body.details.set;
+  const { country, isCapital, name, population, abb } = body.details.set;
   return await provinces.insertOne({
-    doc: rest,
+    doc: { name, population, abb },
     projection: body.details.get,
     relations: {
       country: {
@@ -313,13 +317,13 @@ const addUserValidator = () => {
   });
 };
 const addUser: ActFn = async (body) => {
-  const { country, livedProvinces, ...rest } = body.details.set;
+  const { country, livedProvinces, name, age } = body.details.set;
   const obIdLivedProvinces = livedProvinces.map(
     (lp: string) => new ObjectId(lp),
   );
 
   return await users.insertOne({
-    doc: rest,
+    doc: { name, age },
     projection: body.details.get,
     relations: {
       country: {
@@ -403,6 +407,7 @@ const addUserCountry: ActFn = async (body) => {
         },
       },
     },
+    replace: true,
   });
 };
 coreApp.acts.setAct({

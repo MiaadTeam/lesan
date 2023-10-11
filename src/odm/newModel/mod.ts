@@ -1,13 +1,9 @@
-import { Database, DeleteOptions } from "../../deps.ts";
+import { InsertOptions } from "https://deno.land/x/mongo@v0.29.3/mod.ts";
 import {
   AggregateOptions,
-  AggregatePipeline,
-  Bson,
   Filter,
   FindOptions,
   IMainRelation,
-  InsertDocument,
-  InsertOptions,
   IRelationsFileds,
   ObjectId,
   objectIdValidation,
@@ -16,6 +12,12 @@ import {
   UpdateOptions,
 } from "../../mod.ts";
 import { IPureFields, schemaFns, TSchemas } from "../../models/mod.ts";
+import {
+  Db,
+  DeleteOptions,
+  Document,
+  OptionalUnlessRequiredId,
+} from "../../npmDeps.ts";
 import { Projection } from "../aggregation/type.ts";
 import { deleteMethod } from "../delete/delete.ts";
 import { deleteOne } from "../delete/deleteOne.ts";
@@ -31,7 +33,7 @@ export const newModel = <
   PF extends IPureFields,
   TR extends IRelationsFileds,
 >(
-  db: Database,
+  db: Db,
   schemasObj: TSchemas,
   name: string,
   pureFields: PF,
@@ -79,7 +81,7 @@ export const newModel = <
   };
 
   interface IFindModelInputs {
-    filters?: Filter<Bson.Document>;
+    filters: Filter<Document>;
     projection?: Projection;
     options?: FindOptions;
   }
@@ -95,13 +97,13 @@ export const newModel = <
 
     insertOne: (
       { doc, relations, options, projection }: {
-        doc: InsertDocument<Bson.Document>;
+        doc: OptionalUnlessRequiredId<PF>;
         relations?: TInsertRelations<TR>;
         options?: InsertOptions;
         projection?: Projection;
       },
     ) =>
-      insertOne<TR>({
+      insertOne<TR, PF>({
         db,
         schemasObj,
         collection: name,
@@ -114,7 +116,7 @@ export const newModel = <
     addRelation: ({ _id, relations, projection, replace }: {
       relations: TInsertRelations<TR>;
       projection?: Projection;
-      _id: Bson.ObjectId;
+      _id: ObjectId;
       replace?: boolean;
     }) =>
       addRelation<TR>({
@@ -128,8 +130,8 @@ export const newModel = <
       }),
 
     updateOne: (
-      filter: Filter<Bson.Document>,
-      update: UpdateFilter<Bson.Document>,
+      filter: Filter<Document>,
+      update: UpdateFilter<Document>,
       options?: UpdateOptions,
     ) => updateOne(db, name, filter, update, options),
 
@@ -141,7 +143,7 @@ export const newModel = <
         get,
       }: {
         _id: string | ObjectId;
-        update: UpdateFilter<Bson.Document>;
+        update: UpdateFilter<Document>;
         options?: UpdateOptions;
         get?: Projection;
       },
@@ -156,19 +158,19 @@ export const newModel = <
         get,
       }),
 
-    delete: (query: Bson.Document, options?: DeleteOptions) =>
-      deleteMethod(db, name, query, options),
+    delete: (query: Filter<PF>, options?: DeleteOptions) =>
+      deleteMethod<PF>(db, name, query, options),
 
     deleteOne: ({
       filter,
       options,
       hardCascade,
     }: {
-      filter: Filter<Document>;
+      filter: Filter<PF>;
       options?: DeleteOptions;
       hardCascade?: boolean;
     }) =>
-      deleteOne({
+      deleteOne<PF>({
         db,
         schemasObj,
         collection: name,
@@ -183,7 +185,7 @@ export const newModel = <
         options,
         projection,
       }: {
-        pipeline: AggregatePipeline<Bson.Document>[];
+        pipeline: Document[];
         options?: AggregateOptions | undefined;
         projection?: Projection;
       },

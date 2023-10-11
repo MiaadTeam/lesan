@@ -35,7 +35,7 @@ export const updateRelatedRelationNumeric = async ({
       _id: updateId,
     },
     {
-      $push: {
+      $addToSet: {
         [updateKeyName]: {
           $each: [updatedDoc],
           $position: position,

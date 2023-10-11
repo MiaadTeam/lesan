@@ -1,11 +1,11 @@
-import { Bson, Database, Filter, FindOptions } from "../../deps.ts";
+import { Db, Document, Filter, FindOptions } from "../../npmDeps.ts";
 import { Projection } from "../aggregation/type.ts";
 
 export interface IFindInput {
-  db: Database;
+  db: Db;
   collection: string;
   projection?: Projection;
-  filters?: Filter<Bson.Document>;
+  filters: Filter<Document>;
   options?: FindOptions;
 }
 

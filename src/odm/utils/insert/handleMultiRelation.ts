@@ -1,12 +1,11 @@
-import { Bson, Database, InsertDocument, ObjectId } from "../../../deps.ts";
 import { IModel, IRelationsFileds } from "../../../mod.ts";
+import { Db, ObjectId } from "../../../npmDeps.ts";
 import { throwError } from "../../../utils/mod.ts";
 import { find } from "../../find/find.ts";
 import { TInsertRelations } from "../../insert/insertOne.ts";
 import { filterDocByProjection } from "../filterDocByProjection.ts";
 import { filterDocsByProjection } from "../filterDocsByProjection.ts";
-import { insertRelatedRelationForFirstTime } from "./insertRelatedRelationForFirstTime.ts";
-import { proccessRelatedRelation } from "./proccessRelatedRelation.ts";
+import { generateUpdateFilter } from "../generateUpdateFilter.ts";
 
 export const handleMultiRelation = async <TR extends IRelationsFileds>({
   db,
@@ -17,7 +16,7 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
   pureRelProjection,
   generatedDoc,
 }: {
-  db: Database;
+  db: Db;
   relations: TInsertRelations<TR>;
   rel: string;
   foundedSchema: IModel;
@@ -30,10 +29,14 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
     pureDocProjection,
   );
 
+  const findWithIds = {
+    _id: { "$in": (relations[rel]!._ids as ObjectId[]) },
+  };
+
   const foundedMultiMainRelation = await find({
     db,
     collection: foundedSchema.relations[rel].schemaName,
-    filters: { _id: { "$in": relations![rel]!._ids } },
+    filters: findWithIds,
   }).toArray();
 
   if (!foundedMultiMainRelation) {
@@ -61,43 +64,23 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
     const relatedRelation =
       foundedSchema.relations[rel].relatedRelations[relatedRel];
     const relationSchemName = foundedSchema.relations[rel].schemaName;
-    const fieldName = relatedRelation.sort ? relatedRelation.sort.field : "";
-    foundedMultiMainRelation.forEach(async (FMR) => {
-      if (
-        relations && relations[rel] && relations[rel]!.relatedRelations &&
-        relations[rel]!.relatedRelations![relatedRel] === true
-      ) {
-        const lengthOfRel: number = FMR![relatedRel]
-          ? FMR![relatedRel].length
-          : 0;
-        const updateId: ObjectId = FMR._id;
 
-        if (FMR![relatedRel]) {
-          await proccessRelatedRelation({
-            db,
-            relatedRelation,
-            relatedRel,
-            lengthOfRel,
-            fieldName,
-            updateId,
-            updatedDoc: pureOfGeneratedDoc,
-            collection: relationSchemName,
-            foundedSingleMainRelation: FMR,
-            foundedSchema,
-            rel,
-          });
-        } else {
-          await insertRelatedRelationForFirstTime({
-            db,
-            collection: foundedSchema.relations[rel].schemaName,
-            updateKeyName: relatedRel,
-            updateId: FMR._id,
-            updatedDoc: pureOfGeneratedDoc,
-            type: foundedSchema.relations[rel].relatedRelations[relatedRel]
-              .type,
-          });
-        }
-      }
-    });
+    if (
+      relations && relations[rel] && relations[rel]!.relatedRelations &&
+      relations[rel]!.relatedRelations![relatedRel] === true
+    ) {
+      const updateFilter = generateUpdateFilter({
+        relatedRelation,
+        relatedRel,
+        updatedDoc: pureOfGeneratedDoc,
+      });
+
+      const updatedRel = await db.collection(relationSchemName).updateMany(
+        findWithIds,
+        updateFilter,
+      );
+
+      return updatedRel;
+    }
   }
 };

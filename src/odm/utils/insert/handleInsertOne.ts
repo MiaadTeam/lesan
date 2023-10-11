@@ -1,5 +1,4 @@
-import { Database } from "../../../deps.ts";
-import { IModel, IRelationsFileds } from "../../../mod.ts";
+import { Db, IModel, IRelationsFileds } from "../../../mod.ts";
 import { TInsertRelations } from "../../insert/insertOne.ts";
 import { handleMultiRelation } from "./handleMultiRelation.ts";
 import { handleSingleRelation } from "./handleSingleRelation.ts";
@@ -13,7 +12,7 @@ export const handleInsertOne = async <TR extends IRelationsFileds>({
   pureDocProjection,
   generatedDoc,
 }: {
-  db: Database;
+  db: Db;
   relations: TInsertRelations<TR>;
   rel: string;
   foundedSchema: IModel;

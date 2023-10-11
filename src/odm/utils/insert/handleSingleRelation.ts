@@ -1,5 +1,5 @@
-import { Bson, Database, ObjectId } from "../../../deps.ts";
 import { IModel, IRelationsFileds } from "../../../mod.ts";
+import { Db, ObjectId } from "../../../npmDeps.ts";
 import { throwError } from "../../../utils/mod.ts";
 import { findOne } from "../../find/findOne.ts";
 import { TInsertRelations } from "../../insert/insertOne.ts";
@@ -17,7 +17,7 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
   generatedDoc,
   replace,
 }: {
-  db: Database;
+  db: Db;
   relations: TInsertRelations<TR>;
   rel: string;
   foundedSchema: IModel;
@@ -57,11 +57,7 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
     const relatedRelation =
       foundedSchema.relations[rel].relatedRelations[relatedRel];
     const relationSchemName = foundedSchema.relations[rel].schemaName;
-    const lengthOfRel: number = foundedSingleMainRelation![relatedRel]
-      ? foundedSingleMainRelation![relatedRel].length
-      : 0;
     const updateId: ObjectId = foundedSingleMainRelation!._id;
-    const fieldName = relatedRelation.sort ? relatedRelation.sort.field : "";
 
     if (
       relations && relations[rel] && relations[rel]!.relatedRelations &&
@@ -72,14 +68,9 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
           db,
           relatedRelation,
           relatedRel,
-          lengthOfRel,
-          fieldName,
           updateId,
           updatedDoc: pureGeneratedDoc,
           collection: relationSchemName,
-          foundedSingleMainRelation,
-          foundedSchema,
-          rel,
         });
       } else {
         await insertRelatedRelationForFirstTime({
