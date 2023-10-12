@@ -17,7 +17,6 @@ export type TRelatedRelation = {
   sort?: {
     field: string;
     order: "asc" | "desc";
-    type: "number" | "date" | "objectId";
   };
 };
 
@@ -28,7 +27,6 @@ export interface TRelation {
   sort?: {
     field: string;
     order: "asc" | "desc";
-    type: "number" | "date" | "objectId";
   };
   relatedRelations: {
     [key: string]: TRelatedRelation;
@@ -62,7 +60,6 @@ export interface IMainRelation {
   sort?: {
     field: string;
     order: "asc" | "desc";
-    type: "number" | "date" | "objectId";
   };
 }
 
@@ -96,7 +93,6 @@ export interface IRelatedRelation {
   sort?: {
     field: string;
     order: "asc" | "desc";
-    type: "number" | "date" | "objectId";
   };
 }
 

@@ -4,7 +4,6 @@ import { throwError } from "../../../utils/mod.ts";
 import { findOne } from "../../find/findOne.ts";
 import { TInsertRelations } from "../../insert/insertOne.ts";
 import { filterDocByProjection } from "../filterDocByProjection.ts";
-import { insertRelatedRelationForFirstTime } from "./insertRelatedRelationForFirstTime.ts";
 import { proccessRelatedRelation } from "./proccessRelatedRelation.ts";
 
 export const handleSingleRelation = async <TR extends IRelationsFileds>({
@@ -63,26 +62,14 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
       relations && relations[rel] && relations[rel]!.relatedRelations &&
       relations[rel]!.relatedRelations![relatedRel] === true
     ) {
-      if (foundedSingleMainRelation && foundedSingleMainRelation![relatedRel]) {
-        await proccessRelatedRelation({
-          db,
-          relatedRelation,
-          relatedRel,
-          updateId,
-          updatedDoc: pureGeneratedDoc,
-          collection: relationSchemName,
-        });
-      } else {
-        await insertRelatedRelationForFirstTime({
-          db,
-          collection: foundedSchema.relations[rel].schemaName,
-          updateKeyName: relatedRel,
-          updateId: foundedSingleMainRelation!._id,
-          updatedDoc: pureGeneratedDoc,
-          type: foundedSchema.relations[rel].relatedRelations[relatedRel]
-            .type,
-        });
-      }
+      await proccessRelatedRelation({
+        db,
+        relatedRelation,
+        relatedRel,
+        updateId,
+        updatedDoc: pureGeneratedDoc,
+        collection: relationSchemName,
+      });
     }
   }
 };

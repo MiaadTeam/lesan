@@ -56,7 +56,6 @@ const provinces = coreApp.odm.newModel(
           sort: {
             field: "_id",
             order: "asc",
-            type: "objectId",
           },
         },
         provincesDesc: {
@@ -65,7 +64,6 @@ const provinces = coreApp.odm.newModel(
           sort: {
             field: "_id",
             order: "desc",
-            type: "objectId",
           },
         },
         provincesByPopAsc: {
@@ -74,7 +72,6 @@ const provinces = coreApp.odm.newModel(
           sort: {
             field: "population",
             order: "asc",
-            type: "number",
           },
         },
         proviceByPopDesc: {
@@ -83,7 +80,6 @@ const provinces = coreApp.odm.newModel(
           sort: {
             field: "population",
             order: "desc",
-            type: "number",
           },
         },
         capitalProvince: {
@@ -107,7 +103,6 @@ const users = coreApp.odm.newModel("user", userPure, {
     sort: {
       field: "_id",
       order: "desc",
-      type: "objectId",
     },
     relatedRelations: {
       users: {
@@ -116,7 +111,6 @@ const users = coreApp.odm.newModel("user", userPure, {
         sort: {
           field: "_id",
           order: "desc",
-          type: "objectId",
         },
       },
     },
@@ -133,7 +127,6 @@ const users = coreApp.odm.newModel("user", userPure, {
         sort: {
           field: "_id",
           order: "desc",
-          type: "objectId",
         },
       },
     },
