@@ -28,6 +28,7 @@ import { insertOne, TInsertRelations } from "../insert/insertOne.ts";
 import { addRelation } from "../relation/addRelation.ts";
 import { updateById } from "../update/updateById.ts";
 import { updateOne } from "../update/updateOne.ts";
+import { insertMany } from "../insert/insertMany.ts";
 
 export const newModel = <
   PF extends IPureFields,
@@ -108,6 +109,24 @@ export const newModel = <
         schemasObj,
         collection: name,
         doc,
+        relations,
+        options,
+        projection,
+      }),
+
+    insertMany: (
+      { docs, relations, options, projection }: {
+        docs: OptionalUnlessRequiredId<PF>[];
+        relations?: TInsertRelations<TR>;
+        options?: InsertOptions;
+        projection?: Projection;
+      },
+    ) =>
+      insertMany<TR, PF>({
+        db,
+        schemasObj,
+        collection: name,
+        docs,
         relations,
         options,
         projection,

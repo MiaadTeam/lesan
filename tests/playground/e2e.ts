@@ -162,6 +162,29 @@ coreApp.acts.setAct({
   fn: addCountry,
 });
 
+// ------------------ Add Multiple Countries ------------------
+const addMultipleCountriesValidator = () => {
+  return object({
+    set: (object({ multiCountries: array(object()) })),
+    get: coreApp.schemas.selectStruct("country", { users: 1 }),
+  });
+};
+
+const addCountries: ActFn = async (body) => {
+  const { multiCountries } = body.details.set;
+  return await countries.insertMany({
+    docs: multiCountries,
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "addCountries",
+  validator: addMultipleCountriesValidator(),
+  fn: addCountries,
+});
+
 // ------------------ Get Countries  ------------------
 const getCountriesValidator = () => {
   return object({
@@ -233,8 +256,10 @@ const addProvinceValidator = () => {
     get: coreApp.schemas.selectStruct("province", 1),
   });
 };
+
 const addProvince: ActFn = async (body) => {
   const { country, isCapital, name, population, abb } = body.details.set;
+
   return await provinces.insertOne({
     doc: { name, population, abb },
     projection: body.details.get,
@@ -252,11 +277,51 @@ const addProvince: ActFn = async (body) => {
     },
   });
 };
+
 coreApp.acts.setAct({
   schema: "province",
   actName: "addProvince",
   validator: addProvinceValidator(),
   fn: addProvince,
+});
+
+// ------------------ Add Multiple Provinces ------------------
+const addProvincesValidator = () => {
+  return object({
+    set: object({
+      multiProvinces: array(object()),
+      country: string(),
+    }),
+    get: coreApp.schemas.selectStruct("province", 1),
+  });
+};
+
+const addProvinces: ActFn = async (body) => {
+  const { country, multiProvinces } = body.details.set;
+
+  return await provinces.insertMany({
+    docs: multiProvinces,
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          provincesAsc: true,
+          provincesDesc: true,
+          provincesByPopAsc: true,
+          proviceByPopDesc: true,
+          capitalProvince: false,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "province",
+  actName: "addProvinces",
+  validator: addProvincesValidator(),
+  fn: addProvinces,
 });
 
 // ------------------ Get Province ------------------
@@ -277,8 +342,8 @@ const getProvinces: ActFn = async (body) => {
   } = body.details;
   const pipeline = [];
 
-  pipeline.push({ $limit: take });
   pipeline.push({ $skip: (page - 1) * take });
+  pipeline.push({ $limit: take });
   countryId &&
     pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
 
