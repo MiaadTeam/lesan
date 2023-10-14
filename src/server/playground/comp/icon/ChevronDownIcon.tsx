@@ -1,7 +1,11 @@
 /** @jsx h */
 import { h } from "../../reactDeps.ts";
 
-export default function ChevronDownIcon() {
+export default function ChevronDownIcon({
+  className = "",
+}: {
+  className?: string;
+}) {
   return (
     <svg
       width={25}
@@ -9,6 +13,7 @@ export default function ChevronDownIcon() {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
       <g
