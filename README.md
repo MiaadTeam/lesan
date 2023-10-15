@@ -9,24 +9,23 @@ Create a file called `mod.ts` and paste the code below into it:
 ```typescript
 import {
   ActFn,
-  InRelation,
+  Document,
+  Filter,
   lesan,
   MongoClient,
   number,
   object,
   ObjectId,
   optional,
-  OutRelation,
   size,
   string,
 } from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = new MongoClient();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-await client.connect("mongodb://127.0.0.1:27017/");
-const db = client.database("sample");
+const db = client.db("civil");
 
 coreApp.odm.setDb(db);
 
@@ -34,42 +33,43 @@ coreApp.odm.setDb(db);
 // ------------------ Country Model ------------------
 const countryPure = {
   name: string(),
-  description: string(),
+  population: number(),
+  abb: string(),
 };
-const countryInRel: Record<string, InRelation> = {};
-const countryOutRel: Record<string, OutRelation> = {
-  users: {
-    schemaName: "user",
-    number: 50,
-    sort: { field: "_id", order: "desc", type: "objectId" },
-  },
-};
-const countries = coreApp.odm.setModel(
+const countryRelations = {};
+const countries = coreApp.odm.newModel(
   "country",
   countryPure,
-  countryInRel,
-  countryOutRel,
+  countryRelations,
 );
 
 // ------------------ User Model ------------------
 const userPure = {
   name: string(),
-  address: optional(string()),
   age: number(),
 };
-const userInRel: Record<string, InRelation> = {
+
+const users = coreApp.odm.newModel("user", userPure, {
   country: {
-    schemaName: "country",
-    type: "one",
     optional: false,
+    schemaName: "country",
+    type: "single",
+    relatedRelations: {
+      users: {
+        type: "multiple",
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc",
+        },
+      },
+    },
   },
-};
+});
 
-const userOutRel = {};
-const users = coreApp.odm.setModel("user", userPure, userInRel, userOutRel);
-
-// ================== MODEL SECTION ==================
+// ================== FUNCTIONS SECTION ==================
 // ------------------ Country Founctions ------------------
+// ------------------ Add Country ------------------
 const addCountryValidator = () => {
   return object({
     set: object(countryPure),
@@ -77,34 +77,89 @@ const addCountryValidator = () => {
   });
 };
 
-const addCountry: ActFn = async (body) =>
-  await countries.insertOne({ doc: body.details.set, get: body.details.get });
+const addCountry: ActFn = async (body) => {
+  const { name, population, abb } = body.details.set;
+  return await countries.insertOne({
+    doc: {
+      name,
+      population,
+      abb,
+    },
+    projection: body.details.get,
+  });
+};
 
 coreApp.acts.setAct({
-  type: "dynamic",
   schema: "country",
   actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
 });
 
+// ------------------ Get Countries  ------------------
+const getCountriesValidator = () => {
+  return object({
+    set: object({
+      page: number(),
+      limit: number(),
+    }),
+    get: coreApp.schemas.selectStruct("country", 1),
+  });
+};
+
+const getCountries: ActFn = async (body) => {
+  let {
+    set: { page, limit },
+    get,
+  } = body.details;
+
+  page = page || 1;
+  limit = limit || 50;
+  const skip = limit * (page - 1);
+
+  return await countries
+    .find({ projection: get, filters: {} })
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "getCountries",
+  validator: getCountriesValidator(),
+  fn: getCountries,
+});
+
 // ------------------ User Founctions ------------------
+// --------------------- Add User ----------------------
 const addUserValidator = () => {
   return object({
-    set: object({ ...userPure, country: string() }),
+    set: object({
+      ...userPure,
+      country: string(),
+    }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUser: ActFn = async (body) => {
-  const { country, ...rest } = body.details.set;
+  const { country, name, age } = body.details.set;
+
   return await users.insertOne({
-    doc: rest,
-    get: body.details.get,
-    relation: { country: new ObjectId(country) },
+    doc: { name, age },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
   });
 };
+
 coreApp.acts.setAct({
-  type: "dynamic",
   schema: "user",
   actName: "addUser",
   validator: addUserValidator(),
@@ -122,29 +177,29 @@ const getUsersValidator = () => {
   });
 };
 const getUsers: ActFn = async (body) => {
-  const {
+  let {
     set: {
       page,
-      take,
+      limit,
       countryId,
     },
     get,
   } = body.details;
-  const pipline = [];
 
-  pipline.push({ $limit: take });
-  pipline.push({ $skip: (page - 1) * take });
-  countryId &&
-    pipline.push({ $match: { "country._id": new ObjectId(countryId) } });
+  page = page || 1;
+  limit = limit || 50;
+  const skip = limit * (page - 1);
+  const filters: Filter<Document> = {};
+  countryId && (filters["country._id"] = new ObjectId(countryId));
 
-  return await users.aggregation({
-    pipline,
-    get,
-  });
+  return await users
+    .find({ projection: get, filters })
+    .skip(skip)
+    .limit(limit)
+    .toArray();
 };
 
 coreApp.acts.setAct({
-  type: "dynamic",
   schema: "user",
   actName: "getUsers",
   validator: getUsersValidator(),
@@ -173,32 +228,26 @@ Listening on http://localhost:8080/
 ```
 
 Now you can visit the playground at `http://localhost:8080/playground` and send requests to the server for `addCountry`, `addUser`, and `getUsers`.
-<img width="1672" alt="Screen Shot 1402-04-26 at 20 47 05" src="https://github.com/MiaadTeam/lesan/assets/6236123/1486687b-b695-46da-9f67-334bf719cf8a">
+<img width="1672" alt="Screen Shot 1402-04-26 at 20 47 05" src="https://github.com/MiaadTeam/lesan/assets/6236123/7edb3be1-6180-4f3e-b00c-161aa2c3c8cd">
 
 alternativly you can send post request to `http://localhost:8080/lesan` with `postman` include the following in JSON format inside the body in order to retrieve the desired data:
 
 ```JSON
 {
-  "contents": "dynamic",
-  "wants": {
-    "model": "country",
-    "act": "addCountry"
-  },
+  "service": "main",
+  "model": "country",
+  "act": "addCountry",
   "details": {
     "set": {
-      "name": "Iran",
-      "description": "A beautiful and civilized country"
+        "name": "Iran",
+        "population": 8500000000,
+        "abb": "IR"
     },
     "get": {
       "_id": 1,
       "name": 1,
-      "description": 1,
-      "users": {
-        "_id": 1,
-        "name": 1,
-        "address": 1,
-        "age": 1
-      }
+      "population": 1,
+      "abb": 1
     }
   }
 }
