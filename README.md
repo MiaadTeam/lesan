@@ -166,6 +166,7 @@ coreApp.acts.setAct({
   fn: addUser,
 });
 
+// --------------------- Get Users ----------------------
 const getUsersValidator = () => {
   return object({
     set: object({
@@ -206,6 +207,7 @@ coreApp.acts.setAct({
   fn: getUsers,
 });
 
+// ================== RUM SECTION ==================
 coreApp.runServer({ port: 8080, typeGeneration: false, playground: true });
 ```
 
