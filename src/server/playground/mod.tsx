@@ -25,6 +25,7 @@ export const getJSFile = async () => {
   const getBundle = async () => {
     const url = new URL("./dist/bundle.js", import.meta.url);
     const data = await Deno.readTextFile(url);
+    console.log("inside get js files", { url, data });
     return new Response(data, {
       headers: { "content-type": "application/javascript" },
     });
