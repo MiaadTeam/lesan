@@ -12,7 +12,7 @@ import {
 const checkFiles = async (req: Request, staticPath: string[]) => {
   const url = new URL(req.url);
   const checkPath = () => {
-    const isInPath = staticPath.some(path => url.pathname.startsWith(path));
+    const isInPath = staticPath.some((path) => url.pathname.startsWith(path));
     return isInPath;
   };
   return checkPath()
@@ -35,6 +35,7 @@ const checkStaticPath = async (
   schemasObj: ISchema,
   actsObj: Services,
 ) => {
+  console.log("inside checkStaticPath ", { url });
   return url.pathname === `/playground/static/client.js`
     ? await getClientReact()
     : url.pathname === `/playground/static/index.css`
