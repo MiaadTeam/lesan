@@ -1,6 +1,6 @@
-import * as esbuild from "https://deno.land/x/esbuild@v0.18.9/mod.js";
+import * as esbuild from "https://deno.land/x/esbuild@v0.19.4/mod.js";
 
-esbuild
+const result = await esbuild
   .build({
     entryPoints: ["./hydrate.tsx"],
     outfile: "./dist/bundle-es.js",
@@ -11,20 +11,26 @@ esbuild
     minify: true,
     format: "esm",
     sourcemap: true,
-  })
-  .then((result) => {
-    /*
-     *  @LOG @DEBUG @INFO
-     *  This log written by ::==> {{ syd }}
-     *
-     *  Please remove your log after debugging
-     */
-    console.log(" ============= ");
-    console.group("result, error ------ ");
-    console.log();
-    console.info({ result }, " ------ ");
-    console.log();
-    console.groupEnd();
-    console.log(" ============= ");
-  })
-  .catch((e) => console.log(e));
+    external: ["preact"],
+    drop: ["console"],
+  });
+
+const cssUrl = new URL("./css/index.css", import.meta.url);
+const cssContet = await Deno.readTextFile(cssUrl);
+
+const tsAddress = new URL(
+  "./dist/bundle-es.js",
+  import.meta.url,
+);
+const tsContent = await Deno.readTextFile(tsAddress);
+
+const bundleTsContent = `
+    export const bundleTs = ${JSON.stringify(tsContent)};
+
+    export const bundleCss = \`${cssContet}\`;
+    `;
+
+console.log("esbuild result is ", { result });
+await Deno.writeTextFile("./dist/bundleContent.ts", bundleTsContent);
+
+esbuild.stop();

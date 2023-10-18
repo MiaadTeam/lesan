@@ -1,6 +1,6 @@
 import { serveFile } from "../deps.ts";
 import { Services } from "../mod.ts";
-import { ISchema } from "../models/mod.ts";
+import { TSchemas } from "../models/mod.ts";
 import { throwError } from "../utils/throwError.ts";
 import {
   getClientReact,
@@ -20,7 +20,7 @@ const checkFiles = async (req: Request, staticPath: string[]) => {
     : throwError("can not serve this path");
 };
 
-const getSchemas = (schemasObj: ISchema, actsObj: Services) => {
+const getSchemas = (schemasObj: TSchemas, actsObj: Services) => {
   return new Response(
     JSON.stringify({ schemas: schemasObj, acts: actsObj }),
     {
@@ -32,10 +32,9 @@ const checkStaticPath = async (
   req: Request,
   url: URL,
   staticPath: string[],
-  schemasObj: ISchema,
+  schemasObj: TSchemas,
   actsObj: Services,
 ) => {
-  console.log("inside checkStaticPath ", { url });
   return url.pathname === `/playground/static/client.js`
     ? await getClientReact()
     : url.pathname === `/playground/static/index.css`
@@ -49,7 +48,7 @@ const checkStaticPath = async (
 
 export const serveStatic = async (
   req: Request,
-  schemasObj: ISchema,
+  schemasObj: TSchemas,
   actsObj: Services,
   playground: boolean,
   staticPath: string[],

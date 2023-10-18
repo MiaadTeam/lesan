@@ -2340,13 +2340,14 @@ function useOutsideClick(callback) {
     ]);
     return ref;
 }
-function ChevronDownIcon() {
+function ChevronDownIcon({ className =""  }) {
     return Z("svg", {
         width: 25,
         height: 25,
         viewBox: "0 0 24 24",
         fill: "none",
-        xmlns: "http://www.w3.org/2000/svg"
+        xmlns: "http://www.w3.org/2000/svg",
+        className: className
     }, Z("g", {
         id: "SVGRepo_bgCarrier",
         "stroke-width": "0"
@@ -2405,6 +2406,94 @@ function Selected({ items , onClickItem , incomeActiveItem , canShow  }) {
             }
         }, item)))));
 }
+const MultiSelect = ({ options , onChange  })=>{
+    const [selectedOptions, setSelectedOptions] = F1([]);
+    const [unselectedOptions, setUnselectedOptions] = F1(options);
+    const [isOpen, setIsOpen] = F1(false);
+    const handleOptionChange = (selectedOption)=>{
+        if (selectedOptions.includes(selectedOption)) {
+            const filteredSelectedOptions = selectedOptions.filter((option)=>option.value !== selectedOption.value);
+            setSelectedOptions(filteredSelectedOptions);
+            setUnselectedOptions([
+                ...unselectedOptions,
+                selectedOption
+            ]);
+            onChange(filteredSelectedOptions);
+        } else {
+            const filteredUnselectedOptions = unselectedOptions.filter((option)=>option.value !== selectedOption.value);
+            setSelectedOptions([
+                ...selectedOptions,
+                selectedOption
+            ]);
+            setUnselectedOptions(filteredUnselectedOptions);
+            onChange([
+                ...selectedOptions,
+                selectedOption
+            ]);
+        }
+    };
+    const resetOptions = ()=>{
+        setSelectedOptions([]);
+        onChange([]);
+        setUnselectedOptions(options);
+    };
+    const toggleDropdown = ()=>{
+        setIsOpen(!isOpen);
+    };
+    const ref = useOutsideClick(()=>{
+        setIsOpen(false);
+    });
+    return Z("div", {
+        ref: ref,
+        className: "multi-select__wrapper"
+    }, Z("div", {
+        className: "multi-select__field",
+        onClick: toggleDropdown
+    }, Z("div", {
+        className: "multi-select__selected-item-wrapper"
+    }, selectedOptions.map((item)=>Z("div", {
+            className: "multi-select__selected-item",
+            key: item
+        }, Z("div", {
+            className: "multi-select__selected-item-text"
+        }, item.label), Z("div", {
+            className: "multi-select__selected-item-btn",
+            role: "button",
+            onClick: (e)=>{
+                e.stopPropagation();
+                handleOptionChange(item);
+            }
+        }, "x")))), Z("div", {
+        className: "multi-select__icons-wrapper"
+    }, selectedOptions.length ? Z("div", {
+        className: "multi-select__close-icon-wrapper",
+        role: "button",
+        onClick: (e)=>{
+            e.stopPropagation();
+            resetOptions();
+        }
+    }, Z("span", {
+        className: "multi-select__close-icon"
+    }, "x")) : null, Z("div", {
+        className: "multi-select__arrow-icon-wrapper",
+        role: "button"
+    }, Z(ChevronDownIcon, {
+        className: "multi-select__arrow-icon"
+    })))), isOpen ? Z("div", {
+        className: "multi-select__options"
+    }, unselectedOptions.length ? unselectedOptions.map((option)=>Z("div", {
+            key: option.value,
+            onClick: (e)=>{
+                e.stopPropagation();
+                handleOptionChange(option);
+            },
+            className: "multi-select__option"
+        }, Z("div", {
+            className: "multi-select__option-label"
+        }, option.label))) : Z("div", {
+        className: "multi-select__option--no-option"
+    }, "No Options!")) : null);
+};
 const lesanAPI = ({ baseUrl , options  })=>fetch(`${baseUrl}lesan`, options).then((res)=>res.json());
 const Main = ({ urlAddress  })=>{
     const { activeTab , tabsData , actsObj , headers , history , setService , setSchema , setAct , setPostFields , setGetFields , setFormData , setHistory , setResponse , resetGetFields , resetPostFields , addE2eForm , setModal  } = useLesan();
@@ -2433,6 +2522,60 @@ const Main = ({ urlAddress  })=>{
             },
             index: activeTab
         });
+    };
+    const renderPostFields = ({ key , field , isMultiEnum =false , formData  })=>{
+        if (field.type === "array") {
+            return renderPostFields({
+                key,
+                formData,
+                field: field["schema"],
+                isMultiEnum: true
+            });
+        } else if (field["type"] === "enums" && isMultiEnum) {
+            return Z(MultiSelect, {
+                options: Object.keys(field["schema"]).map((schemaKey)=>({
+                        label: schemaKey,
+                        value: field["schema"][schemaKey]
+                    })),
+                onChange: (options)=>{
+                    const value = options.map((item)=>item.value);
+                    setFormData({
+                        data: {
+                            ...formData,
+                            [`set.${key}`]: value
+                        },
+                        index: activeTab
+                    });
+                    localStorage.setItem("localTabsData", JSON.stringify(tabsData));
+                }
+            });
+        } else if (field["type"] === "enums") {
+            return Z(Selected, {
+                onClickItem: (value)=>{
+                    setFormData({
+                        data: {
+                            ...formData,
+                            [`set.${key}`]: value
+                        },
+                        index: activeTab
+                    });
+                    localStorage.setItem("localTabsData", JSON.stringify(tabsData));
+                },
+                incomeActiveItem: formData[`set.${key}`],
+                items: Object.keys(field["schema"])
+            });
+        } else {
+            return Z("input", {
+                className: "input",
+                placeholder: key,
+                id: key,
+                value: formData[`set.${key}`],
+                name: `set.${key}`,
+                type: field["type"] === "number" ? "number" : "string",
+                alt: field["type"],
+                onChange: handleChange
+            });
+        }
     };
     const renderGetFields = ({ getField , keyName , margin  })=>Z("div", {
             style: {
@@ -2669,28 +2812,10 @@ const Main = ({ urlAddress  })=>{
             key: `${activeTab}.${item}-----`
         }, Z("label", {
             htmlFor: item
-        }, item, " :"), tabsData[activeTab].postFields[item]["type"] === "enums" ? Z(Selected, {
-            onClickItem: (clickedItem)=>{
-                setFormData({
-                    data: {
-                        ...tabsData[activeTab].formData,
-                        [`set.${item}`]: clickedItem
-                    },
-                    index: activeTab
-                });
-                localStorage.setItem("localTabsData", JSON.stringify(tabsData));
-            },
-            incomeActiveItem: tabsData[activeTab].formData[`set.${item}`],
-            items: Object.keys(tabsData[activeTab].postFields[item]["schema"])
-        }) : Z("input", {
-            className: "input",
-            placeholder: item,
-            id: item,
-            value: tabsData[activeTab].formData[`set.${item}`],
-            name: `set.${item}`,
-            type: tabsData[activeTab].postFields[item]["type"] === "number" ? "number" : "string",
-            alt: tabsData[activeTab].postFields[item]["type"],
-            onChange: handleChange
+        }, item, " :"), renderPostFields({
+            key: item,
+            field: tabsData[activeTab].postFields[item],
+            formData: tabsData[activeTab].formData
         }))), Z("div", {
         className: "sidebar__section-heading sidebar__section-heading--fields"
     }, "GET fields"), Z("div", {
