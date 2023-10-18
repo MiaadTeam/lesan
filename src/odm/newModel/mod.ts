@@ -16,6 +16,7 @@ import {
   Db,
   DeleteOptions,
   Document,
+  Infer,
   OptionalUnlessRequiredId,
 } from "../../npmDeps.ts";
 import { Projection } from "../aggregation/type.ts";
@@ -40,6 +41,10 @@ export const newModel = <
   pureFields: PF,
   relations: TR,
 ) => {
+  type InferPureFieldType = {
+    [key in keyof PF]: Infer<PF[key]>;
+  };
+
   const schemas = schemaFns(schemasObj).getSchemas();
 
   pureFields = pureFields._id ? pureFields : {
@@ -98,13 +103,13 @@ export const newModel = <
 
     insertOne: (
       { doc, relations, options, projection }: {
-        doc: OptionalUnlessRequiredId<PF>;
+        doc: OptionalUnlessRequiredId<InferPureFieldType>;
         relations?: TInsertRelations<TR>;
         options?: InsertOptions;
         projection?: Projection;
       },
     ) =>
-      insertOne<TR, PF>({
+      insertOne<TR, InferPureFieldType>({
         db,
         schemasObj,
         collection: name,

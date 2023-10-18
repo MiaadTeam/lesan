@@ -11,12 +11,14 @@ export interface IPureFields {
 
 export type RelationDataType = "single" | "multiple";
 
+export type RelationSortOrderType = "asc" | "desc";
+
 export type TRelatedRelation = {
   type: RelationDataType;
   limit?: null | number;
   sort?: {
     field: string;
-    order: "asc" | "desc";
+    order: RelationSortOrderType
   };
 };
 
@@ -26,7 +28,7 @@ export interface TRelation {
   optional: boolean;
   sort?: {
     field: string;
-    order: "asc" | "desc";
+    order: RelationSortOrderType;
   };
   relatedRelations: {
     [key: string]: TRelatedRelation;
