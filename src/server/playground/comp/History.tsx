@@ -1,12 +1,11 @@
 /** @jsx h */
-import { h, useEffect, useState } from "../reactDeps.ts";
+import { Fragment, h, useEffect, useState, useRef } from "../reactDeps.ts";
 import { ConvertMilliseconds } from "../utils/convertMilliseconds.ts";
 import { useNonInitialEffect } from "./hooks/useNonInitialEffect.ts";
 import DeleteIcon from "./icon/deleteIcon.tsx";
 import DustbinIcon from "./icon/DustbinIcon.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
-
 export function History({
   setFormFromHistory,
 }: // ,localHistory
@@ -22,17 +21,14 @@ export function History({
   }, [history]);
 
   return (
-    <div className="history modal-content">
+    <Fragment>
       {history && history?.length > 0 ? (
-        <div className="">
+        <div>
           <br />
           {history.map((hi, index) => (
             <div className="container-detail" id={hi.id}>
               <section className="container-re">
-                <div
-                  style={{ position: "relative" }}
-                  // className="history-re-title_date "
-                >
+                <div style={{ position: "relative" }}>
                   <span className="container-re-title">REQUEST</span>
                   <span className="history-re-detail-date">{hi.reqDate}</span>
                 </div>
@@ -82,12 +78,14 @@ export function History({
                 <div
                   className="history-re-title_delete"
                   style={{ position: "relative" }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    deleteItemHistory(index);
-                  }}
                 >
-                  <span className="history-re-delete">
+                  <span
+                    className="history-re-delete"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      deleteItemHistory(index);
+                    }}
+                  >
                     <DeleteIcon />
                   </span>
                   <span className="container-re-title history-response-title">
@@ -143,7 +141,6 @@ export function History({
               }
             }}
           >
-            {" "}
             <DustbinIcon />
             <span className="tooltip-text">Clear History</span>
           </button>
@@ -151,6 +148,6 @@ export function History({
       ) : (
         ""
       )}
-    </div>
+    </Fragment>
   );
 }
