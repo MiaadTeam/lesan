@@ -1,11 +1,24 @@
 import { bundle } from "../../deps.ts";
+import { bundleCss, bundleTs } from "./dist/bundleContent.ts";
 
 export const getCSSFile = async () => {
-  const url = new URL("./css/index.css", import.meta.url);
-  const data = await Deno.readTextFile(url);
-  return new Response(data, {
-    headers: { "content-type": "text/css" },
-  });
+  const getFileCss = async () => {
+    const url = new URL("./css/index.css", import.meta.url);
+    const data = await Deno.readTextFile(url);
+    return new Response(data, {
+      headers: { "content-type": "text/css" },
+    });
+  };
+
+  const getConstCss = () => {
+    return new Response(bundleCss, {
+      headers: { "content-type": "text/css" },
+    });
+  };
+
+  return Deno.env.get("PLAYENV") === "development"
+    ? await getFileCss()
+    : getConstCss();
 };
 
 export const getClientReact = async () => {
@@ -23,11 +36,10 @@ export const getClientReact = async () => {
 
 export const getJSFile = async () => {
   const getBundle = async () => {
-    const url = new URL("./dist/bundle.js", import.meta.url);
-    console.log("inside get js files before read", { url });
-    const data = await Deno.readTextFile(url);
-    console.log("inside get js files after read", { url, data });
-    return new Response(data, {
+    // const url = new URL("./dist/bundle-es.js", import.meta.url);
+    // const data = await Deno.readTextFile(url);
+
+    return new Response(bundleTs, {
       headers: { "content-type": "application/javascript" },
     });
   };
