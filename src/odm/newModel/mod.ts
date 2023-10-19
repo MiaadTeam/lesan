@@ -41,7 +41,7 @@ export const newModel = <
   pureFields: PF,
   relations: TR,
 ) => {
-  type InferPureFieldType = {
+  type InferPureFieldsType = {
     [key in keyof PF]: Infer<PF[key]>;
   };
 
@@ -103,13 +103,13 @@ export const newModel = <
 
     insertOne: (
       { doc, relations, options, projection }: {
-        doc: OptionalUnlessRequiredId<InferPureFieldType>;
+        doc: OptionalUnlessRequiredId<InferPureFieldsType>;
         relations?: TInsertRelations<TR>;
         options?: InsertOptions;
         projection?: Projection;
       },
     ) =>
-      insertOne<TR, InferPureFieldType>({
+      insertOne<TR, InferPureFieldsType>({
         db,
         schemasObj,
         collection: name,
@@ -121,13 +121,13 @@ export const newModel = <
 
     insertMany: (
       { docs, relations, options, projection }: {
-        docs: OptionalUnlessRequiredId<PF>[];
+        docs: OptionalUnlessRequiredId<InferPureFieldsType>[];
         relations?: TInsertRelations<TR>;
         options?: InsertOptions;
         projection?: Projection;
       },
     ) =>
-      insertMany<TR, PF>({
+      insertMany<TR, InferPureFieldsType>({
         db,
         schemasObj,
         collection: name,
@@ -190,11 +190,11 @@ export const newModel = <
       options,
       hardCascade,
     }: {
-      filter: Filter<PF>;
+      filter: Filter<InferPureFieldsType>;
       options?: DeleteOptions;
       hardCascade?: boolean;
     }) =>
-      deleteOne<PF>({
+      deleteOne<InferPureFieldsType>({
         db,
         schemasObj,
         collection: name,
