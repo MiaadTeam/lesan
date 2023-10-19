@@ -272,7 +272,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
       options: requestFunction().body,
     });
     const t1 = performance.now();
-    const tookTime = t1 - t0;
+    const tookTime = (t1 - t0).toFixed(1);
 
     /* event.target.reset(); */
     /* setFormData({}); */
