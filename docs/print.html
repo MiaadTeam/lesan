@@ -541,7 +541,17 @@ to send a <code>post</code> request to <code>http://localhost:1366/lesan</code> 
   }
 }
 </code></pre>
-<p>for inserting a new country.</p>
+<p>for inserting a new country. You shuold get this result:</p>
+<pre><code class="language-JSON">{
+  &quot;body&quot;: {
+    &quot;_id&quot;: &quot;6534d7c6c5dec0be8e7bf751&quot;,
+    &quot;name&quot;: &quot;Iran&quot;,
+    &quot;population&quot;: 85000000,
+    &quot;abb&quot;: &quot;IR&quot;
+  },
+  &quot;success&quot;: true
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="receive-data"><a class="header" href="#receive-data">Receive data</a></h1>
 <p>One of the biggest challenges for implementing data retrieval capability in Lesan was when the customer requested dependencies of a table with more than two levels of penetration in depth.</p>
 <p>Let us review the previous methods before explaining Lesan's method.</p>

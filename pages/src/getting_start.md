@@ -319,6 +319,17 @@ or postman:
   }
 }
 ```
-for inserting a new country.
+for inserting a new country. You shuold get this result:
+```JSON
+{
+  "body": {
+    "_id": "6534d7c6c5dec0be8e7bf751",
+    "name": "Iran",
+    "population": 85000000,
+    "abb": "IR"
+  },
+  "success": true
+}
+```
 
 
