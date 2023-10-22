@@ -302,7 +302,7 @@ coreApp.acts.setAct({
 });
 </code></pre>
 <blockquote>
-<p>We need to import <code>ActFn</code> type from <code>lesan</code></p>
+<p>We need to import <code>object</code> function <code>ActFn</code> type from <code>lesan</code></p>
 </blockquote>
 <h3 id="the-setact-function"><a class="header" href="#the-setact-function">The <code>setAct</code> function</a></h3>
 <p>As you can see, to add an act to <code>country</code>, we need to use the <code>setAct</code> function in <code>coreApp.acts</code>.
@@ -317,10 +317,231 @@ This function receives an object as input that has the following keys:</p>
 </ul>
 <h3 id="the-validator-function"><a class="header" href="#the-validator-function">The Validator function</a></h3>
 <p>In the <code>addCountryValidator</code> function that we wrote for the <code>validator</code> key, we have returned the <code>object</code> function from the Superstruct struct.<br />
-This <code>object</code> contains to key:</p>
+This <code>object</code> contains two key:</p>
 <ul>
-<li><code>set</code>: this key used for getting data from client side. we have access to this key inside of main function in this address <code>body.details.set</code></li>
+<li><code>set</code>: It is an <code>object</code> in which we define the required input information for each function available on the client side. In the desired function, we can get the <code>set</code> object information from this address. <code>body.details.set</code>. Note that this object must be of Superstruct <code>object</code> function type.</li>
+<li><code>get</code>: This key is also a Superstruct <code>object</code>, where we specify what data can be sent to the client. This object is in such a way that the client can specify what data he needs with values of <code>0</code> or <code>1</code> for each <code>key</code>. Actually, this object can be like this:
+<pre><code class="language-ts">  get: object({
+    name: enums([0, 1]),
+    population: enums([0, 1]),
+    abb: enums([0, 1]),
+  })
+</code></pre>
+But as you can see, we have used <code>selectStruct</code> function of <code>coreApp.schemas.selectStruct</code>. This function has two inputs. The first input is the <code>name</code> of the model for which we want to generate this object, and the second input specifies the degree of penetration into each <code>relationship</code>. The second input of the <code>selectStruct</code> function can be entered as a <code>number</code> or an <code>object</code>. If entered as an object, the keys of this object must be the <code>names</code> of the selected model relationships, and its value can again be a <code>number</code> or an <code>object</code> of its key relationships. Such as:
+<pre><code class="language-ts">  get: coreApp.schemas.selectStruct(&quot;country&quot;, { 
+      provinces: { 
+        cities: 1 
+      },
+      createdBy: 2, 
+      users:{ 
+        posts: 1
+      }
+    }),
+</code></pre>
+As a result, an object will be produced as follows:
+<pre><code class="language-ts">  get: object({
+    name: enums([0, 1]),
+    population: enums([0, 1]),
+    abb: enums([0, 1]),
+    provinces: object({
+      name: enums([0, 1]),
+      population: enums([0, 1]),
+      abb: enums([0, 1]),
+      cities: object({
+        name: enums([0, 1]),
+        population: enums([0, 1]),
+        abb: enums([0, 1]),
+      })
+    }),
+    createdBy: object({
+      name: enums([0, 1]),
+      family: enums([0, 1]),
+      email: enums([0, 1]),
+      livedCity: object({
+        name: enums([0, 1]),
+        population: enums([0, 1]),
+        abb: enums([0, 1]),
+        province: object({
+          name: enums([0, 1]),
+          population: enums([0, 1]),
+          abb: enums([0, 1]),
+        }),
+      }),
+      posts: object({
+        title: enums([0, 1]),
+        description: enums([0, 1]),
+        photo: enums([0, 1]),
+        auther: object({
+          name: enums([0, 1]),
+          family: enums([0, 1]),
+          email: enums([0, 1]),
+        })
+      })
+    }),
+    users: object({
+      name: enums([0, 1]),
+      family: enums([0, 1]),
+      email: enums([0, 1]),
+      post: object({
+        title: enums([0, 1]),
+        description: enums([0, 1]),
+        photo: enums([0, 1]),
+      })
+    })
+  })
+</code></pre>
+We directly send the data received from the get key as a projection to MongoDB.</li>
 </ul>
+<h3 id="the-fn-function"><a class="header" href="#the-fn-function">The <code>fn</code> function</a></h3>
+<p>The <code>fn</code> key receives the main <code>act</code> function, we write this function for that:</p>
+<pre><code class="language-ts">const addCountry: ActFn = async (body) =&gt; {
+  const { name, population, abb } = body.details.set;
+  return await countries.insertOne({
+    doc: {
+      name,
+      population,
+      abb,
+    },
+    projection: body.details.get,
+  });
+};
+</code></pre>
+<p>this function receives an input called <code>body</code>, the <code>body</code> of the <code>request</code> sent from the client side is passed to it when this function is called, as a result, we have access to the information sent by users.
+The request body sent from the client side should be a json like this:</p>
+<pre><code class="language-JSON">{
+  &quot;service&quot;: &quot;main&quot;,
+  &quot;model&quot;: &quot;country&quot;,
+  &quot;act&quot;: &quot;addCountry&quot;,
+  &quot;details&quot;: {
+    &quot;set&quot;: {
+      &quot;name&quot;: &quot;Iran&quot;,
+      &quot;population&quot;: 85000000,
+      &quot;abb&quot;: &quot;IR&quot;
+    },
+    &quot;get&quot;: {
+      &quot;_id&quot;: 1,
+      &quot;name&quot;: 1,
+      &quot;population&quot;: 1,
+      &quot;abb&quot;: 1
+    }
+  }
+}
+</code></pre>
+<ul>
+<li>The <code>service</code> key is used to select one of the microservices set on the application. You can read more about this here.</li>
+<li>The <code>model</code> key is used to select one of the models added to the application.</li>
+<li>The <code>act</code> key is used to select one of the acts added to the application.</li>
+<li>The <code>act</code> key is used to select one of the acts added to the application.</li>
+<li>The <code>details</code> key is used to receive data to be sent from the client side along with data to be delivered to users. This key has two internal keys called <code>get</code> and <code>set</code>, we talked a little about it before.
+<ul>
+<li><code>set</code>: It contains the information we need in the main function. For this reason, we can extract <code>name</code>, <code>population</code>, and <code>abb</code> from within <code>body.details.set</code>.</li>
+<li><code>get</code>: Contains selected information that the user needs to be returned. Therefore, we can pass this object directly to Mongo <code>projection</code>.</li>
+</ul>
+</li>
+</ul>
+<p>As you can see, we have used the <code>insertOne</code> function, which was exported from the <code>countries</code> model, to add a new document. This function accepts an object as input, which has the following keys:</p>
+<pre><code class="language-ts">{
+  doc: OptionalUnlessRequiredId&lt;InferPureFieldsType&gt;;
+  relations?: TInsertRelations&lt;TR&gt;;
+  options?: InsertOptions;
+  projection?: Projection;
+}
+</code></pre>
+<ul>
+<li>The <code>doc</code> key receives an object of the pure values of the selected model. <code>OptionalUnlessRequiredId</code> type is the <code>document</code> type in the official MongoDB driver. You can read about it <a href="https://mongodb.github.io/node-mongodb-native/6.1/types/OptionalUnlessRequiredId.html">here</a>.</li>
+<li>The <code>relations</code> key receives an object from the relations of this model. There is no relationship here. We will read about this in the next section.</li>
+<li>The <code>options</code> key gets the official MongoDB driver options to insertOne. You can read more about this <a href="https://mongodb.github.io/node-mongodb-native/3.6/api/Collection.html#insertOne">here</a></li>
+<li>The <code>projection</code> key is used to receive written data. We use native projection in MangoDB. You can read MongoDB's own documentation <a href="https://www.mongodb.com/docs/manual/tutorial/project-fields-from-query-results/">here</a>. In <code>insertOne</code>, you can only penetrate one step in relationships. Here you can get only pure fields because there is no relation. We will read more about this later.</li>
+</ul>
+<h2 id="the-code"><a class="header" href="#the-code">The code</a></h2>
+<p>So this is all the code we've written so far:</p>
+<pre><code class="language-ts">import {
+  ActFn,
+  lesan,
+  MongoClient,
+  number,
+  object,
+  string,
+} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+
+const coreApp = lesan();
+
+const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+
+const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+
+coreApp.odm.setDb(db);
+
+const countryPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const countryRelations = {};
+
+const countries = coreApp.odm.newModel(
+  &quot;country&quot;,
+  countryPure,
+  countryRelations,
+);
+
+const addCountryValidator = () =&gt; {
+  return object({
+    set: object(countryPure),
+    get: coreApp.schemas.selectStruct(&quot;country&quot;, { users: 1 }),
+  });
+};
+
+const addCountry: ActFn = async (body) =&gt; {
+  const { name, population, abb } = body.details.set;
+  return await countries.insertOne({
+    doc: {
+      name,
+      population,
+      abb,
+    },
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: &quot;country&quot;,
+  actName: &quot;addCountry&quot;,
+  validator: addCountryValidator(),
+  fn: addCountry,
+});
+
+coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
+</code></pre>
+<blockquote>
+<p>now you can run <code>deno run -A mod.ts</code> and go to the playground</p>
+</blockquote>
+<p>you can use playground:
+<img width="1680" alt="Screen Shot 1402-07-30 at 11 17 19" src="https://github.com/MiaadTeam/lesan/assets/6236123/1e514e6c-58b3-484b-ae73-e6cc8e26c56c">
+or postman:
+<img width="1643" alt="Screen Shot 1402-07-30 at 11 35 40" src="https://github.com/MiaadTeam/lesan/assets/6236123/1c9e0d4a-c875-4b14-9832-8d7c680ebe18">
+to send a <code>post</code> request to <code>http://localhost:1366/lesan</code> with this <code>request body</code>:</p>
+<pre><code class="language-JSON">{
+  &quot;service&quot;: &quot;main&quot;,
+  &quot;model&quot;: &quot;country&quot;,
+  &quot;act&quot;: &quot;addCountry&quot;,
+  &quot;details&quot;: {
+    &quot;set&quot;: {
+      &quot;name&quot;: &quot;Iran&quot;,
+      &quot;population&quot;: 85000000,
+      &quot;abb&quot;: &quot;IR&quot;
+    },
+    &quot;get&quot;: {
+      &quot;_id&quot;: 1,
+      &quot;name&quot;: 1,
+      &quot;population&quot;: 1,
+      &quot;abb&quot;: 1
+    }
+  }
+}
+</code></pre>
+<p>for inserting a new country.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="receive-data"><a class="header" href="#receive-data">Receive data</a></h1>
 <p>One of the biggest challenges for implementing data retrieval capability in Lesan was when the customer requested dependencies of a table with more than two levels of penetration in depth.</p>
 <p>Let us review the previous methods before explaining Lesan's method.</p>

@@ -241,9 +241,9 @@ alternativly you can send post request to `http://localhost:8080/lesan` with `po
   "act": "addCountry",
   "details": {
     "set": {
-        "name": "Iran",
-        "population": 8500000000,
-        "abb": "IR"
+      "name": "Iran",
+      "population": 8500000000,
+      "abb": "IR"
     },
     "get": {
       "_id": 1,
