@@ -5,6 +5,10 @@
 # User Guide
 - [Installation](./installation.md)
 - [Getting start](./getting_start.md)
+- [Mannage relations](./mannage_relations.md)
+- [Folder Structure](./folder_structure.md)
+- [Microservice](./microservice.md)
+- [Playground](./playground.md)
 
 # Lesan Philosophy
 - [Receiving Data](./Receiving_Data.md)
