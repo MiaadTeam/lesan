@@ -42,7 +42,7 @@ The `newModel` function accepts three inputs:
 
 - The first input is to define the name of the new model.
 - The second input is to define the pure fields of that model in the database. For this, we use an object whose keys are the names of each of the fields, and the value of these keys is obtained by one of the functions exported from [Superstruct](https://github.com/ianstormtaylor/superstruct).
-- The third input is to define the relationship between models. Because we have just one model here, we pass an empty object for that.
+- The third input is to define the relationship between models. Because we have just one model here, we pass an empty object for that. We will read more about this later.
 
 Finally, the `newModel` function returns an object that has services such as `insertOne`, `insertMany`, `updateOne`, `deleteOne`, and so on.
 

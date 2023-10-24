@@ -6,9 +6,11 @@
 - [Installation](./installation.md)
 - [Getting start](./getting_start.md)
 - [Mannage relations](./mannage_relations.md)
+- [Other functions](./other_functions.md)
 - [Folder Structure](./folder_structure.md)
 - [Microservice or Monolithic](./microservice-monolithic.md)
 - [Playground](./playground.md)
+- [Manage replica](./manage_replica.md)
 
 # Lesan Philosophy
 - [Receiving Data](./Receiving_Data.md)
