@@ -292,13 +292,26 @@ coreApp.acts.setAct({
 
 coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
 ```
-> now you can run `deno run -A mod.ts` and go to the playground
+> Please replace `x.x.x` in the import link with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
-you can use playground:
+
+### Run Server function
+The last thing we want to talk about is the `coreApp.runServer` function, this function receives an `object` input that has the following keys:
+- `port` used to specify the port used to run the server.
+- `polyground` that receive a `Boolean` value that specifies whether or not the Polyground is available at `http://{server-address}:{port}/playground` address.
+- `typeGeneration`, which receives a `Boolean` value and creates a folder named `declarations`, and inside it, the typefaces of the program are generated to be used in various cases, we will read more about this later.
+- `staticPath` that receives an `array` of paths as a `string` and makes the content inside these paths statically serveable. We will read more about this later.
+- `cors` which receives either the `*` value or an `array` of urls as a `string`, and makes these addresses have the ability to communicate with the server and not receive the `cors` error.
+
+### Running App
+> Now you can run `deno run -A mod.ts` for running the Application with deno
+
+You can use playground:
 <img width="1680" alt="Screen Shot 1402-07-30 at 11 17 19" src="https://github.com/MiaadTeam/lesan/assets/6236123/1e514e6c-58b3-484b-ae73-e6cc8e26c56c">
-or postman:
+Or postman:
 <img width="1643" alt="Screen Shot 1402-07-30 at 11 35 40" src="https://github.com/MiaadTeam/lesan/assets/6236123/1c9e0d4a-c875-4b14-9832-8d7c680ebe18">
- to send a `post` request to `http://localhost:1366/lesan` with this `request body`:
+
+To send a `post` request to `http://localhost:1366/lesan` with this `request body`:
 ```JSON
 {
   "service": "main",
@@ -319,7 +332,9 @@ or postman:
   }
 }
 ```
-for inserting a new country. You shuold get this result:
+For inserting a new country.  
+
+You shuold get this result:
 ```JSON
 {
   "body": {
@@ -331,5 +346,3 @@ for inserting a new country. You shuold get this result:
   "success": true
 }
 ```
-
-

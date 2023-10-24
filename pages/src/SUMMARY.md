@@ -7,7 +7,7 @@
 - [Getting start](./getting_start.md)
 - [Mannage relations](./mannage_relations.md)
 - [Folder Structure](./folder_structure.md)
-- [Microservice](./microservice.md)
+- [Microservice or Monolithic](./microservice-monolithic.md)
 - [Playground](./playground.md)
 
 # Lesan Philosophy
