@@ -4,3 +4,7 @@ language = "en"
 multilingual = false
 src = "src"
 title = "Lesan"
+
+[output.html]
+git-repository-url = "https://github.com/MiaadTeam/lesan"
+git-repository-icon = "fa-github"
