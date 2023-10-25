@@ -97,8 +97,16 @@ select {
   box-sizing: border-box;
 }
 
+/* Remove Arrows/Spinners for Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Remove Arrows/Spinners for Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 textarea {
@@ -1022,6 +1030,16 @@ textarea {
   height: 100%;
 }
 
+.e2e {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.pagination--item[data-show="true"] {
+  color: gold;
+}
+
 .sidebar__section--headers {
   margin-top: 50px;
 }
@@ -1201,15 +1219,25 @@ textarea {
   color: white;
 }
 
+.myBtn .tooltip-text {
+  background-color: rgb(236 237 215 / 1);
+  color: darkred;
+  border: 1px solid darkred;
+}
+
+.myBtn .tooltip-text::after {
+  border-color: darkred transparent transparent transparent;
+}
+
 .myBtn-active {
-  border: none;
+  border: 1px solid darkred;
   outline: none;
   color: white;
   cursor: pointer;
   border-radius: 50%;
-  background-color: darkred;
-  width: 2.95rem;
-  height: 2.95rem;
+  background-color: rgb(236 237 215 / 0.9);
+  width: 2.5rem;
+  height: 2.5rem;
   border: 1px solid whiItesmoke;
   cursor: pointer;
   border-radius: 50%;
@@ -1220,7 +1248,7 @@ textarea {
 }
 
 .myBtn-active:hover {
-  background-color: rgb(190, 6, 6);
+  background-color: rgb(236 237 215 / 1);
 }
 
 .detail-requests {
@@ -1639,6 +1667,20 @@ textarea {
   overflow: scroll; */
 }
 
+.container-re--header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid gainsboro;
+  padding: 5px;
+  background-color: rgba(20, 20, 20, 0.1);
+}
+.container-re--header--icon {
+  display: flex;
+  position: absolute;
+  left: 10px;
+  cursor: pointer;
+}
+
 .history-re-delete {
   position: absolute;
   right: 25px;
@@ -1729,9 +1771,9 @@ textarea {
 
 .container-re-title {
   text-align: center;
-  background-color: rgba(20, 20, 20, 0.1);
+  /* background-color: rgba(20, 20, 20, 0.1); */
   width: 100%;
-  border-bottom: 1px solid gainsboro;
+  /* border-bottom: 1px solid gainsboro; */
   display: inline-block;
   color: bisque;
 }
@@ -1755,15 +1797,17 @@ textarea {
 
 .clear-history-button {
   border-radius: 50%;
-  background-color: darkred;
-  width: 2.95rem;
-  height: 2.95rem;
+  background-color: rgba(139, 0, 0, 0.9);
+  width: 2.5rem;
+  height: 2.5rem;
   border: 1px solid whiItesmoke;
   cursor: pointer;
+  border: 1px solid white;
 }
 
 .clear-history-button:hover {
-  background-color: rgb(190, 6, 6);
+  /* background-color: rgb(190, 6, 6); */
+  background-color: rgba(139, 0, 0, 1);
 }
 
 .tooltip {
@@ -1849,8 +1893,9 @@ textarea {
   transition: visibility 200ms ease;
   border: 1px solid gainsboro;
   cursor: pointer;
-  backdrop-filter: blur(10px);
   color: #fff;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .modal-fullscreen {
