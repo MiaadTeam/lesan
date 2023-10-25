@@ -1,6 +1,6 @@
 # Getting start
 
-I'm copy this simple example from [installation](./installation.md) page. We will keep this file as `mod.ts` and continue to add various models and functions to it.
+I copy this simple example from [installation](./installation.md) page. We will keep this file as `mod.ts` and continue to add various models and functions to it.
 ```ts
 import {
   lesan,
@@ -84,8 +84,8 @@ This function receives an object as input that has the following keys:
 
 - `schema` is the name of the model to which we want to set an action.
 - `actName` is just a simple string to identify the act.
-- `fn` is the function we call when a request for it arrives.
-- `validator` is a superstruct object which is called before the act fn calling and validation the given data. Validator includes `set` and `get` objects.
+- `fn` is the function we call when a request arrives for it.
+- `validator` is a superstruct object which is called before calling the act fn and validating the given data. Validator includes `set` and `get` objects.
 - An optional key named `validationRunType` that receives the values of `assert` and `create` and determines the type of validator run so that we can create data or change previous data during validation. You can read about it [here](https://docs.superstructjs.org/guides/03-coercing-data).
 - There is another optional key called `preAct` which receives an array of functions. These functions are executed in the order of the array index before the execution of the main endpoint function. With these functions, we can store information in the context and use it in the main function, or not allow the main function to be executed. We mostly use this key for authorization and authentication. You can think of that key as middleware in Express.
 
@@ -93,7 +93,7 @@ This function receives an object as input that has the following keys:
 In the `addCountryValidator` function that we wrote for the `validator` key, we have returned the `object` function from the Superstruct struct.  
 This `object` contains two key:  
 - `set`: It is an `object` in which we define the required input information for each function available on the client side. In the desired function, we can get the `set` object information from this address. `body.details.set`. Note that this object must be of Superstruct `object` function type.
-- `get`: This key is also a Superstruct `object`, where we specify what data can be sent to the client. This object is in such a way that the client can specify what data he needs with values of `0` or `1` for each `key`. Actually, this object can be like this:  
+- `get`: This key is also a Superstruct `object`, where we specify what data can be sent to the client. This object is used in such a way that the client can specify what data he needs with values of `0` or `1` for each `key`. Actually, this object can be like this:  
     ```ts
       get: object({
         name: enums([0, 1]),
@@ -184,7 +184,7 @@ const addCountry: ActFn = async (body) => {
 };
 ```
 
-this function receives an input called `body`, the `body` of the `request` sent from the client side is passed to it when this function is called, as a result, we have access to the information sent by users.
+This function receives an input called `body`, the `body` of the `request` sent from the client side is passed to it when this function is called, as a result, we have access to the information sent by users.
 The request body sent from the client side should be a json like this:
 
 ```JSON
@@ -298,10 +298,10 @@ coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
 ### Run Server function
 The last thing we want to talk about is the `coreApp.runServer` function, this function receives an `object` input that has the following keys:
 - `port` used to specify the port used to run the server.
-- `polyground` that receive a `Boolean` value that specifies whether or not the Polyground is available at `http://{server-address}:{port}/playground` address.
+- `polyground` that receives a `Boolean` value that specifies whether the Polyground is available at `http://{server-address}:{port}/playground` address.
 - `typeGeneration`, which receives a `Boolean` value and creates a folder named `declarations`, and inside it, the typefaces of the program are generated to be used in various cases, we will read more about this later.
 - `staticPath` that receives an `array` of paths as a `string` and makes the content inside these paths statically serveable. We will read more about this later.
-- `cors` which receives either the `*` value or an `array` of urls as a `string`, and makes these addresses have the ability to communicate with the server and not receive the `cors` error.
+- `cors` which receives either the `*` value or an `array` of URLs as a `string`, and makes these addresses have the ability to communicate with the server and not receive the `cors` error.
 
 ### Running App
 > Now you can run `deno run -A mod.ts` for running the Application with deno
