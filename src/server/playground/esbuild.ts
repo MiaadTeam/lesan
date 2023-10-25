@@ -1,6 +1,6 @@
 import * as esbuild from "https://deno.land/x/esbuild@v0.19.4/mod.js";
 
-const result = await esbuild
+const jsBundleResult = await esbuild
   .build({
     entryPoints: ["./hydrate.tsx"],
     outfile: "./dist/bundle-es.js",
@@ -15,7 +15,13 @@ const result = await esbuild
     drop: ["console"],
   });
 
-const cssUrl = new URL("./css/index.css", import.meta.url);
+const cssBunldeResult = await esbuild.build({
+  entryPoints: ["./css/index.css"],
+  bundle: true,
+  outfile: "./dist/bundle-css.css",
+});
+
+const cssUrl = new URL("./dist/bundle-css.css", import.meta.url);
 const cssContet = await Deno.readTextFile(cssUrl);
 
 const tsAddress = new URL(
@@ -30,7 +36,7 @@ const bundleTsContent = `
     export const bundleCss = \`${cssContet}\`;
     `;
 
-console.log("esbuild result is ", { result });
 await Deno.writeTextFile("./dist/bundleContent.ts", bundleTsContent);
 
+console.log("everything done compleltly", { jsBundleResult, cssBunldeResult });
 esbuild.stop();
