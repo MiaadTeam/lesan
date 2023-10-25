@@ -36,3 +36,35 @@ const cities = coreApp.odm.newModel(
 );
 ```
 
+We talked about `newModel` in its input [here](https://miaadteam.github.io/lesan/getting_start.html#add-new-model).  
+Now we only talk about the third input, the relation definition.
+```ts
+export type RelationDataType = "single" | "multiple";
+
+export type RelationSortOrderType = "asc" | "desc";
+
+export type TRelatedRelation = {
+  type: RelationDataType;
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType
+  };
+};
+
+interface TRelation {
+  schemaName: string;
+  type: RelationDataType;
+  optional: boolean;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType;
+  };
+  relatedRelations: {
+    [key: string]: TRelatedRelation;
+  };
+}
+  relations: Record<string, TRelation>;
+
+  
+```
