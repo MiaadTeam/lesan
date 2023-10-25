@@ -173,6 +173,18 @@
 <p>We have also simplified the understanding of data structures for artificial intelligence so that we can manage the creation of duplicates in data by this intelligence.</p>
 <p>Furthermore, we tried to provide the possibility of being movable for the data structure along with the functions written on the server side so that we can manage microservices more easily.</p>
 <p>Finally, this data structure ( by the favor of fewer requests sent to the database) will also simplify the way <a href="https://en.wikipedia.org/wiki/Static_site_generator">SSG</a> content is created.</p>
+<h1 id="benchmarks"><a class="header" href="#benchmarks">Benchmarks</a></h1>
+<p><img src="https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532" alt="best-results" /></p>
+<p>We use this formula to calculate the difference : (B - A) ÷ A * 100<br />
+As you see on the chart:</p>
+<ul>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>1168%</code> faster than the <code>prisma-express-rest</code>. Which uses <code>postgres</code> as a database.</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>1417%</code> faster than the <code>prisma-express-graphql</code>. Which uses <code>postgres</code> as a database.</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>4435%</code> faster than the <code>mongoose-express-rest</code> (Note that we did not sort in this query)</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>72289%</code> faster than the <code>mongo-express-rest</code> (Note that we did not sort in this query)</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>298971%</code> faster than the <code>mongoose-express-rest</code> (used sortby)</li>
+</ul>
+<p><strong>Maybe we created the most performant framework in the world!</strong> <a href="https://github.com/MiaadTeam/benchmark">see more detailed benchmark</a></p>
 
                     </main>
 
