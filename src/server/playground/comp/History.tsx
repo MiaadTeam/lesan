@@ -28,7 +28,12 @@ export function History({
           {history.map((hi, index) => (
             <div className="container-detail" id={hi.id}>
               <section className="container-re">
-                <div style={{ position: "relative" }}>
+                <div
+                  style={{
+                    position: "relative",
+                    borderBottom: "1px solid gainsboro",
+                  }}
+                >
                   <span className="container-re-title">REQUEST</span>
                   <span className="history-re-detail-date">{hi.reqDate}</span>
                 </div>
@@ -77,7 +82,10 @@ export function History({
               <section className="container-re container-response">
                 <div
                   className="history-re-title_delete"
-                  style={{ position: "relative" }}
+                  style={{
+                    position: "relative",
+                    borderBottom: "1px solid gainsboro",
+                  }}
                 >
                   <span
                     className="history-re-delete"
