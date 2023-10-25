@@ -206,8 +206,8 @@ const cities = coreApp.odm.newModel(
   cityRelations,
 );
 </code></pre>
-<p>We talked about <code>newModel</code> in its input <a href="https://miaadteam.github.io/lesan/getting_start.html#add-new-model">here</a>.<br />
-Now we only talk about the third input, the relation definition.</p>
+<p>We talked about <code>newModel</code> in its input <a href="https://miaadteam.github.io/lesan/getting_start.html#add-new-model">here</a>.</p>
+<p>Now we only talk about the third input, the relation definition. which receives an object with string key and <code>TRelation</code> value(<code>relations: Record&lt;string, TRelation&gt;;</code>). This value is as follows:</p>
 <pre><code class="language-ts">export type RelationDataType = &quot;single&quot; | &quot;multiple&quot;;
 
 export type RelationSortOrderType = &quot;asc&quot; | &quot;desc&quot;;
@@ -233,9 +233,6 @@ interface TRelation {
     [key: string]: TRelatedRelation;
   };
 }
-  relations: Record&lt;string, TRelation&gt;;
-
-  
 </code></pre>
 
                     </main>

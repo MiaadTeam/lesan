@@ -201,7 +201,7 @@ As you see on the chart:</p>
 <ul>
 <li><a href="https://code.visualstudio.com/download">VS Code</a> please install <a href="https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno">deno extension</a></li>
 <li><a href="https://github.com/MiaadTeam/lesvim">Lesvim</a> The configuration of this editor is a bit difficult.</li>
-<li><a href="https://docs.helix-editor.com/install.html">Helix</a> The configuration of this edditor is simple and the performance is excellent. Please add <code>.helix/languages.toml</code> file to the root of project and insert <a href="https://raw.githubusercontent.com/MiaadTeam/lesan/main/.helix/languages.toml">this config</a> for better support of <code>Deno</code>.</li>
+<li><a href="https://docs.helix-editor.com/install.html">Helix</a> The configuration of this editor is simple and the performance is excellent. Please add <code>.helix/languages.toml</code> file to the root of project and insert <a href="https://raw.githubusercontent.com/MiaadTeam/lesan/main/.helix/languages.toml">this config</a> for better support of <code>Deno</code>.</li>
 </ul>
 </li>
 </ul>
@@ -243,7 +243,7 @@ Listening on http://localhost:1366/
 </blockquote>
 <p><strong><a href="./getting_start.html">implement first <code>model</code></a></strong></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="getting-start"><a class="header" href="#getting-start">Getting start</a></h1>
-<p>I'm copy this simple example from <a href="./installation.html">installation</a> page. We will keep this file as <code>mod.ts</code> and continue to add various models and functions to it.</p>
+<p>I copy this simple example from <a href="./installation.html">installation</a> page. We will keep this file as <code>mod.ts</code> and continue to add various models and functions to it.</p>
 <pre><code class="language-ts">import {
   lesan,
   MongoClient,
@@ -325,8 +325,8 @@ This function receives an object as input that has the following keys:</p>
 <ul>
 <li><code>schema</code> is the name of the model to which we want to set an action.</li>
 <li><code>actName</code> is just a simple string to identify the act.</li>
-<li><code>fn</code> is the function we call when a request for it arrives.</li>
-<li><code>validator</code> is a superstruct object which is called before the act fn calling and validation the given data. Validator includes <code>set</code> and <code>get</code> objects.</li>
+<li><code>fn</code> is the function we call when a request arrives for it.</li>
+<li><code>validator</code> is a superstruct object which is called before calling the act fn and validating the given data. Validator includes <code>set</code> and <code>get</code> objects.</li>
 <li>An optional key named <code>validationRunType</code> that receives the values of <code>assert</code> and <code>create</code> and determines the type of validator run so that we can create data or change previous data during validation. You can read about it <a href="https://docs.superstructjs.org/guides/03-coercing-data">here</a>.</li>
 <li>There is another optional key called <code>preAct</code> which receives an array of functions. These functions are executed in the order of the array index before the execution of the main endpoint function. With these functions, we can store information in the context and use it in the main function, or not allow the main function to be executed. We mostly use this key for authorization and authentication. You can think of that key as middleware in Express.</li>
 </ul>
@@ -335,7 +335,7 @@ This function receives an object as input that has the following keys:</p>
 This <code>object</code> contains two key:</p>
 <ul>
 <li><code>set</code>: It is an <code>object</code> in which we define the required input information for each function available on the client side. In the desired function, we can get the <code>set</code> object information from this address. <code>body.details.set</code>. Note that this object must be of Superstruct <code>object</code> function type.</li>
-<li><code>get</code>: This key is also a Superstruct <code>object</code>, where we specify what data can be sent to the client. This object is in such a way that the client can specify what data he needs with values of <code>0</code> or <code>1</code> for each <code>key</code>. Actually, this object can be like this:
+<li><code>get</code>: This key is also a Superstruct <code>object</code>, where we specify what data can be sent to the client. This object is used in such a way that the client can specify what data he needs with values of <code>0</code> or <code>1</code> for each <code>key</code>. Actually, this object can be like this:
 <pre><code class="language-ts">  get: object({
     name: enums([0, 1]),
     population: enums([0, 1]),
@@ -421,7 +421,7 @@ We directly send the data received from the get key as a projection to MongoDB.<
   });
 };
 </code></pre>
-<p>this function receives an input called <code>body</code>, the <code>body</code> of the <code>request</code> sent from the client side is passed to it when this function is called, as a result, we have access to the information sent by users.
+<p>This function receives an input called <code>body</code>, the <code>body</code> of the <code>request</code> sent from the client side is passed to it when this function is called, as a result, we have access to the information sent by users.
 The request body sent from the client side should be a json like this:</p>
 <pre><code class="language-JSON">{
   &quot;service&quot;: &quot;main&quot;,
@@ -536,10 +536,10 @@ coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
 <p>The last thing we want to talk about is the <code>coreApp.runServer</code> function, this function receives an <code>object</code> input that has the following keys:</p>
 <ul>
 <li><code>port</code> used to specify the port used to run the server.</li>
-<li><code>polyground</code> that receive a <code>Boolean</code> value that specifies whether or not the Polyground is available at <code>http://{server-address}:{port}/playground</code> address.</li>
+<li><code>polyground</code> that receives a <code>Boolean</code> value that specifies whether the Polyground is available at <code>http://{server-address}:{port}/playground</code> address.</li>
 <li><code>typeGeneration</code>, which receives a <code>Boolean</code> value and creates a folder named <code>declarations</code>, and inside it, the typefaces of the program are generated to be used in various cases, we will read more about this later.</li>
 <li><code>staticPath</code> that receives an <code>array</code> of paths as a <code>string</code> and makes the content inside these paths statically serveable. We will read more about this later.</li>
-<li><code>cors</code> which receives either the <code>*</code> value or an <code>array</code> of urls as a <code>string</code>, and makes these addresses have the ability to communicate with the server and not receive the <code>cors</code> error.</li>
+<li><code>cors</code> which receives either the <code>*</code> value or an <code>array</code> of URLs as a <code>string</code>, and makes these addresses have the ability to communicate with the server and not receive the <code>cors</code> error.</li>
 </ul>
 <h3 id="running-app"><a class="header" href="#running-app">Running App</a></h3>
 <blockquote>
@@ -615,8 +615,8 @@ const cities = coreApp.odm.newModel(
   cityRelations,
 );
 </code></pre>
-<p>We talked about <code>newModel</code> in its input <a href="https://miaadteam.github.io/lesan/getting_start.html#add-new-model">here</a>.<br />
-Now we only talk about the third input, the relation definition.</p>
+<p>We talked about <code>newModel</code> in its input <a href="https://miaadteam.github.io/lesan/getting_start.html#add-new-model">here</a>.</p>
+<p>Now we only talk about the third input, the relation definition. which receives an object with string key and <code>TRelation</code> value(<code>relations: Record&lt;string, TRelation&gt;;</code>). This value is as follows:</p>
 <pre><code class="language-ts">export type RelationDataType = &quot;single&quot; | &quot;multiple&quot;;
 
 export type RelationSortOrderType = &quot;asc&quot; | &quot;desc&quot;;
@@ -642,9 +642,6 @@ interface TRelation {
     [key: string]: TRelatedRelation;
   };
 }
-  relations: Record&lt;string, TRelation&gt;;
-
-  
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="other-functions"><a class="header" href="#other-functions">Other functions</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playground"><a class="header" href="#playground">Playground</a></h1>

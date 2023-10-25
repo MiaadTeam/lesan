@@ -74,7 +74,6 @@ const userPure = {
   name: string(),
   age: number(),
 };
-
 const users = coreApp.odm.newModel("user", userPure, {
   country: {
     optional: false,
@@ -234,7 +233,7 @@ coreApp.acts.setAct({
 });
 
 // ================== RUM SECTION ==================
-coreApp.runServer({ port: 8080, typeGeneration: false, playground: true });
+coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
 ```
 
 > Please replace `x.x.x` in the import link with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
@@ -249,16 +248,16 @@ You should see this messsage:
 
 ```bash
 HTTP webserver running.
-please send a post request to http://localhost:8080/lesan
-you can visit playground on http://localhost:8080/playground
+please send a post request to http://localhost:1366/lesan
+you can visit playground on http://localhost:1366/playground
 
-Listening on http://localhost:8080/
+Listening on http://localhost:1366/
 ```
 
-Now you can visit the playground at `http://localhost:8080/playground` and send requests to the server for `addCountry`, `addUser`, and `getUsers`.
+Now you can visit the playground at `http://localhost:1366/playground` and send requests to the server for `addCountry`, `addUser`, and `getUsers`.
 <img width="1672" alt="Screen Shot 1402-04-26 at 20 47 05" src="https://github.com/MiaadTeam/lesan/assets/6236123/7edb3be1-6180-4f3e-b00c-161aa2c3c8cd">
 
-alternativly you can send post request to `http://localhost:8080/lesan` with `postman` include the following in JSON format inside the body in order to retrieve the desired data:
+alternativly you can send post request to `http://localhost:1366/lesan` with `postman` include the following in JSON format inside the body in order to retrieve the desired data:
 
 ```JSON
 {
