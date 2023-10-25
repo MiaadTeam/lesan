@@ -22,9 +22,9 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
   - [Getting start](https://miaadteam.github.io/lesan/getting_start.html)
   - [Mannage relations](https://miaadteam.github.io/lesan/mannage_relations.html)
   - [Other functions](https://miaadteam.github.io/lesan/other_functions.html)
+  - [Playground](https://miaadteam.github.io/lesan/playground.html)
   - [Folder Structure](https://miaadteam.github.io/lesan/folder_structure.html)
   - [Microservice or Monolithic](https://miaadteam.github.io/lesan/microservice-monolithic.html)
-  - [Playground](https://miaadteam.github.io/lesan/playground.html)
   - [Manage replica](https://miaadteam.github.io/lesan/manage_replica.html)
 
 # A little trip
