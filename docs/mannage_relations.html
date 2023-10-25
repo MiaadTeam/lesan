@@ -143,6 +143,9 @@
                         <a href="https://github.com/MiaadTeam/lesan" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
+                        <a href="https://github.com/MiaadTeam/lesan/tree/main/pages/src/mannage_relations.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
 
                     </div>
                 </div>
@@ -202,6 +205,37 @@ const cities = coreApp.odm.newModel(
   cityPure,
   cityRelations,
 );
+</code></pre>
+<p>We talked about <code>newModel</code> in its input <a href="https://miaadteam.github.io/lesan/getting_start.html#add-new-model">here</a>.<br />
+Now we only talk about the third input, the relation definition.</p>
+<pre><code class="language-ts">export type RelationDataType = &quot;single&quot; | &quot;multiple&quot;;
+
+export type RelationSortOrderType = &quot;asc&quot; | &quot;desc&quot;;
+
+export type TRelatedRelation = {
+  type: RelationDataType;
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType
+  };
+};
+
+interface TRelation {
+  schemaName: string;
+  type: RelationDataType;
+  optional: boolean;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType;
+  };
+  relatedRelations: {
+    [key: string]: TRelatedRelation;
+  };
+}
+  relations: Record&lt;string, TRelation&gt;;
+
+  
 </code></pre>
 
                     </main>

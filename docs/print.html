@@ -615,6 +615,37 @@ const cities = coreApp.odm.newModel(
   cityRelations,
 );
 </code></pre>
+<p>We talked about <code>newModel</code> in its input <a href="https://miaadteam.github.io/lesan/getting_start.html#add-new-model">here</a>.<br />
+Now we only talk about the third input, the relation definition.</p>
+<pre><code class="language-ts">export type RelationDataType = &quot;single&quot; | &quot;multiple&quot;;
+
+export type RelationSortOrderType = &quot;asc&quot; | &quot;desc&quot;;
+
+export type TRelatedRelation = {
+  type: RelationDataType;
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType
+  };
+};
+
+interface TRelation {
+  schemaName: string;
+  type: RelationDataType;
+  optional: boolean;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType;
+  };
+  relatedRelations: {
+    [key: string]: TRelatedRelation;
+  };
+}
+  relations: Record&lt;string, TRelation&gt;;
+
+  
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="other-functions"><a class="header" href="#other-functions">Other functions</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playground"><a class="header" href="#playground">Playground</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="folder-structure"><a class="header" href="#folder-structure">Folder Structure</a></h1>
