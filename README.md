@@ -2,6 +2,21 @@
 
 Even though _**NoSQL**_ is very fast, its complexities are very troublesome for large-scale projects. On the other hand, _**GraphQL**_ shines in client-server connectivity but it has several weaknesses and is somewhat complex, adding another layer of complexity to the project. That’s why we created **LESAN**.
 
+# Benchmarks
+
+![best-results](https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532)
+ 
+ We use this formula to calculate the difference : (B - A) ÷ A * 100  
+ As you see on the chart:
+ - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.
+ - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1417%` faster than the `prisma-express-graphql`. Which uses `postgres` as a database.
+ - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `4435%` faster than the `mongoose-express-rest` (Note that we did not sort in this query)
+ - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `72289%` faster than the `mongo-express-rest` (Note that we did not sort in this query)
+ - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `298971%` faster than the `mongoose-express-rest` (used sortby)
+
+**Maybe we created the most performant framework in the world!** [see more detailed benchmark](https://github.com/MiaadTeam/benchmark)
+
+# A little trip
 ### Look below code:
 
 Create a file called `mod.ts` and paste the code below into it:
@@ -242,7 +257,7 @@ alternativly you can send post request to `http://localhost:8080/lesan` with `po
   "details": {
     "set": {
       "name": "Iran",
-      "population": 8500000000,
+      "population": 85000000,
       "abb": "IR"
     },
     "get": {
