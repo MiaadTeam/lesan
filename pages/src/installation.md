@@ -9,7 +9,7 @@ Currently, only the [Deno](https://deno.land/) version of **Lesan's** framework 
 - Using a suitable editor such as: 
   - [VS Code](https://code.visualstudio.com/download) please install [deno extension](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
   - [Lesvim](https://github.com/MiaadTeam/lesvim) The configuration of this editor is a bit difficult.
-  - [Helix](https://docs.helix-editor.com/install.html) The configuration of this edditor is simple and the performance is excellent. Please add `.helix/languages.toml` file to the root of project and insert [this config](https://raw.githubusercontent.com/MiaadTeam/lesan/main/.helix/languages.toml) for better support of `Deno`.
+  - [Helix](https://docs.helix-editor.com/install.html) The configuration of this editor is simple and the performance is excellent. Please add `.helix/languages.toml` file to the root of project and insert [this config](https://raw.githubusercontent.com/MiaadTeam/lesan/main/.helix/languages.toml) for better support of `Deno`.
 
 ### Importing
 After completing the prerequisites, create a file named `mod.ts`.
