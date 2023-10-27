@@ -1,5 +1,5 @@
 /** @jsx h */
-import { Fragment, h, useState, useEffect } from "../reactDeps.ts";
+import { Fragment, h, useState } from "../reactDeps.ts";
 import { uid } from "../utils/uid.ts";
 import { TRequest } from "./context/actionType.ts";
 import { e2eFirstInp } from "./context/initials.ts";
@@ -10,24 +10,26 @@ import DeleteIcon from "./icon/deleteIcon.tsx";
 import DownIcon from "./icon/DownIcon.tsx";
 import ExportIcon from "./icon/ExportIcon.tsx";
 import HelpIcon from "./icon/HelpIcon.tsx";
-import Hide from "./icon/Hide.tsx";
 import ImportIcon from "./icon/ImportIcon.tsx";
 import RunIcon from "./icon/RunIcon.tsx";
-import { Show } from "./icon/Show.tsx";
 import UpIcon from "./icon/UpIcon.tsx";
-import { JSONViewer } from "./JSONVeiwer.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
-import InfoIcon from "./icon/InfoIcon.tsx";
 import { SequenceSlider } from "./SequenceSlider.tsx";
-import { ResultSlider } from "./ResultSlider.tsx";
-import { useNonInitialEffect } from "./hooks/useNonInitialEffect.ts";
-import { number } from "../../../npmDeps.ts";
 
 export type TResults = {
   id: string;
   request: Record<string, any>;
   response: Record<string, any>;
   responseTime: number;
+};
+
+export type captureType = {
+  key: string;
+  value: string;
+  captured?: any;
+  sequenceIdx?: number;
+  model?: string;
+  act?: string;
 };
 
 export type TSequenceDetail = {
@@ -37,7 +39,10 @@ export type TSequenceDetail = {
   repeat: number;
   success: number;
   fails: number;
-  // captures: { key: string; value: string; captured: any }[];
+  bestTime: { resultIdx: number; time: number };
+  worstTime: { resultIdx: number; time: number };
+  captures: captureType[];
+  usedCaptures: captureType[];
   results: TResults[];
 };
 
@@ -46,30 +51,48 @@ export type TReqDetails = {
   numberRequest: number;
   success: number;
   fails: number;
+  bestTime: {
+    sequenceIdx: number;
+    resultIdx: number;
+    time: number;
+    act: string;
+    model: string;
+  };
+  worstTime: {
+    sequenceIdx: number;
+    resultIdx: number;
+    time: number;
+    act: string;
+    model: string;
+  };
   sequenceDetail: TSequenceDetail[];
+  allCaptureItems: captureType[];
 };
 
 export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
-  const notSorted: number[] = [];
-  const [sorted, setSorted] = useState<number[]>([]);
-
-  useEffect(() => {
-    setSorted(notSorted);
-  }, [notSorted]);
   const { e2eForms, setE2eForms } = useLesan();
 
-  const initialRequestDetail = {
+  const initialRequestDetail: TReqDetails = {
     allReqPerformance: 0,
     numberRequest: 0,
     success: 0,
     fails: 0,
+    bestTime: {
+      sequenceIdx: 0,
+      resultIdx: 0,
+      time: Number.MAX_SAFE_INTEGER,
+      act: "",
+      model: "",
+    },
+    worstTime: { sequenceIdx: 0, resultIdx: 0, act: "", model: "", time: 0 },
     sequenceDetail: [],
+    allCaptureItems: [],
   };
 
-  const [isShowE2eResponse, setIsShowE2eResponse] = useState<boolean>(true);
   const [isShowE2eButton, setIsShowE2eButton] = useState<boolean>(false);
-  const [requestDetail, setRequestDetail] =
-    useState<TReqDetails>(initialRequestDetail);
+  const [requestDetail, setRequestDetail] = useState<TReqDetails>(
+    initialRequestDetail,
+  );
 
   const handleMove = (fromIndex: any, toIndex: any) => {
     if (fromIndex === 0 && toIndex <= 0) {
@@ -91,9 +114,11 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
   const [view, setView] = useState<"help" | "e2e" | "result">("e2e");
 
   const exportForm = () => {
-    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-      JSON.stringify(e2eForms)
-    )}`;
+    const jsonString = `data:text/json;chatset=utf-8,${
+      encodeURIComponent(
+        JSON.stringify(e2eForms),
+      )
+    }`;
     const link = document.createElement("a");
     link.href = jsonString;
     link.download = "Configdata.json";
@@ -111,9 +136,11 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
   };
 
   const exportResults = () => {
-    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-      JSON.stringify(requestDetail)
-    )}`;
+    const jsonString = `data:text/json;chatset=utf-8,${
+      encodeURIComponent(
+        JSON.stringify(requestDetail),
+      )
+    }`;
     const link = document.createElement("a");
     link.href = jsonString;
     link.download = "data.json";
@@ -134,11 +161,12 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
 
   const replaceCaptureString = (
     obj: Record<string, any>,
-    variablesSet: Set<any>
+    variablesSet: Set<any>,
+    returnCaptures: captureType[],
   ) => {
     for (const key in obj) {
       if (typeof obj[key] === "object") {
-        replaceCaptureString(obj[key], variablesSet);
+        replaceCaptureString(obj[key], variablesSet, returnCaptures);
       }
 
       const value = obj[key];
@@ -165,30 +193,34 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
         variablesName.forEach((variableName) => {
           for (const setValue of variablesSet) {
             if (setValue.key === variableName) {
+              returnCaptures.push({
+                key: obj[key],
+                value: obj[key].replace(`{${variableName}}`, setValue.value),
+              });
               obj[key] = obj[key].replace(`{${variableName}}`, setValue.value);
             }
           }
         });
       }
     }
+    return returnCaptures;
   };
 
   const runE2eTest = async () => {
-    const parsedCaptures = new Set();
-
-    const requestDetail: TReqDetails = {
-      allReqPerformance: 0,
-      numberRequest: 0,
-      success: 0,
-      fails: 0,
-      sequenceDetail: [],
-    };
-    const allReqPerformance0 = performance.now();
+    const parsedCaptures = new Set<captureType>();
 
     for await (const e2eForm of e2eForms) {
       const parsedHeaderBody = JSON.parse(e2eForm.bodyHeaders);
 
-      replaceCaptureString(parsedHeaderBody, parsedCaptures);
+      const usedCaptures = replaceCaptureString(
+        parsedHeaderBody,
+        parsedCaptures,
+        [],
+      );
+
+      const findInParsedCaptures = (value: string, set: Set<captureType>) => {
+        for (const item of set) if (item.value === value) return item;
+      };
 
       const body: TRequest = {
         method: "POST",
@@ -201,83 +233,159 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
 
       let jsonSendedRequest: any;
 
-      const sequenceTime0 = performance.now();
-
-      const sequenceDetail: TSequenceDetail = {
-        id: uid(),
-        bodyHeader: e2eForm.bodyHeaders,
-        time: 0,
-        repeat: 0,
-        success: 0,
-        fails: 0,
-        results: [],
-      };
+      const sequnceId = uid();
       for (let repeat = 0; repeat < e2eForm.repeat; repeat++) {
         const tResTime0 = performance.now();
         jsonSendedRequest = await lesanAPI({
           baseUrl: baseUrl,
           options: body,
         });
-        const tResTime1 = performance.now();
-        sequenceDetail.repeat = sequenceDetail.repeat + 1;
-        requestDetail.numberRequest = requestDetail.numberRequest + 1;
+        const tResPerformance = performance.now() - tResTime0;
 
-        if (jsonSendedRequest.success) {
-          sequenceDetail.success = sequenceDetail.success + 1;
-          requestDetail.success = requestDetail.success + 1;
-        } else {
-          sequenceDetail.fails = sequenceDetail.fails + 1;
-          requestDetail.fails = requestDetail.fails + 1;
-        }
-
-        sequenceDetail.results.push({
-          id: uid(),
+        const resultId = uid();
+        const newResult = {
+          id: resultId,
           request: { ...body, body: parsedHeaderBody.body },
           response: jsonSendedRequest,
-          responseTime: tResTime1 - tResTime0,
+          responseTime: tResPerformance,
+        };
+
+        // console.log("parsedCaptures is ", { parsedCaptures });
+        setRequestDetail((preReqDetails) => {
+          const sequnces = preReqDetails.sequenceDetail;
+          const findedSequnceIdx = sequnces.findIndex((sq) =>
+            sq.id === sequnceId
+          );
+          let resultIdx = 1;
+          if (findedSequnceIdx !== -1) {
+            sequnces[findedSequnceIdx].results.push(newResult);
+            resultIdx = sequnces[findedSequnceIdx].results.length;
+            sequnces[findedSequnceIdx].bestTime =
+              (sequnces[findedSequnceIdx].bestTime.time < tResPerformance)
+                ? sequnces[findedSequnceIdx].bestTime
+                : { resultIdx, time: tResPerformance };
+            sequnces[findedSequnceIdx].worstTime =
+              (sequnces[findedSequnceIdx].worstTime.time > tResPerformance)
+                ? sequnces[findedSequnceIdx].worstTime
+                : { resultIdx, time: tResPerformance };
+            if (jsonSendedRequest.success) {
+              sequnces[findedSequnceIdx].success =
+                sequnces[findedSequnceIdx].success + 1;
+            } else {
+              sequnces[findedSequnceIdx].fails =
+                sequnces[findedSequnceIdx].fails + 1;
+            }
+            sequnces[findedSequnceIdx].time = sequnces[findedSequnceIdx].time +
+              tResPerformance;
+            sequnces[findedSequnceIdx].repeat =
+              sequnces[findedSequnceIdx].repeat + 1;
+          } else {
+            sequnces.push({
+              id: sequnceId,
+              bodyHeader: e2eForm.bodyHeaders,
+              time: tResPerformance,
+              repeat: 1,
+              success: jsonSendedRequest.success ? 1 : 0,
+              fails: jsonSendedRequest.success ? 0 : 1,
+              bestTime: { resultIdx, time: tResPerformance },
+              worstTime: { resultIdx, time: tResPerformance },
+              captures: e2eForm.captures.map(({ key, value }) => ({
+                key,
+                value,
+                sequenceIdx: sequnces.length,
+                model: parsedHeaderBody.body.model,
+                act: parsedHeaderBody.body.act,
+              })),
+              usedCaptures: usedCaptures.map(({ key, value }) => {
+                const findedInsideParsedCapture = findInParsedCaptures(
+                  value,
+                  parsedCaptures,
+                );
+                return {
+                  key,
+                  value,
+                  captured: findedInsideParsedCapture?.captured,
+                  sequenceIdx: findedInsideParsedCapture
+                    ?.sequenceIdx,
+                  model: findedInsideParsedCapture?.model,
+                  act: findedInsideParsedCapture?.act,
+                };
+              }),
+              results: [newResult],
+            });
+          }
+
+          return {
+            allReqPerformance: preReqDetails.allReqPerformance +
+              tResPerformance,
+            numberRequest: preReqDetails.numberRequest + 1,
+            success: jsonSendedRequest.success
+              ? (preReqDetails.success + 1)
+              : preReqDetails.success,
+            fails: jsonSendedRequest.success
+              ? (preReqDetails.fails)
+              : preReqDetails.fails + 1,
+            bestTime: preReqDetails.bestTime.time < tResPerformance
+              ? preReqDetails.bestTime
+              : {
+                resultIdx,
+                sequenceIdx: sequnces.length,
+                act: parsedHeaderBody.body.act,
+                model: parsedHeaderBody.body.model,
+                time: tResPerformance,
+              },
+            worstTime: preReqDetails.worstTime.time > tResPerformance
+              ? preReqDetails.worstTime
+              : {
+                resultIdx,
+                sequenceIdx: sequnces.length,
+                act: parsedHeaderBody.body.act,
+                model: parsedHeaderBody.body.model,
+                time: tResPerformance,
+              },
+            sequenceDetail: sequnces,
+            allCaptureItems: Array.from(parsedCaptures),
+          };
         });
       }
-      sequenceDetail.time = performance.now() - sequenceTime0;
 
       const captures = [...e2eForm.captures].filter(
-        (capture) => capture.key && capture.value
+        (capture) => capture.key && capture.value,
       );
 
       const parsedCapuresValue = captures.map((capture) => {
         const parts = capture.value.split("[");
-        const value: (string | number)[] = [];
+        const parsedValue: (string | number)[] = [];
 
         parts.forEach((part: any) => {
           let slicedPart: string | number = part.slice(0, part.indexOf("]"));
           if (!isNaN(Number(slicedPart))) {
             slicedPart = Number(slicedPart);
           }
-          value.push(slicedPart);
+          parsedValue.push(slicedPart);
         });
-        value.shift();
-        return { key: capture.key, value };
+        parsedValue.shift();
+        return { key: capture.key, parsedValue, value: capture.value };
       });
       // let getedValues: any;
       parsedCapuresValue.forEach((capture) => {
-        if (capture.value.length > 0) {
+        if (capture.parsedValue.length > 0) {
           let getedValue: any = jsonSendedRequest;
-          capture.value.forEach((capValue) => {
+          capture.parsedValue.forEach((capValue) => {
             getedValue = getedValue[capValue];
           });
-          parsedCaptures.add({ key: capture.key, value: getedValue });
+          parsedCaptures.add({
+            key: capture.key,
+            value: getedValue,
+            captured: capture.value,
+            act: parsedHeaderBody.body.act,
+            model: parsedHeaderBody.body.model,
+            sequenceIdx: requestDetail.sequenceDetail.length - 1,
+          });
           // getedValues = [...getedValue, ...e2eForm.captures];
         }
       });
-
-      requestDetail.sequenceDetail.push(sequenceDetail);
     }
-
-    const allReqPerformance1 = performance.now();
-    setRequestDetail({
-      ...requestDetail,
-      allReqPerformance: allReqPerformance1 - allReqPerformance0,
-    });
-    console.log(requestDetail);
   };
 
   // plus repeat
@@ -298,36 +406,38 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
 
   return (
     <div>
-      {view === "result" ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "7px",
-            marginTop: "27px",
-          }}
-        >
-          <div className="results">
-            <div className="results-buttons">
-              <button
-                className="btn  e2e-back-button"
-                onClick={() => {
-                  setRequestDetail(initialRequestDetail);
-                  setView("e2e");
-                }}
-              >
-                <BackIcon />
-                <span>Back</span>
-              </button>
-              <button
-                className="btn  e2e-back-button e2e-export_results-button"
-                onClick={exportResults}
-              >
-                <ExportIcon />
-                <span>Export</span>
-              </button>
-            </div>
-            {/* <div
+      {view === "result"
+        ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "7px",
+              marginTop: "27px",
+            }}
+          >
+            <div className="results">
+              <div className="results-buttons">
+                <button
+                  className="btn  e2e-back-button"
+                  onClick={() => {
+                    setRequestDetail(initialRequestDetail);
+                    setView("e2e");
+                  }}
+                >
+                  <BackIcon />
+                  <span>Back</span>
+                </button>
+                <button
+                  className="btn  e2e-back-button e2e-export_results-button"
+                  onClick={exportResults}
+                >
+                  <ExportIcon />
+                  <span>Export</span>
+                </button>
+              </div>
+              {
+                /* <div
               className="container-e2e"
               onClick={() => setIsShowE2eResponse(!isShowE2eResponse)}
             >
@@ -335,249 +445,288 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               <span className="container-header">
                 {isShowE2eResponse ? <Hide /> : <Show />}
               </span>
-            </div> */}
-          </div>
-          <div
-            style={{
-              padding: "30px",
-              backgroundColor: "darkslategray",
-              borderRadius: "10px",
-              display: "flex",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              color: "gainsboro",
-              border: "1px solid bisque",
-            }}
-          >
+            </div> */
+              }
+            </div>
             <div
               style={{
+                padding: "30px",
+                backgroundColor: "darkslategray",
+                borderRadius: "10px",
                 display: "flex",
-                flexDirection: "column",
-                padding: "5px",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                color: "gainsboro",
+                border: "1px solid bisque",
               }}
             >
-              <span>All Request Count: {requestDetail.numberRequest}</span>
-              <span>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "5px",
+                }}
+              >
+                <span>All Request Count: {requestDetail.numberRequest}</span>
                 {" "}
-                All Request Time: {requestDetail.allReqPerformance}ms
-              </span>
+                times
+                <span>
+                  {" "}
+                  All Request Time: {requestDetail.allReqPerformance} ms
+                </span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "5px",
+                }}
+              >
+                <span>All Success Request: {requestDetail.success}</span> times
+                <span>All Fails Request : {requestDetail.fails}</span> times
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "5px",
+                }}
+              >
+                <span>
+                  Best Request Time: {requestDetail.bestTime.time} ms in{" "}
+                  <b>seqeunce</b> index of {requestDetail.bestTime.sequenceIdx}
+                  {" "}
+                  and <b>request</b> index of {requestDetail.bestTime.resultIdx}
+                  {" "}
+                  inside {requestDetail.bestTime.model} <b>model</b> and{"  "}
+                  {requestDetail.bestTime.act} <b>act</b>
+                </span>
+                <span>
+                  Worst Request Time: {requestDetail.worstTime.time} ms in{" "}
+                  <b>seqeunce</b> index of {requestDetail.worstTime.sequenceIdx}
+                  {" "}
+                  and <b>request</b> index of{" "}
+                  {requestDetail.worstTime.resultIdx} inside{" "}
+                  {requestDetail.worstTime.model} <b>model</b> and{"  "}
+                  {requestDetail.worstTime.act} <b>act</b>
+                </span>
+                <span>
+                  All capture Items is:{" "}
+                  {requestDetail.allCaptureItems.map((ci) => (
+                    <ul>
+                      <li>key: {ci.key}</li>
+                      <li>captured from: {ci.captured}</li>
+                      <li>with value of: {ci.value}</li>
+                      <li>inside model : {ci.model}</li>
+                      <li>and act : {ci.act}</li>
+                      <li>
+                        this item captured inside sequnce index:{" "}
+                        {ci.sequenceIdx}
+                      </li>
+                    </ul>
+                  ))}
+                </span>
+              </div>
             </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                padding: "5px",
-              }}
-            >
-              <span>All Success Request: {requestDetail.success}</span>
-              <span>All Fails Request : {requestDetail.fails} </span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                padding: "5px",
-              }}
-            >
-              <span>Best Request Time: {sorted[0]}ms</span>
-              <span>worst Request Time : {sorted[sorted.length - 1]}ms</span>
-            </div>
-          </div>
 
-          <div>
-            {requestDetail.sequenceDetail.map((sequence) => {
-              notSorted.push(sequence.time);
-              notSorted.sort(function (a, b) {
-                return a - b;
-              });
-              return (
-                <div>
-                  <SequenceSlider sequence={sequence} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ) : view === "e2e" ? (
-        <Fragment>
-          <div className="sidebar__section sidebar__section--headers">
-            {e2eForms.map((e2eForm, idx) => (
-              <Fragment>
-                <div className="sidebar__input-double" key={e2eForm.id}>
-                  {e2eForms.length > 1 && (
-                    <div className="e2e-move-buttons">
-                      <div
-                        className="e2e-move-div"
-                        onClick={() => handleMove(idx, idx - 1)}
-                      >
-                        <UpIcon />
-                      </div>
-                      <div
-                        className="e2e-move-div"
-                        onClick={() => handleMove(idx, idx + 1)}
-                      >
-                        <DownIcon />
-                      </div>
-                      <div
-                        className="e2e-move-div e2e-move-close"
-                        onClick={() => handleDelete(idx)}
-                      >
-                        <DeleteIcon />
-                      </div>
-                    </div>
-                  )}
-                  <div className="sidebar__section-body-heading">
-                    <div className="sidebar__section-heading">
-                      set test body and headers
-                    </div>
-                    <textarea
-                      placeholder="please paste a request body here"
-                      value={e2eForm.bodyHeaders}
-                      name={`${e2eForm.id}-body`}
-                      rows={18}
-                      onChange={(e: any) => {
-                        const copy = [...e2eForms];
-                        copy[idx].bodyHeaders = e.target.value;
-                        setE2eForms([...copy]);
-                      }}
-                    />
+            <div>
+              {requestDetail.sequenceDetail.map((sequence) => {
+                return (
+                  <div>
+                    <SequenceSlider sequence={sequence} />
                   </div>
-                  <div className="sidebar__section-capture">
-                    <div className="e2e_sidebar__section-heading">
-                      set repeat time
-                    </div>
-                    <div className="repeat__number">
-                      <input
-                        className="input"
-                        placeholder="set repeat number"
-                        value={e2eForm.repeat}
-                        name={`${e2eForm.id}-repeat`}
-                        type="number"
+                );
+              })}
+            </div>
+          </div>
+        )
+        : view === "e2e"
+        ? (
+          <Fragment>
+            <div className="sidebar__section sidebar__section--headers">
+              {e2eForms.map((e2eForm, idx) => (
+                <Fragment>
+                  <div className="sidebar__input-double" key={e2eForm.id}>
+                    {e2eForms.length > 1 && (
+                      <div className="e2e-move-buttons">
+                        <div
+                          className="e2e-move-div"
+                          onClick={() => handleMove(idx, idx - 1)}
+                        >
+                          <UpIcon />
+                        </div>
+                        <div
+                          className="e2e-move-div"
+                          onClick={() => handleMove(idx, idx + 1)}
+                        >
+                          <DownIcon />
+                        </div>
+                        <div
+                          className="e2e-move-div e2e-move-close"
+                          onClick={() => handleDelete(idx)}
+                        >
+                          <DeleteIcon />
+                        </div>
+                      </div>
+                    )}
+                    <div className="sidebar__section-body-heading">
+                      <div className="sidebar__section-heading">
+                        set test body and headers
+                      </div>
+                      <textarea
+                        placeholder="please paste a request body here"
+                        value={e2eForm.bodyHeaders}
+                        name={`${e2eForm.id}-body`}
+                        rows={18}
                         onChange={(e: any) => {
                           const copy = [...e2eForms];
-                          copy[idx].repeat = e.target.value;
+                          copy[idx].bodyHeaders = e.target.value;
                           setE2eForms([...copy]);
                         }}
                       />
-                      <button
-                        className="e2e-back-button e2e-export_results-button"
-                        onClick={() => plusRepeatHandler(idx)}
-                      >
-                        +
-                      </button>
-                      <button
-                        className="e2e-back-button e2e-export_results-button"
-                        onClick={() => minesRepeatHandler(idx)}
-                      >
-                        -
-                      </button>
                     </div>
-                    <div className="e2e_sidebar__section-heading">
-                      capture variables
-                    </div>
-                    <button
-                      className="btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture "
-                      onClick={() => {
-                        const copy = [...e2eForms];
-                        copy[idx].captures.push({ key: "", value: "" });
-                        setE2eForms([...copy]);
-                      }}
-                    >
-                      add capture
-                    </button>
+                    <div className="sidebar__section-capture">
+                      <div className="e2e_sidebar__section-heading">
+                        set repeat time
+                      </div>
+                      <div className="repeat__number">
+                        <input
+                          className="input"
+                          placeholder="set repeat number"
+                          value={e2eForm.repeat}
+                          name={`${e2eForm.id}-repeat`}
+                          type="number"
+                          onChange={(e: any) => {
+                            const copy = [...e2eForms];
+                            copy[idx].repeat = e.target.value;
+                            setE2eForms([...copy]);
+                          }}
+                        />
+                        <button
+                          className="e2e-back-button e2e-export_results-button"
+                          onClick={() => plusRepeatHandler(idx)}
+                        >
+                          +
+                        </button>
+                        <button
+                          className="e2e-back-button e2e-export_results-button"
+                          onClick={() => minesRepeatHandler(idx)}
+                        >
+                          -
+                        </button>
+                      </div>
+                      <div className="e2e_sidebar__section-heading">
+                        capture variables
+                      </div>
+                      <button
+                        className="btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture "
+                        onClick={() => {
+                          const copy = [...e2eForms];
+                          copy[idx].captures.push({ key: "", value: "" });
+                          setE2eForms([...copy]);
+                        }}
+                      >
+                        add capture
+                      </button>
 
-                    {e2eForm.captures.map((capture, capId) => (
-                      <Fragment>
-                        <div className="sidebar__section-add-capture">
-                          <input
-                            className="input"
-                            placeholder="set a variable name"
-                            value={capture.key}
-                            onChange={(e: any) => {
-                              const copy = [...e2eForms];
-                              copy[idx].captures[capId].key = e.target.value;
-                              setE2eForms([...copy]);
-                            }}
-                          />
-                          <input
-                            className="input"
-                            placeholder="set a value for variable"
-                            value={capture.value}
-                            onChange={(e: any) => {
-                              const copy = [...e2eForms];
-                              copy[idx].captures[capId].value = e.target.value;
-                              setE2eForms([...copy]);
-                            }}
-                          />
-                        </div>
-                        <hr />
-                      </Fragment>
-                    ))}
+                      {e2eForm.captures.map((capture, capId) => (
+                        <Fragment>
+                          <div className="sidebar__section-add-capture">
+                            <input
+                              className="input"
+                              placeholder="set a variable name"
+                              value={capture.key}
+                              onChange={(e: any) => {
+                                const copy = [...e2eForms];
+                                copy[idx].captures[capId].key = e.target.value;
+                                setE2eForms([...copy]);
+                              }}
+                            />
+                            <input
+                              className="input"
+                              placeholder="set a value for variable"
+                              value={capture.value}
+                              onChange={(e: any) => {
+                                const copy = [...e2eForms];
+                                copy[idx].captures[capId].value =
+                                  e.target.value;
+                                setE2eForms([...copy]);
+                              }}
+                            />
+                          </div>
+                          <hr />
+                        </Fragment>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </Fragment>
-            ))}
-          </div>
-          <button
-            className="btn btn-show-results-buttons "
-            onClick={() => setIsShowE2eButton(!isShowE2eButton)}
-          >
-            show btn
-          </button>
-          <div className="results-buttons" data-show={isShowE2eButton === true}>
+                </Fragment>
+              ))}
+            </div>
             <button
-              className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
-              onClick={() => {
-                setE2eForms([...e2eForms, e2eFirstInp()]);
-              }}
+              className="btn btn-show-results-buttons "
+              onClick={() => setIsShowE2eButton(!isShowE2eButton)}
             >
-              <AddIcon />
-              <span>Add</span>
+              show btn
             </button>
-            <button
-              className="btn btn-e2e-action e2e-back-button e2e-run-botton e2e-export_results-button"
-              onClick={async () => {
-                setView("result");
-                await runE2eTest();
-              }}
+            <div
+              className="results-buttons"
+              data-show={isShowE2eButton === true}
             >
-              <RunIcon />
-              <span>Run E2E Test</span>
-            </button>
-            <input
-              id="actual-btn"
-              type="file"
-              onChange={jsonFileUpload}
-              hidden={true}
-            ></input>
-            <label
-              htmlFor="actual-btn"
-              className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
-            >
-              <ImportIcon />
-              <span>Import</span>
-            </label>
-            <button
-              className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
-              onClick={exportForm}
-            >
-              <ExportIcon />
-              <span>Export</span>
-            </button>
-            <button
-              onClick={() => setView("help")}
-              className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
-            >
-              <HelpIcon />
-              <span>Help</span>
-            </button>
-          </div>
-        </Fragment>
-      ) : view === "help" ? (
-        <Help setView={setView} />
-      ) : (
-        ""
-      )}
+              <button
+                className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
+                onClick={() => {
+                  setE2eForms([...e2eForms, e2eFirstInp()]);
+                }}
+              >
+                <AddIcon />
+                <span>Add</span>
+              </button>
+              <button
+                className="btn btn-e2e-action e2e-back-button e2e-run-botton e2e-export_results-button"
+                onClick={async () => {
+                  setView("result");
+                  await runE2eTest();
+                }}
+              >
+                <RunIcon />
+                <span>Run E2E Test</span>
+              </button>
+              <input
+                id="actual-btn"
+                type="file"
+                onChange={jsonFileUpload}
+                hidden={true}
+              >
+              </input>
+              <label
+                htmlFor="actual-btn"
+                className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
+              >
+                <ImportIcon />
+                <span>Import</span>
+              </label>
+              <button
+                className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
+                onClick={exportForm}
+              >
+                <ExportIcon />
+                <span>Export</span>
+              </button>
+              <button
+                onClick={() => setView("help")}
+                className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
+              >
+                <HelpIcon />
+                <span>Help</span>
+              </button>
+            </div>
+          </Fragment>
+        )
+        : view === "help"
+        ? <Help setView={setView} />
+        : (
+          ""
+        )}
     </div>
   );
 }
