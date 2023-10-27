@@ -42,7 +42,7 @@ export const newModel = <
   relations: TR,
 ) => {
   type InferPureFieldsType = {
-    [key in keyof PF]: Infer<PF[key]>;
+    [key in keyof PF]?: Infer<PF[key]>;
   };
 
   const schemas = schemaFns(schemasObj).getSchemas();
