@@ -8,9 +8,11 @@ import ExportIcon from "./icon/ExportIcon.tsx";
 export function Act() {
   const { actsObj } = useLesan();
   const exportActs = () => {
-    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
-      JSON.stringify(actsObj)
-    )}`;
+    const jsonString = `data:text/json;chatset=utf-8,${
+      encodeURIComponent(
+        JSON.stringify(actsObj),
+      )
+    }`;
     const link = document.createElement("a");
     link.href = jsonString;
     link.download = "acts.json";
@@ -54,48 +56,50 @@ export function Act() {
     return Object.keys(childActs).map((childAct: any, index) => {
       const newUid = uid();
 
-      return (
-        <div
-          className={`inside-schema ${
-            rainbowClass[Math.floor(Math.random() * rainbowClass.length)]
-          }`}
-        >
+      if (childActs[childAct] || childActs[childAct] === 0) {
+        return (
           <div
-            className={`inside ${
-              typeof childActs[childAct] === "object" &&
-              childActs[childAct].schema !== null &&
-              "schema-pointer"
+            className={`inside-schema ${
+              rainbowClass[Math.floor(Math.random() * rainbowClass.length)]
             }`}
-            onClick={() => {
-              document.getElementById(newUid)?.classList.toggle("open");
-            }}
           >
-            <p className="schema-title">{childAct}</p>
-            {childActs[childAct].type && (
-              <p className="schema-title schema-type">
-                {childActs[childAct].type}
-              </p>
-            )}
-            <div>
-              {" "}
+            <div
+              className={`inside ${
+                typeof childActs[childAct] === "object" &&
+                childActs[childAct].schema !== null &&
+                "schema-pointer"
+              }`}
+              onClick={() => {
+                document.getElementById(newUid)?.classList.toggle("open");
+              }}
+            >
+              <p className="schema-title">{childAct}</p>
+              {childActs[childAct].type && (
+                <p className="schema-title schema-type">
+                  {childActs[childAct].type}
+                </p>
+              )}
+              <div>
+                {" "}
+                {typeof childActs[childAct] === "object" &&
+                  childActs[childAct].schema !== null && <span>...</span>}
+              </div>
+            </div>
+            <div id={newUid} className="proceed-child">
               {typeof childActs[childAct] === "object" &&
-                childActs[childAct].schema !== null && <span>...</span>}
+                childActs[childAct] !== null &&
+                childActs[childAct].schema !== null &&
+                proceedChildActs(
+                  childActs[childAct].validator
+                    ? childActs[childAct].validator.schema
+                    : childActs[childAct].schema
+                    ? childActs[childAct].schema
+                    : childActs[childAct],
+                )}
             </div>
           </div>
-          <div id={newUid} className="proceed-child">
-            {typeof childActs[childAct] === "object" &&
-              childActs[childAct] !== null &&
-              childActs[childAct].schema !== null &&
-              proceedChildActs(
-                childActs[childAct].validator
-                  ? childActs[childAct].validator.schema
-                  : childActs[childAct].schema
-                  ? childActs[childAct].schema
-                  : childActs[childAct]
-              )}
-          </div>
-        </div>
-      );
+        );
+      }
     });
   };
 
