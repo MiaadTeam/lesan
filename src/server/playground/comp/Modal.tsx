@@ -19,7 +19,7 @@ const Modal = (props: ModalType) => {
 
   const scrollToTop = () => {
     divRef.current!.scroll;
-    document.getElementById("test")?.scroll({
+    document.getElementById("modal")?.scroll({
       top: 0,
       behavior: "smooth",
     });
@@ -51,7 +51,7 @@ const Modal = (props: ModalType) => {
         </div>
         <div
           className="modal-content"
-          id="test"
+          id="modal"
           ref={divRef}
           onScroll={handleScroll}
         >
