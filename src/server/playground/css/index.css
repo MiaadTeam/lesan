@@ -1695,6 +1695,7 @@ textarea {
   color: gainsboro;
   padding: 50px 30px;
   padding: "50px 30px";
+  overflow-wrap: anywhere;
 }
 
 .information-container--request {

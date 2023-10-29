@@ -402,13 +402,17 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
   };
 
   return (
-    <div className="e2e-container" id="test">
+    <div className="e2e-container">
       {view === "result" ? (
         <div className="e2e-container--sequence-container">
           <div className="results-buttons">
             <button
               className="btn  e2e-back-button"
               onClick={() => {
+                document.getElementById("modal")?.scroll({
+                  top: 0,
+                  behavior: "smooth",
+                });
                 setRequestDetail(initialRequestDetail);
                 setView("e2e");
               }}
