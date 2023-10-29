@@ -10,111 +10,222 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
 
   return (
     <div key={sequence.id} className="container-detail">
-      {isShowE2eResponse
-        ? (
-          <Fragment>
-            <section className="sequence-re">
-              <div className="container-re--header">
-                <span
-                  className="container-re--header--icon"
-                  onClick={() => setIsShowE2eResponse(false)}
-                >
-                  <InfoIcon />
+      {isShowE2eResponse ? (
+        <Fragment>
+          <section className="sequence-re">
+            <div className="container-re--header">
+              <span
+                className="container-re--header--icon"
+                onClick={() => setIsShowE2eResponse(false)}
+              >
+                <InfoIcon />
+              </span>
+              <span className="container-re-title">Body Header</span>
+            </div>
+            <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
+          </section>
+          <section className="sequence-re sequence-response ">
+            <div className="container-re--header">
+              <span className="container-re-title">Description</span>
+            </div>
+            <div className="detail-sequence">
+              <div className="detail-sequence--sections">
+                <span className="sequnce-description-label">Requests</span>{" "}
+                <span>
+                  All Request Count: <span>{sequence.repeat}</span>{" "}
                 </span>
-                <span className="container-re-title">Body Header</span>
-              </div>
-              <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
-            </section>
-            <section className="sequence-re sequence-response ">
-              <div className="container-re--header">
-                <span className="container-re-title">Description</span>
-              </div>
-              <div className="detail-sequence">
-                <p>
-                  you send <span>{sequence.repeat}</span> times of this request
-                </p>
-                <p>
-                  The best request performance is{" "}
-                  <span>{sequence.bestTime.time} ms</span> in{" "}
-                  <span>{sequence.bestTime.resultIdx}</span> index
-                </p>
-
-                <p>
-                  The worst request performance is{" "}
-                  <span>{sequence.worstTime.time} ms</span> in{" "}
-                  <span>{sequence.worstTime.resultIdx}</span> index
-                </p>
-
-                <p>
-                  the avrage time for each request is{" "}
+                <span>
+                  Success:<span> {sequence.success}</span>
+                </span>
+                <span>
+                  Fails: <span>{sequence.fails}</span>
+                </span>
+                <span>
+                  All Request Time: <span>{sequence.time} ms</span>
+                </span>
+                <span>
+                  Avrage Time For Each Eequest:{" "}
                   <span>{sequence.time / sequence.repeat} ms</span>
-                </p>
-                <p>
-                  and whole time is <span>{sequence.time} ms</span>
-                </p>
-                <p>
-                  this sequence sends <span>{sequence.success}</span>{" "}
-                  <b>success</b> request and <span>{sequence.fails}</span> it be
-                  {" "}
-                  <b>fails</b>
-                </p>
-                <span>
-                  You capture these Items in this sequnece:{" "}
-                  {sequence.captures.map((ci) => (
-                    <ul>
-                      <li>key: {ci.key}</li>
-                      <li>captured from: {ci.captured}</li>
-                      <li>with value of: {ci.value}</li>
-                      <li>inside model : {ci.model}</li>
-                      <li>and act : {ci.act}</li>
-                      <li>
-                        this item captured inside sequnce index:{" "}
-                        {ci.sequenceIdx}
-                      </li>
-                    </ul>
-                  ))}
                 </span>
-
-                <span>
-                  You are using these capture items in this sequence:{" "}
-                  {sequence.usedCaptures.map((ci) => (
-                    <ul>
-                      <li>key: {ci.key}</li>
-                      <li>captured from: {ci.captured}</li>
-                      <li>with value of: {ci.value}</li>
-                      <li>inside model : {ci.model}</li>
-                      <li>and act : {ci.act}</li>
-                      <li>
-                        this item captured inside sequnce index:{" "}
-                        {ci.sequenceIdx}
-                      </li>
-                    </ul>
-                  ))}
-                </span>
-
-                {
-                  /* {sequence.captures.length && (
-                    <p>
-                      you capture theese in this sequence :
-                      {sequence.captures.map((capture) => (
-                        <div>
-                          <span>`{capture.value} as </span>
-                          <span>{capture.key} with value of </span>
-                        </div>
-                      ))}
-                    </p>
-                  )} */
-                }
               </div>
-            </section>
-          </Fragment>
-        )
-        : (
-          <ResultSlider
-            results={sequence.results}
-            setIsShowE2eResponse={setIsShowE2eResponse}
-          />
-        )}
+              <div className="detail-sequence--sections">
+                <span className="sequnce-description-label">Best</span>{" "}
+                <span>
+                  Best Time: <span>{sequence.bestTime.time} ms</span>
+                </span>
+                <span>
+                  Request Index: <span>{sequence.bestTime.resultIdx}</span>
+                </span>
+              </div>
+              <div className="detail-sequence--sections">
+                <span className="sequnce-description-label">Worst</span>
+                <span>
+                  Worst Time: <span>{sequence.worstTime.time} ms</span>{" "}
+                </span>
+                <span>
+                  {" "}
+                  Request Index: <span>{sequence.worstTime.resultIdx}</span>
+                </span>
+              </div>
+              <div className="detail-sequence--sections">
+                <span className="sequnce-description-label">Capture Items</span>{" "}
+                {sequence.captures.map((ci) => (
+                  <ul
+                    className="detail-sequence--sections--capture-items"
+                    // style={{
+                    //   listStyle: "none",
+                    //   padding: "0 0 0 10px",
+                    //   marginTop: "0",
+                    // }}
+                  >
+                    <li>
+                      key:{" "}
+                      <span
+                        className="information-container--request--sections--item--content"
+                        //  style={{ color: "#f1fa8c" }}
+                      >
+                        {ci.key}
+                      </span>
+                    </li>
+                    <li>
+                      value :{" "}
+                      <span
+                        className="information-container--request--sections--item--content"
+                        // style={{ color: "#f1fa8c" }}
+                      >
+                        {ci.value}
+                      </span>
+                    </li>
+                    <li>
+                      model :{" "}
+                      <span
+                        className="information-container--request--sections--item--content"
+                        // style={{ color: "#f1fa8c" }}
+                      >
+                        {ci.model}
+                      </span>
+                    </li>
+                    <li>
+                      act :{" "}
+                      <span
+                        className="information-container--request--sections--item--content"
+                        // style={{ color: "#f1fa8c" }}
+                      >
+                        {ci.act}
+                      </span>
+                    </li>
+                    <li>
+                      sequnce index:{" "}
+                      <span
+                        className="information-container--request--sections--item--content"
+                        // style={{ color: "#f1fa8c" }}
+                      >
+                        {" "}
+                        {ci.sequenceIdx}
+                      </span>
+                    </li>
+                  </ul>
+                ))}
+              </div>
+              {sequence.usedCaptures.length > 0 && (
+                <div
+                  className="detail-sequence--sections"
+                  // style={{
+                  //   display: "flex",
+                  //   flexDirection: "column",
+                  //   border: "1px solid gainsboro",
+                  //   borderRadius: "7px",
+                  //   padding: "10px",
+                  //   gap: "5px",
+                  //   position: "relative",
+                  // }}
+                >
+                  <span className="sequnce-description-label">
+                    Using Capture Items
+                  </span>{" "}
+                  {sequence.usedCaptures.map((ci) => (
+                    <ul
+                      className="detail-sequence--sections--capture-items"
+
+                      // style={{
+                      //   listStyle: "none",
+                      //   padding: "0 0 0 10px",
+                      //   marginTop: "0",
+                      // }}
+                    >
+                      <li>
+                        key:{" "}
+                        <span
+                          className="information-container--request--sections--item--content"
+                          // style={{ color: "#f1fa8c" }}
+                        >
+                          {" "}
+                          {ci.key}
+                        </span>
+                      </li>
+                      <li>
+                        captured from:{" "}
+                        <span
+                          className="information-container--request--sections--item--content"
+                          // style={{ color: "#f1fa8c" }}
+                        >
+                          {" "}
+                          {ci.captured}
+                        </span>
+                      </li>
+                      <li>
+                        value:{" "}
+                        <span
+                          className="information-container--request--sections--item--content"
+                          // style={{ color: "#f1fa8c" }}
+                        >
+                          {" "}
+                          {ci.value}
+                        </span>
+                      </li>
+                      <li>
+                        {" "}
+                        model :{" "}
+                        <span
+                          className="information-container--request--sections--item--content"
+                          // style={{ color: "#f1fa8c" }}
+                        >
+                          {" "}
+                          {ci.model}
+                        </span>
+                      </li>
+                      <li>
+                        {" "}
+                        act :{" "}
+                        <span
+                          className="information-container--request--sections--item--content"
+                          // style={{ color: "#f1fa8c" }}
+                        >
+                          {ci.act}
+                        </span>
+                      </li>
+                      <li>
+                        sequnce index:{" "}
+                        <span
+                          className="information-container--request--sections--item--content"
+                          // style={{ color: "#f1fa8c" }}
+                        >
+                          {ci.sequenceIdx}
+                        </span>
+                      </li>
+                    </ul>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        </Fragment>
+      ) : (
+        <ResultSlider
+          results={sequence.results}
+          setIsShowE2eResponse={setIsShowE2eResponse}
+        />
+      )}
     </div>
   );
 }
