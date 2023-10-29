@@ -45,7 +45,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                 </span>
                 <span>
                   Avrage Time For Each Eequest:{" "}
-                  <span>{sequence.time / sequence.repeat} ms</span>
+                  <span>{(sequence.time / sequence.repeat).toFixed(1)} ms</span>
                 </span>
               </div>
               <div className="detail-sequence--sections">
@@ -70,56 +70,34 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
               <div className="detail-sequence--sections">
                 <span className="sequnce-description-label">Capture Items</span>{" "}
                 {sequence.captures.map((ci) => (
-                  <ul
-                    className="detail-sequence--sections--capture-items"
-                    // style={{
-                    //   listStyle: "none",
-                    //   padding: "0 0 0 10px",
-                    //   marginTop: "0",
-                    // }}
-                  >
+                  <ul className="detail-sequence--sections--capture-items">
                     <li>
                       key:{" "}
-                      <span
-                        className="information-container--request--sections--item--content"
-                        //  style={{ color: "#f1fa8c" }}
-                      >
+                      <span className="information-container--request--sections--item--content">
                         {ci.key}
                       </span>
                     </li>
                     <li>
                       value :{" "}
-                      <span
-                        className="information-container--request--sections--item--content"
-                        // style={{ color: "#f1fa8c" }}
-                      >
+                      <span className="information-container--request--sections--item--content">
                         {ci.value}
                       </span>
                     </li>
                     <li>
                       model :{" "}
-                      <span
-                        className="information-container--request--sections--item--content"
-                        // style={{ color: "#f1fa8c" }}
-                      >
+                      <span className="information-container--request--sections--item--content">
                         {ci.model}
                       </span>
                     </li>
                     <li>
                       act :{" "}
-                      <span
-                        className="information-container--request--sections--item--content"
-                        // style={{ color: "#f1fa8c" }}
-                      >
+                      <span className="information-container--request--sections--item--content">
                         {ci.act}
                       </span>
                     </li>
                     <li>
                       sequnce index:{" "}
-                      <span
-                        className="information-container--request--sections--item--content"
-                        // style={{ color: "#f1fa8c" }}
-                      >
+                      <span className="information-container--request--sections--item--content">
                         {" "}
                         {ci.sequenceIdx}
                       </span>
@@ -128,57 +106,29 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                 ))}
               </div>
               {sequence.usedCaptures.length > 0 && (
-                <div
-                  className="detail-sequence--sections"
-                  // style={{
-                  //   display: "flex",
-                  //   flexDirection: "column",
-                  //   border: "1px solid gainsboro",
-                  //   borderRadius: "7px",
-                  //   padding: "10px",
-                  //   gap: "5px",
-                  //   position: "relative",
-                  // }}
-                >
+                <div className="detail-sequence--sections">
                   <span className="sequnce-description-label">
                     Using Capture Items
                   </span>{" "}
                   {sequence.usedCaptures.map((ci) => (
-                    <ul
-                      className="detail-sequence--sections--capture-items"
-
-                      // style={{
-                      //   listStyle: "none",
-                      //   padding: "0 0 0 10px",
-                      //   marginTop: "0",
-                      // }}
-                    >
+                    <ul className="detail-sequence--sections--capture-items">
                       <li>
                         key:{" "}
-                        <span
-                          className="information-container--request--sections--item--content"
-                          // style={{ color: "#f1fa8c" }}
-                        >
+                        <span className="information-container--request--sections--item--content">
                           {" "}
                           {ci.key}
                         </span>
                       </li>
                       <li>
                         captured from:{" "}
-                        <span
-                          className="information-container--request--sections--item--content"
-                          // style={{ color: "#f1fa8c" }}
-                        >
+                        <span className="information-container--request--sections--item--content">
                           {" "}
                           {ci.captured}
                         </span>
                       </li>
                       <li>
                         value:{" "}
-                        <span
-                          className="information-container--request--sections--item--content"
-                          // style={{ color: "#f1fa8c" }}
-                        >
+                        <span className="information-container--request--sections--item--content">
                           {" "}
                           {ci.value}
                         </span>
@@ -186,10 +136,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                       <li>
                         {" "}
                         model :{" "}
-                        <span
-                          className="information-container--request--sections--item--content"
-                          // style={{ color: "#f1fa8c" }}
-                        >
+                        <span className="information-container--request--sections--item--content">
                           {" "}
                           {ci.model}
                         </span>
@@ -197,19 +144,13 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                       <li>
                         {" "}
                         act :{" "}
-                        <span
-                          className="information-container--request--sections--item--content"
-                          // style={{ color: "#f1fa8c" }}
-                        >
+                        <span className="information-container--request--sections--item--content">
                           {ci.act}
                         </span>
                       </li>
                       <li>
                         sequnce index:{" "}
-                        <span
-                          className="information-container--request--sections--item--content"
-                          // style={{ color: "#f1fa8c" }}
-                        >
+                        <span className="information-container--request--sections--item--content">
                           {ci.sequenceIdx}
                         </span>
                       </li>
