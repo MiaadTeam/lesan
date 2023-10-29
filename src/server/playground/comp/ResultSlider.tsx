@@ -12,12 +12,23 @@ export const ResultSlider = ({
   setIsShowE2eResponse: StateUpdater<boolean>;
 }) => {
   const [show, setShow] = useState(0);
+  // const s: any = [];
+  // results.map((e, i) => {
+  //   s.push(i);
+  // });
+  // const e = s.slice(show, show + 5);
+
+  // const e = s.slice(show, show + 5)
+  // e.map((e)=>{
+  //   <span>{e}</span>
+  // })}
+
   // const slice = () => {
-  // const showSlice = results.slice(show, show + 5);
-  //  showSlice.map((result, index,arr) => {
-  // const showslice = arr.slice(show,show + 5)
-  // <span onClick={() => setShow(show)}>{index + 1}</span>
-  // })
+  //   const showSlice = results.slice(show, show + 5);
+  //   showSlice.map((result, index, arr) => {
+  //     const showslice = arr.slice(show, show + 5);
+  //     <span onClick={() => setShow(show)}>{index + 1}</span>
+  //   });
   // };
   return (
     <div
@@ -70,14 +81,18 @@ export const ResultSlider = ({
           style={{
             position: "absolute",
             bottom: "0px",
+            // bottom: "8px",
             right: "-87.5px",
+            // left: "45%",
             zIndex: "1",
             backgroundColor: "#2c2e2c",
             padding: "9px 5px 5px 5px",
+            // padding: "5px",
             display: "flex",
             gap: "5px",
-            // maxWidth: "175px",
+            maxWidth: "175px",
             width: "175px",
+            // maxWidth: "95%",
             justifyContent: "flex-start",
             overflowY: "scroll",
             overflowWrap: "anywhere",
@@ -85,6 +100,7 @@ export const ResultSlider = ({
             border: "1px solid bisque",
             borderBottom: "none",
             borderRadius: "7px 7px 0 0",
+            // borderRadius: "7px",
             color: "gainsboro",
             flexWrap: "wrap",
             height: "42px",
@@ -100,6 +116,9 @@ export const ResultSlider = ({
               {index + 1}
             </span>
           ))}
+          {/* {e.map((e: any) => (
+          <span>{e}</span>
+        ))} */}
           {/* {slice()} */}
         </div>
       </section>
