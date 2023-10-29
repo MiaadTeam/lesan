@@ -44,7 +44,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                   All Request Time: <span>{sequence.time} ms</span>
                 </span>
                 <span>
-                  Avrage Time For Each Eequest:{" "}
+                  Avrage Time For Each Request:{" "}
                   <span>{(sequence.time / sequence.repeat).toFixed(1)} ms</span>
                 </span>
               </div>
