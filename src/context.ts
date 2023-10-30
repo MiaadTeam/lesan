@@ -2,7 +2,7 @@
 //
 
 import { LesanContenxt } from "./types.ts";
-import { Body } from "./utils/checkWants.ts";
+import { TLesanBody } from "./utils/checkWants.ts";
 
 /**
  *  variable of context
@@ -57,7 +57,7 @@ const addHeaderToContext = (con: Headers) => context["Headers"] = con;
  *  @param con - Headers of user
  * @returns nothing
  */
-const addBodyToContext = (body: Body) => context["body"] = body;
+const addBodyToContext = (body: TLesanBody) => context["body"] = body;
 
 /**
  * this function is create for define all things in local scope
