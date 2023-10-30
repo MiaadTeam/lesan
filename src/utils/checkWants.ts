@@ -19,7 +19,7 @@ export interface Details {
  * interface is type of input of Actions
  * @public
  */
-export interface Body {
+export interface TLesanBody {
   /**
    * name of service
    * "main" | "blog" | "ecommerce"
@@ -37,14 +37,14 @@ export interface Body {
   details: Details;
 }
 
-const decodeBody = async (req: Request): Promise<Body> => {
+const decodeBody = async (req: Request): Promise<TLesanBody> => {
   /**
    * @function
    * decode body of request when content type is application/json
    */
   const decodeJsonBody = async () =>
     req.body
-      ? JSON.parse(await req.text()) as Body
+      ? JSON.parse(await req.text()) as TLesanBody
       : throwError("Your request body is incorrect");
 
   /**
@@ -58,7 +58,7 @@ const decodeBody = async (req: Request): Promise<Body> => {
     // finds boundary of form data
     // const boundary = contentType.match(/boundary=([^\s]+)/)?.[1];
 
-    const getFileFormData: () => Promise<Body> = async () => {
+    const getFileFormData: () => Promise<TLesanBody> = async () => {
       const fd = await req.formData();
       // for (const f of fd.entries()) {
       //   if (!(f[1] instanceof File)) {
@@ -67,8 +67,8 @@ const decodeBody = async (req: Request): Promise<Body> => {
       //   const fileData = new Uint8Array(await f[1].arrayBuffer());
       //   await Deno.writeFile("./files/" + f[1].name, fileData);
       // }
-      const returnBody: (body: string) => Body = (body) => {
-        const parsedBody = JSON.parse(body) as Body;
+      const returnBody: (body: string) => TLesanBody = (body) => {
+        const parsedBody = JSON.parse(body) as TLesanBody;
         parsedBody &&
           parsedBody.details &&
           parsedBody.details.set &&

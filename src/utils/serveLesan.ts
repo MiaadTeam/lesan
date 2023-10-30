@@ -2,10 +2,16 @@ import { acts, Services } from "../acts/mod.ts";
 import { contextFns } from "../context.ts";
 import { assert, create, enums } from "../npmDeps.ts";
 import { addCorsObj } from "../server/cors.ts";
-import { Body, parsBody } from "./mod.ts";
+import { parsBody, TLesanBody } from "./mod.ts";
 
 const runPreActs = async (preActs: Function[]) => {
   for (const func of preActs) {
+    await func();
+  }
+};
+
+const runPreValidations = async (preValidations: Function[]) => {
+  for (const func of preValidations) {
     await func();
   }
 };
@@ -23,16 +29,19 @@ const runPreActs = async (preActs: Function[]) => {
 export const lesanFns = (actsObj: Services) => {
   /**
    * runc action that client wants to run
-   * @param {Body} body - input of act
+   * @param {TLesanBody} body - input of act
    * @returns answer of function that executed
    */
-  const runAct = async (body: Body) => {
+  const runAct = async () => {
+    const body = contextFns.getContextModel().body!;
     const bodyService = body.service || "main";
     const act = acts(actsObj).getAct(
       bodyService,
       body.model,
       body.act,
     );
+
+    act.preValidation && await runPreValidations(act.preValidation);
 
     act.validationRunType === "create"
       ? create(body.details, act.validator)
@@ -48,7 +57,8 @@ export const lesanFns = (actsObj: Services) => {
    * @param {@link Body} body - is type of Body
    * @returns return output of runAct's function
    */
-  const checkActs = async (body: Body) => {
+  const checkActs = async () => {
+    const body = contextFns.getContextModel().body!;
     const bodyService = body.service || "main";
     const actKeys = acts(actsObj).getActsKeys(
       bodyService,
@@ -63,7 +73,7 @@ export const lesanFns = (actsObj: Services) => {
       ]}`,
     );
 
-    return await runAct(body);
+    return await runAct();
   };
 
   /**
@@ -72,7 +82,8 @@ export const lesanFns = (actsObj: Services) => {
    * @return if it is exist in dynamickey or static key, it will run CkeckActs
    * else throw Error
    */
-  const checkModels = async (body: Body) => {
+  const checkModels = async () => {
+    const body = contextFns.getContextModel().body!;
     const bodyService = body.service || "main";
     const models = acts(actsObj).getActKeys(bodyService);
     assert(
@@ -83,7 +94,7 @@ export const lesanFns = (actsObj: Services) => {
       ]}`,
     );
 
-    return await checkActs(body);
+    return await checkActs();
   };
 
   /**
@@ -93,7 +104,7 @@ export const lesanFns = (actsObj: Services) => {
    * @param header request has been sent by client
    * @returns return response of request
    */
-  async function postData(url = "", body: Body, headers = {}) {
+  async function postData(url = "", body: TLesanBody, headers = {}) {
     // Default options are marked with *
     const response = await fetch(url, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -121,7 +132,7 @@ export const lesanFns = (actsObj: Services) => {
    */
   const fetchService = async (
     headers: {},
-    body: Body,
+    body: TLesanBody,
     serviceValue: string,
   ) => {
     const result = await postData(
@@ -140,7 +151,7 @@ export const lesanFns = (actsObj: Services) => {
    * @param port - port of request
    */
   const checkServices = async (req: Request, port: number) => {
-    const body = (await parsBody(req, port)) as Body;
+    const body = (await parsBody(req, port)) as TLesanBody;
     const services = acts(actsObj).getServiceKeys();
     const bodyService = body.service || "main";
 
@@ -157,7 +168,7 @@ export const lesanFns = (actsObj: Services) => {
     const serviceValue = acts(actsObj).getService(bodyService);
     return typeof serviceValue === "string"
       ? await fetchService(req.headers, body, serviceValue)
-      : await checkModels(body);
+      : await checkModels();
   };
   /**
    * this is main function that call checkServices
@@ -171,7 +182,7 @@ export const lesanFns = (actsObj: Services) => {
     cors: "*" | string[] | undefined,
   ) => {
     const response = async () => {
-      contextFns.addHeaderToContext(req.headers);
+      // contextFns.addHeaderToContext(req.headers);
       return await checkServices(req, port);
     };
 
