@@ -105,5 +105,9 @@ export const insertOne = async <
 
   await db.collection(collection).insertOne(generatedDoc, options);
 
-  return generatedDoc;
+  return projection
+    ? db.collection(collection).findOne({ _id: generatedDoc._id }, {
+      projection,
+    })
+    : { _id: generatedDoc._id };
 };

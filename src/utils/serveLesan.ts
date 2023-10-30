@@ -182,7 +182,7 @@ export const lesanFns = (actsObj: Services) => {
     cors: "*" | string[] | undefined,
   ) => {
     const response = async () => {
-      // contextFns.addHeaderToContext(req.headers);
+      contextFns.addHeaderToContext(req.headers);
       return await checkServices(req, port);
     };
 
