@@ -4,14 +4,8 @@ import { assert, create, enums } from "../npmDeps.ts";
 import { addCorsObj } from "../server/cors.ts";
 import { parsBody, TLesanBody } from "./mod.ts";
 
-const runPreActs = async (preActs: Function[]) => {
+const runPreHooks = async (preActs: Function[]) => {
   for (const func of preActs) {
-    await func();
-  }
-};
-
-const runPreValidations = async (preValidations: Function[]) => {
-  for (const func of preValidations) {
     await func();
   }
 };
@@ -33,7 +27,7 @@ export const lesanFns = (actsObj: Services) => {
    * @returns answer of function that executed
    */
   const runAct = async () => {
-    const body = contextFns.getContextModel().body!;
+    let body = contextFns.getContextModel().body!;
     const bodyService = body.service || "main";
     const act = acts(actsObj).getAct(
       bodyService,
@@ -41,13 +35,16 @@ export const lesanFns = (actsObj: Services) => {
       body.act,
     );
 
-    act.preValidation && await runPreValidations(act.preValidation);
+    act.preValidation && await runPreHooks(act.preValidation);
+    body = contextFns.getContextModel().body!;
 
     act.validationRunType === "create"
       ? create(body.details, act.validator)
       : assert(body.details, act.validator);
+    body = contextFns.getContextModel().body!;
 
-    act.preAct && await runPreActs(act.preAct);
+    act.preAct && await runPreHooks(act.preAct);
+    body = contextFns.getContextModel().body!;
 
     return await act.fn(body);
   };
