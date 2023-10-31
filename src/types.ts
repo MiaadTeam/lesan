@@ -1,23 +1,25 @@
-import { ObjectId } from "./npmDeps.ts";
+import { ObjectId, union } from "./npmDeps.ts";
 import { instance, size, string } from "./npmDeps.ts";
-import { TLesanBody } from "./utils/checkWants.ts";
 
-export const objectIdValidation = instance(ObjectId) || size(string(), 24);
+export const objectIdValidation = union([
+	instance(ObjectId),
+	size(string(), 24),
+]);
 
 /**
  * details of input is include set , get
  * @public
  */
 export interface Details {
-  /**
-   *  set of query
-   */
-  set: Record<string, any>;
-  /**
-   * get pf query
-   * What the client wants to return
-   */
-  get: Record<string, any>;
+	/**
+	 *  set of query
+	 */
+	set: Record<string, any>;
+	/**
+	 * get pf query
+	 * What the client wants to return
+	 */
+	get: Record<string, any>;
 }
 
 /**
@@ -25,21 +27,21 @@ export interface Details {
  * @public
  */
 export interface TLesanBody {
-  /**
-   * name of service
-   * "main" | "blog" | "ecommerce"
-   */
-  service?: string;
-  /**
-   * model : schema name that client wants
-   * act : name of Actions
-   */
-  model: string;
-  act: string;
-  /**
-   * details of request set and get
-   */
-  details: Details;
+	/**
+	 * name of service
+	 * "main" | "blog" | "ecommerce"
+	 */
+	service?: string;
+	/**
+	 * model : schema name that client wants
+	 * act : name of Actions
+	 */
+	model: string;
+	act: string;
+	/**
+	 * details of request set and get
+	 */
+	details: Details;
 }
 
 /**
@@ -55,7 +57,7 @@ export interface TLesanBody {
  *      }  *
  */
 export interface LesanContenxt {
-  [key: string]: any;
-  Headers: Headers;
-  body: TLesanBody | null;
+	[key: string]: any;
+	Headers: Headers;
+	body: TLesanBody | null;
 }
