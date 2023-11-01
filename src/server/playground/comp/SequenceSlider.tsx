@@ -67,44 +67,49 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                   Request Index: <span>{sequence.worstTime.resultIdx}</span>
                 </span>
               </div>
-              <div className="detail-sequence--sections">
-                <span className="sequnce-description-label">Capture Items</span>{" "}
-                {sequence.captures.map((ci) => (
-                  <ul className="detail-sequence--sections--capture-items">
-                    <li>
-                      key:{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {ci.key}
-                      </span>
-                    </li>
-                    <li>
-                      value :{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {ci.value}
-                      </span>
-                    </li>
-                    <li>
-                      model :{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {ci.model}
-                      </span>
-                    </li>
-                    <li>
-                      act :{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {ci.act}
-                      </span>
-                    </li>
-                    <li>
-                      sequnce index:{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {" "}
-                        {ci.sequenceIdx}
-                      </span>
-                    </li>
-                  </ul>
-                ))}
-              </div>
+              {sequence.captures.length > 0 && (
+                <div className="detail-sequence--sections">
+                  <span className="sequnce-description-label">
+                    Capture Items
+                  </span>{" "}
+                  {sequence.captures.map((ci) => (
+                    <ul className="detail-sequence--sections--capture-items">
+                      <li>
+                        key:{" "}
+                        <span className="information-container--request--sections--item--content">
+                          {ci.key}
+                        </span>
+                      </li>
+                      <li>
+                        value :{" "}
+                        <span className="information-container--request--sections--item--content">
+                          {ci.value}
+                        </span>
+                      </li>
+                      <li>
+                        model :{" "}
+                        <span className="information-container--request--sections--item--content">
+                          {ci.model}
+                        </span>
+                      </li>
+                      <li>
+                        act :{" "}
+                        <span className="information-container--request--sections--item--content">
+                          {ci.act}
+                        </span>
+                      </li>
+                      <li>
+                        sequnce index:{" "}
+                        <span className="information-container--request--sections--item--content">
+                          {" "}
+                          {ci.sequenceIdx}
+                        </span>
+                      </li>
+                    </ul>
+                  ))}
+                </div>
+              )}
+
               {sequence.usedCaptures.length > 0 && (
                 <div className="detail-sequence--sections">
                   <span className="sequnce-description-label">

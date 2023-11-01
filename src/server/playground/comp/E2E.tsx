@@ -110,6 +110,14 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
     setE2eForms([...e2eForms]);
   };
 
+  const handleDuplicate = (fromIndex: any) => {
+    setE2eForms([
+      ...e2eForms.slice(0, fromIndex),
+      e2eForms[fromIndex],
+      ...e2eForms.slice(fromIndex, e2eForms.length),
+    ]);
+  };
+
   const [view, setView] = useState<"help" | "e2e" | "result">("e2e");
 
   const exportForm = () => {
@@ -602,6 +610,12 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                     <div className="e2e-move-buttons">
                       <div
                         className="e2e-move-div"
+                        onClick={() => handleDuplicate(idx)}
+                      >
+                        <AddIcon />
+                      </div>
+                      <div
+                        className="e2e-move-div"
                         onClick={() => handleMove(idx, idx - 1)}
                       >
                         <UpIcon />
@@ -713,12 +727,12 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               </Fragment>
             ))}
           </div>
-          <button
+          {/* <button
             className="btn btn-show-results-buttons "
             onClick={() => setIsShowE2eButton(!isShowE2eButton)}
           >
             show btn
-          </button>
+          </button> */}
           <div className="results-buttons" data-show={isShowE2eButton === true}>
             <button
               className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
