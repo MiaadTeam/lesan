@@ -1,5 +1,5 @@
 import { Struct } from "../npmDeps.ts";
-import { Body } from "../utils/mod.ts";
+import { TLesanBody } from "../utils/mod.ts";
 
 /**
  * type of ActFn
@@ -14,7 +14,7 @@ import { Body } from "../utils/mod.ts";
  *  details: Details;
  *  }
  */
-export type ActFn = (body: Body) => any;
+export type ActFn = (body: TLesanBody) => any;
 
 /**
  * interface of Act is include of tow features
@@ -25,6 +25,7 @@ export interface Act {
   validator: Struct<any>;
   fn: ActFn;
   preAct?: Function[];
+  preValidation?: Function[];
   validationRunType?: "assert" | "create";
 }
 /**
@@ -118,9 +119,14 @@ export interface ActInp {
   fn: ActFn;
 
   /**
-   * these functions use to implement somthing in context before run fn
+   * these functions use to implement somthing in context or body before run fn
    */
   preAct?: Function[];
+
+  /**
+   * these functions use to implement somthing in context or body before run validation
+   */
+  preValidation?: Function[];
 
   /**
    * the type of validation shuold run

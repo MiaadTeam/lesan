@@ -1,8 +1,48 @@
-import { ObjectId } from "./npmDeps.ts";
+import { ObjectId, union } from "./npmDeps.ts";
 import { instance, size, string } from "./npmDeps.ts";
-import { Body } from "./utils/checkWants.ts";
 
-export const objectIdValidation = instance(ObjectId) || size(string(), 24);
+export const objectIdValidation = union([
+	instance(ObjectId),
+	size(string(), 24),
+]);
+
+/**
+ * details of input is include set , get
+ * @public
+ */
+export interface Details {
+	/**
+	 *  set of query
+	 */
+	set: Record<string, any>;
+	/**
+	 * get pf query
+	 * What the client wants to return
+	 */
+	get: Record<string, any>;
+}
+
+/**
+ * interface is type of input of Actions
+ * @public
+ */
+export interface TLesanBody {
+	/**
+	 * name of service
+	 * "main" | "blog" | "ecommerce"
+	 */
+	service?: string;
+	/**
+	 * model : schema name that client wants
+	 * act : name of Actions
+	 */
+	model: string;
+	act: string;
+	/**
+	 * details of request set and get
+	 */
+	details: Details;
+}
 
 /**
  * Context Holds values and carries them in functions.
@@ -17,7 +57,7 @@ export const objectIdValidation = instance(ObjectId) || size(string(), 24);
  *      }  *
  */
 export interface LesanContenxt {
-  [key: string]: any;
-  Headers: Headers;
-  body: Body | null;
+	[key: string]: any;
+	Headers: Headers;
+	body: TLesanBody | null;
 }

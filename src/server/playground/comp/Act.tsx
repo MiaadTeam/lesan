@@ -1,5 +1,5 @@
 /** @jsx h */
-import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
+import { h } from "../reactDeps.ts";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import Search from "./icon/Search.tsx";
 import { uid } from "../utils/uid.ts";

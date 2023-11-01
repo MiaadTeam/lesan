@@ -13,7 +13,8 @@ import { ActInp, Services } from "./types.ts";
 
 export const setAct = (
   acts: Services,
-  { schema, actName, validator, fn, preAct, validationRunType }: ActInp,
+  { schema, actName, preValidation, validator, fn, preAct, validationRunType }:
+    ActInp,
 ) => {
   if (!acts.main[schema]) {
     acts.main[schema] = {};
@@ -22,6 +23,7 @@ export const setAct = (
     validator,
     fn,
     preAct,
+    preValidation,
     validationRunType: validationRunType || "assert",
   };
 };
