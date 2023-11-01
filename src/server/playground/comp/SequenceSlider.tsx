@@ -34,10 +34,10 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                 <span>
                   All Request Count: <span>{sequence.repeat}</span>{" "}
                 </span>
-                <span>
+                <span className="e2e-success">
                   Success:<span> {sequence.success}</span>
                 </span>
-                <span>
+                <span className="e2e-fail">
                   Fails: <span>{sequence.fails}</span>
                 </span>
                 <span>

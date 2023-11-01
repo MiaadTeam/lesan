@@ -1287,11 +1287,11 @@ textarea {
 }
 
 .e2e-success {
-  color: #008f00;
+  color: #00b800;
 }
 
 .e2e-fail {
-  color: #b80000;
+  color: #c00;
 }
 
 .detail-sequence--sections {

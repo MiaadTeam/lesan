@@ -451,14 +451,14 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               </div>
               <div className="information-container--request--sections">
                 <p className="information-container--request--sections--item">
-                  All Success Request:{" "}
+                  All <span className="e2e-success">Success</span> Request:{" "}
                   <span className="information-container--request--sections--item--content">
                     {requestDetail.success}{" "}
                   </span>{" "}
                   times
                 </p>
                 <p className="information-container--request--sections--item">
-                  All Fails Request :{" "}
+                  All <span className="e2e-fail">Fails</span> Request :{" "}
                   <span className="information-container--request--sections--item--content">
                     {requestDetail.fails}{" "}
                   </span>
@@ -466,7 +466,6 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                 </p>
               </div>
             </div>
-
             <div className="information-container--times">
               <span className="information-container-label">Times</span>{" "}
               <ul className="information-container--times--sections">
@@ -541,47 +540,50 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                 </li>
               </ul>
             </div>
-
-            <div className="information-container--captures">
-              <span className="information-container-label">
-                Captures Information
-              </span>{" "}
-              {requestDetail.allCaptureItems.map((ci) => (
-                <ul className="information-container--captures--sections">
-                  <span className="information-container-label">{ci.key}</span>
-                  <li>
-                    Captured From:{" "}
-                    <span className="information-container--request--sections--item--content">
-                      {ci.captured}
+            {requestDetail.allCaptureItems.length > 0 && (
+              <div className="information-container--captures">
+                <span className="information-container-label">
+                  Captures Information
+                </span>{" "}
+                {requestDetail.allCaptureItems.map((ci) => (
+                  <ul className="information-container--captures--sections">
+                    <span className="information-container-label">
+                      {ci.key}
                     </span>
-                  </li>
-                  <li>
-                    Value Of{" "}
-                    <span className="information-container--request--sections--item--content">
-                      : {ci.value}
-                    </span>
-                  </li>
-                  <li>
-                    Model :{" "}
-                    <span className="information-container--request--sections--item--content">
-                      {ci.model}
-                    </span>
-                  </li>
-                  <li>
-                    Act :{" "}
-                    <span className="information-container--request--sections--item--content">
-                      {ci.act}
-                    </span>
-                  </li>
-                  <li>
-                    Captured Inside Sequnce Index:{" "}
-                    <span className="information-container--request--sections--item--content">
-                      {ci.sequenceIdx}
-                    </span>
-                  </li>
-                </ul>
-              ))}
-            </div>
+                    <li>
+                      Captured From:{" "}
+                      <span className="information-container--request--sections--item--content">
+                        {ci.captured}
+                      </span>
+                    </li>
+                    <li>
+                      Value Of{" "}
+                      <span className="information-container--request--sections--item--content">
+                        : {ci.value}
+                      </span>
+                    </li>
+                    <li>
+                      Model :{" "}
+                      <span className="information-container--request--sections--item--content">
+                        {ci.model}
+                      </span>
+                    </li>
+                    <li>
+                      Act :{" "}
+                      <span className="information-container--request--sections--item--content">
+                        {ci.act}
+                      </span>
+                    </li>
+                    <li>
+                      Captured Inside Sequnce Index:{" "}
+                      <span className="information-container--request--sections--item--content">
+                        {ci.sequenceIdx}
+                      </span>
+                    </li>
+                  </ul>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="e2e-sequesnce-wrapper">
