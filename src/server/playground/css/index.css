@@ -1286,6 +1286,14 @@ textarea {
   color: #f1fa8c;
 }
 
+.e2e-success {
+  color: #008f00;
+}
+
+.e2e-fail {
+  color: #b80000;
+}
+
 .detail-sequence--sections {
   display: flex;
   flex-direction: column;
