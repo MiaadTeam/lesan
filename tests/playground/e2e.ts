@@ -22,7 +22,7 @@ coreApp.odm.setDb(db);
 
 // ================== MODEL SECTION ==================
 // ------------------ Country Model ------------------
-const countryPure = {
+const locationPure = {
   name: string(),
   population: number(),
   abb: string(),
@@ -30,20 +30,15 @@ const countryPure = {
 const countryRelations = {};
 const countries = coreApp.odm.newModel(
   "country",
-  countryPure,
+  locationPure,
   countryRelations,
 );
 
 // ------------------ Province Model ------------------
-const provincePure = {
-  name: string(),
-  population: number(),
-  abb: string(),
-};
 
 const provinces = coreApp.odm.newModel(
   "province",
-  provincePure,
+  locationPure,
   {
     country: {
       schemaName: "country",
@@ -138,7 +133,7 @@ const users = coreApp.odm.newModel("user", userPure, {
 // ------------------ Add Country ------------------
 const addCountryValidator = () => {
   return object({
-    set: object(countryPure),
+    set: object(locationPure),
     get: coreApp.schemas.selectStruct("country", { users: 1 }),
   });
 };
@@ -249,7 +244,7 @@ coreApp.acts.setAct({
 const addProvinceValidator = () => {
   return object({
     set: object({
-      ...provincePure,
+      ...locationPure,
       isCapital: optional(boolean()),
       country: string(),
     }),
