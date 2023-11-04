@@ -5,6 +5,8 @@
 # User Guide
 - [Installation](./installation.md)
 - [Getting start](./getting_start.md)
+- [Add relation](./add_relation.md)
+- [Add more relation](./add_more_relation.md)
 - [Mannage relations](./mannage_relations.md)
 - [Other functions](./other_functions.md)
 - [Playground](./playground.md)
