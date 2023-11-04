@@ -364,8 +364,8 @@ const addUserValidator = () => {
   return object({
     set: object({
       ...userPure,
-      country: string(),
-      livedCities: array(string()),
+      country: objectIdValidation,
+      livedCities: array(objectIdValidation),
     }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
