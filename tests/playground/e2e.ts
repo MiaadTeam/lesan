@@ -7,6 +7,7 @@ import {
   number,
   object,
   ObjectId,
+  objectIdValidation,
   optional,
   size,
   string,
@@ -34,10 +35,10 @@ const countries = coreApp.odm.newModel(
   countryRelations,
 );
 
-// ------------------ Province Model ------------------
+// ------------------ City Model ------------------
 
-const provinces = coreApp.odm.newModel(
-  "province",
+const cities = coreApp.odm.newModel(
+  "city",
   locationPure,
   {
     country: {
@@ -45,7 +46,7 @@ const provinces = coreApp.odm.newModel(
       type: "single",
       optional: false,
       relatedRelations: {
-        provincesAsc: {
+        citiesAsc: {
           type: "multiple",
           limit: 5,
           sort: {
@@ -53,7 +54,7 @@ const provinces = coreApp.odm.newModel(
             order: "asc",
           },
         },
-        provincesDesc: {
+        citiesDesc: {
           type: "multiple",
           limit: 5,
           sort: {
@@ -61,7 +62,7 @@ const provinces = coreApp.odm.newModel(
             order: "desc",
           },
         },
-        provincesByPopAsc: {
+        citiesByPopAsc: {
           type: "multiple",
           limit: 5,
           sort: {
@@ -69,7 +70,7 @@ const provinces = coreApp.odm.newModel(
             order: "asc",
           },
         },
-        proviceByPopDesc: {
+        citiesByPopDesc: {
           type: "multiple",
           limit: 5,
           sort: {
@@ -77,7 +78,7 @@ const provinces = coreApp.odm.newModel(
             order: "desc",
           },
         },
-        capitalProvince: {
+        capitalCity: {
           type: "single",
         },
       },
@@ -91,9 +92,9 @@ const userPure = {
 };
 
 const users = coreApp.odm.newModel("user", userPure, {
-  livedProvinces: {
+  livedCities: {
     optional: false,
-    schemaName: "province",
+    schemaName: "city",
     type: "multiple",
     sort: {
       field: "_id",
@@ -239,34 +240,34 @@ coreApp.acts.setAct({
   fn: deleteCountry,
 });
 
-// ------------------ Province Founctions ------------------
-// ------------------ Add Province ------------------
-const addProvinceValidator = () => {
+// ------------------ City Founctions ------------------
+// ------------------ Add City ------------------
+const addCityValidator = () => {
   return object({
     set: object({
       ...locationPure,
       isCapital: optional(boolean()),
-      country: string(),
+      country: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct("province", 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
-const addProvince: ActFn = async (body) => {
+const addCity: ActFn = async (body) => {
   const { country, isCapital, name, population, abb } = body.details.set;
 
-  return await provinces.insertOne({
+  return await cities.insertOne({
     doc: { name, population, abb },
     projection: body.details.get,
     relations: {
       country: {
         _ids: new ObjectId(country),
         relatedRelations: {
-          provincesAsc: true,
-          provincesDesc: true,
-          provincesByPopAsc: true,
-          proviceByPopDesc: true,
-          capitalProvince: isCapital,
+          citiesAsc: true,
+          citiesDesc: true,
+          citiesByPopAsc: true,
+          citiesByPopDesc: true,
+          capitalCity: isCapital,
         },
       },
     },
@@ -274,38 +275,38 @@ const addProvince: ActFn = async (body) => {
 };
 
 coreApp.acts.setAct({
-  schema: "province",
-  actName: "addProvince",
-  validator: addProvinceValidator(),
-  fn: addProvince,
+  schema: "city",
+  actName: "addCity",
+  validator: addCityValidator(),
+  fn: addCity,
 });
 
-// ------------------ Add Multiple Provinces ------------------
-const addProvincesValidator = () => {
+// ------------------ Add Multiple Cities ------------------
+const addCitiesValidator = () => {
   return object({
     set: object({
-      multiProvinces: array(object()),
+      multiCities: array(object()),
       country: string(),
     }),
-    get: coreApp.schemas.selectStruct("province", 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
-const addProvinces: ActFn = async (body) => {
-  const { country, multiProvinces } = body.details.set;
+const addCities: ActFn = async (body) => {
+  const { country, multiCities } = body.details.set;
 
-  return await provinces.insertMany({
-    docs: multiProvinces,
+  return await cities.insertMany({
+    docs: multiCities,
     projection: body.details.get,
     relations: {
       country: {
         _ids: new ObjectId(country),
         relatedRelations: {
-          provincesAsc: true,
-          provincesDesc: true,
-          provincesByPopAsc: true,
-          proviceByPopDesc: true,
-          capitalProvince: false,
+          citiesAsc: true,
+          citiesDesc: true,
+          citiesByPopAsc: true,
+          citiesByPopDesc: true,
+          capitalCity: false,
         },
       },
     },
@@ -313,24 +314,24 @@ const addProvinces: ActFn = async (body) => {
 };
 
 coreApp.acts.setAct({
-  schema: "province",
-  actName: "addProvinces",
-  validator: addProvincesValidator(),
-  fn: addProvinces,
+  schema: "city",
+  actName: "addCities",
+  validator: addCitiesValidator(),
+  fn: addCities,
 });
 
-// ------------------ Get Province ------------------
-const getProvincesValidator = () => {
+// ------------------ Get City ------------------
+const getCitiesValidator = () => {
   return object({
     set: object({
       page: number(),
       take: number(),
       countryId: optional(size(string(), 24)),
     }),
-    get: coreApp.schemas.selectStruct("province", 5),
+    get: coreApp.schemas.selectStruct("city", 5),
   });
 };
-const getProvinces: ActFn = async (body) => {
+const getCities: ActFn = async (body) => {
   const {
     set: { page, take, countryId },
     get,
@@ -342,7 +343,7 @@ const getProvinces: ActFn = async (body) => {
   countryId &&
     pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
 
-  return await provinces
+  return await cities
     .aggregation({
       pipeline,
       projection: get,
@@ -351,10 +352,10 @@ const getProvinces: ActFn = async (body) => {
 };
 
 coreApp.acts.setAct({
-  schema: "province",
-  actName: "getProvinces",
-  validator: getProvincesValidator(),
-  fn: getProvinces,
+  schema: "city",
+  actName: "getCities",
+  validator: getCitiesValidator(),
+  fn: getCities,
 });
 
 // ------------------ User Founctions ------------------
@@ -364,14 +365,14 @@ const addUserValidator = () => {
     set: object({
       ...userPure,
       country: string(),
-      livedProvinces: array(string()),
+      livedCities: array(string()),
     }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUser: ActFn = async (body) => {
-  const { country, livedProvinces, name, age } = body.details.set;
-  const obIdLivedProvinces = livedProvinces.map(
+  const { country, livedCities, name, age } = body.details.set;
+  const obIdLivedCities = livedCities.map(
     (lp: string) => new ObjectId(lp),
   );
 
@@ -385,8 +386,8 @@ const addUser: ActFn = async (body) => {
           users: true,
         },
       },
-      livedProvinces: {
-        _ids: obIdLivedProvinces,
+      livedCities: {
+        _ids: obIdLivedCities,
         relatedRelations: {
           users: true,
         },
@@ -402,18 +403,18 @@ coreApp.acts.setAct({
 });
 
 // --------------------- Add User Relation ----------------------
-const addUserLivedProvinceValidator = () => {
+const addUserLivedCityValidator = () => {
   return object({
     set: object({
       _id: string(),
-      livedProvinces: array(string()),
+      livedCities: array(string()),
     }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
 };
-const addUserLiveProvince: ActFn = async (body) => {
-  const { livedProvinces, _id } = body.details.set;
-  const obIdLivedProvinces = livedProvinces.map(
+const addUserLivedCity: ActFn = async (body) => {
+  const { livedCities, _id } = body.details.set;
+  const obIdLivedCities = livedCities.map(
     (lp: string) => new ObjectId(lp),
   );
 
@@ -421,8 +422,8 @@ const addUserLiveProvince: ActFn = async (body) => {
     _id: new ObjectId(_id),
     projection: body.details.get,
     relations: {
-      livedProvinces: {
-        _ids: obIdLivedProvinces,
+      livedCities: {
+        _ids: obIdLivedCities,
         relatedRelations: {
           users: true,
         },
@@ -432,9 +433,9 @@ const addUserLiveProvince: ActFn = async (body) => {
 };
 coreApp.acts.setAct({
   schema: "user",
-  actName: "addUserLivedProvinces",
-  validator: addUserLivedProvinceValidator(),
-  fn: addUserLiveProvince,
+  actName: "addUserLivedCities",
+  validator: addUserLivedCityValidator(),
+  fn: addUserLivedCity,
 });
 // --------------------- Add User Relation ----------------------
 const addUserCountryValidator = () => {
