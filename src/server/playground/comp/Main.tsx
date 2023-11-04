@@ -316,7 +316,6 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
 
   const copyRequest = () => {
     const request: any = requestFunction();
-    console.log(request);
     request.body.body = JSON.parse(request.body.body);
     navigator.clipboard.writeText(JSON.stringify(request));
   };

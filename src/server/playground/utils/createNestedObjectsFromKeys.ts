@@ -5,7 +5,7 @@ export const createNestedObjectsFromKeys = (
 
   // For each object path (property key) in the object
   for (const objectPath in obj) {
-    if (obj[objectPath] || obj[objectPath] === 0) {
+    if (obj[objectPath] || obj[objectPath] === 0 || obj[objectPath] === false) {
       // Split path into component parts
       const parts = objectPath.split(".");
 
