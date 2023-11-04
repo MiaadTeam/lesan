@@ -87,7 +87,12 @@ This function receives an object as input that has the following keys:
 - `fn` is the function we call when a request arrives for it.
 - `validator` is a superstruct object which is called before calling the act fn and validating the given data. Validator includes `set` and `get` objects.
 - An optional key named `validationRunType` that receives the values of `assert` and `create` and determines the type of validator run so that we can create data or change previous data during validation. You can read about it [here](https://docs.superstructjs.org/guides/03-coercing-data).
-- There is another optional key called `preAct` which receives an array of functions. These functions are executed in the order of the array index before the execution of the main endpoint function. With these functions, we can store information in the context and use it in the main function, or not allow the main function to be executed. We mostly use this key for authorization and authentication. You can think of that key as middleware in Express.
+- There is another optional key called `preAct` which receives an array of functions. These functions are executed in the order of the array index before the execution of the main endpoint function. With these functions, we can store information in the context and use it in the main function, or not allow the main function to be executed. We mostly use this key for `authorization` and `authentication`. You can think of that key as middleware in Express.
+- Like `preAct`, there is another optional key called `preValidation`. which, like `preAct`, receives an array of functions and executes them in order before executing the validation function.
+
+There is a `context` inside Lesan, which is available by `contextFns.getContextModel()` function. And we can share information between the functions of an `Act` like `preAct`, `preValidation`, `validator` and `fn` through this context. By default, the `body` and `header` of each request are available in this context.  
+
+In addition, the `fn` function receives an input called `body`, which is the `body` of the sent request. If we have changed the body in the `context`. The body entered in `fn` function will be updated and changed.
 
 ### The Validator function
 In the `addCountryValidator` function that we wrote for the `validator` key, we have returned the `object` function from the Superstruct struct.  
