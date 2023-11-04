@@ -1,0 +1,500 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Add relation - Lesan</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting_start.html"><strong aria-hidden="true">2.</strong> Getting start</a></li><li class="chapter-item expanded "><a href="add_relation.html" class="active"><strong aria-hidden="true">3.</strong> Add relation</a></li><li class="chapter-item expanded "><a href="add_more_relation.html"><strong aria-hidden="true">4.</strong> Add more relation</a></li><li class="chapter-item expanded "><a href="mannage_relations.html"><strong aria-hidden="true">5.</strong> Mannage relations</a></li><li class="chapter-item expanded "><a href="other_functions.html"><strong aria-hidden="true">6.</strong> Other functions</a></li><li class="chapter-item expanded "><a href="playground.html"><strong aria-hidden="true">7.</strong> Playground</a></li><li class="chapter-item expanded "><a href="folder_structure.html"><strong aria-hidden="true">8.</strong> Folder Structure</a></li><li class="chapter-item expanded "><a href="microservice-monolithic.html"><strong aria-hidden="true">9.</strong> Microservice or Monolithic</a></li><li class="chapter-item expanded "><a href="manage_replica.html"><strong aria-hidden="true">10.</strong> Manage replica</a></li><li class="chapter-item expanded affix "><li class="part-title">Lesan Philosophy</li><li class="chapter-item expanded "><a href="Receiving_Data.html"><strong aria-hidden="true">11.</strong> Receiving Data</a></li><li class="chapter-item expanded "><a href="Previous_methods_and_the_main_challenge.html"><strong aria-hidden="true">12.</strong> Previous methods and the main challenge</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Lesan's_Solution_For_How_To_Communicate_Between_The_Server_And_The_Client.html"><strong aria-hidden="true">12.1.</strong> Lesan's Solution For How To Communicate Between The Server And The Client</a></li><li class="chapter-item expanded "><a href="Why_NoSQL.html"><strong aria-hidden="true">12.2.</strong> Why noSQL?</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Penetration_Into_Depths.html"><strong aria-hidden="true">12.2.1.</strong> Penetration Into Depths</a></li></ol></li><li class="chapter-item expanded "><a href="Microservice.html"><strong aria-hidden="true">12.3.</strong> Microservice</a></li><li class="chapter-item expanded "><a href="Lesan_solution.html"><strong aria-hidden="true">12.4.</strong> Lesan solution</a></li></ol></li><li class="chapter-item expanded "><a href="Starting_work_with_Lesan.html"><strong aria-hidden="true">13.</strong> Starting work with Lesan</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Microservice_Architecture_with_Lesan.html"><strong aria-hidden="true">13.1.</strong> Microservice Architecture with Lesan</a></li></ol></li><li class="chapter-item expanded "><a href="Structures.html"><strong aria-hidden="true">14.</strong> Structures</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Schemas.html"><strong aria-hidden="true">14.1.</strong> Schemas</a></li><li class="chapter-item expanded "><a href="Pure_Structure_In_Schema.html"><strong aria-hidden="true">14.2.</strong> Pure Structure In Schema</a></li><li class="chapter-item expanded "><a href="The_InRelation_Structure_In_Schema.html"><strong aria-hidden="true">14.3.</strong> The InRelation Structure In Schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_OutRelation_in_the_schema.html"><strong aria-hidden="true">14.4.</strong> The structure of OutRelation in the schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_embed_in_the_schema.html"><strong aria-hidden="true">14.5.</strong> The structure of embed in the schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_Struct_in_the_schema.html"><strong aria-hidden="true">14.6.</strong> The structure of Struct in the schema</a></li><li class="chapter-item expanded "><a href="runServer_(web_server_structure).html"><strong aria-hidden="true">14.7.</strong> runServer (web server structure)</a></li><li class="chapter-item expanded "><a href="Request_processing.html"><strong aria-hidden="true">14.8.</strong> Request processing</a></li><li class="chapter-item expanded "><a href="Dynamic_structure.html"><strong aria-hidden="true">14.9.</strong> Dynamic structure</a></li><li class="chapter-item expanded "><a href="Static_structure.html"><strong aria-hidden="true">14.10.</strong> Static structure</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Lesan</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/MiaadTeam/lesan" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/MiaadTeam/lesan/tree/main/pages/src/add_relation.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="add-relation"><a class="header" href="#add-relation">Add relation</a></h1>
+<p>As we said before, we embed all relationships. So when you define a relation we store the pure fields of both models in each other.</p>
+<p>So far we have defined only one model, let us add the second model.</p>
+<p>We add the following code to the previous codes to add a new model called <code>city</code>.</p>
+<pre><code class="language-ts">const cityPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: &quot;country&quot;,
+    type: &quot;single&quot; as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: &quot;multiple&quot; as RelationDataType,
+        limit: 50,
+        sort: {
+          field: &quot;_id&quot;,
+          order: &quot;desc&quot; as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel(
+  &quot;city&quot;,
+  cityPure,
+  cityRelations,
+);
+</code></pre>
+<p>We talked about <code>newModel</code> and its input <a href="https://miaadteam.github.io/lesan/getting_start.html#add-new-model">here</a>.</p>
+<p>Now we only talk about the third input, the <strong>relation</strong> definition. which receives an object with string key which is the feild name and we store the relation data by this name inside each document, and <code>TRelation</code> value (<code>relations: Record&lt;string, TRelation&gt;;</code>) which gave us some <code>metadata</code> about the relation. The <code>TRelation</code> type is as follows:</p>
+<pre><code class="language-ts">export type RelationDataType = &quot;single&quot; | &quot;multiple&quot;;
+
+export type RelationSortOrderType = &quot;asc&quot; | &quot;desc&quot;;
+
+export type TRelatedRelation = {
+  type: RelationDataType;
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType
+  };
+};
+
+interface TRelation {
+  schemaName: string;
+  type: RelationDataType;
+  optional: boolean;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType;
+  };
+  relatedRelations: {
+    [key: string]: TRelatedRelation;
+  };
+}
+</code></pre>
+<ul>
+<li>The <code>schemaName</code> key receives the exact name of another <code>schema</code> to establish a relation.</li>
+<li>The <code>type</code> key specifies whether the relationship type should be <code>single</code> or <code>multiple</code>.</li>
+<li>The <code>optional</code> key specifies whether or not it is mandatory to enter information about this relationship when importing a new document.</li>
+<li>The <code>sort</code> key is optional and specifies that if the relationship type is <code>multiple</code>, based on which <code>field</code> of the relationship schema, the information should be arranged. This key receives an object with two keys:
+<ul>
+<li>The <code>field</code> that receives the name of one of the schema fields in the relation.</li>
+<li>An <code>order</code> that receives the value of <code>asc</code> and <code>desc</code> and specifies whether the arrangement should be from bottom to top or vice versa.</li>
+</ul>
+</li>
+<li><code>relatedRelations</code> key that specifies the effects of this schema on the other side of the relationship. This key receives the value of the object with the following keys:
+<ul>
+<li>The <code>type</code> key specifies whether the relationship type should be <code>single</code> or <code>multiple</code>.</li>
+<li><code>limit</code> which specifies the number of relations to be kept if the relation <code>type</code> is <code>multiple</code>.</li>
+<li>The <code>sort</code> key is optional and specifies that if the relationship type is <code>multiple</code>, based on which <code>field</code> of the relationship schema, the information should be arranged. This key receives an object with two keys:
+<ul>
+<li>The <code>field</code> that receives the name of one of the schema fields in the relation.</li>
+<li>An <code>order</code> that receives the value of <code>asc</code> and <code>desc</code> and specifies whether the arrangement should be from bottom to top or vice versa.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="add-new-act-with-relation"><a class="header" href="#add-new-act-with-relation">Add new <code>Act</code> with relation</a></h2>
+<p>Let us define an <code>Act</code> for this new model. We add the following code for this purpose: </p>
+<pre><code class="language-ts">  const addCityValidator = () =&gt; {
+  return object({
+    set: object({
+      ...cityPure,
+      country: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+  });
+};
+
+const addCity: ActFn = async (body) =&gt; {
+  const { country, name, population, abb } = body.details.set;
+
+  return await cities.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: &quot;city&quot;,
+  actName: &quot;addCity&quot;,
+  validator: addCityValidator(),
+  fn: addCity,
+});
+
+</code></pre>
+<blockquote>
+<p>We need to import <code>objectIdValidation</code> and  <code>ObjectId</code> from <code>lesan</code></p>
+</blockquote>
+<p>We see <code>Validator</code> and <code>Act</code> and <code>setAct</code> and <code>insertOne</code> functions before, Here we are only talking about the <code>relations</code> input in the insert function. The type of this input is as follow:</p>
+<pre><code class="language-ts">export type TInsertRelations&lt;T extends IRelationsFileds&gt; = {
+  [mainKey in keyof T]?: {
+    _ids: ObjectId | ObjectId[];
+    relatedRelations?: {
+      [key in keyof T[mainKey][&quot;relatedRelations&quot;]]: boolean;
+    };
+  };
+};
+</code></pre>
+<p>This input receives an object with the key name of the relations that we have previously defined in the model. This object has the following keys:</p>
+<ul>
+<li><code>ids</code> which receives either an <code>ObjectId</code> or an array of <code>ObjectIds</code>.</li>
+<li><code>relatedRelations</code>, which receives an object with the key of the name of the related relations that we have previously defined in the model along with a <code>boolean</code> value. If the value is <code>true</code>, in addition to the given relationship being saved in this new document, this created document is also saved in the related relationship. And if it is <code>false</code>, the relationship will be saved only in this new document.</li>
+</ul>
+<p>Here, by adding a city and giving the country ID associated with that city, we store both the pure fields of that country in this newly created city, and within that country in an array of objects, we also store the pure fields of this city.</p>
+<h3 id="all-codes"><a class="header" href="#all-codes">All codes</a></h3>
+<p>Let's see all the code written here and run it.</p>
+<pre><code class="language-ts">import {
+  ActFn,
+  lesan,
+  MongoClient,
+  number,
+  object,
+  ObjectId,
+  objectIdValidation,
+  RelationDataType,
+  RelationSortOrderType,
+  string,
+} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+
+const coreApp = lesan();
+
+const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+
+const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+
+coreApp.odm.setDb(db);
+
+const countryCityPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const countryRelations = {};
+
+const countries = coreApp.odm.newModel(
+  &quot;country&quot;,
+  countryCityPure,
+  countryRelations,
+);
+
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: &quot;country&quot;,
+    type: &quot;single&quot; as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: &quot;multiple&quot; as RelationDataType,
+        limit: 50,
+        sort: {
+          field: &quot;_id&quot;,
+          order: &quot;desc&quot; as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel(
+  &quot;city&quot;,
+  countryCityPure,
+  cityRelations,
+);
+
+const addCountryValidator = () =&gt; {
+  return object({
+    set: object(countryCityPure),
+    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+  });
+};
+
+const addCountry: ActFn = async (body) =&gt; {
+  const { name, population, abb } = body.details.set;
+  return await countries.insertOne({
+    doc: {
+      name,
+      population,
+      abb,
+    },
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: &quot;country&quot;,
+  actName: &quot;addCountry&quot;,
+  validator: addCountryValidator(),
+  fn: addCountry,
+});
+
+const addCityValidator = () =&gt; {
+  return object({
+    set: object({
+      ...countryCityPure,
+      country: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+  });
+};
+
+const addCity: ActFn = async (body) =&gt; {
+  const { country, name, population, abb } = body.details.set;
+
+  return await cities.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: &quot;city&quot;,
+  actName: &quot;addCity&quot;,
+  validator: addCityValidator(),
+  fn: addCity,
+});
+
+coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
+</code></pre>
+<p>Now, by running this code and going to playgroun, you should see this page to add the country:</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/6236123/4d2bc0d0-8715-44ce-b31c-c6222d1aaed2" alt="add-country" /></p>
+<p>And to add a new city, you should see this page:</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/6236123/b59ae7fc-2f11-4326-9944-f5a99d698486" alt="add-city" /></p>
+<p>What exactly happened to the database? If you open MongoDB Compass, the following data should be stored for the country:</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/6236123/9824ded0-ba32-4d4b-a726-838b31bea988" alt="country-data" /></p>
+<p>And the following data should be stored for the city:</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/6236123/eb1a7ea0-fe7e-44e3-96df-08b2d37d4fd9" alt="city-data" /></p>
+<p>As you can see, when you add a city, the pure values are stored as embedded on both sides of the relation. This makes receiving data much faster.<br />
+The only noteworthy point is that a limited number of cities are stored in the country. Try to save as many as you think you will need in the first paginate. To get the rest of the cities, we will also query their own schema.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="getting_start.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="add_more_relation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="getting_start.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="add_more_relation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
