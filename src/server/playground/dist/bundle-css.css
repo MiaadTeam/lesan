@@ -1304,7 +1304,9 @@ textarea {
   }
 }
 .setting_fetch-config--apply-button {
-  width: 6rem;
+  display: flex;
+  justify-content: space-between;
+  width: 7rem;
   border-radius: 7px;
 }
 .setting_heading {
@@ -1378,7 +1380,9 @@ textarea {
   top: -25px;
 }
 .setting_set-headers--apply-button {
-  width: 6rem;
+  display: flex;
+  justify-content: space-between;
+  width: 7rem;
   margin-right: 31px;
   border-radius: 7px;
   position: absolute;
