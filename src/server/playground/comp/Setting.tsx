@@ -1,4 +1,5 @@
 /** @jsx h */
+import { fa } from "https://cdn.skypack.dev/@faker-js/faker";
 import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import AddIcon from "./icon/AddIcon.tsx";
@@ -10,6 +11,12 @@ export function Setting({
 }: {
   configUrl: (address?: string) => void;
 }) {
+  const [active, setActive] = useState("no");
+  const handleClick = () => {
+    setTimeout(() => {
+      setActive("no");
+    }, 1000);
+  };
   const handleDelete = (fromIndex: any) => {
     headersState[fromIndex];
     headersState.splice(fromIndex, 1);
@@ -44,10 +51,14 @@ export function Setting({
           />
           <button
             className="setting_fetch-config--apply-button e2e-back-button e2e-add-capture "
-            onClick={() => configUrl(urlAddress)}
+            onClick={() => {
+              configUrl(urlAddress);
+              setActive("yes");
+              handleClick();
+            }}
           >
             <TickIcon />
-            <span>Apply</span>{" "}
+            <span>{active === "yes" ? "Applyed!" : "Apply"}</span>
           </button>
         </div>
       </div>
@@ -116,12 +127,13 @@ export function Setting({
                 const { key, value } = header;
                 newHeaders[key] = value;
               }
-
               setHeader(newHeaders);
+              setActive("yess");
+              handleClick();
             }}
           >
             <TickIcon />
-            <span>Apply</span>
+            <span>{active === "yess" ? "Applyed!" : "Apply"}</span>
           </button>
         </div>
       </div>
