@@ -1777,6 +1777,20 @@ textarea {
   position: relative;
 }
 
+.result-slider-container {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.result-slider-wrapper {
+  display: flex;
+  min-width: 100%;
+  position: relative;
+}
+
 .container-detail {
   display: flex;
   justify-content: space-between;
@@ -2168,6 +2182,85 @@ textarea {
   background-color: #232724;
 }
 
+.pagination-container {
+  position: absolute;
+  z-index: 1;
+  bottom: 10px;
+}
+
+.pagination {
+  list-style: none;
+  padding: 5px;
+  border-radius: 7px;
+  display: flex;
+  gap: 2px;
+  background-color: gainsboro;
+  position: relative;
+}
+
+.pagination > :is(button, span) {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: black;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 7px;
+}
+
+.pagination > button:first-child {
+  /* border-radius: 4px 0 0 4px; */
+}
+
+.pagination > button:last-child {
+  /* border-radius: 0 4px 4px 0; */
+}
+
+.pagination > button:not(span) {
+  cursor: pointer;
+}
+
+.pagination > button.active {
+  background-color: teal;
+  color: #f9f9f9;
+}
+
+.pagination > button:disabled {
+  opacity: 0.25;
+  cursor: pointer;
+}
+
+.pagination--go-to {
+  display: flex;
+  gap: 10px;
+  position: absolute;
+  left: 102%;
+  bottom: 0;
+  height: 40px;
+  background-color: gainsboro;
+  padding: 5px 10px;
+  border-radius: 7px;
+}
+
+.pagination--go-to--input {
+  margin: 0;
+  width: 60px;
+  border: 1px solid teal;
+  outline: none;
+  font-size: 13px;
+}
+
+.pagination--go-to--button {
+  width: 45px;
+  background: none;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1px solid teal;
+}
 /* ------------------------------- JSON Viewer ------------------------------ */
 .cute-string {
   color: #f1fa8c;
