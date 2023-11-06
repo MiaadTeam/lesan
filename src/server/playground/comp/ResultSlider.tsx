@@ -80,6 +80,23 @@ export const ResultSlider = ({
 
   // end pure pagination
 
+  // pagination fo under 1024px
+  {
+    /* <div>
+          {" "}
+          {results.map((_re, index) => (
+            <span
+              className="pagination--item"
+              style={{ cursor: "pointer", flex: "1" }}
+              onClick={() => setShow(index)}
+              data-show={show === index}
+            >
+              {index + 1}
+            </span>
+          ))}
+        </div> */
+  }
+
   return (
     <div className="result-slider-container">
       <div className="result-slider-wrapper" id={results[activePage].id}>
@@ -102,6 +119,7 @@ export const ResultSlider = ({
               {results[activePage].responseTime}ms
             </span>
           </div>
+          {/* <span>{`${activePage + 1} / ${results.length}`}</span> */}
           <JSONViewer jsonData={results[activePage].response} />
         </section>
       </div>

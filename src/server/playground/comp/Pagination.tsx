@@ -70,21 +70,25 @@ export function Pagination({
 
   return (
     <div className="pagination">
-      <button
-        onClick={() => {
-          setActivePage(0);
-        }}
-      >
-        {" "}
-        <ChevronLeftDouble />
-      </button>
-      <button
-        onClick={() => {
-          setActivePage(activePage === 0 ? pageCount - 1 : activePage - 1);
-        }}
-      >
-        <ChevronLeftIcon />
-      </button>
+      {pageCount > 1 && (
+        <button
+          onClick={() => {
+            setActivePage(0);
+          }}
+        >
+          {" "}
+          <ChevronLeftDouble />
+        </button>
+      )}
+      {pageCount > 1 && (
+        <button
+          onClick={() => {
+            setActivePage(activePage === 0 ? pageCount - 1 : activePage - 1);
+          }}
+        >
+          <ChevronLeftIcon />
+        </button>
+      )}
       {(activePage >= 4 || activePage > pageCount - 5) && pageCount > 5 && (
         <button onClick={() => onChange(0)}>{1}</button>
       )}
@@ -110,47 +114,55 @@ export function Pagination({
           {pageCount}
         </button>
       )}
-      <button
-        onClick={() =>
-          setActivePage(activePage === pageCount - 1 ? 0 : activePage + 1)
-        }
-      >
-        <ChevronRightIcon />
-      </button>
-      <button
-        onClick={() => {
-          setActivePage(pageCount - 1);
-        }}
-      >
-        {" "}
-        <ChevronRightDouble />{" "}
-      </button>
-      <div className="pagination--go-to">
-        {" "}
-        <input
-          className="pagination--go-to--input"
-          style={{
-            margin: "0",
-            width: "60px",
-            border: "1px solid teal",
-            outline: "none",
-          }}
-          min={1}
-          for="1"
-          type="number"
-          onChange={handleChange}
-          value={goTo}
-        />
+
+      {pageCount > 1 && (
         <button
-          className="pagination--go-to--button"
-          id="1"
+          onClick={() =>
+            setActivePage(activePage === pageCount - 1 ? 0 : activePage + 1)
+          }
+        >
+          <ChevronRightIcon />
+        </button>
+      )}
+      {pageCount > 1 && (
+        <button
           onClick={() => {
-            handleClick();
+            setActivePage(pageCount - 1);
           }}
         >
-          Go
+          {" "}
+          <ChevronRightDouble />{" "}
         </button>
-      </div>
+      )}
+      {pageCount > 1 && (
+        <div className="pagination--go-to">
+          {" "}
+          <input
+            className="pagination--go-to--input"
+            style={{
+              margin: "0",
+              width: "60px",
+              border: "1px solid teal",
+              outline: "none",
+            }}
+            min={1}
+            max={pageCount}
+            for="1"
+            type="number"
+            onChange={handleChange}
+            value={goTo}
+          />
+          <button
+            className="pagination--go-to--button"
+            id="1"
+            onClick={() => {
+              handleClick();
+            }}
+          >
+            Go
+          </button>
+        </div>
+      )}
     </div>
   );
 }
