@@ -31,7 +31,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
             <div className="detail-sequence">
               <div className="detail-sequence--sections">
                 <span className="sequnce-description-label">Requests</span>{" "}
-                <span>
+                <span className="detail-sequence--sections--first-item">
                   All Request Count: <span>{sequence.repeat}</span>{" "}
                 </span>
                 <span className="e2e-success">
@@ -50,7 +50,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
               </div>
               <div className="detail-sequence--sections">
                 <span className="sequnce-description-label">Best</span>{" "}
-                <span>
+                <span className="detail-sequence--sections--first-item">
                   Best Time: <span>{sequence.bestTime.time} ms</span>
                 </span>
                 <span>
@@ -59,7 +59,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
               </div>
               <div className="detail-sequence--sections">
                 <span className="sequnce-description-label">Worst</span>
-                <span>
+                <span className="detail-sequence--sections--first-item">
                   Worst Time: <span>{sequence.worstTime.time} ms</span>{" "}
                 </span>
                 <span>

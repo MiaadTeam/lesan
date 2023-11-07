@@ -38,13 +38,11 @@ export function Pagination({
     if (activePage > 3 && activePage < pageCount - 3) {
       start = activePage - 1;
       end = activePage - 1 + 3;
-      console.log(1);
     }
 
     if (pageCount > 5 && activePage > pageCount - 5) {
       start = pageCount - 5;
       end = pageCount - 1;
-      console.log(2);
     }
 
     if (pageCount <= 5) {
@@ -59,7 +57,6 @@ export function Pagination({
     }
 
     setPages(newPages);
-    console.log("newp", newPages);
   }, [activePage]);
 
   const onChange = (page: any) => setActivePage(page);
@@ -150,7 +147,8 @@ export function Pagination({
             for="1"
             type="number"
             onChange={handleChange}
-            value={goTo}
+            placeholder="index"
+            // value={goTo}
           />
           <button
             className="pagination--go-to--button"

@@ -1,5 +1,5 @@
 /** @jsx h */
-import { Fragment, StateUpdater, h, useState } from "../reactDeps.ts";
+import { StateUpdater, h, useState } from "../reactDeps.ts";
 import { TResults } from "./E2E.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { Pagination } from "./Pagination.tsx";
@@ -14,13 +14,12 @@ export const ResultSlider = ({
 }) => {
   const [activePage, setActivePage] = useState(0);
 
-  const [show, setShow] = useState(0);
-  for (let index = 0; index <= results.length; index++) {}
+  // const [show, setShow] = useState(0);
 
-  const s: any = [];
-  results.map((e, i) => {
-    s.push(i);
-  });
+  // const s: any = [];
+  // results.map((e, i) => {
+  //   s.push(i);
+  // });
 
   // pure pagination!
   // let e: [] = [];
@@ -82,19 +81,6 @@ export const ResultSlider = ({
 
   // pagination fo under 1024px
   {
-    /* <div>
-          {" "}
-          {results.map((_re, index) => (
-            <span
-              className="pagination--item"
-              style={{ cursor: "pointer", flex: "1" }}
-              onClick={() => setShow(index)}
-              data-show={show === index}
-            >
-              {index + 1}
-            </span>
-          ))}
-        </div> */
   }
 
   return (
@@ -130,6 +116,18 @@ export const ResultSlider = ({
           activePage={activePage}
           setActivePage={setActivePage}
         />{" "}
+        <div className="pagination-u1024">
+          {" "}
+          {results.map((_re, index) => (
+            <span
+              className="pagination-u1024--item"
+              onClick={() => setActivePage(index)}
+              data-show={activePage === index}
+            >
+              {index + 1}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
