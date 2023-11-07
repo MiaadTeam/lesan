@@ -3,7 +3,7 @@ import { h, useState, useRef } from "../reactDeps.ts";
 import FullScreenExit from "./icon/Fullscreen-exit.tsx";
 import FullScreen from "./icon/Fullscreen.tsx";
 import Up2Icon from "./icon/Up2Icon.tsx";
-import DeleteIcon from "./icon/deleteIcon.tsx";
+import DeleteIcon from "./icon/DeleteIcon.tsx";
 
 interface ModalType {
   children?: h.JSX.Element;

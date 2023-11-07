@@ -2,7 +2,7 @@
 import { Fragment, h, useEffect, useState, useRef } from "../reactDeps.ts";
 import { ConvertMilliseconds } from "../utils/convertMilliseconds.ts";
 import { useNonInitialEffect } from "./hooks/useNonInitialEffect.ts";
-import DeleteIcon from "./icon/deleteIcon.tsx";
+import DeleteIcon from "./icon/DeleteIcon.tsx";
 import DustbinIcon from "./icon/DustbinIcon.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";

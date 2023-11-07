@@ -4,7 +4,7 @@ import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import AddIcon from "./icon/AddIcon.tsx";
 import TickIcon from "./icon/TickIcon.tsx";
-import DeleteIcon from "./icon/deleteIcon.tsx";
+import DeleteIcon from "./icon/DeleteIcon.tsx";
 
 export function Setting({
   configUrl,
