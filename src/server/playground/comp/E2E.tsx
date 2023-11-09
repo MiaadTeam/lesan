@@ -174,11 +174,6 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
     variablesSet: Set<captureType>,
     returnCaptures: captureType[],
   ) => {
-    console.log("call replaceCaptureString => ", {
-      obj,
-      variablesSet,
-      returnCaptures,
-    });
     for (const key in obj) {
       if (typeof obj[key] === "object") {
         replaceCaptureString(obj[key], variablesSet, returnCaptures);
@@ -276,7 +271,6 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
           responseTime: tResPerformance,
         };
 
-        // console.log("parsedCaptures is ", { parsedCaptures });
         setRequestDetail((preReqDetails) => {
           const sequnces = preReqDetails.sequenceDetail;
           const findedSequnceIdx = sequnces.findIndex(
@@ -695,11 +689,12 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                           value={e2eForm.repeat}
                           name={`${e2eForm.id}-repeat`}
                           type="number"
-                          onChange={(e: any) => handeE2eFormDetails(
-                            idx,
-                            "repeat",
-                            Math.abs(e.target.value),
-                          )}
+                          onChange={(e: any) =>
+                            handeE2eFormDetails(
+                              idx,
+                              "repeat",
+                              Math.abs(e.target.value),
+                            )}
                         />
                         <button
                           className="e2e-back-button e2e-export_results-button"
@@ -731,10 +726,11 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                       </div>
                       <button
                         className="btn btn--add e2e-back-button e2e-export_results-button e2e-add-capture "
-                        onClick={() => handeE2eFormDetails(idx, "captures", [
-                          ...e2eForms[idx].captures,
-                          { key: "", value: "" },
-                        ])}
+                        onClick={() =>
+                          handeE2eFormDetails(idx, "captures", [
+                            ...e2eForms[idx].captures,
+                            { key: "", value: "" },
+                          ])}
                       >
                         add capture
                       </button>
