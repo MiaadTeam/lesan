@@ -63,7 +63,7 @@ export const e2eFirstInp = () => ({
     "service": "main",
     "contents": "dynamic",
     "model": "",
-    "act": ""
+    "act": "",
     "details": {
       "get": {
       },
