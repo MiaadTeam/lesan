@@ -159,15 +159,15 @@ textarea {
   padding-top: 53px;
 }
 
-@media (min-width: 760px) and (max-width: 1025px) {
+@media (min-width: 760px) and (max-width: 1023px) {
   .sidebar {
-    width: 30%;
+    width: 33%;
   }
 }
 
 @media (min-width: 1023px) {
   .sidebar {
-    width: 20%;
+    width: 25%;
   }
 }
 
@@ -1332,7 +1332,7 @@ textarea {
   margin-top: 0;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1300px) {
   .detail-sequence--sections--capture-items {
     margin-top: 25px;
   }
@@ -1751,6 +1751,10 @@ textarea {
   color: #f1fa8c;
 }
 
+.e2e-sequensce-number {
+  cursor: pointer;
+}
+
 .information-container--times {
   display: flex;
   gap: 10px;
@@ -1847,6 +1851,15 @@ textarea {
   position: absolute;
   left: 10px;
   cursor: pointer;
+}
+
+.container--re--header--icon-number {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 10px;
+  color: gainsboro;
+  display: "flex";
 }
 
 .history-re-delete {
