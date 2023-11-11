@@ -3,14 +3,17 @@ import { StateUpdater, h, useState } from "../reactDeps.ts";
 import { TResults } from "./E2E.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { Pagination } from "./Pagination.tsx";
-import InfoIcon from "./icon/InfoIcon.tsx";
+import InfoIcon2 from "./icon/InfoIcon2.tsx";
+import SortFromTopToBottomIcon from "./icon/SortFromTopToBottomIcon.tsx";
 
 export const ResultSlider = ({
   results,
   setIsShowE2eResponse,
+  index,
 }: {
   results: TResults[];
   setIsShowE2eResponse: StateUpdater<boolean>;
+  index: number;
 }) => {
   const [activePage, setActivePage] = useState(0);
 
@@ -79,10 +82,6 @@ export const ResultSlider = ({
 
   // end pure pagination
 
-  // pagination fo under 1024px
-  {
-  }
-
   return (
     <div className="result-slider-container">
       <div className="result-slider-wrapper" id={results[activePage].id}>
@@ -92,8 +91,13 @@ export const ResultSlider = ({
               className="container-re--header--icon"
               onClick={() => setIsShowE2eResponse(true)}
             >
-              <InfoIcon />
+              <InfoIcon2 />
             </span>
+            <div className="container--re--header--icon-number">
+              {" "}
+              <SortFromTopToBottomIcon />
+              <span>{index + 1}</span>
+            </div>
             <span className="container-re-title">REQUEST</span>
           </div>
           <JSONViewer jsonData={results[activePage].request} />
@@ -105,7 +109,6 @@ export const ResultSlider = ({
               {results[activePage].responseTime}ms
             </span>
           </div>
-          {/* <span>{`${activePage + 1} / ${results.length}`}</span> */}
           <JSONViewer jsonData={results[activePage].response} />
         </section>
       </div>

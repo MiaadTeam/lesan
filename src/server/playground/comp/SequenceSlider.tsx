@@ -1,15 +1,23 @@
 /** @jsx h */
+
 import { Fragment, h, useState } from "../reactDeps.ts";
 import { TSequenceDetail } from "./E2E.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { ResultSlider } from "./ResultSlider.tsx";
 import InfoIcon from "./icon/InfoIcon.tsx";
+import SortFromTopToBottomIcon from "./icon/SortFromTopToBottomIcon.tsx";
 
-export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
+export function SequenceSlider({
+  sequence,
+  index,
+}: {
+  sequence: TSequenceDetail;
+  index: number;
+}) {
   const [isShowE2eResponse, setIsShowE2eResponse] = useState<boolean>(true);
 
   return (
-    <div key={sequence.id} className="container-detail">
+    <div id={index.toString()} key={sequence.id} className="container-detail">
       {isShowE2eResponse ? (
         <Fragment>
           <section className="sequence-re">
@@ -20,6 +28,12 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
               >
                 <InfoIcon />
               </span>
+              <div className="container--re--header--icon-number">
+                {" "}
+                <SortFromTopToBottomIcon />
+                <span>{index + 1}</span>
+              </div>
+
               <span className="container-re-title">Body Header</span>
             </div>
             <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
@@ -54,7 +68,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                   Best Time: <span>{sequence.bestTime.time} ms</span>
                 </span>
                 <span>
-                  Request Index: <span>{sequence.bestTime.resultIdx}</span>
+                  Request Number: <span>{sequence.bestTime.resultIdx}</span>
                 </span>
               </div>
               <div className="detail-sequence--sections">
@@ -64,7 +78,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                 </span>
                 <span>
                   {" "}
-                  Request Index: <span>{sequence.worstTime.resultIdx}</span>
+                  Request Number: <span>{sequence.worstTime.resultIdx}</span>
                 </span>
               </div>
               {sequence.captures.length > 0 && (
@@ -99,7 +113,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                         </span>
                       </li>
                       <li>
-                        sequnce index:{" "}
+                        sequnce number:{" "}
                         <span className="information-container--request--sections--item--content">
                           {" "}
                           {ci.sequenceIdx}
@@ -154,7 +168,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
                         </span>
                       </li>
                       <li>
-                        sequnce index:{" "}
+                        sequnce number:{" "}
                         <span className="information-container--request--sections--item--content">
                           {ci.sequenceIdx}
                         </span>
@@ -170,6 +184,7 @@ export function SequenceSlider({ sequence }: { sequence: TSequenceDetail }) {
         <ResultSlider
           results={sequence.results}
           setIsShowE2eResponse={setIsShowE2eResponse}
+          index={index}
         />
       )}
     </div>
