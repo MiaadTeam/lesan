@@ -135,19 +135,13 @@ export function Pagination({
           {" "}
           <input
             className="pagination--go-to--input"
-            style={{
-              margin: "0",
-              width: "60px",
-              border: "1px solid teal",
-              outline: "none",
-            }}
             min={1}
             max={pageCount}
             for="1"
             type="number"
             onChange={handleChange}
-            placeholder="index"
-            // value={goTo}
+            placeholder="number"
+            value={goTo}
           />
           <button
             className="pagination--go-to--button"

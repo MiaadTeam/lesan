@@ -307,7 +307,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               captures: e2eForm.captures.map(({ key, value }) => ({
                 key,
                 value,
-                sequenceIdx: sequnces.length,
+                sequenceIdx: sequnces.length + 1,
                 model: parsedHeaderBody.body.model,
                 act: parsedHeaderBody.body.act,
               })),
@@ -320,7 +320,11 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                   key,
                   value,
                   captured: findedInsideParsedCapture?.captured,
-                  sequenceIdx: findedInsideParsedCapture?.sequenceIdx,
+                  sequenceIdx:
+                    findedInsideParsedCapture?.sequenceIdx ||
+                    findedInsideParsedCapture?.sequenceIdx === 0
+                      ? findedInsideParsedCapture?.sequenceIdx + 1
+                      : undefined,
                   model: findedInsideParsedCapture?.model,
                   act: findedInsideParsedCapture?.act,
                 };
@@ -631,34 +635,36 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             {e2eForms.map((e2eForm, idx) => (
               <Fragment key={e2eForm.id}>
                 <div className="sidebar__input-double" key={e2eForm.id}>
-                  {e2eForms.length > 1 && (
-                    <div className="e2e-move-buttons">
-                      <div
-                        className="e2e-move-div"
-                        onClick={() => handleDuplicate(idx)}
-                      >
-                        <AddIcon />
-                      </div>
-                      <div
-                        className="e2e-move-div"
-                        onClick={() => handleMove(idx, idx - 1)}
-                      >
-                        <UpIcon />
-                      </div>
-                      <div
-                        className="e2e-move-div"
-                        onClick={() => handleMove(idx, idx + 1)}
-                      >
-                        <DownIcon />
-                      </div>
-                      <div
-                        className="e2e-move-div e2e-move-close"
-                        onClick={() => handleDelete(idx)}
-                      >
-                        <DeleteIcon />
-                      </div>
+                  <div className="e2e-move-buttons">
+                    <div
+                      className="e2e-move-div"
+                      onClick={() => handleDuplicate(idx)}
+                    >
+                      <AddIcon />
                     </div>
-                  )}
+                    {e2eForms.length > 1 && (
+                      <Fragment>
+                        <div
+                          className="e2e-move-div"
+                          onClick={() => handleMove(idx, idx - 1)}
+                        >
+                          <UpIcon />
+                        </div>
+                        <div
+                          className="e2e-move-div"
+                          onClick={() => handleMove(idx, idx + 1)}
+                        >
+                          <DownIcon />
+                        </div>
+                        <div
+                          className="e2e-move-div e2e-move-close"
+                          onClick={() => handleDelete(idx)}
+                        >
+                          <DeleteIcon />
+                        </div>
+                      </Fragment>
+                    )}
+                  </div>
                   <div className="sidebar__section-body-heading">
                     <div className="sidebar__section-heading">
                       set test body and headers
