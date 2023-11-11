@@ -99,7 +99,6 @@ export function Pagination({
           onClick={() => onChange(page)}
         >
           {page + 1}
-          {console.log("page", page)}
         </button>
       ))}
       {activePage < pageCount - 4 && pageCount > 5 && <span>...</span>}
