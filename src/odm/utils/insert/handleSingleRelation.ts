@@ -14,7 +14,6 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
   pureDocProjection,
   pureRelProjection,
   generatedDoc,
-  replace,
 }: {
   db: Db;
   relations: TInsertRelations<TR>;
@@ -23,7 +22,6 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
   pureRelProjection: Record<string, any>;
   pureDocProjection: Record<string, any>;
   generatedDoc: Record<string, any>;
-  replace?: boolean;
 }) => {
   const pureGeneratedDoc = filterDocByProjection(
     generatedDoc,
