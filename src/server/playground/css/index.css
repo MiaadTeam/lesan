@@ -1341,6 +1341,8 @@ textarea {
 .schema-modal {
   width: 97%;
   margin: 2rem auto 0 auto;
+  display: flex;
+  align-items: center;
 }
 
 .schema-modal .search-box {
@@ -1366,6 +1368,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
 }
 
 .schema {

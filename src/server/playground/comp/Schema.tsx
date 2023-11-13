@@ -177,12 +177,12 @@ export const Schema = () => {
           <span>Export</span>
         </button>
       </div>
-      <div className="search-box">
+      {/* <div className="search-box">
         <input className="input" type="text" placeholder="search..." />
         <span className="search-icon">
           <Search />
         </span>
-      </div>
+      </div> */}
       <div className="schema-list">{proceedSchemas(reProduceSchemaObj)}</div>
     </div>
   );
