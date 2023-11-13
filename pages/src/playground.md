@@ -102,25 +102,96 @@ In the response section, we can see the **Status Of The Response(1)** that can b
 
 #### E2E Test button:
 
-In modal test, we can write a variety of tests to review our requests.
-At the top of the modal test, respectively, the adding a new test, the run e2e test button, import previous tests, export existing tests, and finally the help button that explains how to work with the tests There is a dose.
+In E2E test modal, we see two section, section one include **Five Button** that the top-left of the modal and section two its be **Eeach Sequence** of the test.
 
-Each part of the test is divided into two parts, the left side is for set test body and headers of the tests, and the right side is to set repeat time this test should be repeated, as well as adding a capture.
+![E2E](https://github.com/MiaadTeam/lesan/assets/96171913/7aae9089-1f63-4e8a-8817-bf111018e331)
 
-After the tests, we enter the test results by pressing the run e2e test button.
+We start with the section one, in this section we have five button include **Add(1)**, **Run E2E Test(2)**, **Import(3)**, **Export(4)** and **Help(5)**.
 
-In the test results section, there are buttons back to the test writing section as well as exprot from the results.
+![E2E-1](https://github.com/MiaadTeam/lesan/assets/96171913/5efe1f56-0521-4d06-bc66-0be670772041)
 
-Test results information is available in several sections, including **requests**, **times**, and **capturs information**, where we can view the number of requests and the number of successful and failed requests in the applications section, along with the overall application time .
+With **Add Button** we can create a new Sequence for test. we can add how much we need sequence for test.
 
-In the time section we can take the **best** and **worst** time with the sequence number and the requested number in which the best or worst time is obtained with its model and act.
+![E2E-2](https://github.com/MiaadTeam/lesan/assets/96171913/08ade581-ed47-4f9a-9637-08b50d710e1e)
 
-In the capture information section, we have access to full information of the captures.
+With **Run E2E Test Button** we can run the test. we explain this after.
 
-At the bottom of the information section, all requests are available in two parts: **body header** and **descriptions**.
-In the body header section, the request information is recorded, and in the descriptions section, such as the information section, the information such as the number of requests and how successful or failed, and the best and worst time and capture of the items and captures of uses Are available.
+With **Import Button** we can import the pervious tests and reuse them.
 
-At the top of each sequence there is a change button that we can see this time the request information and the response of the request can be seen so that we can easily refer to other requests in this sequence.
+![E2E-3](https://github.com/MiaadTeam/lesan/assets/96171913/74b1492b-110e-4f89-b58f-2a0a3614b280)
+
+With **Export Button** we can export existing tests for use them for anothe test.
+
+And with **Help Button** we go to the another section that we can see how to work with E2E modal.
+
+<br>
+ 
+In each sequence, we can see two part, part one is a **set test body and headers(1)** that we can write and set body and headers for test. also we can use the faker for test. for example you can see that we use faker for this sequense:
+![E2E-4](https://github.com/MiaadTeam/lesan/assets/96171913/417f78ff-6910-4c7e-bee9-4240f5ad1c65)
+
+In Part two we can **Set Repeat Time(1)** of the test with **+** or **-** button or write number we want in input. also we can use **Add Capture(2) Button** for set any capture we want to the sequence for test.
+![E2E-5](https://github.com/MiaadTeam/lesan/assets/96171913/f02db2ea-7ebd-4bed-bb7f-cca49cb84594)
+
+After press the **Add Capture** we can see two input, include **set a variable name(1)** that we can see an **Example(2)** to how fill this input and another input, is **set a value for variable(3)** that we can see an **Example(4)** to how fill this input.
+![E2E-6](https://github.com/MiaadTeam/lesan/assets/96171913/963a50a3-525e-4506-96df-7c62d283d66e)
+
+We have four button in top-right of the each sequence test:
+![E2E-7](https://github.com/MiaadTeam/lesan/assets/96171913/cd29914a-bea2-41f4-88a5-738fddfe09e9)
+
+**Duplicate Button(1)** that we can duplicate sequence.
+![E2E-8](https://github.com/MiaadTeam/lesan/assets/96171913/d5da3b81-a41d-43f4-83fd-0d9ddfa4886c)
+
+**Move Buttuns(2)(3)**, with this buttons we can move the sequense to top or bottom.
+
+**Delete Button(4)**, with this button we can delete each sequence.
+
+<br>
+
+After write the sequences test, we can go to see the resulst of the each sequence test by click on the **Run E2E Test Button** and we see this:  
+![E2E-9](https://github.com/MiaadTeam/lesan/assets/96171913/a65e1d8f-4fb2-424b-a5e5-67d1a2c063cd)
+
+First thing that we see is **Back Button** and second is **Export Button** at the top-left of the modal.
+
+third one is a **Information** section that we can see all information of the sequence tsts. include three part.
+
+![E2E-10](https://github.com/MiaadTeam/lesan/assets/96171913/2b6bcf62-731c-464d-b64f-f7c7d5d02cf2)
+
+The **Information section** have three part, **Requests(1)**,**Times(2)** and **Captures Information(3)**.
+
+![E2E-11](https://github.com/MiaadTeam/lesan/assets/96171913/d9f3e278-0ccb-4da7-9759-a2ac8bcfcbf6)
+
+**Requests** part include **All Request Count(1)** , **All Request Time(2)**, **All Success Request(3)** and **All Fails Request(4)**.
+![E2E-12](https://github.com/MiaadTeam/lesan/assets/96171913/e9b3880d-5e2a-410e-b5fd-071a61b57ce7)
+
+**Times** part include two section, **Best** and **Worst**. in each section we can see the Best/Worst request time, sequence number of the best/worst request that when click on number, we scroll to that sequence number, request number that include number of the request in sequence, model and act.
+
+![E2E-13](https://github.com/MiaadTeam/lesan/assets/96171913/17b04c22-bb05-41e6-af61-d7af47278f1e)
+
+**Captures Information** part include every capture items that we set. in this part we can see the Key(1), Captured From(2), Value Of(2), Model(2), Act(2) and Captured Inside Sequnce Number.
+
+![E2E-14](https://github.com/MiaadTeam/lesan/assets/96171913/69c65e44-6406-43f0-8484-b63906f16b51)
+
+After **Information** section, we can access every sequence that each of sequence have two part, **Description(1)** and **Body Header(2)**.
+
+![E2E-15](https://github.com/MiaadTeam/lesan/assets/96171913/e3d972b8-33e3-4300-a564-0253c5572554)
+
+**Description** have five part include **Request(1)** that include All Request Count, Success/Fail that show the how many of request is success/Fail, All Request Time and Avrage Time For Each Request, **Best(2)** and **Worst(3)** that include Best/Worst Time and request nmber, **Capture Items(4)** that include key,value,model,act,sequence number, **Using Capture Items(5)** that include key,captured from, value,act and sequence number.
+
+![E2E-16](https://github.com/MiaadTeam/lesan/assets/96171913/232b47f8-6bb8-408d-90f7-3f73ce3fce65)
+
+**Body Header** have headers,body of the each sequence(1), number of sequence(2) at the top-right and change button(3) at the top-left.
+
+![E2E-17](https://github.com/MiaadTeam/lesan/assets/96171913/78659241-6ffe-4663-9ebe-f4ac772b4b14)
+
+When click on **Change Button** we can see and access to the **Request(1)** and **Response(2)** that in Request section we can see the pure request(3) and at the Response section we can see the **body of the response** and **success status of Responsewhich** the false or true(4).
+
+At the top-right of the Response section we can see the **time of the Respone(5)**.
+
+At the Bottom-center, we can access to the **pagination(6)** to move on the Requests or write the specefic Request number to access the Request.
+
+Also when click on **change button(7)** to go back to the Body Header and Description.
+
+![E2E-18](https://github.com/MiaadTeam/lesan/assets/96171913/a861629a-60c4-403d-be67-3cb4712f2239)
 
 #### Schema button:
 
