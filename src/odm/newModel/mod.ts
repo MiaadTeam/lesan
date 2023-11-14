@@ -30,6 +30,7 @@ import { addRelation } from "../relation/addRelation.ts";
 import { updateById } from "../update/updateById.ts";
 import { updateOne } from "../update/updateOne.ts";
 import { insertMany } from "../insert/insertMany.ts";
+import { removeRelation } from "../relation/removeRelation.ts";
 
 export const newModel = <
   PF extends IPureFields,
@@ -151,6 +152,20 @@ export const newModel = <
         relations,
         projection,
         replace,
+      }),
+
+    removeRelation: ({ _id, relations, projection }: {
+      relations: TInsertRelations<TR>;
+      projection?: Projection;
+      _id: ObjectId;
+    }) =>
+      removeRelation<TR>({
+        db,
+        schemasObj,
+        collection: name,
+        _id,
+        relations,
+        projection,
       }),
 
     updateOne: (
