@@ -406,8 +406,8 @@ coreApp.acts.setAct({
 const addUserLivedCityValidator = () => {
   return object({
     set: object({
-      _id: string(),
-      livedCities: array(string()),
+      _id: objectIdValidation,
+      livedCities: array(objectIdValidation),
     }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
@@ -415,7 +415,7 @@ const addUserLivedCityValidator = () => {
 const addUserLivedCity: ActFn = async (body) => {
   const { livedCities, _id } = body.details.set;
   const obIdLivedCities = livedCities.map(
-    (lp: string) => new ObjectId(lp),
+    (lc: string) => new ObjectId(lc),
   );
 
   return await users.addRelation({
@@ -441,8 +441,8 @@ coreApp.acts.setAct({
 const addUserCountryValidator = () => {
   return object({
     set: object({
-      _id: string(),
-      country: string(),
+      _id: objectIdValidation,
+      country: objectIdValidation,
     }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
@@ -472,4 +472,4 @@ coreApp.acts.setAct({
 });
 // ================== RUNNING SECTION ==================
 // --------------------- Run Server ----------------------
-coreApp.runServer({ port: 8080, typeGeneration: false, playground: true });
+coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
