@@ -612,7 +612,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                       </span>
                     </li>
                     <li>
-                      Captured Inside Sequnce Index:{" "}
+                      Captured Inside Sequnce Number:{" "}
                       <span className="information-container--request--sections--item--content">
                         {ci.sequenceIdx}
                       </span>

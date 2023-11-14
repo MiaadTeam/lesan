@@ -8,11 +8,9 @@ import ExportIcon from "./icon/ExportIcon.tsx";
 export function Act() {
   const { actsObj } = useLesan();
   const exportActs = () => {
-    const jsonString = `data:text/json;chatset=utf-8,${
-      encodeURIComponent(
-        JSON.stringify(actsObj),
-      )
-    }`;
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(actsObj)
+    )}`;
     const link = document.createElement("a");
     link.href = jsonString;
     link.download = "acts.json";
@@ -94,7 +92,7 @@ export function Act() {
                     ? childActs[childAct].validator.schema
                     : childActs[childAct].schema
                     ? childActs[childAct].schema
-                    : childActs[childAct],
+                    : childActs[childAct]
                 )}
             </div>
           </div>
@@ -115,12 +113,12 @@ export function Act() {
           <span>Export</span>
         </button>
       </div>
-      <div className="search-box">
+      {/* <div className="search-box">
         <input className="input" type="text" placeholder="search..." />
         <span className="search-icon">
           <Search />
         </span>
-      </div>
+      </div> */}
       <div className="schema-list">{proceedActs(actsObj)}</div>
     </div>
   );
