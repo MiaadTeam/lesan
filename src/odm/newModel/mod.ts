@@ -139,17 +139,17 @@ export const newModel = <
         projection,
       }),
 
-    addRelation: ({ _id, relations, projection, replace }: {
+    addRelation: ({ filters, relations, projection, replace }: {
       relations: TInsertRelations<TR>;
       projection?: Projection;
-      _id: ObjectId;
+      filters: Filter<Document>;
       replace?: boolean;
     }) =>
       addRelation<TR>({
         db,
         schemasObj,
         collection: name,
-        _id,
+        filters,
         relations,
         projection,
         replace,

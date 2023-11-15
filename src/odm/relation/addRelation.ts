@@ -1,4 +1,4 @@
-import { Db, ObjectId } from "../../npmDeps.ts";
+import { Db, Document, Filter } from "../../npmDeps.ts";
 import { createProjection } from "../../models/createProjection.ts";
 import { IRelationsFileds, schemaFns, TSchemas } from "../../models/mod.ts";
 import { throwError } from "../../utils/throwError.ts";
@@ -13,7 +13,7 @@ export const addRelation = async <TR extends IRelationsFileds>({
   db,
   schemasObj,
   collection,
-  _id,
+  filters,
   relations,
   projection,
   replace,
@@ -21,13 +21,13 @@ export const addRelation = async <TR extends IRelationsFileds>({
   db: Db;
   schemasObj: TSchemas;
   collection: string;
-  _id: ObjectId;
+  filters: Filter<Document>;
   relations: TInsertRelations<TR>;
   projection?: Projection;
   replace?: boolean;
 }) => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);
-  const foundedDoc = await db.collection(collection).findOne({ _id });
+  const foundedDoc = await db.collection(collection).findOne(filters);
 
   if (!foundedDoc) {
     throwError("can not find this document");
@@ -112,6 +112,8 @@ export const addRelation = async <TR extends IRelationsFileds>({
     }
   }
   return projection
-    ? await db.collection(collection).findOne({ _id }, { projection })
+    ? await db.collection(collection).findOne({ _id: foundedDoc!._id }, {
+      projection,
+    })
     : { _id: foundedDoc!._id };
 };
