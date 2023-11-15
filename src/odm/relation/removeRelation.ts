@@ -1,4 +1,4 @@
-import { Db, ObjectId } from "../../npmDeps.ts";
+import { Db, Document, Filter, ObjectId } from "../../npmDeps.ts";
 import { IRelationsFileds, schemaFns, TSchemas } from "../../models/mod.ts";
 import { Projection } from "../aggregation/type.ts";
 import { TInsertRelations } from "../insert/insertOne.ts";
@@ -11,19 +11,19 @@ export const removeRelation = async <TR extends IRelationsFileds>({
   db,
   schemasObj,
   collection,
-  _id,
   relations,
   projection,
+  filters,
 }: {
   db: Db;
   schemasObj: TSchemas;
   collection: string;
-  _id: ObjectId;
+  filters: Filter<Document>;
   relations: TInsertRelations<TR>;
   projection?: Projection;
 }) => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);
-  const foundedDoc = await db.collection(collection).findOne({ _id });
+  const foundedDoc = await db.collection(collection).findOne(filters);
 
   if (!foundedDoc) {
     throwError("can not find this document");
@@ -81,7 +81,7 @@ export const removeRelation = async <TR extends IRelationsFileds>({
           relDocForUpdate: foundedDoc![rel]._id,
         });
 
-        await db.collection(collection).updateOne({ _id }, {
+        await db.collection(collection).updateOne({ _id: foundedDoc!._id }, {
           $set: { [rel]: {} },
         });
       } else {
@@ -130,7 +130,7 @@ export const removeRelation = async <TR extends IRelationsFileds>({
             relDocForUpdate: foundedRelationDoc._id,
           });
         }
-        await db.collection(collection).updateOne({ _id }, {
+        await db.collection(collection).updateOne({ _id: foundedDoc!._id }, {
           $pull: { [rel]: { _id: { $in: relations[rel]?._ids } } },
         });
       }
@@ -138,6 +138,8 @@ export const removeRelation = async <TR extends IRelationsFileds>({
   }
 
   return projection
-    ? await db.collection(collection).findOne({ _id }, { projection })
+    ? await db.collection(collection).findOne({ _id: foundedDoc!._id }, {
+      projection,
+    })
     : { _id: foundedDoc!._id };
 };

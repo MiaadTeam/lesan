@@ -1,4 +1,3 @@
-import { InsertOptions } from "https://deno.land/x/mongo@v0.29.3/mod.ts";
 import {
   AggregateOptions,
   Filter,
@@ -13,10 +12,12 @@ import {
 } from "../../mod.ts";
 import { IPureFields, schemaFns, TSchemas } from "../../models/mod.ts";
 import {
+  BulkWriteOptions,
   Db,
   DeleteOptions,
   Document,
   Infer,
+  InsertOneOptions,
   OptionalUnlessRequiredId,
 } from "../../npmDeps.ts";
 import { Projection } from "../aggregation/type.ts";
@@ -106,7 +107,7 @@ export const newModel = <
       { doc, relations, options, projection }: {
         doc: OptionalUnlessRequiredId<InferPureFieldsType>;
         relations?: TInsertRelations<TR>;
-        options?: InsertOptions;
+        options?: InsertOneOptions;
         projection?: Projection;
       },
     ) =>
@@ -124,7 +125,7 @@ export const newModel = <
       { docs, relations, options, projection }: {
         docs: OptionalUnlessRequiredId<InferPureFieldsType>[];
         relations?: TInsertRelations<TR>;
-        options?: InsertOptions;
+        options?: BulkWriteOptions;
         projection?: Projection;
       },
     ) =>
@@ -154,16 +155,16 @@ export const newModel = <
         replace,
       }),
 
-    removeRelation: ({ _id, relations, projection }: {
+    removeRelation: ({ filters, relations, projection }: {
       relations: TInsertRelations<TR>;
       projection?: Projection;
-      _id: ObjectId;
+      filters: Filter<Document>;
     }) =>
       removeRelation<TR>({
         db,
         schemasObj,
         collection: name,
-        _id,
+        filters,
         relations,
         projection,
       }),
