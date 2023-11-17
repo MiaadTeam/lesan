@@ -18,7 +18,7 @@ export type TRelatedRelation = {
   limit?: null | number;
   sort?: {
     field: string;
-    order: RelationSortOrderType
+    order: RelationSortOrderType;
   };
 };
 
@@ -80,6 +80,10 @@ export interface IRelatedRelation {
    * name of the main relation related to this relation
    */
   mainRelationName: string;
+  /**
+   * type of the main relation related to this relation
+   */
+  mainRelationType: RelationDataType;
   /**
    * type of relation if equal to one: this schema record one object from other schema else
    * this schema record array of object from other schema
