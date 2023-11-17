@@ -112,6 +112,22 @@ const users = coreApp.odm.newModel("user", userPure, {
     },
   },
 
+  mostLovedCity: {
+    optional: true,
+    schemaName: "city",
+    type: "single",
+    relatedRelations: {
+      lovedByUser: {
+        type: "multiple",
+        limit: 3,
+        sort: {
+          field: "_id",
+          order: "desc",
+        },
+      },
+    },
+  },
+
   country: {
     optional: false,
     schemaName: "country",
@@ -123,6 +139,14 @@ const users = coreApp.odm.newModel("user", userPure, {
         sort: {
           field: "_id",
           order: "desc",
+        },
+      },
+      usersByAge: {
+        type: "multiple",
+        limit: 3,
+        sort: {
+          field: "age",
+          order: "asc",
         },
       },
     },
@@ -156,6 +180,38 @@ coreApp.acts.setAct({
   actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
+});
+
+// ------------------ Update Country ------------------
+const updateCountryValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      name: optional(string()),
+      abb: optional(string()),
+      population: optional(number()),
+    }),
+    get: coreApp.schemas.selectStruct("country", 1),
+  });
+};
+const updateCountry: ActFn = async (body) => {
+  const { name, abb, population, _id } = body.details.set;
+  const setObj: { name?: string; abb?: string; population?: number } = {};
+  name && (setObj.name = name);
+  abb && (setObj.abb = abb);
+  population && (setObj.population = population);
+
+  return await countries.findOneAndUpdate({
+    filter: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    update: { $set: setObj },
+  });
+};
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "updateCountry",
+  validator: updateCountryValidator(),
+  fn: updateCountry,
 });
 
 // ------------------ Add Multiple Countries ------------------
@@ -358,6 +414,47 @@ coreApp.acts.setAct({
   fn: getCities,
 });
 
+// ------------------ Add City Country ------------------
+const addCityCountryValidator = () => {
+  return object({
+    set: object({
+      city: objectIdValidation,
+      country: objectIdValidation,
+      isCapital: boolean(),
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+
+const addCityCountry: ActFn = async (body) => {
+  const { country, city, isCapital } = body.details.set;
+
+  return await cities.addRelation({
+    filters: { _id: new ObjectId(city) },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          citiesAsc: true,
+          citiesDesc: true,
+          citiesByPopAsc: true,
+          citiesByPopDesc: true,
+          capitalCity: isCapital,
+        },
+      },
+    },
+    replace: true,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCityCountry",
+  validator: addCityCountryValidator(),
+  fn: addCityCountry,
+});
+
 // ------------------ User Founctions ------------------
 // --------------------- Add User ----------------------
 const addUserValidator = () => {
@@ -384,6 +481,7 @@ const addUser: ActFn = async (body) => {
         _ids: new ObjectId(country),
         relatedRelations: {
           users: true,
+          usersByAge: true,
         },
       },
       livedCities: {
@@ -419,7 +517,7 @@ const addUserLivedCity: ActFn = async (body) => {
   );
 
   return await users.addRelation({
-    _id: new ObjectId(_id),
+    filters: { _id: new ObjectId(_id) },
     projection: body.details.get,
     relations: {
       livedCities: {
@@ -437,7 +535,8 @@ coreApp.acts.setAct({
   validator: addUserLivedCityValidator(),
   fn: addUserLivedCity,
 });
-// --------------------- Add User Relation ----------------------
+
+// --------------------- Add User Country Relation ----------------------
 const addUserCountryValidator = () => {
   return object({
     set: object({
@@ -451,13 +550,14 @@ const addUserCountry: ActFn = async (body) => {
   const { country, _id } = body.details.set;
 
   return await users.addRelation({
-    _id: new ObjectId(_id),
+    filters: { _id: new ObjectId(_id) },
     projection: body.details.get,
     relations: {
       country: {
         _ids: new ObjectId(country),
         relatedRelations: {
           users: true,
+          usersByAge: true,
         },
       },
     },
@@ -470,6 +570,148 @@ coreApp.acts.setAct({
   validator: addUserCountryValidator(),
   fn: addUserCountry,
 });
+
+// --------------------- Add User Cities Relation ----------------------
+const addUserCitiesValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      livedCities: array(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+const addUserCities: ActFn = async (body) => {
+  const { livedCities, _id } = body.details.set;
+  const obIdLivedCities = livedCities.map(
+    (lc: string) => new ObjectId(lc),
+  );
+
+  return await users.addRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+    replace: true,
+  });
+};
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addUserCities",
+  validator: addUserCitiesValidator(),
+  fn: addUserCities,
+});
+
+// --------------------- Add User Most Loved City Relation ----------------------
+const addMostLovedCityValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      lovedCity: (objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+const addMostLovedCity: ActFn = async (body) => {
+  const { lovedCity, _id } = body.details.set;
+
+  return await users.addRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      mostLovedCity: {
+        _ids: new ObjectId(lovedCity),
+        relatedRelations: {
+          lovedByUser: true,
+        },
+      },
+    },
+    replace: true,
+  });
+};
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addMostLovedCity",
+  validator: addMostLovedCityValidator(),
+  fn: addMostLovedCity,
+});
+
+// --------------------- Remove User Most Loved City Relation ----------------------
+const removeMostLovedCityValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      lovedCity: (objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+const removeMostLovedCity: ActFn = async (body) => {
+  const { lovedCity, _id } = body.details.set;
+
+  return await users.removeRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      mostLovedCity: {
+        _ids: new ObjectId(lovedCity),
+        relatedRelations: {
+          lovedByUser: true,
+        },
+      },
+    },
+  });
+};
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "removeMostLovedCity",
+  validator: removeMostLovedCityValidator(),
+  fn: removeMostLovedCity,
+});
+
+// --------------------- Remove User Lived Cities Relation ----------------------
+const removeLivedCitiesValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      livedCities: array(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+const removeLivedCities: ActFn = async (body) => {
+  const { livedCities, _id } = body.details.set;
+
+  const obIdLivedCities = livedCities.map(
+    (lc: string) => new ObjectId(lc),
+  );
+
+  return await users.removeRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+  });
+};
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "removeLivedCities",
+  validator: removeLivedCitiesValidator(),
+  fn: removeLivedCities,
+});
+
 // ================== RUNNING SECTION ==================
 // --------------------- Run Server ----------------------
 coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
