@@ -75,5 +75,9 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
     }
   }
 
-  return updatedDoc;
+  return projection
+    ? db.collection(collection).findOne({ _id: updatedDoc.value?._id }, {
+      projection,
+    })
+    : updatedDoc.value;
 };
