@@ -36,7 +36,6 @@ const countries = coreApp.odm.newModel(
 );
 
 // ------------------ City Model ------------------
-
 const cities = coreApp.odm.newModel(
   "city",
   locationPure,
@@ -337,6 +336,38 @@ coreApp.acts.setAct({
   fn: addCity,
 });
 
+// ------------------ Update City ------------------
+const updateCityValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      name: optional(string()),
+      abb: optional(string()),
+      population: optional(number()),
+    }),
+    get: coreApp.schemas.selectStruct("country", 1),
+  });
+};
+const updateCity: ActFn = async (body) => {
+  const { name, abb, population, _id } = body.details.set;
+  const setObj: { name?: string; abb?: string; population?: number } = {};
+  name && (setObj.name = name);
+  abb && (setObj.abb = abb);
+  population && (setObj.population = population);
+
+  return await cities.findOneAndUpdate({
+    filter: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    update: { $set: setObj },
+  });
+};
+coreApp.acts.setAct({
+  schema: "City",
+  actName: "updateCity",
+  validator: updateCityValidator(),
+  fn: updateCity,
+});
+
 // ------------------ Add Multiple Cities ------------------
 const addCitiesValidator = () => {
   return object({
@@ -613,7 +644,7 @@ const addMostLovedCityValidator = () => {
   return object({
     set: object({
       _id: objectIdValidation,
-      lovedCity: (objectIdValidation),
+      lovedCity: objectIdValidation,
     }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
@@ -647,7 +678,7 @@ const removeMostLovedCityValidator = () => {
   return object({
     set: object({
       _id: objectIdValidation,
-      lovedCity: (objectIdValidation),
+      lovedCity: objectIdValidation,
     }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
