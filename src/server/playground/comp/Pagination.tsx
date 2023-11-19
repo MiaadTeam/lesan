@@ -141,7 +141,7 @@ export function Pagination({
             type="number"
             onChange={handleChange}
             placeholder="number"
-            value={goTo}
+            value={activePage + 1}
           />
           <button
             className="pagination--go-to--button"
