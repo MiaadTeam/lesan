@@ -531,6 +531,59 @@ coreApp.acts.setAct({
   fn: addUser,
 });
 
+// ------------------ Add Multiple Users ------------------
+const addUsersValidator = () => {
+  return object({
+    set: object({
+      multiUsers: array(object()),
+      country: objectIdValidation,
+      livedCities: array(objectIdValidation),
+      city: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+
+const addUsers: ActFn = async (body) => {
+  const { country, multiUsers, livedCities, city } = body.details.set;
+  const obIdLivedCities = livedCities.map(
+    (lp: string) => new ObjectId(lp),
+  );
+
+  return await users.insertMany({
+    docs: multiUsers,
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          users: true,
+          usersByAge: true,
+        },
+      },
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+      mostLovedCity: {
+        _ids: new ObjectId(city),
+        relatedRelations: {
+          lovedByUser: true,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addUsers",
+  validator: addUsersValidator(),
+  fn: addUsers,
+});
+
 // --------------------- Add User Relation ----------------------
 const addUserLivedCityValidator = () => {
   return object({
