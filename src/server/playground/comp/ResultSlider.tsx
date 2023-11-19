@@ -100,7 +100,9 @@ export const ResultSlider = ({
             </div>
             <span className="container-re-title">REQUEST</span>
           </div>
-          <JSONViewer jsonData={results[activePage].request} />
+          <div style={{ maxHeight: "27rem", overflowY: "scroll" }}>
+            <JSONViewer jsonData={results[activePage].request} />
+          </div>
         </section>
         <section className="container-re container-response">
           <div className="container-re--header">
@@ -109,7 +111,9 @@ export const ResultSlider = ({
               {results[activePage].responseTime}ms
             </span>
           </div>
-          <JSONViewer jsonData={results[activePage].response} />
+          <div style={{ maxHeight: "27rem", overflowY: "scroll" }}>
+            <JSONViewer jsonData={results[activePage].response} />
+          </div>
         </section>
       </div>
       <div className="pagination-container">

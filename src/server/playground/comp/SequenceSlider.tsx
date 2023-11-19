@@ -36,13 +36,18 @@ export function SequenceSlider({
 
               <span className="container-re-title">Body Header</span>
             </div>
-            <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
+            <div style={{ maxHeight: "27rem", overflowY: "scroll" }}>
+              <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
+            </div>
           </section>
           <section className="sequence-re sequence-response ">
             <div className="container-re--header">
               <span className="container-re-title">Description</span>
             </div>
-            <div className="detail-sequence">
+            <div
+              className="detail-sequence"
+              style={{ maxHeight: "27rem", overflowY: "scroll" }}
+            >
               <div className="detail-sequence--sections">
                 <span className="sequnce-description-label">Requests</span>{" "}
                 <span className="detail-sequence--sections--first-item">
