@@ -494,5 +494,13 @@ export const insertMany = async <
 
   await db.collection(collection).insertMany(generatedDocs, options);
 
-  return generatedDocs;
+  const generatedDocIds = generatedDocs.map((gd) => gd._id);
+
+  console.log({ generatedDocIds });
+
+  return projection
+    ? await db.collection(collection).find({
+      _id: { $in: generatedDocIds },
+    }, { projection }).toArray()
+    : generatedDocs;
 };
