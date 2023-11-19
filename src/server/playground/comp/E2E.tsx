@@ -743,7 +743,25 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
 
                     {e2eForm.captures.map((capture, capId) => (
                       <Fragment key={`${e2eForm.id}-${capId}`}>
-                        <div className="sidebar__section-add-capture">
+                        <div
+                          className="sidebar__section-add-capture"
+                          style={{ position: "relative" }}
+                        >
+                          <span
+                            className="section-add-capture__delete-button"
+                            onClick={() =>
+                              handeE2eFormDetails(idx, "captures", [
+                                ...e2eForms[idx].captures.slice(0, capId),
+                                ...e2eForms[idx].captures.slice(
+                                  capId + 1,
+                                  e2eForms[idx].captures.length
+                                ),
+                              ])
+                            }
+                            style={{ position: "absolute", zIndex: "2" }}
+                          >
+                            <DeleteIcon />
+                          </span>
                           <input
                             className="input"
                             placeholder="set a variable name"
@@ -792,7 +810,6 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                             // }}
                           />
                         </div>
-                        <hr />
                       </Fragment>
                     ))}
                   </div>
@@ -848,13 +865,15 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               <ExportIcon />
               <span>Export</span>
             </button>
-            <button
-              onClick={() => setView("help")}
+            <a
+              href="https://miaadteam.github.io/lesan/playground.html"
+              target="_blank"
+              // onClick={() => setView("help")}
               className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
             >
               <HelpIcon />
               <span>Help</span>
-            </button>
+            </a>
           </div>
         </Fragment>
       ) : view === "help" ? (
