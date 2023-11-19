@@ -868,7 +868,6 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             <a
               href="https://miaadteam.github.io/lesan/playground.html"
               target="_blank"
-              // onClick={() => setView("help")}
               className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
             >
               <HelpIcon />
@@ -876,8 +875,6 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             </a>
           </div>
         </Fragment>
-      ) : view === "help" ? (
-        <Help setView={setView} />
       ) : (
         ""
       )}

@@ -1128,6 +1128,7 @@ textarea {
   border: 1px solid bisque;
   backdrop-filter: blur(10px);
   border-top: none;
+  text-decoration-line: none;
 }
 
 .e2e-back-button.e2e-run-botton {
