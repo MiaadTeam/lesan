@@ -1,20 +1,26 @@
 import {
-  Bson,
-  Database,
+  Db,
+  Document,
   Filter,
   UpdateFilter,
   UpdateOptions,
-} from "../../deps.ts";
+} from "../../npmDeps.ts";
 import { throwError } from "../../utils/mod.ts";
 
-export const updateOne = async (
-  db: Database,
-  collection: string,
-  filter: Filter<Bson.Document>,
-  update: UpdateFilter<Bson.Document>,
-  options?: UpdateOptions,
+export const updateOne = async <PureFields extends Document = Document>(
+  { db, collection, filter, update, options }: {
+    db: Db;
+    collection: string;
+    filter: Filter<PureFields>;
+    update: UpdateFilter<Document>;
+    options?: UpdateOptions;
+  },
 ) => {
   return db
-    ? await db.collection(collection).updateOne(filter, update, options)
+    ? await db.collection(collection).updateOne(
+      filter as Filter<Document>,
+      update,
+      options,
+    )
     : throwError("No database connection");
 };

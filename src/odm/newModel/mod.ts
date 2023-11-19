@@ -1,35 +1,34 @@
-import { InsertOptions } from "https://deno.land/x/mongo@v0.29.3/mod.ts";
 import {
   AggregateOptions,
   Filter,
   FindOptions,
   IMainRelation,
   IRelationsFileds,
-  ObjectId,
   objectIdValidation,
   optional,
   UpdateFilter,
-  UpdateOptions,
 } from "../../mod.ts";
 import { IPureFields, schemaFns, TSchemas } from "../../models/mod.ts";
 import {
+  BulkWriteOptions,
   Db,
   DeleteOptions,
   Document,
+  FindOneAndUpdateOptions,
   Infer,
+  InsertOneOptions,
   OptionalUnlessRequiredId,
 } from "../../npmDeps.ts";
 import { Projection } from "../aggregation/type.ts";
-import { deleteMethod } from "../delete/delete.ts";
 import { deleteOne } from "../delete/deleteOne.ts";
 import { aggregation } from "../find/aggregation.ts";
 import { find } from "../find/find.ts";
 import { findOne } from "../find/findOne.ts";
 import { insertOne, TInsertRelations } from "../insert/insertOne.ts";
 import { addRelation } from "../relation/addRelation.ts";
-import { updateById } from "../update/updateById.ts";
-import { updateOne } from "../update/updateOne.ts";
 import { insertMany } from "../insert/insertMany.ts";
+import { removeRelation } from "../relation/removeRelation.ts";
+import { findOneAndUpdate } from "../update/findOneAndUpdate.ts";
 
 export const newModel = <
   PF extends IPureFields,
@@ -68,6 +67,7 @@ export const newModel = <
       schemas[relations[relation].schemaName]
         .relatedRelations[relatedRelation] = {
           mainRelationName: relation,
+          mainRelationType: relations[relation].type,
           schemaName: name,
           type: iteratedRelatedRelation.type,
         };
@@ -105,7 +105,7 @@ export const newModel = <
       { doc, relations, options, projection }: {
         doc: OptionalUnlessRequiredId<InferPureFieldsType>;
         relations?: TInsertRelations<TR>;
-        options?: InsertOptions;
+        options?: InsertOneOptions;
         projection?: Projection;
       },
     ) =>
@@ -123,7 +123,7 @@ export const newModel = <
       { docs, relations, options, projection }: {
         docs: OptionalUnlessRequiredId<InferPureFieldsType>[];
         relations?: TInsertRelations<TR>;
-        options?: InsertOptions;
+        options?: BulkWriteOptions;
         projection?: Projection;
       },
     ) =>
@@ -137,53 +137,90 @@ export const newModel = <
         projection,
       }),
 
-    addRelation: ({ _id, relations, projection, replace }: {
+    addRelation: ({ filters, relations, projection, replace }: {
       relations: TInsertRelations<TR>;
       projection?: Projection;
-      _id: ObjectId;
+      filters: Filter<Document>;
       replace?: boolean;
     }) =>
       addRelation<TR>({
         db,
         schemasObj,
         collection: name,
-        _id,
+        filters,
         relations,
         projection,
         replace,
       }),
 
-    updateOne: (
-      filter: Filter<Document>,
-      update: UpdateFilter<Document>,
-      options?: UpdateOptions,
-    ) => updateOne(db, name, filter, update, options),
-
-    updateById: (
-      {
-        _id,
-        update,
-        options,
-        get,
-      }: {
-        _id: string | ObjectId;
-        update: UpdateFilter<Document>;
-        options?: UpdateOptions;
-        get?: Projection;
-      },
-    ) =>
-      updateById({
+    removeRelation: ({ filters, relations, projection }: {
+      relations: TInsertRelations<TR>;
+      projection?: Projection;
+      filters: Filter<Document>;
+    }) =>
+      removeRelation<TR>({
         db,
         schemasObj,
         collection: name,
-        _id,
-        update,
-        options,
-        get,
+        filters,
+        relations,
+        projection,
       }),
 
-    delete: (query: Filter<PF>, options?: DeleteOptions) =>
-      deleteMethod<PF>(db, name, query, options),
+    findOneAndUpdate: ({
+      filter,
+      options,
+      update,
+      projection,
+    }: {
+      filter: Filter<InferPureFieldsType>;
+      update: UpdateFilter<InferPureFieldsType>;
+      options?: FindOneAndUpdateOptions & {
+        includeResultMetadata: true;
+      };
+      projection: Document;
+    }) =>
+      findOneAndUpdate<InferPureFieldsType>({
+        db,
+        schemasObj,
+        collection: name,
+        filter,
+        options,
+        projection,
+        update,
+      }),
+
+    // updateOne: (
+    //   filter: Filter<Document>,
+    //   update: UpdateFilter<Document>,
+    //   options?: UpdateOptions,
+    // ) => updateOne(db, name, filter, update, options),
+
+    // updateById: (
+    //   {
+    //     _id,
+    //     update,
+    //     options,
+    //     get,
+    //   }: {
+    //     _id: string | ObjectId;
+    //     update: UpdateFilter<Document>;
+    //     options?: UpdateOptions;
+    //     get?: Projection;
+    //   },
+    // ) =>
+    //   updateById({
+    //     db,
+    //     schemasObj,
+    //     collection: name,
+    //     _id,
+    //     update,
+    //     options,
+    //     get,
+    //   }),
+
+    // delete: (query: Filter<PF>, options?: DeleteOptions) =>
+    //   deleteMethod<PF>(db, name, query, options),
 
     deleteOne: ({
       filter,

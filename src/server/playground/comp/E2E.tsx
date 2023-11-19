@@ -1,5 +1,5 @@
 /** @jsx h */
-import { Fragment, h, useState, useRef } from "../reactDeps.ts";
+import { Fragment, h, useRef, useState } from "../reactDeps.ts";
 import { uid } from "../utils/uid.ts";
 import { faker } from "https://cdn.skypack.dev/@faker-js/faker";
 import { E2eForm, TRequest } from "./context/actionType.ts";
@@ -176,35 +176,59 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
 
       const value = obj[key];
 
+      const variablesName: string[] = [];
       if (typeof value === "string" && value.includes("{")) {
-        const openBraceIndexes: number[] = [];
-        for (let index = 0; index < value.length; index++) {
-          if (value[index] === "{") {
-            openBraceIndexes.push(index);
+        if (value.startsWith("{faker")) {
+          variablesName.push(value.slice(1, value.lastIndexOf("}")));
+        } else {
+          const openBraceIndexes: number[] = [];
+          for (let index = 0; index < value.length; index++) {
+            if (value[index] === "{") {
+              openBraceIndexes.push(index);
+            }
           }
-        }
 
-        const closeBraceIndexes: number[] = [];
-        for (let index = 0; index < value.length; index++) {
-          if (value[index] === "}") {
-            closeBraceIndexes.push(index);
+          const closeBraceIndexes: number[] = [];
+          for (let index = 0; index < value.length; index++) {
+            if (value[index] === "}") {
+              closeBraceIndexes.push(index);
+            }
           }
-        }
 
-        const variablesName = openBraceIndexes.map((openBrace, index) => {
-          return value.slice(openBrace + 1, closeBraceIndexes[index]);
-        });
+          openBraceIndexes.forEach((openBrace, index) => {
+            variablesName.push(
+              value.slice(openBrace + 1, closeBraceIndexes[index])
+            );
+          });
+        }
 
         variablesName.forEach((variableName) => {
           if (variableName.startsWith("faker")) {
             const parsedFaker = variableName.split(".");
+            let secondSection = parsedFaker[2];
+            let fnInputs = null;
+
+            if (secondSection.endsWith(")")) {
+              fnInputs = secondSection
+                .slice(
+                  secondSection.indexOf("(") + 1,
+                  secondSection.indexOf(")")
+                )
+                .replaceAll("'", '"');
+              secondSection = secondSection.slice(
+                0,
+                secondSection.indexOf("(")
+              );
+            }
             const callParsedFaker = (faker as any)[parsedFaker[1]][
-              parsedFaker[2]
-            ]();
+              secondSection
+            ](fnInputs && JSON.parse(fnInputs));
+
             returnCaptures.push({
               key: variableName,
               value: callParsedFaker,
             });
+
             obj[key] = obj[key].replace(`{${variableName}}`, callParsedFaker);
           }
           for (const setValue of variablesSet) {
@@ -216,6 +240,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               obj[key] = obj[key].replace(`{${variableName}}`, setValue.value);
             }
           }
+          /^-?\d+$/.test(obj[key]) && (obj[key] = Number(obj[key]));
         });
       }
     }
@@ -226,32 +251,34 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
     const parsedCaptures = new Set<captureType>();
 
     for await (const e2eForm of e2eForms) {
-      const parsedHeaderBody = JSON.parse(e2eForm.bodyHeaders);
-
-      const usedCaptures = replaceCaptureString(
-        parsedHeaderBody,
-        parsedCaptures,
-        []
-      );
-
-      const body: TRequest = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...parsedHeaderBody.headers,
-        },
-        body: JSON.stringify(parsedHeaderBody.body),
-      };
-
-      const findInParsedCaptures = (value: string, set: Set<captureType>) => {
-        for (const item of set) if (item.value === value) return item;
-      };
-
       let jsonSendedRequest: any;
+
+      const parsedBody = JSON.parse(e2eForm.bodyHeaders).body;
 
       const sequnceId = uid();
       for (let repeat = 0; repeat < e2eForm.repeat; repeat++) {
         const tResTime0 = performance.now();
+
+        const parsedHeaderBody = JSON.parse(e2eForm.bodyHeaders);
+
+        const usedCaptures = replaceCaptureString(
+          parsedHeaderBody,
+          parsedCaptures,
+          []
+        );
+
+        const body: TRequest = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...parsedHeaderBody.headers,
+          },
+          body: JSON.stringify(parsedHeaderBody.body),
+        };
+
+        const findInParsedCaptures = (value: string, set: Set<captureType>) => {
+          for (const item of set) if (item.value === value) return item;
+        };
         jsonSendedRequest = await lesanAPI({
           baseUrl: baseUrl,
           options: body,
@@ -398,8 +425,8 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             key: capture.key,
             value: getedValue,
             captured: capture.value,
-            act: parsedHeaderBody.body.act,
-            model: parsedHeaderBody.body.model,
+            act: parsedBody.act,
+            model: parsedBody.model,
             sequenceIdx: requestDetail.sequenceDetail.length - 1,
           });
           // getedValues = [...getedValue, ...e2eForm.captures];
