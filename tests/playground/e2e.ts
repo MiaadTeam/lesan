@@ -362,7 +362,7 @@ const updateCity: ActFn = async (body) => {
   });
 };
 coreApp.acts.setAct({
-  schema: "City",
+  schema: "city",
   actName: "updateCity",
   validator: updateCityValidator(),
   fn: updateCity,
