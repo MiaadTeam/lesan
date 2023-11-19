@@ -634,7 +634,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
 
               <span className="response-took">
                 took:
-                {ConvertMilliseconds(tabsData[activeTab].response?.tookTime!)}
+                {tabsData[activeTab].response?.tookTime!} ms
               </span>
               {tabsData[activeTab].response &&
                   tabsData[activeTab].response?.success === true
