@@ -7,7 +7,7 @@ shebangs = ["deno", "node"]
 roots = ["deno.json", "package.json", "tsconfig.json"]
 # comment-token = "//"
 # config = { enable = true, lint = true, unstable = true, importMap = "deno.json" }
-language-servers = ["deno"]
+language-servers = ["deno", "scls"]
 indent = { tab-width = 2, unit = "  " }
 auto-format = true
 
@@ -18,7 +18,7 @@ injection-regex = "jsx"
 file-types = ["jsx"]
 shebangs = ["deno", "node"]
 roots = ["deno.json", "package.json", "tsconfig.json"]
-language-servers = ["deno"]
+language-servers = ["deno", "scls"]
 indent = { tab-width = 2, unit = "  " }
 grammar = "javascript"
 auto-format = true
@@ -30,7 +30,7 @@ injection-regex = "^(ts|typescript)$"
 file-types = ["ts"]
 shebangs = ["deno", "node"]
 roots = ["deno.json", "package.json", "tsconfig.json"]
-language-servers = ["deno"]
+language-servers = ["deno", "scls"]
 indent = { tab-width = 2, unit = "  " }
 auto-format = true
 
@@ -41,7 +41,7 @@ injection-regex = "^(tsx)$" # |typescript
 file-types = ["tsx"]
 shebangs = ["deno", "node"]
 roots = ["deno.json", "package.json", "tsconfig.json"]
-language-servers = ["deno"]
+language-servers = ["deno", "scls"]
 indent = { tab-width = 2, unit = "  " }
 auto-format = true
 
