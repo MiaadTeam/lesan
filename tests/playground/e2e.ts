@@ -796,6 +796,36 @@ coreApp.acts.setAct({
   fn: removeLivedCities,
 });
 
+// ------------------ Update Country ------------------
+const updateUserValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      name: optional(string()),
+      age: optional(number()),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+const updateUser: ActFn = async (body) => {
+  const { name, age, _id } = body.details.set;
+  const setObj: { name?: string; age?: number } = {};
+  name && (setObj.name = name);
+  age && (setObj.age = age);
+
+  return await users.findOneAndUpdate({
+    filter: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    update: { $set: setObj },
+  });
+};
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "updateUser",
+  validator: updateUserValidator(),
+  fn: updateUser,
+});
+
 // ================== RUNNING SECTION ==================
 // --------------------- Run Server ----------------------
 coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
