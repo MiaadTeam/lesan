@@ -5,7 +5,7 @@ import { TInsertRelations } from "../insert/insertOne.ts";
 import { throwError } from "../../utils/throwError.ts";
 import { createProjection } from "../../models/createProjection.ts";
 import { filterDocByProjection } from "../utils/filterDocByProjection.ts";
-import { processRemoveRelatedRelations } from "../utils/processRemoveRelatedRelation.ts";
+import { processRemoveRelatedRelations } from "../utils/processRemoveRelatedRelations.ts";
 
 export const removeRelation = async <TR extends IRelationsFileds>({
   db,

@@ -6,7 +6,7 @@ import { Projection } from "../aggregation/type.ts";
 import { TInsertRelations } from "../insert/insertOne.ts";
 import { handleMultiRelation } from "../utils/insert/handleMultiRelation.ts";
 import { handleSingleRelation } from "../utils/insert/handleSingleRelation.ts";
-import { processRemoveRelatedRelations } from "../utils/processRemoveRelatedRelation.ts";
+import { processRemoveRelatedRelations } from "../utils/processRemoveRelatedRelations.ts";
 import { filterDocByProjection } from "../utils/filterDocByProjection.ts";
 
 export const addRelation = async <TR extends IRelationsFileds>({
