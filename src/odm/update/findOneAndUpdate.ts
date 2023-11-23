@@ -1,3 +1,4 @@
+import { TRelatedRelation } from "../../mod.ts";
 import { createProjection } from "../../models/createProjection.ts";
 import { schemaFns, TSchemas } from "../../models/mod.ts";
 import {
@@ -9,6 +10,192 @@ import {
 } from "../../npmDeps.ts";
 import { throwError } from "../../utils/mod.ts";
 import { filterDocByProjection } from "../utils/filterDocByProjection.ts";
+
+const proccessUpdateRelations = async (
+  {
+    db,
+    collection,
+    rel,
+    relatedRelations,
+    foundedDoc,
+    pureUpdatedDoc,
+    pureDocProjection,
+    relationSchemaName,
+  }: {
+    db: Db;
+    collection: string;
+    rel: string;
+    relatedRelations: Record<string, TRelatedRelation>;
+    foundedDoc: Record<string, any>;
+    pureUpdatedDoc: Record<string, any>;
+    pureDocProjection: Record<string, any>;
+    relationSchemaName: string;
+  },
+) => {
+  const updatePipeline = [];
+  for (const relatedRel in relatedRelations) {
+    const actualRelatedRel = relatedRelations[relatedRel];
+    if (actualRelatedRel.type === "single") {
+      if (
+        foundedDoc[relatedRel]._id.equals(
+          pureUpdatedDoc._id,
+        )
+      ) {
+        updatePipeline.push({ $set: { [relatedRel]: pureUpdatedDoc } });
+      }
+    } else {
+      const relatedRelDocs = foundedDoc![relatedRel];
+      if (
+        relatedRelDocs && Array.isArray(relatedRelDocs)
+      ) {
+        const isRelInArrRel = relatedRelDocs.some((relatedRelDoc) =>
+          relatedRelDoc._id.equals(pureUpdatedDoc._id)
+        );
+
+        if (isRelInArrRel) {
+          updatePipeline.push(
+            {
+              $set: {
+                [relatedRel]: {
+                  $filter: {
+                    input: `$${relatedRel}`,
+                    as: `${relatedRel}Item`,
+                    cond: {
+                      $ne: [
+                        `$$${relatedRel}Item._id`,
+                        pureUpdatedDoc._id,
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          );
+        }
+
+        const reachedLimit = relatedRelDocs.length === actualRelatedRel.limit
+          ? true
+          : false;
+
+        if (
+          reachedLimit && isRelInArrRel
+        ) {
+          const fieldName = actualRelatedRel.sort!.field;
+          const operator = actualRelatedRel.sort?.order === "asc"
+            ? {
+              $gte: relatedRelDocs[relatedRelDocs.length - 1][fieldName],
+            }
+            : {
+              $lte: relatedRelDocs[relatedRelDocs.length - 1][fieldName],
+            };
+
+          const findOneCommand = {
+            [`${rel}._id`]: foundedDoc._id,
+            [fieldName]: operator,
+          };
+          const findNextRelatedRelForAdd = await db.collection(collection)
+            .find(findOneCommand, {
+              projection: pureDocProjection,
+              sort: {
+                [fieldName]: actualRelatedRel.sort?.order === "asc" ? 1 : -1,
+              },
+              limit: 2,
+            }).toArray();
+
+          const concatArrays = findNextRelatedRelForAdd
+            ? [...findNextRelatedRelForAdd, pureUpdatedDoc]
+            : [pureUpdatedDoc];
+
+          updatePipeline.push(
+            {
+              $set: {
+                [relatedRel]: {
+                  $setUnion: [
+                    concatArrays,
+                    `$${relatedRel}`,
+                  ],
+                },
+              },
+            },
+            {
+              $set: {
+                [relatedRel]: {
+                  $sortArray: {
+                    input: `$${relatedRel}`,
+                    sortBy: {
+                      [actualRelatedRel.sort!.field]:
+                        actualRelatedRel.sort?.order === "asc" ? 1 : -1,
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $set: {
+                [relatedRel]: {
+                  $slice: [`$${relatedRel}`, actualRelatedRel.limit],
+                },
+              },
+            },
+          );
+        } else {
+          updatePipeline.push(
+            {
+              $set: {
+                [relatedRel]: {
+                  $setUnion: [
+                    [pureUpdatedDoc],
+                    `$${relatedRel}`,
+                  ],
+                },
+              },
+            },
+            {
+              $set: {
+                [relatedRel]: {
+                  $sortArray: {
+                    input: `$${relatedRel}`,
+                    sortBy: {
+                      [actualRelatedRel.sort!.field]:
+                        actualRelatedRel.sort?.order === "asc" ? 1 : -1,
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $set: {
+                [relatedRel]: {
+                  $slice: [`$${relatedRel}`, actualRelatedRel.limit],
+                },
+              },
+            },
+          );
+        }
+      }
+    }
+  }
+  const updatedActualRelSingleDoc = await db.collection(
+    relationSchemaName,
+  ).updateOne({ _id: foundedDoc._id }, updatePipeline);
+  // /*
+  //  * 	@LOG @DEBUG @INFO
+  //  * 	This log written by ::==> {{ `` }}
+  //  *
+  //  * 	Please remove your log after debugging
+  //  */
+  // // console.log woth no truncate
+  // await Deno.stdout.write(
+  //   new TextEncoder().encode(
+  //     `the updatePipeline is : => ${JSON.stringify(updatePipeline, null, 2)}\n
+  //     and the updatedActualRelSingleDoc is => ${
+  //       JSON.stringify(updatedActualRelSingleDoc, null, 2)
+  //     }\n`,
+  //   ),
+  // );
+
+  return updatedActualRelSingleDoc;
+};
 
 export const findOneAndUpdate = async <PureFields extends Document = Document>(
   { db, collection, filter, update, options, projection, schemasObj }: {
@@ -46,8 +233,9 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
     throwError("can not update this doc");
   }
 
+  const updatedDocValue = updatedDoc.value;
   const pureUpdatedDoc = filterDocByProjection(
-    updatedDoc.value!,
+    updatedDocValue!,
     pureDocProjection,
   );
 
@@ -56,186 +244,51 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
     const relatedRelations = actualRel.relatedRelations;
 
     if (actualRel.type === "single") {
-      const foundedActualRelSingleDoc = await db.collection(
-        actualRel.schemaName,
-      ).findOne({ _id: updatedDoc.value![rel]._id });
+      if (updatedDocValue && updatedDocValue[rel]) {
+        const foundedActualRelSingleDoc = await db.collection(
+          actualRel.schemaName,
+        ).findOne({ _id: updatedDocValue[rel]._id });
 
-      const updatePipeline = [];
-      for (const relatedRel in relatedRelations) {
-        const actualRelatedRel = relatedRelations[relatedRel];
-        if (actualRelatedRel.type === "single") {
-          if (
-            foundedActualRelSingleDoc![relatedRel]._id.equals(
-              updatedDoc.value?._id,
-            )
+        await proccessUpdateRelations({
+          db,
+          collection,
+          rel,
+          relatedRelations,
+          foundedDoc: foundedActualRelSingleDoc!,
+          pureUpdatedDoc,
+          pureDocProjection,
+          relationSchemaName: actualRel.schemaName,
+        });
+      }
+    } else {
+      if (
+        updatedDocValue && updatedDocValue[rel] &&
+        Array.isArray(updatedDocValue[rel])
+      ) {
+        const relMultiDocs = updatedDoc.value![rel];
+
+        const foundedActualRelMultiDocs = await db.collection(
+          actualRel.schemaName,
+        ).find({ _id: { $in: relMultiDocs.map((re: any) => re._id) } })
+          .toArray();
+
+        if (foundedActualRelMultiDocs) {
+          for await (
+            const eachActualRel of foundedActualRelMultiDocs
           ) {
-            updatePipeline.push({ $set: { [relatedRel]: pureUpdatedDoc } });
-          }
-        } else {
-          const relatedRelDocs = foundedActualRelSingleDoc![relatedRel];
-          if (
-            relatedRelDocs && Array.isArray(relatedRelDocs)
-          ) {
-            const isRelInArrRel = relatedRelDocs.some((relatedRelDoc) =>
-              relatedRelDoc._id.equals(updatedDoc.value?._id)
-            );
-
-            if (isRelInArrRel) {
-              updatePipeline.push(
-                {
-                  $set: {
-                    [relatedRel]: {
-                      $filter: {
-                        input: `$${relatedRel}`,
-                        as: `${relatedRel}Item`,
-                        cond: {
-                          $ne: [
-                            `$$${relatedRel}Item._id`,
-                            updatedDoc.value?._id,
-                          ],
-                        },
-                      },
-                    },
-                  },
-                },
-              );
-            }
-
-            const reachedLimit =
-              relatedRelDocs.length === actualRelatedRel.limit ? true : false;
-
-            if (
-              reachedLimit && isRelInArrRel
-            ) {
-              const fieldName = actualRelatedRel.sort!.field;
-              const operator = actualRelatedRel.sort?.order === "asc"
-                ? { $gte: relatedRelDocs[relatedRelDocs.length - 1][fieldName] }
-                : {
-                  $lte: relatedRelDocs[relatedRelDocs.length - 1][fieldName],
-                };
-
-              const findOneCommand = {
-                [`${rel}._id`]: foundedActualRelSingleDoc!._id,
-                [fieldName]: operator,
-              };
-              const findNextRelatedRelForAdd = await db.collection(collection)
-                .find(findOneCommand, {
-                  projection: pureDocProjection,
-                  sort: {
-                    [fieldName]: actualRelatedRel.sort?.order === "asc"
-                      ? 1
-                      : -1,
-                  },
-                  limit: 2,
-                }).toArray();
-
-              const concatArrays = findNextRelatedRelForAdd
-                ? [...findNextRelatedRelForAdd, pureUpdatedDoc]
-                : [pureUpdatedDoc];
-
-              updatePipeline.push(
-                {
-                  $set: {
-                    [relatedRel]: {
-                      $setUnion: [
-                        concatArrays,
-                        `$${relatedRel}`,
-                      ],
-                    },
-                  },
-                },
-                {
-                  $set: {
-                    [relatedRel]: {
-                      $sortArray: {
-                        input: `$${relatedRel}`,
-                        sortBy: {
-                          [actualRelatedRel.sort!.field]:
-                            actualRelatedRel.sort?.order === "asc" ? 1 : -1,
-                        },
-                      },
-                    },
-                  },
-                },
-                {
-                  $set: {
-                    [relatedRel]: {
-                      $slice: [`$${relatedRel}`, actualRelatedRel.limit],
-                    },
-                  },
-                },
-              );
-            } else {
-              updatePipeline.push(
-                {
-                  $set: {
-                    [relatedRel]: {
-                      $setUnion: [
-                        [pureUpdatedDoc],
-                        `$${relatedRel}`,
-                      ],
-                    },
-                  },
-                },
-                {
-                  $set: {
-                    [relatedRel]: {
-                      $sortArray: {
-                        input: `$${relatedRel}`,
-                        sortBy: {
-                          [actualRelatedRel.sort!.field]:
-                            actualRelatedRel.sort?.order === "asc" ? 1 : -1,
-                        },
-                      },
-                    },
-                  },
-                },
-                {
-                  $set: {
-                    [relatedRel]: {
-                      $slice: [`$${relatedRel}`, actualRelatedRel.limit],
-                    },
-                  },
-                },
-              );
-            }
+            await proccessUpdateRelations({
+              db,
+              collection,
+              rel,
+              relatedRelations,
+              foundedDoc: eachActualRel,
+              pureUpdatedDoc,
+              pureDocProjection,
+              relationSchemaName: actualRel.schemaName,
+            });
           }
         }
       }
-      const updatedActualRelSingleDoc = await db.collection(
-        actualRel.schemaName,
-      ).updateOne({ _id: updatedDoc.value![rel]._id }, updatePipeline);
-      // /*
-      //  * 	@LOG @DEBUG @INFO
-      //  * 	This log written by ::==> {{ `` }}
-      //  *
-      //  * 	Please remove your log after debugging
-      //  */
-      // // console.log woth no truncate
-      // await Deno.stdout.write(
-      //   new TextEncoder().encode(
-      //     `the updatePipeline is : => ${
-      //       JSON.stringify(updatePipeline, null, 2)
-      //     }\n
-      //     and the updatedActualRelSingleDoc is => ${
-      //       JSON.stringify(updatedActualRelSingleDoc, null, 2)
-      //     }\n`,
-      //   ),
-      // );
-    } else {
-      /*
-       * 	@LOG @DEBUG @INFO
-       * 	This log written by ::==> {{ `` }}
-       *
-       * 	Please remove your log after debugging
-       */
-      console.log(" ============= ");
-      console.group("actualRel ------ ");
-      console.log();
-      console.info({ actualRel }, " ------ ");
-      console.log();
-      console.groupEnd();
-      console.log(" ============= ");
     }
   }
 
