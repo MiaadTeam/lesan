@@ -129,31 +129,6 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
                   limit: 2,
                 }).toArray();
 
-              /*
-               * 	@LOG @DEBUG @INFO
-               * 	This log written by ::==> {{ `` }}
-               *
-               * 	Please remove your log after debugging
-               */
-              console.log(" ============= ");
-              console.group(
-                "fieldName, operator, findOneCommand, findNextRelatedRelForAdd ------ ",
-              );
-              console.log();
-              console.info({
-                relatedRel,
-                fieldName,
-                operator,
-                findOneCommand,
-                findNextRelatedRelForAdd,
-                theDocumentInOperator:
-                  relatedRelDocs[relatedRelDocs.length - 1],
-                relatedRelDocs,
-              }, " ------ ");
-              console.log();
-              console.groupEnd();
-              console.log(" ============= ");
-
               const concatArrays = findNextRelatedRelForAdd
                 ? [...findNextRelatedRelForAdd, pureUpdatedDoc]
                 : [pureUpdatedDoc];
@@ -230,23 +205,37 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
       const updatedActualRelSingleDoc = await db.collection(
         actualRel.schemaName,
       ).updateOne({ _id: updatedDoc.value![rel]._id }, updatePipeline);
+      // /*
+      //  * 	@LOG @DEBUG @INFO
+      //  * 	This log written by ::==> {{ `` }}
+      //  *
+      //  * 	Please remove your log after debugging
+      //  */
+      // // console.log woth no truncate
+      // await Deno.stdout.write(
+      //   new TextEncoder().encode(
+      //     `the updatePipeline is : => ${
+      //       JSON.stringify(updatePipeline, null, 2)
+      //     }\n
+      //     and the updatedActualRelSingleDoc is => ${
+      //       JSON.stringify(updatedActualRelSingleDoc, null, 2)
+      //     }\n`,
+      //   ),
+      // );
+    } else {
       /*
        * 	@LOG @DEBUG @INFO
        * 	This log written by ::==> {{ `` }}
        *
        * 	Please remove your log after debugging
        */
-      // console.log woth no truncate
-      await Deno.stdout.write(
-        new TextEncoder().encode(
-          `the updatePipeline is : => ${
-            JSON.stringify(updatePipeline, null, 2)
-          }\n
-          and the updatedActualRelSingleDoc is => ${
-            JSON.stringify(updatedActualRelSingleDoc, null, 2)
-          }\n`,
-        ),
-      );
+      console.log(" ============= ");
+      console.group("actualRel ------ ");
+      console.log();
+      console.info({ actualRel }, " ------ ");
+      console.log();
+      console.groupEnd();
+      console.log(" ============= ");
     }
   }
 
@@ -264,18 +253,63 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
     for (const relation in foundRelatedSchema.relations) {
       if (foundRelatedSchema.relations[relation].schemaName === collection) {
         // TODO shayad chand bar mainRelation dade bashe ba in schema : pas bayad ye update aggregation benevisam
-        if (foundRelatedSchema.relations[relation].type === "single") {
+        const actualRelatedRel = foundRelatedSchema.relations[relation];
+        if (actualRelatedRel.type === "single") {
           await db.collection(schema).updateMany({
             [`${relation}._id`]: pureUpdatedDoc._id,
           }, { $set: { [relation]: pureUpdatedDoc } });
+        } else {
+          const updateMultiPipeline: UpdateFilter<Document>[] = [{
+            $set: {
+              [relation]: {
+                $filter: {
+                  input: `$${relation}`,
+                  as: `${relation}Item`,
+                  cond: {
+                    $ne: [
+                      `$$${relation}Item._id`,
+                      updatedDoc.value?._id,
+                    ],
+                  },
+                },
+              },
+            },
+          }, {
+            $set: {
+              [relation]: {
+                $concatArrays: [
+                  [pureUpdatedDoc],
+                  `$${relation}`,
+                ],
+              },
+            },
+          }];
+          if (actualRelatedRel.sort) {
+            updateMultiPipeline.push({
+              $set: {
+                [relation]: {
+                  $sortArray: {
+                    input: `$${relation}`,
+                    sortBy: {
+                      [actualRelatedRel.sort!.field]:
+                        actualRelatedRel.sort?.order === "asc" ? 1 : -1,
+                    },
+                  },
+                },
+              },
+            });
+          }
+          const updatedMultiDoc = await db.collection(schema).updateMany({
+            [`${relation}`]: { $elemMatch: { _id: pureUpdatedDoc._id } },
+          }, updateMultiPipeline);
         }
       }
     }
   }
 
   return projection
-    ? db.collection(collection).findOne({ _id: updatedDoc.value?._id }, {
+    ? db.collection(collection).findOne({ _id: pureUpdatedDoc._id }, {
       projection,
     })
-    : updatedDoc.value;
+    : pureUpdatedDoc;
 };
