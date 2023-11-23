@@ -1,5 +1,5 @@
 import { TRelatedRelation } from "../../mod.ts";
-import { Db, Document, ObjectId, UpdateFilter } from "../../npmDeps.ts";
+import { Db, Document, UpdateFilter } from "../../npmDeps.ts";
 import { throwError } from "../../utils/throwError.ts";
 
 export const generateRemoveRelatedRelationFilter = async (
@@ -25,9 +25,9 @@ export const generateRemoveRelatedRelationFilter = async (
     pureMainProjection: Record<string, any>;
   },
 ) => {
-  let updateFilter: UpdateFilter<Document>;
+  let updateFilter: UpdateFilter<Document>[];
   if (relatedRelation.type === "single") {
-    updateFilter = { $set: { [relatedRel]: {} } };
+    updateFilter = [{ $set: { [relatedRel]: {} } }];
   } else {
     updateFilter = [];
 
@@ -50,11 +50,104 @@ export const generateRemoveRelatedRelationFilter = async (
         ? true
         : false;
 
-      const indexOfFoundedRelatedRel = relatedRelDoc.findIndex((
-        rr: any,
-      ) => rr._id.equals(removeDoc._id));
+      // const indexOfFoundedRelatedRel = relatedRelDoc.findIndex((
+      //   rr: any,
+      // ) => rr._id.equals(removeDoc._id));
 
-      if (indexOfFoundedRelatedRel > -1) {
+      // if (indexOfFoundedRelatedRel > -1) {
+      //   updateFilter.push(
+      //     {
+      //       $set: {
+      //         [relatedRel]: {
+      //           $filter: {
+      //             input: `$${relatedRel}`,
+      //             as: `${relatedRel}Item`,
+      //             cond: {
+      //               $ne: [
+      //                 `$$${relatedRel}Item._id`,
+      //                 removeDoc._id,
+      //               ],
+      //             },
+      //           },
+      //         },
+      //       },
+      //     },
+      //     // {
+      //     //   $set: {
+      //     //     [relatedRel]: newRelatedRelArr,
+      //     //   },
+      //     // },
+      //   );
+
+      if (reachedLimit) {
+        const fieldName = relatedRelation.sort!.field;
+        const operator = relatedRelation.sort?.order === "asc"
+          ? { $gte: relatedRelDoc[relatedRelDoc.length - 1][fieldName] }
+          : { $lte: relatedRelDoc[relatedRelDoc.length - 1][fieldName] };
+
+        const findNextRelatedRelForAdd = await db.collection(mainSchemaName)
+          .find({
+            [`${mainSchemaRelationName}._id`]: foundedRelatedRel!._id,
+            [fieldName]: operator,
+          }, {
+            projection: pureMainProjection,
+            sort: {
+              [fieldName]: relatedRelation.sort?.order === "asc" ? 1 : -1,
+            },
+            limit: 2,
+          }).toArray();
+
+        if (findNextRelatedRelForAdd) {
+          updateFilter.push(
+            {
+              $set: {
+                [relatedRel]: {
+                  $setUnion: [
+                    findNextRelatedRelForAdd,
+                    `$${relatedRel}`,
+                  ],
+                },
+              },
+            },
+            {
+              $set: {
+                [relatedRel]: {
+                  $filter: {
+                    input: `$${relatedRel}`,
+                    as: `${relatedRel}Item`,
+                    cond: {
+                      $ne: [
+                        `$$${relatedRel}Item._id`,
+                        removeDoc._id,
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $set: {
+                [relatedRel]: {
+                  $sortArray: {
+                    input: `$${relatedRel}`,
+                    sortBy: {
+                      [relatedRelation.sort!.field]:
+                        relatedRelation.sort?.order === "asc" ? 1 : -1,
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $set: {
+                [relatedRel]: {
+                  $slice: [`$${relatedRel}`, relatedRelation.limit],
+                },
+              },
+            },
+          );
+        }
+      } else {
         updateFilter.push(
           {
             $set: {
@@ -78,57 +171,9 @@ export const generateRemoveRelatedRelationFilter = async (
           //   },
           // },
         );
-
-        if (reachedLimit) {
-          const fieldName = relatedRelation.sort!.field;
-          const operator = relatedRelation.sort?.order === "asc"
-            ? { $gt: relatedRelDoc[relatedRelDoc.length - 1][fieldName] }
-            : { $lt: relatedRelDoc[relatedRelDoc.length - 1][fieldName] };
-
-          const findNextRelatedRelForAdd = await db.collection(mainSchemaName)
-            .findOne({
-              [`${mainSchemaRelationName}._id`]: foundedRelatedRel!._id,
-              [fieldName]: operator,
-            }, {
-              projection: pureMainProjection,
-            });
-
-          if (findNextRelatedRelForAdd) {
-            updateFilter.push(
-              {
-                $set: {
-                  [relatedRel]: {
-                    $concatArrays: [
-                      [findNextRelatedRelForAdd],
-                      `$${relatedRel}`,
-                    ],
-                  },
-                },
-              },
-              {
-                $set: {
-                  [relatedRel]: {
-                    $sortArray: {
-                      input: `$${relatedRel}`,
-                      sortBy: {
-                        [relatedRelation.sort!.field]:
-                          relatedRelation.sort?.order === "asc" ? 1 : -1,
-                      },
-                    },
-                  },
-                },
-              },
-              // {
-              //   $set: {
-              //     [relatedRel]: {
-              //       $slice: [`$${relatedRel}`, relatedRelation.limit],
-              //     },
-              //   },
-              // },
-            );
-          }
-        }
       }
+
+      // }
     }
   }
   return updateFilter;
