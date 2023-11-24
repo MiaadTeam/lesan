@@ -800,15 +800,18 @@ textarea {
   opacity: 0;
   visibility: hidden;
   transition: all 0.35s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .successe svg {
   width: 20px;
   height: 20px;
   fill: yellowgreen;
-  transform-origin: 50% 50%;
-  transform: translateY(-50%) rotate(0deg) scale(0);
-  transition: all 0.35s;
+  /* transform-origin: 50% 50%; */
+  /* transform: translateY(-50%) rotate(0deg) scale(0); */
+  /* transition: all 0.35s; */
 }
 
 .send-button[data-active="true"] {
@@ -1112,6 +1115,13 @@ textarea {
   border-radius: 50%;
   backdrop-filter: blur(10px);
   width: 30px;
+}
+
+.svg323 {
+  width: 100px;
+  height: 100px;
+  margin: 20px;
+  display: inline-block;
 }
 
 .e2e-back-button {
