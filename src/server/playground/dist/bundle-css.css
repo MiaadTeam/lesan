@@ -214,9 +214,28 @@ textarea {
   justify-content: space-between;
   gap: 10px;
   width: 100%;
+  border: 1px solid bisque;
+  border-radius: 7px;
+  padding: 5px 10px 0 10px;
+  position: relative;
+  margin-top: 15px;
 }
 .sidebar__section-add-capture input {
   width: 50%;
+  border: none;
+  border-radius: 5px;
+  cursor: text;
+}
+.section-add-capture__delete-button {
+  position: absolute;
+  z-index: 2;
+  top: -12px;
+  right: 5px;
+  cursor: pointer;
+}
+.section-add-capture__delete-button svg {
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
 }
 .btn {
   border: none;
@@ -362,9 +381,10 @@ textarea {
   background-color: var(--color-colonial-2);
   color: white;
 }
-@media (min-width: 1024px) and (max-width: 1440px) {
+@media (min-width: 768px) and (max-width: 1440px) {
   .sidebar__section-add-capture {
     flex-direction: column;
+    padding: 15px 8px 8px 8px;
   }
   .sidebar__section-add-capture input {
     margin: 0;
@@ -924,6 +944,7 @@ textarea {
   border: 1px solid bisque;
   backdrop-filter: blur(10px);
   border-top: none;
+  text-decoration-line: none;
 }
 .e2e-back-button.e2e-run-botton {
   background-color: darkslategray;
@@ -1875,15 +1896,16 @@ textarea {
 .pagination > :is(button, span) {
   display: grid;
   place-items: center;
-  width: 30px;
   height: 30px;
-  padding: 0;
+  padding: 1px;
   border: 0;
   background: none;
   color: black;
   font-size: 12px;
   cursor: pointer;
   border-radius: 7px;
+  min-width: 30px;
+  max-width: 45px;
 }
 .pagination > button:not(span) {
   cursor: pointer;
