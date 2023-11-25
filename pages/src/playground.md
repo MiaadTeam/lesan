@@ -122,7 +122,7 @@ With **Import Button** we can import the pervious tests and reuse them.
 
 With **Export Button** we can export existing tests for use them for anothe test.
 
-And with **Help Button** we go to the another section that we can see how to work with E2E modal.
+And with **Help Button** we go to playground document that we can see how to work with E2E modal.
 
 <br>
  
@@ -135,8 +135,9 @@ Part 1 is a **Set Test Body And Headers** that we can write and set body and hea
 In Part two we can **Set Repeat Time(1)** of the test with **+** or **-** button or write number we want in input. also we can use **Add Capture(2) Button** for set how many capture we want to the sequence for test.
 ![E2E-5](https://github.com/MiaadTeam/lesan/assets/96171913/f02db2ea-7ebd-4bed-bb7f-cca49cb84594)
 
-After press the **Add Capture** we can see two input, include **set a variable name(1)** that we can see an **Example(2)** to how fill this input and another input, is **set a value for variable(3)** that we can see an **Example(4)** to how fill this input.
-![E2E-6](https://github.com/MiaadTeam/lesan/assets/96171913/963a50a3-525e-4506-96df-7c62d283d66e)
+After press the **Add Capture** we can see a part that include two input, include **set a variable name(1)** that we can see an **Example(2)** to how fill this input and another input, is **set a value for variable(3)** that we can see an **Example(4)** to how fill this input.
+Also we can set capture couple model.
+![E2E-6](https://github.com/MiaadTeam/lesan/assets/96171913/53ebe8a1-46fa-46be-a1ab-4bc51b45d135)
 
 We have four button in top-right of the each sequence test:
 ![E2E-7](https://github.com/MiaadTeam/lesan/assets/96171913/cd29914a-bea2-41f4-88a5-738fddfe09e9)
@@ -198,19 +199,53 @@ Also when click on **change button(7)** to go back to the Body Header and Descri
 
 #### Schema button:
 
-In **Schema** modal we have access to all the **Schema** project .
+In **Schema** modal we have access to all the **Schema** project. For example, we can see the country,city and user.
 ![Schema](https://github.com/MiaadTeam/lesan/assets/96171913/845158ad-433e-4f8a-be14-bdb2eac1783e)
 
-By pressing each section we can see the type of relationships.
-![Schema-1](https://github.com/MiaadTeam/lesan/assets/96171913/d8f21137-2900-4fa9-8075-988287b16566)
+Country have pure(1) and related relations(2).
+![Schema-1](https://github.com/MiaadTeam/lesan/assets/96171913/d50d1c4f-5bdb-427d-96a9-8a18d4edc894)
+
+And pure have \_id(1), name(2), population(3), abb(4).
+![Schema-2](https://github.com/MiaadTeam/lesan/assets/96171913/702c6441-267a-4b6c-97e1-2dbdc1b33883)
+
+And Also related relations have cities asc(1), cities desc(2), cities by pop asc(3), cities by pop desc(4), capital city(5), users(6), users by age(7).
+![Schema-3](https://github.com/MiaadTeam/lesan/assets/96171913/b651116a-a1c8-4933-82ff-bf9e4c43658c)
 
 Also by hovering on question icon we can see the relations.
-![Schema-2](https://github.com/MiaadTeam/lesan/assets/96171913/757024d5-7e0b-4d2b-a3f4-fad647d795f9)
+![Schema-4](https://github.com/MiaadTeam/lesan/assets/96171913/f5136d49-812d-467e-81d1-5146e3d294ca)
+
+We see the country, lets see the **city**. city have pure(1), main Relation(2), related relations(3).
+![Schema-5](https://github.com/MiaadTeam/lesan/assets/96171913/4149d856-e008-4384-a25a-191327a65c59)
+
+Pure have \_id(1), name(2), population(3), abb(4).
+![Schema-6](https://github.com/MiaadTeam/lesan/assets/96171913/a01aa365-066f-43dd-b940-95f81632e27f)
+
+main relations have **country** and country have \_id, name, population and abb.
+![Schema-7](https://github.com/MiaadTeam/lesan/assets/96171913/e115725c-2e62-4637-adc7-0180a7708684)
+
+Also by hovering on question icon we can see the relations.
+![Schema-8](https://github.com/MiaadTeam/lesan/assets/96171913/b6123daf-50d4-446f-90cd-377d7b634a2f)
+
+And **related relations** have users(1) and loved user(2).
+![Schema-9](https://github.com/MiaadTeam/lesan/assets/96171913/89a7d6c4-7d93-4cb9-b676-fe5ff9dcf2e3)
+
+Users have \_id, name, age.
+![Schema-10](https://github.com/MiaadTeam/lesan/assets/96171913/d63aeea6-f2bd-4f8b-bf3e-07e6ebb9737f)
 
 #### Act button:
 
 Like Schema modal in **Act** modal , we have access to all the **Act** of the project.
-![Schema-3](https://github.com/MiaadTeam/lesan/assets/96171913/1553df15-80e1-454f-b5f2-915a459965ea)
+Act have **main** and main have country(1), city(2), user(3).
+![Act-1](https://github.com/MiaadTeam/lesan/assets/96171913/c32c8b82-d104-4bce-aca9-6ba1de07e607)
 
-By pressing each section we can see the type of relationships.
-![Schema-4](https://github.com/MiaadTeam/lesan/assets/96171913/c0a1f828-9997-4144-85af-dbbd6f0210f0)
+And **country** have add country(1), update country(2), add countries(3), get countries(4), delete country(5).
+![Act-2](https://github.com/MiaadTeam/lesan/assets/96171913/2b5a32d3-1984-4233-9dd9-964c022fcf1c)
+
+Let see the add country. we can see the set(1) and get(2).
+![Act-3](https://github.com/MiaadTeam/lesan/assets/96171913/6988764f-3b63-4657-9652-5a562f773957)
+
+**Set** have name(1), population(2) and abb(3).
+![Act-4](https://github.com/MiaadTeam/lesan/assets/96171913/1c09be5f-b0e0-4537-886b-bdf8ab5194d8)
+
+And **get** have \_id(1), name(2), population(3), abb(4), users(5).
+![Act-4](https://github.com/MiaadTeam/lesan/assets/96171913/31cc2d81-a346-419f-ba06-a3241c7b7efe)
