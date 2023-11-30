@@ -4,16 +4,12 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
 
 # Benchmarks
 
-![best-results](https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532)
+![best-results](https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532)  
+
 <svg fill="none" viewBox="0 0 700 300" width="700" height="300" xmlns="http://www.w3.org/2000/svg">
   <foreignObject width="100%" height="100%">
     <div xmlns="http://www.w3.org/1999/xhtml">
       <style>
-        :root {
-          --background-color: #fff;
-          --chart--background-color: #ffb454;
-        }
-
         .animation-container {
           display: flex;
           flex-direction: column;
@@ -38,7 +34,7 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
         .animation-item .details .chart {
           display: inline-block;
           height: 100%;
-          background-color: var(--chart--background-color);
+          background-color: #ffb454;
         }
 
         .animation-item .details .time {
@@ -108,7 +104,7 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
           bottom: 0;
           width: 1px;
           height: 12rem;
-          background-color: var(--chart--background-color);
+          background-color: #ffb454;
           animation: line-bar 94106ms linear forwards;
         }
 
