@@ -13,7 +13,45 @@ Finally, this data structure ( by the favor of fewer requests sent to the databa
 
 # Benchmarks
 
-![best-results](https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532)
+<div class="animation-container">
+  <section class="animation-item lesan">
+    <span class="title">Lesan</span>
+    <div class="details">
+      <span class="chart"></span>
+      <span class="time">0.130s</span>
+    </div>
+  </section>
+  <section class="animation-item prisma-postgres">
+    <span class="title">Prisma Postgres</span>
+    <div class="details">
+      <span class="chart"></span>
+      <span class="time">1.649s</span>
+    </div>
+  </section>
+  <section class="animation-item prisma-postgres-graphql">
+    <span class="title">Prisma Postgres GraphQL</span>
+    <div class="details">
+      <span class="chart"></span>
+      <span class="time">1.973s</span>
+    </div>
+  </section>
+  <section class="animation-item mongoose-no-sort">
+    <span class="title">Mongoose Not Sort</span>
+    <div class="details">
+      <span class="chart"></span>
+      <span class="time">5.896s</span>
+    </div>
+  </section>
+  <section class="animation-item mongoose-sort">
+    <span class="title">Mongoose Sort</span>
+    <div class="details">
+      <span class="line"></span>
+      <span class="chart"></span>
+      <span class="time">94.106s</span>
+    </div>
+  </section>
+</div>
+
  
  We use this formula to calculate the difference : (B - A) ÷ A * 100  
  As you see on the chart:
