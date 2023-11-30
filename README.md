@@ -4,26 +4,12 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
 
 # Benchmarks
 
-<svg fill="none" viewBox="0 0 600 300" width="600" height="300" xmlns="http://www.w3.org/2000/svg">
-  <foreignObject width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml">
-      <style>
-        .container {
-          display: flex;
-          width: 100%;
-          height: 300px;
-          background-color: black;
-          color: white;
-        }
-      </style>
+![best-results](https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532)  
 
-      <div class="container">
-        <h1>Hi there, my name is Nikola 👋</h1>
-      </div>
-    </div>
-  </foreignObject>
-</svg>
- 
+<div align="center">
+    <img src="chart.svg" width="700" height="300" alt="css-in-readme">
+</div>
+
  We use this formula to calculate the difference : (B - A) ÷ A * 100  
  As you see on the chart:
  - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.
