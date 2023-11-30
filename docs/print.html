@@ -1,17 +1,17 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js light">
+<html lang="en" class="ayu" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Lesan</title>
-        <meta name="robots" content="noindex" />
+        <meta name="robots" content="noindex">
 
 
         <!-- Custom HTML head -->
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
         <link rel="icon" href="favicon.svg">
         <link rel="shortcut icon" href="favicon.png">
@@ -30,14 +30,15 @@
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="./css/animation-bench.css">
 
     </head>
-    <body>
+    <body class="sidebar-visible no-js">
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "ayu";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -62,31 +63,38 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
-            html.classList.remove('no-js')
-            html.classList.remove('light')
+            html.classList.remove('ayu')
             html.classList.add(theme);
-            html.classList.add('js');
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
         </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var html = document.querySelector('html');
+            var body = document.querySelector('body');
             var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting_start.html"><strong aria-hidden="true">2.</strong> Getting start</a></li><li class="chapter-item expanded "><a href="add_relation.html"><strong aria-hidden="true">3.</strong> Add relation</a></li><li class="chapter-item expanded "><a href="add_more_relation.html"><strong aria-hidden="true">4.</strong> Add more relation</a></li><li class="chapter-item expanded "><a href="mannage_relations.html"><strong aria-hidden="true">5.</strong> Mannage relations</a></li><li class="chapter-item expanded "><a href="other_functions.html"><strong aria-hidden="true">6.</strong> Other functions</a></li><li class="chapter-item expanded "><a href="playground.html"><strong aria-hidden="true">7.</strong> Playground</a></li><li class="chapter-item expanded "><a href="folder_structure.html"><strong aria-hidden="true">8.</strong> Folder Structure</a></li><li class="chapter-item expanded "><a href="microservice-monolithic.html"><strong aria-hidden="true">9.</strong> Microservice or Monolithic</a></li><li class="chapter-item expanded "><a href="manage_replica.html"><strong aria-hidden="true">10.</strong> Manage replica</a></li><li class="chapter-item expanded affix "><li class="part-title">Lesan Philosophy</li><li class="chapter-item expanded "><a href="Receiving_Data.html"><strong aria-hidden="true">11.</strong> Receiving Data</a></li><li class="chapter-item expanded "><a href="Previous_methods_and_the_main_challenge.html"><strong aria-hidden="true">12.</strong> Previous methods and the main challenge</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Lesan's_Solution_For_How_To_Communicate_Between_The_Server_And_The_Client.html"><strong aria-hidden="true">12.1.</strong> Lesan's Solution For How To Communicate Between The Server And The Client</a></li><li class="chapter-item expanded "><a href="Why_NoSQL.html"><strong aria-hidden="true">12.2.</strong> Why noSQL?</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Penetration_Into_Depths.html"><strong aria-hidden="true">12.2.1.</strong> Penetration Into Depths</a></li></ol></li><li class="chapter-item expanded "><a href="Microservice.html"><strong aria-hidden="true">12.3.</strong> Microservice</a></li><li class="chapter-item expanded "><a href="Lesan_solution.html"><strong aria-hidden="true">12.4.</strong> Lesan solution</a></li></ol></li><li class="chapter-item expanded "><a href="Starting_work_with_Lesan.html"><strong aria-hidden="true">13.</strong> Starting work with Lesan</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Microservice_Architecture_with_Lesan.html"><strong aria-hidden="true">13.1.</strong> Microservice Architecture with Lesan</a></li></ol></li><li class="chapter-item expanded "><a href="Structures.html"><strong aria-hidden="true">14.</strong> Structures</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Schemas.html"><strong aria-hidden="true">14.1.</strong> Schemas</a></li><li class="chapter-item expanded "><a href="Pure_Structure_In_Schema.html"><strong aria-hidden="true">14.2.</strong> Pure Structure In Schema</a></li><li class="chapter-item expanded "><a href="The_InRelation_Structure_In_Schema.html"><strong aria-hidden="true">14.3.</strong> The InRelation Structure In Schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_OutRelation_in_the_schema.html"><strong aria-hidden="true">14.4.</strong> The structure of OutRelation in the schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_embed_in_the_schema.html"><strong aria-hidden="true">14.5.</strong> The structure of embed in the schema</a></li><li class="chapter-item expanded "><a href="The_structure_of_Struct_in_the_schema.html"><strong aria-hidden="true">14.6.</strong> The structure of Struct in the schema</a></li><li class="chapter-item expanded "><a href="runServer_(web_server_structure).html"><strong aria-hidden="true">14.7.</strong> runServer (web server structure)</a></li><li class="chapter-item expanded "><a href="Request_processing.html"><strong aria-hidden="true">14.8.</strong> Request processing</a></li><li class="chapter-item expanded "><a href="Dynamic_structure.html"><strong aria-hidden="true">14.9.</strong> Dynamic structure</a></li><li class="chapter-item expanded "><a href="Static_structure.html"><strong aria-hidden="true">14.10.</strong> Static structure</a></li></ol></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
 
         <!-- Track and set sidebar scroll position -->
@@ -117,9 +125,9 @@
                                 <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </button>
+                        </label>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -178,7 +186,44 @@
 <p>Furthermore, we tried to provide the possibility of being movable for the data structure along with the functions written on the server side so that we can manage microservices more easily.</p>
 <p>Finally, this data structure ( by the favor of fewer requests sent to the database) will also simplify the way <a href="https://en.wikipedia.org/wiki/Static_site_generator">SSG</a> content is created.</p>
 <h1 id="benchmarks"><a class="header" href="#benchmarks">Benchmarks</a></h1>
-<p><img src="https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532" alt="best-results" /></p>
+<div class="animation-container">
+  <section class="animation-item lesan">
+    <span class="title">Lesan</span>
+    <div class="details">
+      <span class="chart"></span>
+      <span class="time">0.130s</span>
+    </div>
+  </section>
+  <section class="animation-item prisma-postgres">
+    <span class="title">Prisma Postgres</span>
+    <div class="details">
+      <span class="chart"></span>
+      <span class="time">1.649s</span>
+    </div>
+  </section>
+  <section class="animation-item prisma-postgres-graphql">
+    <span class="title">Prisma Postgres GraphQL</span>
+    <div class="details">
+      <span class="chart"></span>
+      <span class="time">1.973s</span>
+    </div>
+  </section>
+  <section class="animation-item mongoose-no-sort">
+    <span class="title">Mongoose Not Sort</span>
+    <div class="details">
+      <span class="chart"></span>
+      <span class="time">5.896s</span>
+    </div>
+  </section>
+  <section class="animation-item mongoose-sort">
+    <span class="title">Mongoose Sort</span>
+    <div class="details">
+      <span class="line"></span>
+      <span class="chart"></span>
+      <span class="time">94.106s</span>
+    </div>
+  </section>
+</div>
 <p>We use this formula to calculate the difference : (B - A) ÷ A * 100<br />
 As you see on the chart:</p>
 <ul>
@@ -1425,8 +1470,530 @@ coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/4717c9a0-808f-47ad-8e95-2b16f6419305" alt="add-user" /></p>
 <p>Note that the <code>livedCities</code> field receives an array of IDs, you just need to enter an input like <code>[&quot;65466c407123faa9c1f3c180&quot;, &quot;65466c2c7123faa9c1f3c17e&quot;]</code>. playground parses it and converts it into an array suitable for sending.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mannage-relations"><a class="header" href="#mannage-relations">Mannage relations</a></h1>
+<p>So far we have created 3 models that have different relationships.<br />
+Can we update these relationships?<br />
+Yes we can, but only with <code>addRelation</code> and <code>removeRelation</code> functions.<br />
+We should note that we should never manually update the relationships created by <code>Lesan</code> with the <code>update</code> or <code>updateMany</code> function. Let the management of the relationships be entirely in <code>Lesan's</code> hands, so that it can always keep them updated and correct.<br />
+Let's use addRelation.</p>
+<h2 id="add-relation-function"><a class="header" href="#add-relation-function">Add Relation function</a></h2>
+<p>Pay attention to the following code:</p>
+<pre><code class="language-ts">const addUserLivedCityValidator = () =&gt; {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      livedCities: array(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+  });
+};
+const addUserLivedCity: ActFn = async (body) =&gt; {
+  const { livedCities, _id } = body.details.set;
+  const obIdLivedCities = livedCities.map(
+    (lc: string) =&gt; new ObjectId(lc),
+  );
+
+  return await users.addRelation({
+    _id: new ObjectId(_id),
+    projection: body.details.get,
+    relations: {
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+  });
+};
+coreApp.acts.setAct({
+  schema: &quot;user&quot;,
+  actName: &quot;addUserLivedCities&quot;,
+  validator: addUserLivedCityValidator(),
+  fn: addUserLivedCity,
+});
+</code></pre>
+<p>In addition to the functions <code>insert</code>, <code>update</code>, <code>delete</code>, <code>find</code>, etc., for each model in the <code>Lesan</code>, there are two other functions in addition to <code>MongoDB</code> functions, named <code>addRelation</code> and <code>removeRelation</code>, which are prepared for managing relationships. In the code above, the <code>addRelation</code> function is used. This function receives an object input with the following keys:</p>
+<ul>
+<li>The <code>_id</code> key receives the ID of a document in order to find that document and change its relations.</li>
+<li>The <code>relations</code> key receives an object from the relations of this model. We talk about the relation input <a href="https://miaadteam.github.io/lesan/add_relation.html#add-new-act-with-relation">here</a></li>
+<li>The <code>projection</code> key is used to receive written data. Also we talk about <code>projection</code> key <a href="https://miaadteam.github.io/lesan/getting_start.html#the-fn-function">here</a></li>
+<li>And another key called <code>replace</code>, which is not used here, and receives a boolean value of false or true. We will talk about this key in the next section.</li>
+</ul>
+<p>In the function above, we add one or more cities to the set of cities where a user has lived. In fact, in the validation function, the user ID is received along with an array of city IDs, and in the Act function, we convert the array of city IDs into an array of object IDs and give it to the <code>addRelation</code> function along with the user ID. As a result, on the <code>user</code> side, one or more cities are added to the <code>livedCities</code> array, and on the <code>city</code> side, this user is added to each of the cities whose IDs have been sent.<br />
+What if in one of these sides our field is an object instead of an array? For example, let's change the country on the user side.<br />
+Look at code below:</p>
+<pre><code class="language-ts">const addUserCountryValidator = () =&gt; {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      country: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+  });
+};
+const addUserCountry: ActFn = async (body) =&gt; {
+  const { country, _id } = body.details.set;
+
+  return await users.addRelation({
+    _id: new ObjectId(_id),
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+    replace: true,
+  });
+};
+coreApp.acts.setAct({
+  schema: &quot;user&quot;,
+  actName: &quot;addUserCountry&quot;,
+  validator: addUserCountryValidator(),
+  fn: addUserCountry,
+});
+</code></pre>
+<p>In the code above, we get the ID of a user along with the ID of a country and give it to the <code>addRelation</code> function. Please note that the country is not <code>optional</code> in the user model and is defined with a <code>single</code> type. Therefore, if we change the country of a user, we must first find and delete this user in the country he was in before, then add the new country to the user and the user to the new country. For this reason, we have given the value <code>true</code> to the <code>replace</code> key in the <code>addRelation</code> entry. In this function, if we set <code>replace</code> equal to <code>false</code> or do not enter it, no operation will be performed and we will get an error.</p>
+<h3 id="run-the-code-1"><a class="header" href="#run-the-code-1">Run the code</a></h3>
+<p>Once again, let's see all the codes written so far.</p>
+<pre><code class="language-ts">import {
+  ActFn,
+  array,
+  boolean,
+  lesan,
+  MongoClient,
+  number,
+  object,
+  ObjectId,
+  objectIdValidation,
+  RelationDataType,
+  RelationSortOrderType,
+  string,
+} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+
+const coreApp = lesan();
+
+const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+
+const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+
+coreApp.odm.setDb(db);
+
+const countryCityPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const countryRelations = {};
+
+const countries = coreApp.odm.newModel(
+  &quot;country&quot;,
+  countryCityPure,
+  countryRelations,
+);
+
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: &quot;country&quot;,
+    type: &quot;single&quot; as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: &quot;multiple&quot; as RelationDataType,
+        limit: 50,
+        sort: {
+          field: &quot;_id&quot;,
+          order: &quot;desc&quot; as RelationSortOrderType,
+        },
+      },
+      citiesByPopulation: {
+        type: &quot;multiple&quot; as RelationDataType,
+        limit: 50,
+        sort: {
+          field: &quot;population&quot;,
+          order: &quot;desc&quot; as RelationSortOrderType,
+        },
+      },
+      capital: {
+        type: &quot;single&quot; as RelationDataType,
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel(
+  &quot;city&quot;,
+  countryCityPure,
+  cityRelations,
+);
+
+const userPure = {
+  name: string(),
+  age: number(),
+};
+
+const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
+  livedCities: {
+    optional: false,
+    schemaName: &quot;city&quot;,
+    type: &quot;multiple&quot;,
+    sort: {
+      field: &quot;_id&quot;,
+      order: &quot;desc&quot;,
+    },
+    relatedRelations: {
+      users: {
+        type: &quot;multiple&quot;,
+        limit: 5,
+        sort: {
+          field: &quot;_id&quot;,
+          order: &quot;desc&quot;,
+        },
+      },
+    },
+  },
+
+  country: {
+    optional: false,
+    schemaName: &quot;country&quot;,
+    type: &quot;single&quot;,
+    relatedRelations: {
+      users: {
+        type: &quot;multiple&quot;,
+        limit: 5,
+        sort: {
+          field: &quot;_id&quot;,
+          order: &quot;desc&quot;,
+        },
+      },
+    },
+  },
+});
+
+const addCountryValidator = () =&gt; {
+  return object({
+    set: object(countryCityPure),
+    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+  });
+};
+
+const addCountry: ActFn = async (body) =&gt; {
+  const { name, population, abb } = body.details.set;
+  return await countries.insertOne({
+    doc: {
+      name,
+      population,
+      abb,
+    },
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: &quot;country&quot;,
+  actName: &quot;addCountry&quot;,
+  validator: addCountryValidator(),
+  fn: addCountry,
+});
+
+const addCityValidator = () =&gt; {
+  return object({
+    set: object({
+      ...countryCityPure,
+      country: objectIdValidation,
+      isCapital: boolean(),
+    }),
+    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+  });
+};
+
+const addCity: ActFn = async (body) =&gt; {
+  const { country, name, population, abb, isCapital } = body.details.set;
+
+  return await cities.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+          citiesByPopulation: true,
+          capital: isCapital,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: &quot;city&quot;,
+  actName: &quot;addCity&quot;,
+  validator: addCityValidator(),
+  fn: addCity,
+});
+
+const addUserValidator = () =&gt; {
+  return object({
+    set: object({
+      ...userPure,
+      country: objectIdValidation,
+      livedCities: array(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+  });
+};
+const addUser: ActFn = async (body) =&gt; {
+  const { country, livedCities, name, age } = body.details.set;
+  const obIdLivedCities = livedCities.map(
+    (lc: string) =&gt; new ObjectId(lc),
+  );
+
+  return await users.insertOne({
+    doc: { name, age },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          users: true,
+        },
+      },
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+  });
+};
+coreApp.acts.setAct({
+  schema: &quot;user&quot;,
+  actName: &quot;addUser&quot;,
+  validator: addUserValidator(),
+  fn: addUser,
+});
+
+const addUserLivedCityValidator = () =&gt; {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      livedCities: array(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+  });
+};
+const addUserLivedCity: ActFn = async (body) =&gt; {
+  const { livedCities, _id } = body.details.set;
+  const obIdLivedCities = livedCities.map(
+    (lc: string) =&gt; new ObjectId(lc),
+  );
+
+  return await users.addRelation({
+    _id: new ObjectId(_id),
+    projection: body.details.get,
+    relations: {
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+  });
+};
+coreApp.acts.setAct({
+  schema: &quot;user&quot;,
+  actName: &quot;addUserLivedCities&quot;,
+  validator: addUserLivedCityValidator(),
+  fn: addUserLivedCity,
+});
+
+const addUserCountryValidator = () =&gt; {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      country: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+  });
+};
+const addUserCountry: ActFn = async (body) =&gt; {
+  const { country, _id } = body.details.set;
+
+  return await users.addRelation({
+    _id: new ObjectId(_id),
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+    replace: true,
+  });
+};
+coreApp.acts.setAct({
+  schema: &quot;user&quot;,
+  actName: &quot;addUserCountry&quot;,
+  validator: addUserCountryValidator(),
+  fn: addUserCountry,
+});
+
+coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
+</code></pre>
+<p>By running the codes and going to the playground, you can see and test the functions added to the user.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/1ce92eb4-0d0a-4823-acfc-33965e0d29f5" alt="add-relation" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="other-functions"><a class="header" href="#other-functions">Other functions</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playground"><a class="header" href="#playground">Playground</a></h1>
+<h2 id="first-encounter"><a class="header" href="#first-encounter">First Encounter</a></h2>
+<p>When you first enter the playground, you will see 3 part :</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/cf41b432-3d81-4e8d-aeea-173d94ac307e" alt="PlayGround" /></p>
+<h3 id="part-one--tabs"><a class="header" href="#part-one--tabs">Part One : Tabs</a></h3>
+<p>At the top of the page there are tabs that allow you to do different things at the same time without losing information.
+You can make and use as many tabs you need(2) with add button(1) and close them at any time with close button(3).
+By refreshing the page, the tabs information does not disappear and after the tab refresh the tabs are fully accessible.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/53236d31-fc9a-4bbf-b5c7-0b89c7f3eafa" alt="Tabs" /></p>
+<h3 id="part-two-sidebar"><a class="header" href="#part-two-sidebar">Part Two: Sidebar</a></h3>
+<p>On the left side is the sidebar, with 3 select box that are used to select the <strong>service(1)</strong>, <strong>Schema(2)</strong> and <strong>Action(3)</strong>, respectively.
+It should be noted that the selection of Schema and act is inactive until the service is selected.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/68921473-49c9-4a6c-b35d-f008eb971c0f" alt="Sidebar" /></p>
+<h4 id="second-sidebar"><a class="header" href="#second-sidebar">Second Sidebar</a></h4>
+<p>After selecting the service, Schema and act, another column is displayed, which includes 2 sections of <strong>set fields(1)</strong> and <strong>get fields(2)</strong>.
+In the set fields, you fill in the values you need(1-1) and in the get field section you choose the values you want to get and also we either want the field to set the field equal to one or we do not want the amount to be zero(2-1).
+After completing the sections of the set fields and get fields set, by pressing the <strong>Send Button(3)</strong>, the results we have had in the response section are shown in the response section.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/b51c0711-8360-4676-bf52-cee550b1da73" alt="Second Sidebar" /></p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/ecf0476b-3abb-452b-928b-1155245fd0f3" alt="Response" /></p>
+<h4 id="response-section"><a class="header" href="#response-section">Response Section</a></h4>
+<p>At the top of the response section, we have access to 3 button, <strong>copy Request(1)</strong>, <strong>copy Response(2)</strong> and <strong>Run E2E Test(3)</strong> that send the request to the E2E Test modal that we will explain below.</p>
+<p>Also we can see the <strong>status of the request</strong> who can be true with green light and false with red loght(4).</p>
+<p>At the top-right of the body response we can access to the time of the request with <strong>took(5)</strong>.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/8d08de67-34d9-41ef-9c83-4c4b0790ae64" alt="Response-Detail" /></p>
+<h3 id="part-three-buttons"><a class="header" href="#part-three-buttons">Part Three: Buttons</a></h3>
+<p>In this section we will see 6 buttons that we will explain below :</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/74d38d01-d141-49a8-a4a3-64605d3fc5d9" alt="Buttons" /></p>
+<p>Before explain 6 buttons, <strong>Notice</strong> that in every modal we can use the <strong>close button(1)</strong> to close the modal.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/e6ca7ab5-1cd0-4f77-90ed-47171dafc1a9" alt="Modals" /></p>
+<p>Also we can use <strong>change size button(2)</strong> to see modal in full screen or window size.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/c9c6648a-92e7-4252-938e-15861b999536" alt="Modals-1" /></p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/600ad17c-5add-460b-95f9-9907d5ad5cb0" alt="Modals-2" /></p>
+<h4 id="refetch-button"><a class="header" href="#refetch-button">Refetch button:</a></h4>
+<p>Pressing it all the data is <strong>renewed</strong> once.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/507c1040-3f8d-4d1f-ac05-3497ab428a3c" alt="Reffetch Button" /></p>
+<h4 id="settings-button"><a class="header" href="#settings-button">Settings button:</a></h4>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/a41b22ad-3df1-4231-a97d-48905ae8b568" alt="Setting Button" /></p>
+<p>Pressing that modal of settings open for us to see two parts of the <strong>Fetch Config(1)</strong> and the <strong>Set Headers(2)</strong>.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/3b78fbdb-e0d6-48d3-820c-ed5a17b38e6b" alt="Setting Detail" /></p>
+<p>In the fetch config section, we can set an <strong>Url(1)</strong> and press <strong>Apply Button(2)</strong> that we can bring the lesan to different addresses.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/a32d6f07-ab74-4bf6-afbf-01a90f739a71" alt="Setting Detail-1" /></p>
+<p>In the <strong>set headers</strong> we can also determine the <strong>key(1)</strong> and <strong>value(2)</strong>. also we can press <strong>Add Header(3)</strong> button to add many new <strong>Key</strong> and <strong>Value</strong> and set them wit <strong>Apply(4)</strong> button.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/a7ca1a74-9a71-4ac6-af26-293cd5f5bc0d" alt="Setting Detail-2" /></p>
+<h4 id="history-button"><a class="header" href="#history-button">History button:</a></h4>
+<p>By pressing <strong>History button</strong>, we enter the modal history in which we have access to all the <strong>Requests(1)</strong> as well as and <strong>Responses(2)</strong> the results.</p>
+<p>In top-right of the Request section we can see the <strong>Date Of The Request</strong> and also in top-left of the Response we can see the <strong>Time Of Response</strong>.</p>
+<p>In top-right of the every part of the request we can delete the this part with <strong>Delete button(5)</strong>.</p>
+<p>Also we can clean all the request by press the <strong>Dustbin Button(6)</strong>.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/28d82462-2077-46bf-a89f-914ec0010bfe" alt="History" /></p>
+<p>In the request section we access to <strong>Model and Act(1)</strong> of the request and <strong>Show Button(2)</strong> to see the detail of the request and response.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/07b5d370-5503-4d6f-abbd-1584802d3122" alt="History-1" /></p>
+<p>We can hide the details with <strong>Hide button</strong>:
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/60d2fe07-2be7-4dc1-835c-c4dd2f5cf248" alt="History-2" /></p>
+<p>In the response section, we can see the <strong>Status Of The Response(1)</strong> that can be true or false and also we can reuse of the request with <strong>Use Button(2)</strong>.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/910039e6-44d1-41c3-a544-3dd601c845f0" alt="History-3" /></p>
+<h4 id="e2e-test-button"><a class="header" href="#e2e-test-button">E2E Test button:</a></h4>
+<p>In E2E test modal, we see two section, section one include <strong>Five Button</strong> that the top-left of the modal and section two its be <strong>Eeach Sequence</strong> of the test.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/7aae9089-1f63-4e8a-8817-bf111018e331" alt="E2E" /></p>
+<p>We start with the section one, in this section we have five button include <strong>Add(1)</strong>, <strong>Run E2E Test(2)</strong>, <strong>Import(3)</strong>, <strong>Export(4)</strong> and <strong>Help(5)</strong>.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/5efe1f56-0521-4d06-bc66-0be670772041" alt="E2E-1" /></p>
+<p>With <strong>Add Button</strong> we can create a new Sequence for test. we can add how much we need sequence for test.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/08ade581-ed47-4f9a-9637-08b50d710e1e" alt="E2E-2" /></p>
+<p>With <strong>Run E2E Test Button</strong> we can run the test. we explain this after.</p>
+<p>With <strong>Import Button</strong> we can import the pervious tests and reuse them.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/74b1492b-110e-4f89-b58f-2a0a3614b280" alt="E2E-3" /></p>
+<p>With <strong>Export Button</strong> we can export existing tests for use them for anothe test.</p>
+<p>And with <strong>Help Button</strong> we go to playground document that we can see how to work with E2E modal.</p>
+<br>
+<p>In each sequence, we can see 2 part, <strong>Set Test Body And Headers(1)</strong> and <strong>Set Repeat Time</strong>, <strong>Capture Variables(2)</strong>
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/61978ef2-4d01-4308-8d61-bdd869781e3d" alt="E2E-4" /></p>
+<p>Part 1 is a <strong>Set Test Body And Headers</strong> that we can write and set body and headers for test. also we can use the faker for test. for example you can see that we use faker for this sequense:
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/417f78ff-6910-4c7e-bee9-4240f5ad1c65" alt="E2E-4" /></p>
+<p>In Part two we can <strong>Set Repeat Time(1)</strong> of the test with <strong>+</strong> or <strong>-</strong> button or write number we want in input. also we can use <strong>Add Capture(2) Button</strong> for set how many capture we want to the sequence for test.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/f02db2ea-7ebd-4bed-bb7f-cca49cb84594" alt="E2E-5" /></p>
+<p>After press the <strong>Add Capture</strong> we can see a part that include two input, include <strong>set a variable name(1)</strong> that we can see an <strong>Example(2)</strong> to how fill this input and another input, is <strong>set a value for variable(3)</strong> that we can see an <strong>Example(4)</strong> to how fill this input.
+Also we can set capture couple model.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/53ebe8a1-46fa-46be-a1ab-4bc51b45d135" alt="E2E-6" /></p>
+<p>We have four button in top-right of the each sequence test:
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/cd29914a-bea2-41f4-88a5-738fddfe09e9" alt="E2E-7" /></p>
+<p><strong>Duplicate Button(1)</strong> that we can duplicate sequence.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/d5da3b81-a41d-43f4-83fd-0d9ddfa4886c" alt="E2E-8" /></p>
+<p><strong>Move Buttuns(2)(3)</strong>, with this buttons we can move the sequense to top or bottom.</p>
+<p><strong>Delete Button(4)</strong>, with this button we can delete each sequence.</p>
+<br>
+<p>After write the sequences test, we can go to see the resulst of the each sequence test by click on the <strong>Run E2E Test Button</strong> and we see this:<br />
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/a65e1d8f-4fb2-424b-a5e5-67d1a2c063cd" alt="E2E-9" /></p>
+<p>First thing that we see is <strong>Back Button</strong> and second is <strong>Export Button</strong> at the top-left of the modal.</p>
+<p>third one is a <strong>Information</strong> section that we can see all information of the sequence tests.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/2b6bcf62-731c-464d-b64f-f7c7d5d02cf2" alt="E2E-10" /></p>
+<p>The <strong>Information section</strong> have three part, <strong>Requests(1)</strong>,<strong>Times(2)</strong> and <strong>Captures Information(3)</strong>.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/d9f3e278-0ccb-4da7-9759-a2ac8bcfcbf6" alt="E2E-11" /></p>
+<p><strong>Requests</strong> part include <strong>All Request Count(1)</strong> , <strong>All Request Time(2)</strong>, <strong>All Success Request(3)</strong> and <strong>All Fails Request(4)</strong>.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/e9b3880d-5e2a-410e-b5fd-071a61b57ce7" alt="E2E-12" /></p>
+<p><strong>Times</strong> part include two section, <strong>Best</strong> and <strong>Worst</strong>. in each section we can see the Best/Worst request time, sequence number of the best/worst request that when click on number, we scroll to that sequence number, request number that include number of the request in sequence, model and act.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/17b04c22-bb05-41e6-af61-d7af47278f1e" alt="E2E-13" /></p>
+<p><strong>Captures Information</strong> part include every capture items that we set. in this part we can see the Key(1), Captured From(2), Value Of(2), Model(2), Act(2) and Captured Inside Sequnce Number.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/69c65e44-6406-43f0-8484-b63906f16b51" alt="E2E-14" /></p>
+<p>After <strong>Information</strong> section, we can access every sequence that each of sequence have two part, <strong>Description(1)</strong> and <strong>Body Header(2)</strong>.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/e3d972b8-33e3-4300-a564-0253c5572554" alt="E2E-15" /></p>
+<p><strong>Description</strong> have five part include <strong>Request(1)</strong> that include All Request Count, Success/Fail that show the how many of request is success/Fail, All Request Time and Avrage Time For Each Request, <strong>Best(2)</strong> and <strong>Worst(3)</strong> that include Best/Worst Time and request nmber, <strong>Capture Items(4)</strong> that include key,value,model,act,sequence number, <strong>Using Capture Items(5)</strong> that include key,captured from, value,act and sequence number.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/232b47f8-6bb8-408d-90f7-3f73ce3fce65" alt="E2E-16" /></p>
+<p><strong>Body Header</strong> have headers,body of the each sequence(1), number of sequence(2) at the top-right and change button(3) at the top-left.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/78659241-6ffe-4663-9ebe-f4ac772b4b14" alt="E2E-17" /></p>
+<p>When click on <strong>Change Button</strong> we can see and access to the <strong>Request(1)</strong> and <strong>Response(2)</strong> that in Request section we can see the pure request(3) and at the Response section we can see the <strong>body of the response</strong> and <strong>success status of Responsewhich</strong> the false or true(4).</p>
+<p>At the top-right of the Response section we can see the <strong>time of the Respone(5)</strong>.</p>
+<p>At the Bottom-center, we can access to the <strong>pagination(6)</strong> to move on the Requests or write the specefic Request number to access the Request.</p>
+<p>Also when click on <strong>change button(7)</strong> to go back to the Body Header and Description.</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/96171913/a861629a-60c4-403d-be67-3cb4712f2239" alt="E2E-18" /></p>
+<h4 id="schema-button"><a class="header" href="#schema-button">Schema button:</a></h4>
+<p>In <strong>Schema</strong> modal we have access to all the <strong>Schema</strong> project. For example, we can see the country,city and user.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/845158ad-433e-4f8a-be14-bdb2eac1783e" alt="Schema" /></p>
+<p>Country have pure(1) and related relations(2).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/d50d1c4f-5bdb-427d-96a9-8a18d4edc894" alt="Schema-1" /></p>
+<p>And pure have _id(1), name(2), population(3), abb(4).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/702c6441-267a-4b6c-97e1-2dbdc1b33883" alt="Schema-2" /></p>
+<p>And Also related relations have cities asc(1), cities desc(2), cities by pop asc(3), cities by pop desc(4), capital city(5), users(6), users by age(7).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/b651116a-a1c8-4933-82ff-bf9e4c43658c" alt="Schema-3" /></p>
+<p>Also by hovering on question icon we can see the relations.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/f5136d49-812d-467e-81d1-5146e3d294ca" alt="Schema-4" /></p>
+<p>We see the country, lets see the <strong>city</strong>. city have pure(1), main Relation(2), related relations(3).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/4149d856-e008-4384-a25a-191327a65c59" alt="Schema-5" /></p>
+<p>Pure have _id(1), name(2), population(3), abb(4).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/a01aa365-066f-43dd-b940-95f81632e27f" alt="Schema-6" /></p>
+<p>main relations have <strong>country</strong> and country have _id, name, population and abb.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/e115725c-2e62-4637-adc7-0180a7708684" alt="Schema-7" /></p>
+<p>Also by hovering on question icon we can see the relations.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/b6123daf-50d4-446f-90cd-377d7b634a2f" alt="Schema-8" /></p>
+<p>And <strong>related relations</strong> have users(1) and loved user(2).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/89a7d6c4-7d93-4cb9-b676-fe5ff9dcf2e3" alt="Schema-9" /></p>
+<p>Users have _id, name, age.
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/d63aeea6-f2bd-4f8b-bf3e-07e6ebb9737f" alt="Schema-10" /></p>
+<h4 id="act-button"><a class="header" href="#act-button">Act button:</a></h4>
+<p>Like Schema modal in <strong>Act</strong> modal , we have access to all the <strong>Act</strong> of the project.
+Act have <strong>main</strong> and main have country(1), city(2), user(3).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/c32c8b82-d104-4bce-aca9-6ba1de07e607" alt="Act-1" /></p>
+<p>And <strong>country</strong> have add country(1), update country(2), add countries(3), get countries(4), delete country(5).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/2b5a32d3-1984-4233-9dd9-964c022fcf1c" alt="Act-2" /></p>
+<p>Let see the add country. we can see the set(1) and get(2).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/6988764f-3b63-4657-9652-5a562f773957" alt="Act-3" /></p>
+<p><strong>Set</strong> have name(1), population(2) and abb(3).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/1c09be5f-b0e0-4537-886b-bdf8ab5194d8" alt="Act-4" /></p>
+<p>And <strong>get</strong> have _id(1), name(2), population(3), abb(4), users(5).
+<img src="https://github.com/MiaadTeam/lesan/assets/96171913/31cc2d81-a346-419f-ba06-a3241c7b7efe" alt="Act-4" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="folder-structure"><a class="header" href="#folder-structure">Folder Structure</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="microservice-or-monolithic"><a class="header" href="#microservice-or-monolithic">Microservice or Monolithic</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="manage-replica"><a class="header" href="#manage-replica">Manage replica</a></h1>
