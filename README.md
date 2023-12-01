@@ -5,7 +5,7 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
 # Benchmarks
 
 <div align="center">
-  <img src="chart.svg" width="800" height="190" alt="benchmark-animation">
+  <img src="chart.svg" width="800" height="180" alt="benchmark-animation">
 </div>
 
  We use this formula to calculate the difference : (B - A) ÷ A * 100  
