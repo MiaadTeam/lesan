@@ -796,7 +796,7 @@ coreApp.acts.setAct({
   fn: removeLivedCities,
 });
 
-// ------------------ Update Country ------------------
+// ------------------ Update User ------------------
 const updateUserValidator = () => {
   return object({
     set: object({
@@ -824,6 +824,80 @@ coreApp.acts.setAct({
   actName: "updateUser",
   validator: updateUserValidator(),
   fn: updateUser,
+});
+
+// ------------------ Get Users ------------------
+const getUsersValidator = () => {
+  return object({
+    set: object({
+      page: number(),
+      take: number(),
+      countryId: optional(objectIdValidation),
+      cityId: optional(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct("user", 2),
+  });
+};
+const getUsers: ActFn = async (body) => {
+  const {
+    set: { page, take, countryId, cityId },
+    get,
+  } = body.details;
+  const pipeline = [];
+
+  pipeline.push({ $skip: (page - 1) * take });
+  pipeline.push({ $limit: take });
+  countryId &&
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
+  cityId &&
+    pipeline.push({ $match: { "livedCities._id": new ObjectId(cityId) } });
+
+  return await users
+    .aggregation({
+      pipeline,
+      projection: get,
+    })
+    .toArray();
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "getUsers",
+  validator: getUsersValidator(),
+  fn: getUsers,
+});
+
+// ------------------ Get User ------------------
+const getUserValidator = () => {
+  return object({
+    set: object({
+      userId: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("user", 2),
+  });
+};
+const getUser: ActFn = async (body) => {
+  const {
+    set: { userId },
+    get,
+  } = body.details;
+  const pipeline = [];
+
+  pipeline.push({ $match: { _id: new ObjectId(userId) } });
+
+  return await users
+    .aggregation({
+      pipeline,
+      projection: get,
+    })
+    .toArray();
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "getUser",
+  validator: getUserValidator(),
+  fn: getUser,
 });
 
 // ================== RUNNING SECTION ==================
