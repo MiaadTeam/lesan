@@ -6,8 +6,8 @@
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
-          font-size: 0.8rem !important;
-          margin-bottom: 4rem;
+          font-size: 1rem !important;
+          margin: 2rem 0;
           color: chocolate;
         }
 
@@ -36,7 +36,7 @@
         }
 
         .animation-item.lesan {
-          font-size: 1rem;
+          font-size: 1.2rem;
           font-style: italic;
           font-weight: bold;
         }
