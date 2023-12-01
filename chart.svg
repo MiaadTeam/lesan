@@ -96,7 +96,7 @@
           transform: translateX(-100%);
           bottom: 0;
           width: 1px;
-          height: 5rem;
+          height: 7.5rem;
           background-color: #ffb454;
           animation: line-bar 94106ms linear forwards;
         }
