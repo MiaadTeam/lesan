@@ -4,10 +4,8 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
 
 # Benchmarks
 
-![best-results](https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532)  
-
 <div align="center">
-    <img src="chart.svg" width="700" height="300" alt="css-in-readme">
+  <img src="chart.svg" width="800" height="150" alt="benchmark-animation">
 </div>
 
  We use this formula to calculate the difference : (B - A) ÷ A * 100  
