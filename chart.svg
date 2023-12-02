@@ -8,11 +8,11 @@
         .animation-container {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 1.5rem;
           font-size: 0.8rem !important;
           font-family: ''
           margin: 2rem 0;
-          color: #d2331e;
+          color: chocolate;
           font-family: Arial, Helvetica, sans-serif;
         }
 
@@ -21,11 +21,15 @@
         }
 
         .animation-item .title {
-          width: 8.5rem;
+          width: 9.5rem;
+        }
+
+        .animation-item .title:first-child {
+          
         }
 
         .animation-item .details {
-          width: calc(100% - 8.5rem);
+          width: calc(100% - 9.5rem);
           position: relative;
         }
 
@@ -42,6 +46,7 @@
 
         .animation-item.lesan {
           font-size: 1rem;
+          color: #d2331e;
           <!-- font-style: italic; -->
           font-weight: bold;
         }
