@@ -16,11 +16,11 @@
         }
 
         .animation-item .title {
-          width: 16rem;
+          width: 10rem;
         }
 
         .animation-item .details {
-          width: calc(100% - 16rem);
+          width: calc(100% - 10rem);
           position: relative;
         }
 
