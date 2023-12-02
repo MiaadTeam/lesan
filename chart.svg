@@ -10,9 +10,10 @@
           flex-direction: column;
           gap: 0.5rem;
           font-size: 0.8rem !important;
-          <!-- font-family: 'Roboto', sans-serif; -->
+          font-family: ''
           margin: 2rem 0;
-          color: chocolate;
+          color: #d2331e;
+          font-family: Arial, Helvetica, sans-serif;
         }
 
         .animation-item {
@@ -41,7 +42,7 @@
 
         .animation-item.lesan {
           font-size: 1rem;
-          font-style: italic;
+          <!-- font-style: italic; -->
           font-weight: bold;
         }
 
