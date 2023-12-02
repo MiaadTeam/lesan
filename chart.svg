@@ -8,7 +8,7 @@
         .animation-container {
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
+          gap: 1.2rem;
           font-size: 0.8rem !important;
           font-family: ''
           margin: 2rem 0;
@@ -21,7 +21,7 @@
         }
 
         .animation-item .title {
-          width: 9.5rem;
+          width: 9.8rem;
         }
 
         .animation-item .title:first-child {
@@ -29,7 +29,7 @@
         }
 
         .animation-item .details {
-          width: calc(100% - 9.5rem);
+          width: calc(100% - 9.8rem);
           position: relative;
         }
 
