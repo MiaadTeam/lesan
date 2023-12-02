@@ -2,15 +2,11 @@
   <foreignObject width="100%" height="100%">
     <div xmlns="http://www.w3.org/1999/xhtml">
       <style>
-        <!-- @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap'); -->
-
-
         .animation-container {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
           font-size: 0.8rem !important;
-          <!-- font-family: 'Roboto', sans-serif;/ -->
           margin: 2rem 0;
           color: chocolate;
         }
@@ -20,11 +16,11 @@
         }
 
         .animation-item .title {
-          width: 8.5rem;
+          width: 10rem;
         }
 
         .animation-item .details {
-          width: calc(100% - 8.5rem);
+          width: calc(100% - 10rem);
           position: relative;
         }
 
