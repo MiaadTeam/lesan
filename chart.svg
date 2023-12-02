@@ -8,7 +8,7 @@
         .animation-container {
           display: flex;
           flex-direction: column;
-          gap: 1.2rem;
+          gap: 1rem;
           font-size: 0.8rem !important;
           font-family: ''
           margin: 2rem 0;
