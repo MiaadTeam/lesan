@@ -8,8 +8,9 @@
         .animation-container {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 1.2rem;
           font-size: 0.8rem !important;
+          font-family: ''
           margin: 2rem 0;
           color: chocolate;
           font-family: Arial, Helvetica, sans-serif;
@@ -45,7 +46,7 @@
 
         .animation-item.lesan {
           font-size: 1rem;
-          color: #008080;
+          color: #d2331e;
           <!-- font-style: italic; -->
           font-weight: bold;
         }
