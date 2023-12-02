@@ -24,9 +24,6 @@
           width: 9.8rem;
         }
 
-        .animation-item .title:first-child {
-          
-        }
 
         .animation-item .details {
           width: calc(100% - 9.8rem);
@@ -46,7 +43,7 @@
 
         .animation-item.lesan {
           font-size: 1rem;
-          color: #d2331e;
+          color: teal;
           <!-- font-style: italic; -->
           font-weight: bold;
         }
