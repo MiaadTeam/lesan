@@ -1,5 +1,6 @@
 import {
   ActFn,
+  boolean,
   lesan,
   MongoClient,
   number,
@@ -9,13 +10,13 @@ import {
   RelationDataType,
   RelationSortOrderType,
   string,
-} from "https://deno.land/x/lesan@v0.0.95/mod.ts";
+} from "https://deno.land/x/lesan@v0.0.95/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
 const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db("documentExamples");
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -46,6 +47,17 @@ const cityRelations = {
           field: "_id",
           order: "desc" as RelationSortOrderType,
         },
+      },
+      citiesByPopulation: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "population",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      capital: {
+        type: "single" as RelationDataType,
       },
     },
   },
@@ -88,13 +100,14 @@ const addCityValidator = () => {
     set: object({
       ...countryCityPure,
       country: objectIdValidation,
+      isCapital: boolean(),
     }),
     get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
 const addCity: ActFn = async (body) => {
-  const { country, name, population, abb } = body.details.set;
+  const { country, name, population, abb, isCapital } = body.details.set;
 
   return await cities.insertOne({
     doc: { name, population, abb },
@@ -104,6 +117,8 @@ const addCity: ActFn = async (body) => {
         _ids: new ObjectId(country),
         relatedRelations: {
           cities: true,
+          citiesByPopulation: true,
+          capital: isCapital,
         },
       },
     },

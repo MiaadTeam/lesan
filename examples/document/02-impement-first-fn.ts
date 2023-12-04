@@ -5,7 +5,7 @@ import {
   number,
   object,
   string,
-} from "../../mod.ts";
+} from "https://deno.land/x/lesan@v0.0.95/mod.ts";
 
 const coreApp = lesan();
 
