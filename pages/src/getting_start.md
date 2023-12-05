@@ -236,7 +236,7 @@ As you can see, we have used the `insertOne` function, which was exported from t
 - The `projection` key is used to receive written data. We use native projection in MangoDB. You can read MongoDB's own documentation [here](https://www.mongodb.com/docs/manual/tutorial/project-fields-from-query-results/). In `insertOne`, you can only penetrate one step in relationships. Here you can get only pure fields because there is no relation. We will read more about this later.
 
 ## The code
-So this is all the code we've written so far:
+So this is all the code we've written so far (You can also see and download this code from [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/02-impement-first-fn.ts)):
 ```ts
 import {
   ActFn,
