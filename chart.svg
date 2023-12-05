@@ -104,7 +104,7 @@
           transform: translateX(-100%);
           bottom: 0;
           width: 1px;
-          height: 7.7rem;
+          height: 8rem;
           background-color: #ffb454;
           animation: line-bar 94106ms linear forwards;
         }
