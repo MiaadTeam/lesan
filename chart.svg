@@ -11,7 +11,7 @@
           font-size: 0.9rem !important;
           color: chocolate;
           padding-top: 1rem;
-          padding-right: 2.8rem;
+          padding-right: 3rem;
         }
 
         .animation-item {
@@ -104,7 +104,7 @@
           transform: translateX(-100%);
           bottom: 0;
           width: 1px;
-          height: 7.5rem;
+          height: 7rem;
           background-color: #ffb454;
           animation: line-bar 94106ms linear forwards;
         }
