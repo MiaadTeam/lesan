@@ -2,17 +2,16 @@
   <foreignObject width="100%" height="100%">
     <div xmlns="http://www.w3.org/1999/xhtml">
       <style>
-        <!-- @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap'); -->
 
 
         .animation-container {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
-          font-size: 0.8rem !important;
-          <!-- font-family: 'Roboto', sans-serif; -->
-          margin: 2rem 0;
+          font-size: 0.9rem !important;
           color: chocolate;
+          padding-top: 1.3rem;
+          padding-right: 3.6rem;
         }
 
         .animation-item {
@@ -20,11 +19,11 @@
         }
 
         .animation-item .title {
-          width: 8.5rem;
+          width: 13rem;
         }
 
         .animation-item .details {
-          width: calc(100% - 8.5rem);
+          width: calc(100% - 13rem);
           position: relative;
         }
 
@@ -41,8 +40,13 @@
 
         .animation-item.lesan {
           font-size: 1rem;
+          color: chocolate;
           font-style: italic;
           font-weight: bold;
+        }
+
+        .animation-item.prisma-postgres-graphql {
+          font-style: italic;
         }
 
         .animation-item.lesan .details .time {
@@ -100,7 +104,7 @@
           transform: translateX(-100%);
           bottom: 0;
           width: 1px;
-          height: 7rem;
+          height: 8rem;
           background-color: #ffb454;
           animation: line-bar 94106ms linear forwards;
         }
@@ -145,15 +149,15 @@
           }
         }
 
-        @keyframes mongoose-sort-time {
-          0% {
-            left: 0;
-          }
+          @keyframes mongoose-sort-time {
+            0% {
+              left: 0;
+            }
 
-          100% {
-            left: 100%;
+            100% {
+              left: 100%;
+            }
           }
-        }
 
         /* the counter animation */
         @keyframes counter {
