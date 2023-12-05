@@ -10,7 +10,7 @@
           gap: 0.5rem;
           font-size: 0.9rem !important;
           color: chocolate;
-          padding-top: 3rem;
+          padding-top: 1.5rem;
           padding-right: 3rem;
         }
 
@@ -104,7 +104,7 @@
           transform: translateX(-100%);
           bottom: 0;
           width: 1px;
-          height: 9rem;
+          height: 8rem;
           background-color: #ffb454;
           animation: line-bar 94106ms linear forwards;
         }
