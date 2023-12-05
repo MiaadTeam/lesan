@@ -10,7 +10,6 @@
           gap: 0.5rem;
           font-size: 0.9rem !important;
           color: chocolate;
-          padding-top: 1rem;
           padding-right: 3rem;
         }
 
