@@ -10,7 +10,8 @@
           gap: 0.5rem;
           font-size: 0.9rem !important;
           color: chocolate;
-          padding-right: 3rem;
+          padding-top: 1rem;
+          padding-right: 2.8rem;
         }
 
         .animation-item {
@@ -103,7 +104,7 @@
           transform: translateX(-100%);
           bottom: 0;
           width: 1px;
-          height: 7rem;
+          height: 8rem;
           background-color: #ffb454;
           animation: line-bar 94106ms linear forwards;
         }
