@@ -4,8 +4,10 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
 
 # Benchmarks
 
-![best-results](https://github.com/MiaadTeam/benchmark/assets/6236123/4146e561-55a3-4fd0-a6bb-61a37bb37532)
- 
+<div align="center">
+  <img src="chart.svg" width="800" height="180" alt="benchmark-animation">
+</div>
+
  We use this formula to calculate the difference : (B - A) ÷ A * 100  
  As you see on the chart:
  - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.

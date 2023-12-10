@@ -8,10 +8,15 @@
 - [Add relation](./add_relation.md)
 - [Add more relation](./add_more_relation.md)
 - [Mannage relations](./mannage_relations.md)
-- [Other functions](./other_functions.md)
+  - [addRelation function](./add_relation_fn.md)
+  - [removeRelation function](./remove_relation_fn.md)
+  - [What is the relationship really?](./what_is_the_relationship.md)
+- [Other advantages of Lesan](./other_advantages_of_lesan.md)
 - [Playground](./playground.md)
-- [Folder Structure](./folder_structure.md)
-- [Microservice or Monolithic](./microservice-monolithic.md)
+- [All Functions](./all_functions.md)
+- [Implement an advanced project](./an_advanced_project.md)
+  - [Folder Structure](./folder_structure.md)
+  - [Microservice or Monolithic](./microservice-monolithic.md)
 - [Manage replica](./manage_replica.md)
 
 # Lesan Philosophy

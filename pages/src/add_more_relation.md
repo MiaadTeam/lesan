@@ -111,7 +111,7 @@ const addCity: ActFn = async (body) => {
 We just add `isCapital: boolean(),` to `addCityValidator` and add `capital: isCapital` to the `insertOne` functions.
 
 ### Run the code
-All the code we have written so far is as follows:
+All the code we have written so far is as follows (You can also see and download this code from [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/04-add-more-relation-1.ts)):
 ```ts
 import {
   ActFn,
@@ -358,6 +358,7 @@ The only thing worth mentioning in the code above is the `livedCities` input in 
 Well, let's see the complete code again, run the software and check the outputs.
 
 ### All codes
+You can see and download this code from [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/04-add-more-relation-2.ts)
 ```ts
 import {
   ActFn,

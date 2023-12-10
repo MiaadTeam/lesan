@@ -9,3 +9,6 @@ title = "Lesan"
 git-repository-url = "https://github.com/MiaadTeam/lesan"
 git-repository-icon = "fa-github"
 edit-url-template = "https://github.com/MiaadTeam/lesan/tree/main/pages/{path}"
+additional-css = ["./css/animation-bench.css"]
+default-theme = "ayu"
+preferred-dark-theme = "ayu"

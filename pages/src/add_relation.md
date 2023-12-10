@@ -140,7 +140,7 @@ This input receives an object with the key name of the relations that we have pr
 Here, by adding a city and giving the country ID associated with that city, we store both the pure fields of that country in this newly created city, and within that country in an array of objects, we also store the pure fields of this city.
 
 ### All codes
-Let's see all the code written here and run it.
+Let's see all the code written here and run it. (You can also see and download this code from [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/03-add-first-relation.ts))
 ```ts
 import {
   ActFn,
