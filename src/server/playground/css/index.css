@@ -599,8 +599,8 @@ textarea {
   .main-btn-wrapper[data-show="true"] {
     display: flex;
     gap: 5px;
-    width: 28%;
-    left: 7px;
+    width: 30.5%;
+    left: 0.7%;
     border: 1px solid bisque;
     border-radius: 7px 7px 0 0;
     border-bottom: none;
@@ -613,7 +613,8 @@ textarea {
     display: block;
     position: absolute;
     bottom: 0;
-    left: 33px;
+    /* left: 33px; */
+    left: 4.5%;
     width: 23%;
     border: 1px solid gainsboro;
     border-radius: 10px 10px 0 0;
@@ -638,7 +639,12 @@ textarea {
 @media (min-width: 1023px) {
   .media--main-btn-wrapper {
     width: 15%;
-    left: 2.5%;
+    left: 5.5%;
+  }
+
+  .main-btn-wrapper[data-show="true"] {
+    width: 24%;
+    left: 0.5%;
   }
 }
 
