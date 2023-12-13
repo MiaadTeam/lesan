@@ -13,8 +13,8 @@ export const lesan = () => {
   };
 
   return {
-    acts: { ...acts(actsObj) },
     schemas: { ...schemas(schemasObj) },
+    acts: { ...acts(actsObj) },
     odm: { ...odm(schemasObj) },
     runServer: lesanServer(schemasObj, actsObj),
     contextFns,
