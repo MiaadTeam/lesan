@@ -1,4 +1,4 @@
-# Add Relation function
+# `addRelation` function
 ## Update Many to Many Relation
 Pay attention to the following code:
 ```ts

@@ -1,4 +1,4 @@
-# removeRelation function
+# `removeRelation` function
 ## Update Many to Many Relation
 Pay attention to the following code:
 ```ts

@@ -1,4 +1,4 @@
-# Update functions
+# `findOneAndUpdate` functions
 Updating is the most challenging issue in **Lesan**. Because by updating one document, thousands or maybe millions of other documents may also be updated.  
 Let's explore a few scenarios.  
 1. Best case: Update a user
