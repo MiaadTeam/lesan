@@ -3,6 +3,7 @@
 [Introduction](./introduction.md)
 
 # User Guide
+
 - [Installation](./installation.md)
 - [Getting start](./getting_start.md)
 - [Add relation](./add_relation.md)
@@ -20,23 +21,84 @@
 - [All the advantages of Lesan](./all_advantages_of_lesan.md)
 
 # API Reference
+
 - [`lesan`](./api/lesan_fn.md)
+
   - [`schemas`](./api/schemas/schemas_fn.md)
+
     - [`schemaFns`](./api/schemas/schemaFns/schemaFns_fn.md)
       - [`getSchemas`](./api/schemas/schemaFns/getSchemas_fn.md)
+      - [`getPureOfMainRelations`](./api/schemas/schemaFns/getPureOfMainRelations_fn.md)
+      - [`getSchema`](./api/schemas/schemaFns/getSchema_fn.md)
+      - [`getPureSchema`](./api/schemas/schemaFns/getPureSchema_fn.md)
+      - [`getPureFromMainRelations`](./api/schemas/schemaFns/getPureFromMainRelations_fn.md)
+      - [`getPureFromRelatedRelations`](./api/schemas/schemaFns/getPureFromRelatedRelations_fn.md)
+      - [`createEmbedded`](./api/schemas/schemaFns/createEmbedded_fn.md)
+      - [`createStruct`](./api/schemas/schemaFns/createStruct_fn.md)
+      - [`getSchemasKeys`](./api/schemas/schemaFns/_fn.md)
+    - [`mainRelationsFns`](./api/schemas/mainRelationsFns/mainRelations_Fns.md)
+      - [`getMainRelations`](./api/schemas/mainRelationsFns/getMainRelations_fn.md)
+    - [`relatedRelationFns`](./api/schemas/relatedRelationFns/relatedRelation_Fns.md)
+
+      - [`getRelatedRelations`](./api/schemas/relatedRelationFns/getRelatedRelations_fn.md)
+
+    - [`pureFns`](./api/schemas/pureFns/pure_Fns.md)
+      - [`addPureModel`](./api/schemas/pureFns/addPureModel_Fns.md)
+      - [`getPureModel`](./api/schemas/pureFns/getPureModel_Fns.md)
+      - [`getPureModelByNameAndKey`](./api/schemas/pureFns/getPureModelByNameAndKey_Fns.md)
+    - [`relationFns`](./api/schemas/relationFns/relation_Fns.md)
+      - [`getRelation`](./api/schemas/relationFns/getRelation_Fns.md)
+    - [`selectStructFns`](./api/schemas/selectStructFns/selectStruct_Fns.md)
+      - [`fieldType`](./api/schemas/selectStructFns/fieldType_Fns.md)
+      - [`decreaseIterate`](./api/schemas/selectStructFns/decreaseIterate_Fns.md)
+      - [`checkRelation`](./api/schemas/selectStructFns/checkRelation_Fns.md)
+      - [`selectStruct`](./api/schemas/selectStructFns/selectStruct_Fns.md)
+
   - [`acts`](./api/acts/acts_fn.md)
+    - [`setAct`](./api/acts/setAct/setAct_Fns.md)
+    - [`getServiceKeys`](./api/acts/getServiceKeys/getServiceKeys_Fns.md)
+    - [`getActs`](./api/acts/getActs/getActs_Fns.md)
+    - [`getActsKeys`](./api/acts/getActsKeys/getActsKeys_Fns.md)
+    - [`getActKeys`](./api/acts/getActKeys/getActKeys_Fns.md)
+    - [`getAct`](./api/acts/getAct/getAct_Fns.md)
+    - [`getAtcsWithServices`](./api/acts/getAtcsWithServices/getAtcsWithServices_Fns.md)
+    - [`getMainActs`](./api/acts/getMainActs/getMainActs_Fns.md)
+    - [`getMainAct`](./api/acts/getMainAct/getMainAct_Fns.md)
+    - [`setService`](./api/acts/setService/setService_Fns.md)
+    - [`getService`](./api/acts/getService/getService_Fns.md)
   - [`odm`](./api/odm/odm_fn.md)
-  - [`runServer`](./api/runServer/runServer_fn.md)
+    - [`setDb`](./api/odm/setDb/setDb_Fns.md)
+    - [`getCollection`](./api/odm/getCollection/getCollection_Fns.md)
+    - [`newModel`](./api/odm/newModel/newModel_Fns.md)
+      - [`find`](./api/odm/newModel/find_Fns.md)
+      - [`findOne`](./api/odm/newModel/findOne_Fns.md)
+      - [`insertOne`](./api/odm/newModel/insertOne_Fns.md)
+      - [`insertMany`](./api/odm/newModel/insertMany_Fns.md)
+      - [`addRelation`](./api/odm/newModel/addRelation_Fns.md)
+      - [`removeRelation`](./api/odm/newModel/removeRelation_Fns.md)
+      - [`findOneAndUpdate`](./api/odm/newModel/findOneAndUpdate_Fns.md)
+      - [`deleteOne`](./api/odm/newModel/deleteOne_Fns.md)
+      - [`aggregation`](./api/odm/newModel/aggregation_Fns.md)
   - [`contextFns`](./api/context/contextFns_fn.md)
+    - [`getContextModel`](./api/context/getContextModel/getContextModel_Fns.md)
+    - [`setContext`](./api/context/setContext/setContext_Fns.md)
+    - [`addContexts`](./api/context/getContextModel/addContexts_Fns.md)
+    - [`addContext`](./api/context/getContextModel/addContext_Fns.md)
+    - [`addReqToContext`](./api/context/getContextModel/addReqToContext_Fns.md)
+    - [`addHeaderToContext`](./api/context/getContextModel/addHeaderToContext_Fns.md)
+    - [`addBodyToContext`](./api/context/getContextModel/addBodyToContext_Fns.md)
+  - [`runServer`](./api/runServer/runServer_fn.md)
   - [`generateSchemTypes`](./api/generateSchema/generateSchemTypes_fn.md)
 
 # Advanced Guide
+
 - [Implement an advanced project](./an_advanced_project.md)
   - [Folder Structure](./folder_structure.md)
   - [Microservice or Monolithic](./microservice-monolithic.md)
 - [Manage replica](./manage_replica.md)
 
 # Lesan Philosophy
+
 - [Receiving Data](./Receiving_Data.md)
 - [Previous methods and the main challenge](./Previous_methods_and_the_main_challenge.md)
   - [Lesan's Solution For How To Communicate Between The Server And The Client](./Lesan's_Solution_For_How_To_Communicate_Between_The_Server_And_The_Client.md)
