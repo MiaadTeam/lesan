@@ -18,16 +18,17 @@
 - [`insertMany` functions](./insert_many_fn.md)
 - [Playground](./playground.md)
 - [All the advantages of Lesan](./all_advantages_of_lesan.md)
-- [All functions](./all_functions.md)
-  - [`lesan`](./api/lesan_fn.md)
-    - [`schemas`](./api/schemas/schemas_fn.md)
-      - [`schemaFns`](./api/schemas/schemaFns/schemaFns_fn.md)
-        - [`getSchemas`](./api/schemas/schemaFns/getSchemas_fn.md)
-    - [`acts`](./api/acts/acts_fn.md)
-    - [`odm`](./api/odm/odm_fn.md)
-    - [`runServer`](./api/runServer/runServer_fn.md)
-    - [`contextFns`](./api/context/contextFns_fn.md)
-    - [`generateSchemTypes`](./api/generateSchema/generateSchemTypes_fn.md)
+
+# API Reference
+- [`lesan`](./api/lesan_fn.md)
+  - [`schemas`](./api/schemas/schemas_fn.md)
+    - [`schemaFns`](./api/schemas/schemaFns/schemaFns_fn.md)
+      - [`getSchemas`](./api/schemas/schemaFns/getSchemas_fn.md)
+  - [`acts`](./api/acts/acts_fn.md)
+  - [`odm`](./api/odm/odm_fn.md)
+  - [`runServer`](./api/runServer/runServer_fn.md)
+  - [`contextFns`](./api/context/contextFns_fn.md)
+  - [`generateSchemTypes`](./api/generateSchema/generateSchemTypes_fn.md)
 
 # Advanced Guide
 - [Implement an advanced project](./an_advanced_project.md)
