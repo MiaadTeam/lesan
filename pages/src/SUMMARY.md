@@ -20,6 +20,38 @@
 - [Playground](./playground.md)
 - [All the advantages of Lesan](./all_advantages_of_lesan.md)
 
+# Advanced Guide
+
+- [Implement an advanced project](./an_advanced_project.md)
+  - [General description](./advanced_general_description.md)
+  - [nx configuration](./advanced_nx_config.md)
+  - [Folder Structure](./folder_structure.md)
+  - [Microservice or Monolithic](./microservice-monolithic.md)
+- [Manage replica](./manage_replica.md)
+
+# Lesan Philosophy
+
+- [Receiving Data](./Receiving_Data.md)
+- [Previous methods and the main challenge](./Previous_methods_and_the_main_challenge.md)
+  - [Lesan's Solution For How To Communicate Between The Server And The Client](./Lesan's_Solution_For_How_To_Communicate_Between_The_Server_And_The_Client.md)
+  - [Why noSQL?](./Why_NoSQL.md)
+    - [Penetration Into Depths](./Penetration_Into_Depths.md)
+  - [Microservice](./Microservice.md)
+  - [Lesan solution](./Lesan_solution.md)
+- [Starting work with Lesan](./Starting_work_with_Lesan.md)
+  - [Microservice Architecture with Lesan](./Microservice_Architecture_with_Lesan.md)
+- [Structures](./Structures.md)
+  - [Schemas](./Schemas.md)
+  - [Pure Structure In Schema](./Pure_Structure_In_Schema.md)
+  - [The InRelation Structure In Schema](./The_InRelation_Structure_In_Schema.md)
+  - [The structure of OutRelation in the schema](./The_structure_of_OutRelation_in_the_schema.md)
+  - [The structure of embed in the schema](./The_structure_of_embed_in_the_schema.md)
+  - [The structure of Struct in the schema](./The_structure_of_Struct_in_the_schema.md)
+  - [runServer (web server structure)](<./runServer_(web_server_structure).md>)
+  - [Request processing](./Request_processing.md)
+  - [Dynamic structure](./Dynamic_structure.md)
+  - [Static structure](./Static_structure.md)
+
 # API Reference
 
 - [`lesan`](./api/lesan_fn.md)
@@ -89,33 +121,3 @@
     - [`addBodyToContext`](./api/context/getContextModel/addBodyToContext_Fns.md)
   - [`runServer`](./api/runServer/runServer_fn.md)
   - [`generateSchemTypes`](./api/generateSchema/generateSchemTypes_fn.md)
-
-# Advanced Guide
-
-- [Implement an advanced project](./an_advanced_project.md)
-  - [Folder Structure](./folder_structure.md)
-  - [Microservice or Monolithic](./microservice-monolithic.md)
-- [Manage replica](./manage_replica.md)
-
-# Lesan Philosophy
-
-- [Receiving Data](./Receiving_Data.md)
-- [Previous methods and the main challenge](./Previous_methods_and_the_main_challenge.md)
-  - [Lesan's Solution For How To Communicate Between The Server And The Client](./Lesan's_Solution_For_How_To_Communicate_Between_The_Server_And_The_Client.md)
-  - [Why noSQL?](./Why_NoSQL.md)
-    - [Penetration Into Depths](./Penetration_Into_Depths.md)
-  - [Microservice](./Microservice.md)
-  - [Lesan solution](./Lesan_solution.md)
-- [Starting work with Lesan](./Starting_work_with_Lesan.md)
-  - [Microservice Architecture with Lesan](./Microservice_Architecture_with_Lesan.md)
-- [Structures](./Structures.md)
-  - [Schemas](./Schemas.md)
-  - [Pure Structure In Schema](./Pure_Structure_In_Schema.md)
-  - [The InRelation Structure In Schema](./The_InRelation_Structure_In_Schema.md)
-  - [The structure of OutRelation in the schema](./The_structure_of_OutRelation_in_the_schema.md)
-  - [The structure of embed in the schema](./The_structure_of_embed_in_the_schema.md)
-  - [The structure of Struct in the schema](./The_structure_of_Struct_in_the_schema.md)
-  - [runServer (web server structure)](<./runServer_(web_server_structure).md>)
-  - [Request processing](./Request_processing.md)
-  - [Dynamic structure](./Dynamic_structure.md)
-  - [Static structure](./Static_structure.md)
