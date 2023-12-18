@@ -12,6 +12,7 @@ import { useLesan } from "./ManagedLesanContext.tsx";
 import { Selected } from "./Selected.tsx";
 import MultiSelect from "./MultiSelect.tsx";
 import LoadingIcon from "./icon/LoadingIcon.tsx";
+import renderGetFields from "./renderGetFields.tsx";
 
 const lesanAPI = ({
   baseUrl,
@@ -157,86 +158,94 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     }
   };
 
-  const renderGetFields = ({
-    getField,
-    keyName,
-    margin,
-  }: {
-    getField: any;
-    keyName: string;
-    margin: number;
-  }) => (
-    <div
-      style={{ marginLeft: `${margin + 1}px` }}
-      className="sidebar__section_container"
-      key={`${activeTab}.${keyName}`}
-    >
-      <div className="sidebar__section-heading--subfields">{keyName}</div>
-      {Object.keys(getField["schema"]).map((item, index) =>
-        getField["schema"][item].type === "enums" ? (
-          <div
-            className="input-cnt get-items"
-            key={`${activeTab}.${item}-${index}`}
-          >
-            <label htmlFor={item}>
-              {keyName}.{item}:
-            </label>
-            <div className="get-values">
-              <span
-                onClick={() => {
-                  const copy = { ...tabsData[activeTab].formData };
-                  delete copy[`get.${keyName}.${item}`];
-                  setFormData({ data: copy, index: activeTab });
-                }}
-              ></span>
-              <span
-                className={
-                  tabsData[activeTab].formData[`get.${keyName}.${item}`] === 0
-                    ? "active"
-                    : ""
-                }
-                onClick={() => {
-                  setFormData({
-                    index: activeTab,
-                    data: {
-                      ...tabsData[activeTab].formData,
-                      [`get.${keyName}.${item}`]: 0,
-                    },
-                  });
-                }}
-              >
-                0
-              </span>
-              <span
-                className={
-                  tabsData[activeTab].formData[`get.${keyName}.${item}`] === 1
-                    ? "active"
-                    : ""
-                }
-                onClick={() => {
-                  setFormData({
-                    data: {
-                      ...tabsData[activeTab].formData,
-                      [`get.${keyName}.${item}`]: 1,
-                    },
-                    index: activeTab,
-                  });
-                }}
-              >
-                1
-              </span>
-            </div>
-          </div>
-        ) : (
-          renderGetFields({
-            getField: getField["schema"][item],
-            keyName: `${keyName}.${item}`,
-            margin: margin + 1,
-          })
-        )
-      )}
-    </div>
-  );
+  // RenderGetFields({getField:,keyName:,margin:1})
+
+  // const renderGetFields = ({
+  //   getField,
+  //   keyName,
+  //   margin,
+  // }: {
+  //   getField: any;
+  //   keyName: string;
+  //   margin: number;
+  // }) => (
+  //   <div
+  //     style={{ marginLeft: `${margin + 1}px` }}
+  //     className="sidebar__section_container"
+  //     key={`${activeTab}.${keyName}`}
+  //   >
+  //     <div
+  //       className="sidebar__section-heading--subfields"
+  //       onClick={() => setShow(!show)}
+  //     >
+  //       {keyName}
+  //       {console.log(show)}
+  //     </div>
+  //     {Object.keys(getField["schema"]).map((item, index) =>
+  //       getField["schema"][item].type === "enums" ? (
+  //         <div
+  //           className="input-cnt get-items"
+  //           key={`${activeTab}.${item}-${index}`}
+  //         >
+  //           <label htmlFor={item}>
+  //             {keyName}.{item}:
+  //           </label>
+  //           <div className="get-values">
+  //             <span
+  //               onClick={() => {
+  //                 const copy = { ...tabsData[activeTab].formData };
+  //                 delete copy[`get.${keyName}.${item}`];
+  //                 setFormData({ data: copy, index: activeTab });
+  //               }}
+  //             ></span>
+  //             <span
+  //               className={
+  //                 tabsData[activeTab].formData[`get.${keyName}.${item}`] === 0
+  //                   ? "active"
+  //                   : ""
+  //               }
+  //               onClick={() => {
+  //                 setFormData({
+  //                   index: activeTab,
+  //                   data: {
+  //                     ...tabsData[activeTab].formData,
+  //                     [`get.${keyName}.${item}`]: 0,
+  //                   },
+  //                 });
+  //               }}
+  //             >
+  //               0
+  //             </span>
+  //             <span
+  //               className={
+  //                 tabsData[activeTab].formData[`get.${keyName}.${item}`] === 1
+  //                   ? "active"
+  //                   : ""
+  //               }
+  //               onClick={() => {
+  //                 setFormData({
+  //                   data: {
+  //                     ...tabsData[activeTab].formData,
+  //                     [`get.${keyName}.${item}`]: 1,
+  //                   },
+  //                   index: activeTab,
+  //                 });
+  //               }}
+  //             >
+  //               1
+  //             </span>
+  //           </div>
+  //         </div>
+  //       ) : (
+  //         renderGetFields({
+  //           getField: getField["schema"][item],
+  //           keyName: `${keyName}.${item}`,
+  //           margin: margin + 1,
+  //         })
+  //       )
+  //     )}
+  //   </div>
+  // );
 
   const requestFunction = () => {
     const details = createNestedObjectsFromKeys(tabsData[activeTab].formData);
@@ -510,7 +519,6 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                 </span>
               </div>
             </div>
-
             {Object.keys(tabsData[activeTab].getFields).map((item) =>
               tabsData[activeTab].getFields[item].type === "enums" ? (
                 <div
