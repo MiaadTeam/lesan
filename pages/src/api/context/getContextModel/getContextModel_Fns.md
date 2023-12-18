@@ -1,1 +1,3 @@
 # getContextModel
+
+@returns The contextObj
