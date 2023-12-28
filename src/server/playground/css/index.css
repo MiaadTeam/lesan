@@ -678,9 +678,8 @@ textarea {
 }
 
 .sidebar__section-heading--subfields {
-  /* background-color: var(--color-gray-2); */
-  padding: 0.2rem 0.2rem 0.2rem 1rem;
-  margin-bottom: 0.5rem;
+  /* padding: 0.2rem 0.2rem 0.2rem 1rem; */
+  /* margin-bottom: 0.5rem; */
   color: var(--color-colonial-1);
   font-weight: 400;
   text-transform: capitalize;
@@ -688,11 +687,21 @@ textarea {
   border-bottom: 1px solid slategray;
 }
 
+.sidebar__section-heading--subfields--new {
+  border-bottom: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .sidebar__section_container {
   border: 1px solid slategray;
   border-radius: 0.5rem;
-  margin-bottom: 0.3rem;
-  padding: 0.5rem;
+  /* margin-bottom: 0.3rem; */
+  margin-bottom: 0.5rem;
+  /* padding: 0.5rem; */
+  padding: 0 8px;
+  cursor: pointer;
 }
 
 .border-bottom {
@@ -2371,6 +2380,17 @@ textarea {
     display: none;
   }
 }
+
+/* .chevron-down {
+  transform: rotate(-90deg);
+  transition-duration: 250ms;
+}
+
+.chevron-down[data-rotate="true"] {
+  transform: rotate(0deg);
+  transition-duration: all 250ms;
+} */
+
 /* ------------------------------- JSON Viewer ------------------------------ */
 .cute-string {
   color: #f1fa8c;
@@ -2463,7 +2483,6 @@ textarea {
   background-color: gainsboro;
   color: #021307;
 }
-
 /* ------------------------ MultiSelect Component CSS ----------------------- */
 
 .multi-select__wrapper {
