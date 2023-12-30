@@ -155,6 +155,10 @@ const CountrySchema = new mongoose.Schema ({
 });
 ```
 For `mostPopulousCities` Field, we should consider all the events that happened above, although with a slight change:
+- What if a city changes ?
+We need to find the country associated with the city, then see if this city is stored in the `cities` and `mostPopulousCities` fields of this country or not. If it is stored in the `cities` field, we must do the same steps as above, but if it is stored in the `mostPopulousCities` field, we must first, see which city field has changed, if the population field has changed, this city may no longer be included in this list and we want to remove it from the list and add another city to this list based on its population, otherwise it is possible This city is not in the `mostPopulousCities` list at all, but due to the change in the city's population, we want to add it to this list. Note that this city may be added anywhere in this list, and on the other hand, if this list has reached the end of the predetermined capacity, we must remove a city from the end.
+
+ 
 
 ### Lesan
   
