@@ -158,10 +158,24 @@ For `mostPopulousCities` Field, we should consider all the events that happened 
 - What if a city changes ?
 We need to find the country associated with the city, then see if this city is stored in the `cities` and `mostPopulousCities` fields of this country or not. If it is stored in the `cities` field, we must do the same steps as above, but if it is stored in the `mostPopulousCities` field, we must first, see which city field has changed, if the population field has changed, this city may no longer be included in this list and we want to remove it from the list and add another city to this list based on its population, otherwise it is possible This city is not in the `mostPopulousCities` list at all, but due to the change in the city's population, we want to add it to this list. Note that this city may be added anywhere in this list, and on the other hand, if this list has reached the end of the predetermined capacity, we must remove a city from the end.
 
- 
-
 ### Lesan
-  
+So, if we want to create the same relationships with **‌Lesan**, what should we do?
+Just enter the code below:
+```ts
+```
+In the code above, we have not defined any relationship for the country, but in fact, the country is related to both the city and the user, but this relationship is defined by them because they were the requesters of the relationship.  
+If you pay attention, we have defined two `relatedRelations` for the country when defining city relations, which causes two fields called `cities` and `mostPopulousCities` to be added to the country schema. For the `cities` field, we have set the sort on `_id` and in descending order, and we have limited the capacity of the field to 50 numbers with the `limit` option, which causes the last 50 cities of each country to be stored in it.  
+But in the `mostPopulousCities` field we have once again stored 50 cities in each country, but this time by sorting on the City `Population` field.  
+The important thing here is that all the things we said we need to do in NoSQL databases using Mongoose are done automatically in Lesan and you don't need any additional code to manage these relationships during insert, update or delete. All work will be done by Lesan.
+
+## All benefit of Lesan relationship
+
+
+
+
+
+
+
 اول راجع به ایمکه رابطه چی هست حرف می‌زنم، بعد می‌گم اس‌کیوال فقط کانکشن برقرار می‌کنه، بعد می‌گم نواس‌کیوال هم فقط امبد می‌کنه و مدیریت درست نداره.   
 
 بعد میام راجع به اینکه هر فیلد پر تغییری می‌تونه به رابطه تبدیل بشه حرف می‌زنم، مثال بانک و ثبت احوال کشورها رو می‌گم.  
