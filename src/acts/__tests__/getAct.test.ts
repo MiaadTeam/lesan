@@ -14,13 +14,21 @@ export const mockActs: Services = {
       },
     },
   },
+  ecommerce: "http://localhost:8080/lesan",
+  storeHouse: {
+    ware: {
+      getWares: {
+        validator: object({ name: string() }),
+        fn: () => ({ name: "wareName" }),
+      },
+    },
+  },
 };
 
 Deno.test({
   name: "getAct should return getUser from mockActs",
   fn() {
     const getOneAct = getAct(mockActs, "main", "user", "getUser");
-    console.log({ getOneAct });
     assertInstanceOf(getOneAct, Object);
   },
 });
@@ -55,7 +63,6 @@ Deno.test({
   name: "getAct should throw error when we pass notService",
   fn() {
     const getNotSchema = () => getAct(mockActs, "notmain", "user", "getUser");
-    console.log(getNotSchema);
 
     assertThrows(
       getNotSchema,
