@@ -260,6 +260,56 @@ If you pay attention, we have defined two `relatedRelations` for the country whe
 But in the `mostPopulousCities` field we have once again stored 50 cities in each country, but this time by sorting on the City `population` field.  
 The important thing here is that all the things we said we need to do in `NoSQL` databases using `Mongoose` are done automatically in `Lesan` and you don't need any additional code to manage these relationships during `insert`, `update` or `delete`. All work will be done by `Lesan`.
 
+## Test Realation in Lesan
+#### Clone and run E2E
+you can clone lesan repo by `git clone https://github.com/MiaadTeam/lesan.git` command and the go to `tests/playground` folder and run `e2e.ts` file by execute this command: `deno run -A e2e.ts` you should see this output:
+```shell
+HTTP webserver running.
+please send a post request to http://localhost:1366/lesan
+you can visit playground on http://localhost:1366/playground
+
+Listening on http://localhost:1366/
+```
+#### Visit Playground
+Now you can visit the `playground` at `http://localhost:1366/playground` and send requests to the server for `country`, `city`, and `user` models:
+![Screenshot 2023-12-31 at 21-35-56 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/668ad7d6-70aa-4720-a33c-9bbc417cf579)
+
+and use `addCountry`, `addCountries`, `updateCountry`, `getCountries`, `deleteCountry` methods for country models:
+![Screenshot 2023-12-31 at 21-42-37 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/4ef81e63-4eb7-4852-a6e7-92e91e0e3716) 
+
+also use `addCity`, `updateCity`, `addCities`, `getCities` and `addCityCountry` for city model:
+![Screenshot 2023-12-31 at 22-03-07 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/caf69ec5-44fc-4f14-82fd-335e87a04b38)
+
+and also use `addUser`, `addUsers`, `addUserLivedCities`, `addUserCountry`, `addUserCities`, `addMostLovedCity`, `removeMostLovedCity`, `removeLivedCities`, `updateUser`, `getUser` and `getUsers` for user model:
+
+![Screenshot 2023-12-31 at 22-06-53 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/2f6fddac-685e-4f2b-9923-9a43fa1d13fa)
+you can find `e2e.ts` raw file [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/e2e.ts) and see all functions write in it.
+
+#### Visit Schema and Act
+You can see all `schema` information including `pure`, `mainRelation` and `relatedRelation` inside schema modal box at playground when clicking on `Schema` button:
+![Screenshot 2023-12-31 at 22-33-26 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/a4ecfb41-a356-40dd-a2e5-d3a550d17d99)  
+
+here is the screenshot of schema modal box:
+![Screenshot 2023-12-31 at 22-37-13 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/b63db52d-9d15-4086-a381-c4ea06b3feac)
+
+Also you can see all `Act` information including `service`, `model`, `act` and its `inputs` such as `set` and `get` inside act modal box at playground when clicking on `Act` button:  
+![Screenshot 2023-12-31 at 22-38-46 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/d0ffe5a4-15cf-4661-a535-17b66707269c)   
+
+here is the screenshot of act modal box:
+![Screenshot 2023-12-31 at 22-43-11 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/d6675ced-2179-461a-98e6-3b220523de36)
+
+#### Visit E2E test modal
+We have already prepared several E2E test series for `e2e.ts`'s file, and you can go to E2E modal box by clicking the `E2E test` button:  
+![Screenshot 2023-12-31 at 22-52-21 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/b4e870cb-bc98-40fa-8517-13e13eca30c4)
+
+here you can import E2E test config file by clicking on `import` button:  
+![Screenshot 2023-12-31 at 22-55-06 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/ed500be1-9002-4558-abfe-79548301f2ef)
+
+We have these 3 `json` files next to the `e2e.ts` file, all three of which can be used for E2E testing:
+- [Configdata.json](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/Configdata.json)
+- [fakerTest.json](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/fakerTest.json)
+- [stress.json](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/stress.json)
+
 ## All benefit of Lesan relationship
 
 

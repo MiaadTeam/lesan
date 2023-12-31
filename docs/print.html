@@ -2060,6 +2060,45 @@ const users = coreApp.odm.newModel(
 If you pay attention, we have defined two <code>relatedRelations</code> for the country when defining city relations, which causes two fields called <code>cities</code> and <code>mostPopulousCities</code> to be added to the country schema. For the <code>cities</code> field, we have set the sort on <code>_id</code> and in <code>descending</code> order, and we have limited the capacity of the field to 50 numbers with the <code>limit</code> option, which causes the last 50 cities of each country to be stored in it.<br />
 But in the <code>mostPopulousCities</code> field we have once again stored 50 cities in each country, but this time by sorting on the City <code>population</code> field.<br />
 The important thing here is that all the things we said we need to do in <code>NoSQL</code> databases using <code>Mongoose</code> are done automatically in <code>Lesan</code> and you don't need any additional code to manage these relationships during <code>insert</code>, <code>update</code> or <code>delete</code>. All work will be done by <code>Lesan</code>.</p>
+<h2 id="test-realation-in-lesan"><a class="header" href="#test-realation-in-lesan">Test Realation in Lesan</a></h2>
+<h4 id="clone-and-run-e2e"><a class="header" href="#clone-and-run-e2e">Clone and run E2E</a></h4>
+<p>you can clone lesan repo by <code>git clone https://github.com/MiaadTeam/lesan.git</code> command and the go to <code>tests/playground</code> folder and run <code>e2e.ts</code> file by execute this command: <code>deno run -A e2e.ts</code> you should see this output:</p>
+<pre><code class="language-shell">HTTP webserver running.
+please send a post request to http://localhost:1366/lesan
+you can visit playground on http://localhost:1366/playground
+
+Listening on http://localhost:1366/
+</code></pre>
+<h4 id="visit-playground"><a class="header" href="#visit-playground">Visit Playground</a></h4>
+<p>Now you can visit the <code>playground</code> at <code>http://localhost:1366/playground</code> and send requests to the server for <code>country</code>, <code>city</code>, and <code>user</code> models:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/668ad7d6-70aa-4720-a33c-9bbc417cf579" alt="Screenshot 2023-12-31 at 21-35-56 Lesan Playground" /></p>
+<p>and use <code>addCountry</code>, <code>addCountries</code>, <code>updateCountry</code>, <code>getCountries</code>, <code>deleteCountry</code> methods for country models:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/4ef81e63-4eb7-4852-a6e7-92e91e0e3716" alt="Screenshot 2023-12-31 at 21-42-37 Lesan Playground" /> </p>
+<p>also use <code>addCity</code>, <code>updateCity</code>, <code>addCities</code>, <code>getCities</code> and <code>addCityCountry</code> for city model:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/caf69ec5-44fc-4f14-82fd-335e87a04b38" alt="Screenshot 2023-12-31 at 22-03-07 Lesan Playground" /></p>
+<p>and also use <code>addUser</code>, <code>addUsers</code>, <code>addUserLivedCities</code>, <code>addUserCountry</code>, <code>addUserCities</code>, <code>addMostLovedCity</code>, <code>removeMostLovedCity</code>, <code>removeLivedCities</code>, <code>updateUser</code>, <code>getUser</code> and <code>getUsers</code> for user model:</p>
+<p><img src="https://github.com/MiaadTeam/lesan/assets/6236123/2f6fddac-685e-4f2b-9923-9a43fa1d13fa" alt="Screenshot 2023-12-31 at 22-06-53 Lesan Playground" />
+you can find <code>e2e.ts</code> raw file <a href="https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/e2e.ts">here</a> and see all functions write in it.</p>
+<h4 id="visit-schema-and-act"><a class="header" href="#visit-schema-and-act">Visit Schema and Act</a></h4>
+<p>You can see all <code>schema</code> information including <code>pure</code>, <code>mainRelation</code> and <code>relatedRelation</code> inside schema modal box at playground when clicking on <code>Schema</code> button:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/a4ecfb41-a356-40dd-a2e5-d3a550d17d99" alt="Screenshot 2023-12-31 at 22-33-26 Lesan Playground" /></p>
+<p>here is the screenshot of schema modal box:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/b63db52d-9d15-4086-a381-c4ea06b3feac" alt="Screenshot 2023-12-31 at 22-37-13 Lesan Playground" /></p>
+<p>Also you can see all <code>Act</code> information including <code>service</code>, <code>model</code>, <code>act</code> and its <code>inputs</code> such as <code>set</code> and <code>get</code> inside act modal box at playground when clicking on <code>Act</code> button:<br />
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/d0ffe5a4-15cf-4661-a535-17b66707269c" alt="Screenshot 2023-12-31 at 22-38-46 Lesan Playground" /></p>
+<p>here is the screenshot of act modal box:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/d6675ced-2179-461a-98e6-3b220523de36" alt="Screenshot 2023-12-31 at 22-43-11 Lesan Playground" /></p>
+<h4 id="visit-e2e-test-modal"><a class="header" href="#visit-e2e-test-modal">Visit E2E test modal</a></h4>
+<p>We have already prepared several E2E test series for <code>e2e.ts</code>'s file, and you can go to E2E modal box by clicking the <code>E2E test</code> button:<br />
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/b4e870cb-bc98-40fa-8517-13e13eca30c4" alt="Screenshot 2023-12-31 at 22-52-21 Lesan Playground" /></p>
+<p>here you can import E2E test config file by clicking on <code>import</code> button:<br />
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/ed500be1-9002-4558-abfe-79548301f2ef" alt="Screenshot 2023-12-31 at 22-55-06 Lesan Playground" /></p>
+<p>We have these 3 <code>json</code> files next to the <code>e2e.ts</code> file, all three of which can be used for E2E testing:</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/Configdata.json">Configdata.json</a></li>
+<li><a href="https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/fakerTest.json">fakerTest.json</a></li>
+<li><a href="https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/stress.json">stress.json</a></li>
+</ul>
 <h2 id="all-benefit-of-lesan-relationship"><a class="header" href="#all-benefit-of-lesan-relationship">All benefit of Lesan relationship</a></h2>
 <p>اول راجع به ایمکه رابطه چی هست حرف می‌زنم، بعد می‌گم اس‌کیوال فقط کانکشن برقرار می‌کنه، بعد می‌گم نواس‌کیوال هم فقط امبد می‌کنه و مدیریت درست نداره.</p>
 <p>بعد میام راجع به اینکه هر فیلد پر تغییری می‌تونه به رابطه تبدیل بشه حرف می‌زنم، مثال بانک و ثبت احوال کشورها رو می‌گم.</p>
