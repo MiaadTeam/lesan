@@ -17,17 +17,50 @@ export const mockActs: Services = {
 };
 
 Deno.test({
-  name: "should return getUser from mockActs",
+  name: "getAct should return getUser from mockActs",
   fn() {
     const getOneAct = getAct(mockActs, "main", "user", "getUser");
+    console.log({ getOneAct });
     assertInstanceOf(getOneAct, Object);
   },
 });
 
 Deno.test({
-  name: "should throw error when we want notMethod from mockActs",
+  name: "getAct should throw error when we pass notServices",
   fn() {
     const getNotMethod = () => getAct(mockActs, "main", "user", "notMethod");
     assertThrows(getNotMethod, Error, "Invalid action name: notMethod");
+  },
+});
+
+Deno.test({
+  name: "getAct should throw error when we want notMethod from mockActs",
+  fn() {
+    const getNotMethod = () => getAct(mockActs, "main", "user", "notMethod");
+    assertThrows(getNotMethod, Error, "Invalid action name: notMethod");
+  },
+});
+
+Deno.test({
+  name: "getAct should throw error when we pass notSchema",
+  fn() {
+    const getNotSchema = () => getAct(mockActs, "main", "notuser", "getUser");
+    console.log(getNotSchema);
+
+    assertThrows(getNotSchema, Error, "Invalid schema: notuser");
+  },
+});
+
+Deno.test({
+  name: "getAct should throw error when we pass notService",
+  fn() {
+    const getNotSchema = () => getAct(mockActs, "notmain", "user", "getUser");
+    console.log(getNotSchema);
+
+    assertThrows(
+      getNotSchema,
+      Error,
+      "Invalid service: can not find notmain service"
+    );
   },
 });
