@@ -9,18 +9,16 @@ import { Acts, Services } from "./types.ts";
 export const getActsKeys = (
   acts: Services,
   service: keyof typeof acts,
-  schema: string,
+  schema: string
 ) => {
-  if (!acts[service] && typeof acts[service] === "string") {
-    throw new Error(
-      `Invalid service name: ${service} `,
-    );
+  if (!acts[service]) {
+    throw new Error(`Invalid service name: ${service} `);
   }
-  if (!(acts[service] as Acts)) {
-    throw new Error(
-      `Invalid service name: ${service} `,
-    );
+
+  if (typeof acts[service] === "string") {
+    throw new Error(`Invalid service type: ${service} `);
   }
+
   if (!(acts[service] as Acts)[schema]) {
     throw new Error(`Invalid schema: ${schema}`);
   }
