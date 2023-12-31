@@ -162,11 +162,103 @@ We need to find the country associated with the city, then see if this city is s
 So, if we want to create the same relationships with **‌Lesan**, what should we do?
 Just enter the code below:
 ```ts
+// Country Model
+const countryCityPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const countryRelations = {};
+
+const countries = coreApp.odm.newModel(
+  "country",
+  countryCityPure,
+  countryRelations,
+);
+
+// City Model
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      mostPopulousCities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "population",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel(
+  "city",
+  countryCityPure,
+  cityRelations,
+);
+
+// User Model
+const userPure = {
+  name: string(),
+  age: number(),
+};
+
+const userRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      users: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+  city: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      users: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const users = coreApp.odm.newModel(
+  "user",
+  userPure,
+  userRelations,
+);
 ```
 In the code above, we have not defined any relationship for the country, but in fact, the country is related to both the city and the user, but this relationship is defined by them because they were the requesters of the relationship.  
-If you pay attention, we have defined two `relatedRelations` for the country when defining city relations, which causes two fields called `cities` and `mostPopulousCities` to be added to the country schema. For the `cities` field, we have set the sort on `_id` and in descending order, and we have limited the capacity of the field to 50 numbers with the `limit` option, which causes the last 50 cities of each country to be stored in it.  
-But in the `mostPopulousCities` field we have once again stored 50 cities in each country, but this time by sorting on the City `Population` field.  
-The important thing here is that all the things we said we need to do in NoSQL databases using Mongoose are done automatically in Lesan and you don't need any additional code to manage these relationships during insert, update or delete. All work will be done by Lesan.
+If you pay attention, we have defined two `relatedRelations` for the country when defining city relations, which causes two fields called `cities` and `mostPopulousCities` to be added to the country schema. For the `cities` field, we have set the sort on `_id` and in `descending` order, and we have limited the capacity of the field to 50 numbers with the `limit` option, which causes the last 50 cities of each country to be stored in it.  
+But in the `mostPopulousCities` field we have once again stored 50 cities in each country, but this time by sorting on the City `population` field.  
+The important thing here is that all the things we said we need to do in `NoSQL` databases using `Mongoose` are done automatically in `Lesan` and you don't need any additional code to manage these relationships during `insert`, `update` or `delete`. All work will be done by `Lesan`.
 
 ## All benefit of Lesan relationship
 
