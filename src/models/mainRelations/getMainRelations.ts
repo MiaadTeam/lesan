@@ -6,5 +6,8 @@ import { schemaFns, TSchemas } from "../mod.ts";
  */
 export const getMainRelations = (schemasObj: TSchemas, schemaName: string) => {
   const schemas = schemaFns(schemasObj).getSchemas();
-  schemas[schemaName].mainRelations;
+  if (!schemas[schemaName]) {
+    throw new Error(`Invalid schemaName: ${schemaName}`);
+  }
+  return schemas[schemaName].mainRelations;
 };
