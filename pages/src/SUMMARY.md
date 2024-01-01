@@ -119,3 +119,10 @@
     - [`addBodyToContext`](./api/context/getContextModel/addBodyToContext_Fns.md)
   - [`runServer`](./api/runServer/runServer_fn.md)
   - [`generateSchemTypes`](./api/generateSchema/generateSchemTypes_fn.md)
+
+- [`types`](./api/types/main.md)
+  - [`schema types`](./api/types/schema/main.md)
+    - [`model types`](./api/types/schema/model.md)
+      - [`TRelation`](./api/types/schema/model/TRelation.md) 
+      - [`IMainRelation`](./api/types/schema/model/IMainRelation.md) 
+      - [`IRelatedRelation`](./api/types/schema/model/IRelatedRelation.md) 
