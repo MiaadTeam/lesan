@@ -261,7 +261,7 @@ But in the `mostPopulousCities` field we have once again stored 50 cities in eac
 The important thing here is that all the things we said we need to do in `NoSQL` databases using `Mongoose` are done automatically in `Lesan` and you don't need any additional code to manage these relationships during `insert`, `update` or `delete`. All work will be done by `Lesan`.
 
 ## Test Realation in Lesan
-#### Clone and run E2E
+### Clone and run E2E
 you can clone lesan repo by `git clone https://github.com/MiaadTeam/lesan.git` command and the go to `tests/playground` folder and run `e2e.ts` file by execute this command: `deno run -A e2e.ts` you should see this output:
 ```shell
 HTTP webserver running.
@@ -270,7 +270,7 @@ you can visit playground on http://localhost:1366/playground
 
 Listening on http://localhost:1366/
 ```
-#### Visit Playground
+### Visit Playground
 Now you can visit the `playground` at `http://localhost:1366/playground` and send requests to the server for `country`, `city`, and `user` models:
 ![Screenshot 2023-12-31 at 21-35-56 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/668ad7d6-70aa-4720-a33c-9bbc417cf579)
 
@@ -285,7 +285,7 @@ and also use `addUser`, `addUsers`, `addUserLivedCities`, `addUserCountry`, `add
 ![Screenshot 2023-12-31 at 22-06-53 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/2f6fddac-685e-4f2b-9923-9a43fa1d13fa)
 you can find `e2e.ts` raw file [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/e2e.ts) and see all functions write in it.
 
-#### Visit Schema and Act
+### Visit Schema and Act
 You can see all `schema` information including `pure`, `mainRelation` and `relatedRelation` inside schema modal box at playground when clicking on `Schema` button:
 ![Screenshot 2023-12-31 at 22-33-26 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/a4ecfb41-a356-40dd-a2e5-d3a550d17d99)  
 
@@ -298,7 +298,7 @@ Also you can see all `Act` information including `service`, `model`, `act` and i
 here is the screenshot of act modal box:
 ![Screenshot 2023-12-31 at 22-43-11 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/d6675ced-2179-461a-98e6-3b220523de36)
 
-#### Visit E2E test modal
+### Visit E2E test modal
 We have already prepared several E2E test series for `e2e.ts`'s file, and you can go to E2E modal box by clicking the `E2E test` button:  
 ![Screenshot 2023-12-31 at 22-52-21 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/b4e870cb-bc98-40fa-8517-13e13eca30c4)
 
@@ -309,6 +309,9 @@ We have these 3 `json` files next to the `e2e.ts` file, all three of which can b
 - [Configdata.json](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/Configdata.json)
 - [fakerTest.json](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/fakerTest.json)
 - [stress.json](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/stress.json)
+
+#### Configdata E2E file
+In this file, almost all the functions written in the `e2e.ts` file have been used.
 
 ## All benefit of Lesan relationship
 
