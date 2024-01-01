@@ -1,9 +1,9 @@
+import { getAct, Services } from "../mod.ts";
+import { object, string } from "../../npmDeps.ts";
 import {
   assertInstanceOf,
   assertThrows,
-} from "https://deno.land/std/assert/mod.ts";
-import { getAct, Services } from "../mod.ts";
-import { object, string } from "../../npmDeps.ts";
+} from "https://deno.land/std@0.130.0/testing/asserts.ts";
 
 export const mockActs: Services = {
   main: {
