@@ -1,10 +1,10 @@
-import {
-  assertInstanceOf,
-  assertThrows,
-} from "https://deno.land/std/assert/mod.ts";
 import { getMainRelations } from "../getMainRelations.ts";
 import { TSchemas } from "../../mod.ts";
 import { number, string } from "../../../npmDeps.ts";
+import {
+  assertInstanceOf,
+  assertThrows,
+} from "https://deno.land/std@0.130.0/testing/asserts.ts";
 
 export const schemaMockData: TSchemas = {
   user: {
@@ -153,7 +153,6 @@ Deno.test({
   name: "getMainRelations should return mainRelation from schemaMockData",
   fn() {
     const getSchemaMainRelations = getMainRelations(schemaMockData, "user");
-    console.log({ getSchemaMainRelations });
     assertInstanceOf(getSchemaMainRelations, Object);
   },
 });
