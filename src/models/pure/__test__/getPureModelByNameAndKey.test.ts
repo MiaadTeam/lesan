@@ -3,7 +3,7 @@ import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.te
 import { getPureModelByNameAndKey } from "../getPureModelByNameAndKey.ts";
 
 Deno.test({
-  name: "getPureModelByNameAndKey Should Return Pure With Name And Name",
+  name: "getPureModelByNameAndKey Should Return Pure With Name And key",
   fn() {
     const getSchemaPureModelByName = getPureModelByNameAndKey(
       schemaMockData,
