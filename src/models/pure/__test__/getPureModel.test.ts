@@ -9,7 +9,6 @@ Deno.test({
   name: "getPureModel should return Pure of user from schemaMockData",
   fn() {
     const getSchemaPureModel = getPureModel(schemaMockData, "user");
-    // console.log({ getSchemaPureModel });
     assertInstanceOf(getSchemaPureModel, Object);
   },
 });
