@@ -32,58 +32,54 @@ const countryRelations = {};
 const countries = coreApp.odm.newModel(
   "country",
   locationPure,
-  countryRelations,
+  countryRelations
 );
 
 // ------------------ City Model ------------------
-const cities = coreApp.odm.newModel(
-  "city",
-  locationPure,
-  {
-    country: {
-      schemaName: "country",
-      type: "single",
-      optional: false,
-      relatedRelations: {
-        citiesAsc: {
-          type: "multiple",
-          limit: 5,
-          sort: {
-            field: "_id",
-            order: "asc",
-          },
+const cities = coreApp.odm.newModel("city", locationPure, {
+  country: {
+    schemaName: "country",
+    type: "single",
+    optional: false,
+    relatedRelations: {
+      citiesAsc: {
+        type: "multiple",
+        limit: 5,
+        sort: {
+          field: "_id",
+          order: "asc",
         },
-        citiesDesc: {
-          type: "multiple",
-          limit: 5,
-          sort: {
-            field: "_id",
-            order: "desc",
-          },
+      },
+      citiesDesc: {
+        type: "multiple",
+        limit: 5,
+        sort: {
+          field: "_id",
+          order: "desc",
         },
-        citiesByPopAsc: {
-          type: "multiple",
-          limit: 5,
-          sort: {
-            field: "population",
-            order: "asc",
-          },
+      },
+      citiesByPopAsc: {
+        type: "multiple",
+        limit: 5,
+        sort: {
+          field: "population",
+          order: "asc",
         },
-        citiesByPopDesc: {
-          type: "multiple",
-          limit: 5,
-          sort: {
-            field: "population",
-            order: "desc",
-          },
+      },
+      citiesByPopDesc: {
+        type: "multiple",
+        limit: 5,
+        sort: {
+          field: "population",
+          order: "desc",
         },
-        capitalCity: {
-          type: "single",
-        },
+      },
+      capitalCity: {
+        type: "single",
       },
     },
   },
-);
+});
 // ------------------ User Model ------------------
 const userPure = {
   name: string(),
@@ -155,18 +151,56 @@ const users = coreApp.odm.newModel("user", userPure, {
 const getUserSchema = coreApp.schemas.getSchema("user");
 const getCitySchema = coreApp.schemas.getSchema("city");
 const getCountrySchema = coreApp.schemas.getSchema("country");
+const getSchemas = coreApp.schemas.getSchemas();
+const getPureOfMainRelations = coreApp.schemas.getPureOfMainRelations("user");
+const getPureSchema = coreApp.schemas.getPureSchema("city");
+const getPureFromMainRelations =
+  coreApp.schemas.getPureFromMainRelations("city");
+const getPureFromRelatedRelations =
+  coreApp.schemas.getPureFromRelatedRelations("city");
+const createEmbedded = coreApp.schemas.createEmbedded("user");
+const createStruct = coreApp.schemas.createStruct("user");
+const getSchemasKeys = coreApp.schemas.getSchemasKeys();
+
+// odm
 
 const getUserSchemaText = new TextEncoder().encode(
-  JSON.stringify(getUserSchema, null, 2),
+  JSON.stringify(getUserSchema, null, 2)
 );
 const getCitySchemaText = new TextEncoder().encode(
-  JSON.stringify(getCitySchema, null, 2),
+  JSON.stringify(getCitySchema, null, 2)
 );
 const getCountrySchemaText = new TextEncoder().encode(
-  JSON.stringify(getCountrySchema, null, 2),
+  JSON.stringify(getCountrySchema, null, 2)
+);
+const getSchemasText = new TextEncoder().encode(
+  JSON.stringify(getSchemas, null, 2)
+);
+const getPureOfMainRelationsText = new TextEncoder().encode(
+  JSON.stringify(getPureOfMainRelations, null, 2)
+);
+const getPureSchemaText = new TextEncoder().encode(
+  JSON.stringify(getPureSchema, null, 2)
+);
+const getPureFromMainRelationsText = new TextEncoder().encode(
+  JSON.stringify(getPureFromMainRelations, null, 2)
+);
+const getPureFromRelatedRelationsText = new TextEncoder().encode(
+  JSON.stringify(getPureFromRelatedRelations, null, 2)
+);
+const createEmbeddedText = new TextEncoder().encode(
+  JSON.stringify(createEmbedded, null, 2)
+);
+const createStructText = new TextEncoder().encode(
+  JSON.stringify(createStruct, null, 2)
+);
+const getSchemasKeysText = new TextEncoder().encode(
+  JSON.stringify(getSchemasKeys, null, 2)
 );
 
-// asynchronously
+// const setDataBase = await coreApp.odm.setDb(db);
+// const responseCollection = coreApp.odm.getCollection("user");
+
 console.log(" ============== getUserSchemaText ");
 await Deno.writeAll(Deno.stdout, getUserSchemaText);
 console.log(" ------------ end of getUserSchemaText ");
@@ -181,6 +215,47 @@ console.log(" ============== getCountrySchemaText ");
 await Deno.writeAll(Deno.stdout, getCountrySchemaText);
 console.log(" ------------ end of getCountrySchemaText ");
 console.log("        ");
+
+console.log(" ============== getSchemasText ");
+await Deno.writeAll(Deno.stdout, getSchemasText);
+console.log(" ------------ end of getSchemasText ");
+console.log("        ");
+
+console.log(" ============== getPureOfMainRelationsText ");
+await Deno.writeAll(Deno.stdout, getPureOfMainRelationsText);
+console.log(" ------------ end of getPureOfMainRelationsText ");
+console.log("        ");
+
+console.log(" ============== getPureSchemaText ");
+await Deno.writeAll(Deno.stdout, getPureSchemaText);
+console.log(" ------------ end of getPureSchemaText ");
+console.log("        ");
+
+console.log(" ============== getPureFromMainRelationsText ");
+await Deno.writeAll(Deno.stdout, getPureFromMainRelationsText);
+console.log(" ------------ end of getPureFromMainRelationsText ");
+console.log("        ");
+
+console.log(" ============== getPureFromRelatedRelationsText ");
+await Deno.writeAll(Deno.stdout, getPureFromRelatedRelationsText);
+console.log(" ------------ end of getPureFromRelatedRelationsText ");
+console.log("        ");
+
+console.log(" ============== createEmbeddedText ");
+await Deno.writeAll(Deno.stdout, createEmbeddedText);
+console.log(" ------------ end of createEmbeddedText ");
+console.log("        ");
+
+console.log(" ============== createStructText ");
+await Deno.writeAll(Deno.stdout, createStructText);
+console.log(" ------------ end of createStructText ");
+console.log("        ");
+
+console.log(" ============== getSchemasKeysText ");
+await Deno.writeAll(Deno.stdout, getSchemasKeysText);
+console.log(" ------------ end of getSchemasKeysText ");
+console.log("        ");
+
 // ================== FUNCTIONS SECTION ==================
 // ------------------ Country Founctions ------------------
 // ------------------ Add Country ------------------
@@ -245,7 +320,7 @@ coreApp.acts.setAct({
 // ------------------ Add Multiple Countries ------------------
 const addMultipleCountriesValidator = () => {
   return object({
-    set: (object({ multiCountries: array(object()) })),
+    set: object({ multiCountries: array(object()) }),
     get: coreApp.schemas.selectStruct("country", { users: 1 }),
   });
 };
@@ -313,8 +388,10 @@ const deleteCountry: ActFn = async (body) => {
     set: { _id },
     get,
   } = body.details;
-  return await countries
-    .deleteOne({ filter: { _id: new ObjectId(_id) }, hardCascade: true });
+  return await countries.deleteOne({
+    filter: { _id: new ObjectId(_id) },
+    hardCascade: true,
+  });
 };
 
 coreApp.acts.setAct({
@@ -529,9 +606,7 @@ const addUserValidator = () => {
 };
 const addUser: ActFn = async (body) => {
   const { country, livedCities, name, age } = body.details.set;
-  const obIdLivedCities = livedCities.map(
-    (lp: string) => new ObjectId(lp),
-  );
+  const obIdLivedCities = livedCities.map((lp: string) => new ObjectId(lp));
 
   return await users.insertOne({
     doc: { name, age },
@@ -575,9 +650,7 @@ const addUsersValidator = () => {
 
 const addUsers: ActFn = async (body) => {
   const { country, multiUsers, livedCities, city } = body.details.set;
-  const obIdLivedCities = livedCities.map(
-    (lp: string) => new ObjectId(lp),
-  );
+  const obIdLivedCities = livedCities.map((lp: string) => new ObjectId(lp));
 
   return await users.insertMany({
     docs: multiUsers,
@@ -625,9 +698,7 @@ const addUserLivedCityValidator = () => {
 };
 const addUserLivedCity: ActFn = async (body) => {
   const { livedCities, _id } = body.details.set;
-  const obIdLivedCities = livedCities.map(
-    (lc: string) => new ObjectId(lc),
-  );
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
 
   return await users.addRelation({
     filters: { _id: new ObjectId(_id) },
@@ -696,9 +767,7 @@ const addUserCitiesValidator = () => {
 };
 const addUserCities: ActFn = async (body) => {
   const { livedCities, _id } = body.details.set;
-  const obIdLivedCities = livedCities.map(
-    (lc: string) => new ObjectId(lc),
-  );
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
 
   return await users.addRelation({
     filters: { _id: new ObjectId(_id) },
@@ -801,9 +870,7 @@ const removeLivedCitiesValidator = () => {
 const removeLivedCities: ActFn = async (body) => {
   const { livedCities, _id } = body.details.set;
 
-  const obIdLivedCities = livedCities.map(
-    (lc: string) => new ObjectId(lc),
-  );
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
 
   return await users.removeRelation({
     filters: { _id: new ObjectId(_id) },
