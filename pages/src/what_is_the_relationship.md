@@ -311,9 +311,157 @@ We have these 3 `json` files next to the `e2e.ts` file, all three of which can b
 - [stress.json](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/stress.json)
 
 #### Configdata E2E file
-In this file, almost all the functions written in the `e2e.ts` file have been used.
+In the `config.json` file, all the functions written in `e2e.ts` have been tested.
+In fact, all the important functions, including all the functions of the `ODM` section in Lesan, have been tested in this file.
+Let us see all the parts of this E2E test one by one (The point is that in almost all the functions written in `ODM`, relationships are important and Lesan must manage them.):
 
-## All benefit of Lesan relationship
+1. create new country with `main` → `country` → `addCountry`:  
+![Screenshot 2024-01-04 at 11-22-31 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/3bf4eade-17bf-4041-b952-5bdc15dcff22)
+    1. here we used `main` service and `country` model and `addCountry` act.  
+    2. we repeat this section 15 times.  
+    3. we captured `countryId` from last response of this sections.  
+    4. here we used faker for create `name`, `population` and `abb` for new country.
+
+2. create multiple country with one request with `main` → `country` → `addCountries`:
+![Screenshot 2024-01-04 at 13-53-29 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/888b2299-2c85-4a68-81e0-e41b025f7514)
+    1. here we used `main` service and `country` model and `addCountries` act.  
+    2. here we insert an array of `country` for `multiCountries` key inside `set` object.
+    3. we captured some country ID from request response.
+
+3. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 14-20-22 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/f7abbf20-4e6e-4372-a936-a1a715016663)
+    1. here we used `iranId` the captured variable we get from request number 2 response. 
+    2. we captured `body._id` with the `haratId` from response.
+
+4. create multiple city with `main` → `city` → `addCities`:
+![Screenshot 2024-01-04 at 14-42-12 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/4d0de202-f206-4ab4-9888-7fdba54484e7)
+    1. here we insert an array of `city` for `multiCities` key inside `set` object.
+    2. here we used `iraqId` the captured variable we get from request number 2 response. 
+
+5. create multiple city with `main` → `city` → `addCities`:
+![Screenshot 2024-01-04 at 14-56-21 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/0f1e1049-0ac2-4306-87e2-150c36e7232f)
+    1. here we insert an array of `city` for `multiCities` key inside `set` object. We also used `faker` here.
+    2. here we used `afghanId` the captured variable we get from request number 2 response. 
+
+6. change country relation of a city with `main` → `city` → `addCityCountry`:
+![Screenshot 2024-01-04 at 15-04-46 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/7e0ec54b-2e3c-4326-acf2-0a05d2d2c461)
+    1. here we used `haratId` and `afghanId` captured variables. please check `mongodb compass` beacuase the both side of relation are changend.
+
+7. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 15-14-21 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/674aebb7-ba96-4b63-ab6a-b5e75a6011a3)
+
+8. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 15-17-21 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/0ef9160f-d910-495d-8bee-d79f1c9cf441)
+    1. please note that we set `isCapital` field to true so the capital field of related country is filled with this city.
+
+9. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 16-39-21 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/80cb152a-b280-4525-8a4b-85c953396921)
+
+10. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 16-42-27 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/48516d1f-318d-412d-9d5f-9be01381e8c4)
+
+11. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 16-43-55 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/aa378522-585e-4892-a4a4-65102a0b593f)
+
+12. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 16-45-38 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/dec98671-1ebb-43a6-abd1-bffba1bab111)
+
+13. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 16-48-19 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/b8ed08ef-06aa-49ae-8a06-4ad0ba3666ca)
+
+14. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 16-50-30 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/28fd00d5-7503-49b6-bf17-6d14799a6a31)
+
+15. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 17-04-33 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/a9e89d0c-f830-44f4-89d6-e5a76c44219d)
+
+16. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 17-07-41 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/677d9edf-f5a9-411f-8ad5-432b045110e4)
+
+17. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 17-08-14 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/2f44a803-21a3-49bb-8bee-b69510675a64)
+
+18. create new city with `main` → `city` → `addCity`:
+![Screenshot 2024-01-04 at 17-09-14 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/69362e9b-0dc5-48d3-890d-a691860daa1a)
+
+19. just get list of countries with `main` → `country` → `getCountries`:
+![Screenshot 2024-01-04 at 17-10-22 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/dddb4457-2b70-417c-ac09-57c1e45b3338)
+
+20. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-19-46 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/0afc1e9e-bb6e-4229-9144-075c31e5a082)
+    1. the country were user lived is `Iran`.
+    2. the user lived in two city: `Hamedan` and `Tehran`.
+
+21. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-28-58 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/b0a30977-4d78-46df-85ca-b89e9685bf3c)
+
+22. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-29-39 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/299ad320-3305-478b-b17b-272ad7ecd100)
+
+23. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-30-13 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/1064b150-329b-4137-a69f-5d1c17ec25ba)
+
+24. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-30-44 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/40488480-016c-4d24-8648-203e0af1952b)
+
+25. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-31-20 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/f1f10d1a-b368-4ef7-be7f-066977622d26)
+
+26. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-31-54 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/28e8833f-889b-4a11-9f33-8d7019513c8a)
+
+27. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-32-28 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/2d845a61-6857-48a2-aaf8-67180111869a)
+
+28. create new city with `main` → `user` → `addUser`:
+![Screenshot 2024-01-04 at 17-33-04 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/c6a5b53f-19d1-464a-a42b-fa33eb8e6e4f)
+
+29. change country relation of a user with `main` → `user` → `addUserCountry`:
+![Screenshot 2024-01-04 at 19-20-28 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/8eae91d9-6bd9-4d4c-a2e2-e678d53a8d70)
+    1.we just send a country ID with a user ID and with a simple function all magic happen in both side of relation.
+
+30. change country relation of a user with `main` → `user` → `addUserCountry`:
+![Screenshot 2024-01-04 at 19-34-16 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/34c7f763-a336-4670-a8b2-94b429c6c4ac)
+
+31. add city to `livedCities` relation of a user with `main` → `user` → `addUserLivedCities`:
+![Screenshot 2024-01-04 at 19-37-00 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/9401a88b-1bd6-4904-8f76-b6219e79efd8)
+    1.we just send list of city ID with a user ID and with a simple function all magic happen in both side of relation.
+
+32. add city to `livedCities` relation of a user with `main` → `user` → `addUserLivedCities`:
+![Screenshot 2024-01-04 at 19-51-56 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/b4136fbf-58b1-42f9-bc92-b02f290d687a)
+
+33. remove city from `livedCities` relation of a user with `main` → `user` → `removeLivedCities`:
+![Screenshot 2024-01-04 at 19-54-10 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/8d255bd8-94b1-4ffc-87b2-40aa57124c9b)
+    1.we just send list of city ID with a user ID and with a simple function all magic happen in both side of relation.
+
+34. add a city to `mostLovedCity` relation of a user with `main` → `user` → `addMostLovedCity`:
+![Screenshot 2024-01-04 at 19-59-44 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/4d4a4427-8f3d-4aa7-98c9-0dd89ffcc683)
+
+35. add a city to `mostLovedCity` relation of a user with `main` → `user` → `addMostLovedCity`:
+![Screenshot 2024-01-04 at 20-05-52 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/bf13f4fa-6a58-44f5-bbb5-6cceb01d25fc)
+
+36. remove a city from `mostLovedCity` relation of a user with `main` → `user` → `removeLivedCities`:
+![Screenshot 2024-01-04 at 20-11-13 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/e21e0e16-23f2-4629-9ab2-5555f6b8cd4f)
+
+37. update a country with `main` → `country` → `updateCountry`:
+![Screenshot 2024-01-04 at 20-12-26 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/40919290-ee9d-47b3-869a-5574273a7fc8)
+    1. We send the ID of a country along with the rest of the pure fields (pure fields are optional) to it, and in a simple function the following will happen:
+        - Update the country itself
+        - Updating the country field in all cities related to that country
+        - Updating the country field in all users related to that country  
+
+      The point to be mentioned here is that you should not send another field for updating other than pure fields. Because the relationships must be completely managed by Lesan himself.
+
+38. update a city with `main` → `city` → `updateCity`:
+![Screenshot 2024-01-04 at 20-26-49 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/c9d034e9-58c2-46fb-9a1f-05043727d969)
+
+39. update a user with `main` → `user` → `updateUser`:
+![Screenshot 2024-01-04 at 20-27-19 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/44dd6ccd-de32-4457-9fb5-5e006b54142d)
+
+
+## All relationship sweets in Lesan
+
+## All relationship bitterness in Lesan
 
 
 
