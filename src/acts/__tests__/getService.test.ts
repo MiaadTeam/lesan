@@ -1,9 +1,9 @@
 import {
   assertInstanceOf,
   assertThrows,
-} from "https://deno.land/std/assert/mod.ts";
+} from "https://deno.land/std@0.130.0/testing/asserts.ts";
 import { getService } from "../mod.ts";
-import { mockActs } from "./getAct.test.ts";
+import { mockActs } from "./actMockData.ts";
 
 Deno.test({
   name: "getService should return getUser from mockActs",

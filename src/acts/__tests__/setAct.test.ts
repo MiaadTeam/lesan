@@ -1,8 +1,8 @@
-import { assertExists } from "https://deno.land/std/assert/mod.ts";
+import { assertExists } from "https://deno.land/std@0.130.0/testing/asserts.ts";
 import { Services } from "../mod.ts";
 import { object, string } from "../../npmDeps.ts";
 import { setAct } from "../mod.ts";
-import { mockActs } from "./getAct.test.ts";
+import { mockActs } from "./actMockData.ts";
 
 export const mockActsWithoutSchema: Services = {
   main: {},
@@ -17,7 +17,6 @@ Deno.test({
       validator: object({ name: string() }),
       fn: () => ({ user: "amir" }),
     });
-    // console.log({ mockActs });
     assertExists(mockActs.main.user.createUser);
   },
 });
