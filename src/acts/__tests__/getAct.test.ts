@@ -1,35 +1,15 @@
-import { getAct, Services } from "../mod.ts";
-import { object, string } from "../../npmDeps.ts";
+import { getAct } from "../mod.ts";
 import {
-  assertInstanceOf,
+  assertEquals,
   assertThrows,
 } from "https://deno.land/std@0.130.0/testing/asserts.ts";
-
-export const mockActs: Services = {
-  main: {
-    user: {
-      getUser: {
-        validator: object({ name: string() }),
-        fn: () => ({ name: "amir" }),
-      },
-    },
-  },
-  ecommerce: "http://localhost:8080/lesan",
-  storeHouse: {
-    ware: {
-      getWares: {
-        validator: object({ name: string() }),
-        fn: () => ({ name: "wareName" }),
-      },
-    },
-  },
-};
+import { mockActs, testGetUserAct } from "./actMockData.ts";
 
 Deno.test({
   name: "getAct should return getUser from mockActs",
   fn() {
     const getOneAct = getAct(mockActs, "main", "user", "getUser");
-    assertInstanceOf(getOneAct, Object);
+    assertEquals(getOneAct, testGetUserAct);
   },
 });
 
@@ -53,8 +33,6 @@ Deno.test({
   name: "getAct should throw error when we pass notSchema",
   fn() {
     const getNotSchema = () => getAct(mockActs, "main", "notuser", "getUser");
-    console.log(getNotSchema);
-
     assertThrows(getNotSchema, Error, "Invalid schema: notuser");
   },
 });
