@@ -703,11 +703,46 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/ca01c001-7dd9-4b99-a5d5-82ab39ee008d" alt="Screenshot from 2024-01-06 15-10-49" /></p>
 <p>You can play with this data in <code>playground</code> and change everything you want.
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/4efa9e8a-ba9b-40f0-8ebe-6d5ed139fee3" alt="Screenshot 2024-01-06 at 15-08-36 Lesan Playground" /></p>
-<h2 id="all-relationship-sweets-in-lesan"><a class="header" href="#all-relationship-sweets-in-lesan">All relationship sweets in Lesan</a></h2>
+<h4 id="fakertest-e2e-file"><a class="header" href="#fakertest-e2e-file">fakerTest E2E file</a></h4>
+<p>This file is not very important in this section, it is only used to test <code>faker</code> functions in <code>E2E</code>.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/aa5108db-3d9c-45ca-8f5c-dc5b2e747cfb" alt="Screenshot 2024-01-06 at 16-47-45 Lesan Playground" /></p>
+<h4 id="stress-e2e-file"><a class="header" href="#stress-e2e-file">stress E2E file</a></h4>
+<p>This file is used to test the <code>insertMany</code> that has a relation with it. Note that a very large number of server-side requests are sent, resulting in the creation of a country with <code>50,000</code> cities for that country and <code>50,000</code> users for that country.</p>
+<ol>
+<li>
+<p>create a country with <code>main</code> → <code>country</code> → <code>addCountry</code>:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/5ec1fc1f-88b0-4ca3-b89c-f268198c47e6" alt="Screenshot 2024-01-06 at 17-33-04 Lesan Playground" /></p>
+</li>
+<li>
+<p>create <code>50,000</code> cities with <code>main</code> → <code>city</code> → <code>addCities</code>:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/1a82400a-1ed5-4f52-a810-7345bb536e93" alt="Screenshot 2024-01-06 at 17-35-45 Lesan Playground" /></p>
+</li>
+<li>
+<p>create <code>50,000</code> users with <code>main</code> → <code>user</code> → <code>addUsers</code>:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/1e6e9aa5-09f3-4777-8743-8cb129c60362" alt="Screenshot 2024-01-06 at 17-39-02 Lesan Playground" /></p>
+</li>
+</ol>
+<p>After clicking the <code>run E2E test</code> button, <code>10001</code> requests should be sent to the server, and as a result, a country, <code>50,000</code> cities, and <code>50,000</code> users should be created.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/f43e5a5c-e620-48a9-bbf4-399b4ef31a55" alt="Screenshot 2024-01-06 at 19-21-48 Lesan Playground" /></p>
+<p>Pay attention to the entered data, although we have used <code>insertMany</code>, all relationships are embedded.<br />
+In the <code>country</code>, we have embedded the <code>cities</code> in 4 fields separately and with different conditions. And we have embedded <code>users</code> in two fields with different conditions.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/4162bcea-16f3-48a6-b927-bb083cc57fef" alt="Screenshot from 2024-01-06 19-07-59" /></p>
+<p>In the <code>cities</code>, we have embedded the respective <code>country</code>.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/4ec9a53d-5170-4f24-83d4-cb667b923546" alt="Screenshot from 2024-01-06 19-14-11" /></p>
+<p>In the <code>user</code> schema, for each user, we have embedded the <code>cities</code> he has lived in as a <code>list</code>, the <code>city</code> he is most interested in as an <code>object</code>, and the <code>country</code> of each user as an <code>object</code>.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/3c5a621b-769e-4c09-8339-e24a59af0f8a" alt="Screenshot from 2024-01-06 19-16-33" /></p>
+<p>The interesting thing about this E2E test is that after the database is filled, you can test a big update in Playground. If you update the <code>country</code> in Playground, <code>100,000</code> other documents must be updated along with the country record itself.</p>
+<p>before execute  <code>main</code> → <code>country</code> → <code>updateCountry</code>:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/a36b7b04-eb8b-4833-9ba2-88bbf2291d54" alt="Screenshot from 2024-01-06 19-40-02" />
+executin  <code>main</code> → <code>country</code> → <code>updateCountry</code>:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/3e2dc448-2ff2-4c3c-ab21-e978d897c0e1" alt="Screenshot 2024-01-06 at 19-41-30 Lesan Playground" />
+after execute  <code>main</code> → <code>country</code> → <code>updateCountry</code>:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/1bd0ba8e-a031-4787-be48-cf873e6fead2" alt="Screenshot from 2024-01-06 19-41-56" /></p>
+<h2 id="relationship-sweets-in-lesan"><a class="header" href="#relationship-sweets-in-lesan">relationship sweets in Lesan</a></h2>
 <p>shoma tanha ba fieldhaye pure yek schema sar o kar darid va modiriat rabeteha tamaman be sorat khodkar tavasot lesan anjam mishavad.
 shoma mitavanid bar asas rabeteye yek schema an ra sort ya filter konid
 shoma baraye daryaft dadaha ba queryhaye pichide asnad besiyar kamtari ra az database jamavari mikonid. (link bedam be tozihat kamel)</p>
-<h2 id="all-relationship-bitterness-in-lesan"><a class="header" href="#all-relationship-bitterness-in-lesan">All relationship bitterness in Lesan</a></h2>
+<h2 id="relationship-bitterness-in-lesan"><a class="header" href="#relationship-bitterness-in-lesan">relationship bitterness in Lesan</a></h2>
 <p>barkhi az rabeteha baes eijad updatehaye besiyar bozorg mishavand. rah hal: 1-eijad rabeteye jadid 2-qq 3-in-memory db</p>
 <p>اول راجع به ایمکه رابطه چی هست حرف می‌زنم، بعد می‌گم اس‌کیوال فقط کانکشن برقرار می‌کنه، بعد می‌گم نواس‌کیوال هم فقط امبد می‌کنه و مدیریت درست نداره.</p>
 <p>بعد میام راجع به اینکه هر فیلد پر تغییری می‌تونه به رابطه تبدیل بشه حرف می‌زنم، مثال بانک و ثبت احوال کشورها رو می‌گم.</p>
