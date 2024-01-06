@@ -152,35 +152,6 @@ const users = coreApp.odm.newModel("user", userPure, {
   },
 });
 
-const getUserSchema = coreApp.schemas.getSchema("user");
-const getCitySchema = coreApp.schemas.getSchema("city");
-const getCountrySchema = coreApp.schemas.getSchema("country");
-
-const getUserSchemaText = new TextEncoder().encode(
-  JSON.stringify(getUserSchema, null, 2),
-);
-const getCitySchemaText = new TextEncoder().encode(
-  JSON.stringify(getCitySchema, null, 2),
-);
-const getCountrySchemaText = new TextEncoder().encode(
-  JSON.stringify(getCountrySchema, null, 2),
-);
-
-// asynchronously
-console.log(" ============== getUserSchemaText ");
-await Deno.writeAll(Deno.stdout, getUserSchemaText);
-console.log(" ------------ end of getUserSchemaText ");
-console.log("        ");
-
-console.log(" ============== getCitySchemaText ");
-await Deno.writeAll(Deno.stdout, getCitySchemaText);
-console.log(" ------------ end of getCitySchemaText ");
-console.log("        ");
-
-console.log(" ============== getCountrySchemaText ");
-await Deno.writeAll(Deno.stdout, getCountrySchemaText);
-console.log(" ------------ end of getCountrySchemaText ");
-console.log("        ");
 // ================== FUNCTIONS SECTION ==================
 // ------------------ Country Founctions ------------------
 // ------------------ Add Country ------------------
