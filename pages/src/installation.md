@@ -2,7 +2,7 @@
 Currently, only the [Deno](https://deno.land/) version of **Lesan's** framework is ready and usable, [Node](https://nodejs.org/en) and [Bun](https://bun.sh/) versions will also be ready soon.
 
 ### Pre request
-- At least version 6 of [MongoDB](https://www.mongodb.com/docs/manual/installation/) must be installed.
+- At least version 7 of [MongoDB](https://www.mongodb.com/docs/manual/installation/) must be installed.
 - The latest version of [Deno](https://docs.deno.com/runtime/manual/getting_started/installation) must be installed.
 - It is good to have [NodeJS](https://nodejs.org/en/download) installed on your system.
 - If you need to see database information, it is better to install [MongoDB Compass](https://www.mongodb.com/docs/compass/current/install/).
