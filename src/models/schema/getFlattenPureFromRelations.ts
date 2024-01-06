@@ -5,7 +5,7 @@ import { TSchemas } from "./mod.ts";
 export const getFlattenPureFromRelations = (
   schemas: TSchemas,
   schemaName: string,
-  relationType: "MainRelations" | "RelatedRelations" | "All",
+  relationType: "MainRelations" | "RelatedRelations" | "All"
 ) => {
   const schema = getSchema(schemas, schemaName);
   let pureSchemas = {};
@@ -15,7 +15,7 @@ export const getFlattenPureFromRelations = (
       pureSchemas = {
         ...pureSchemas,
         [property]: object(
-          schemas[schema.mainRelations[property].schemaName]?.pure,
+          schemas[schema.mainRelations[property].schemaName]?.pure
         ),
       };
     }
@@ -25,13 +25,13 @@ export const getFlattenPureFromRelations = (
       pureSchemas = {
         ...pureSchemas,
         [property]: object(
-          schemas[schema.relatedRelations[property].schemaName]?.pure,
+          schemas[schema.relatedRelations[property].schemaName]?.pure
         ),
       };
     }
   };
 
-  if (relationType === "RelatedRelations") {
+  if (relationType === "MainRelations") {
     addMainRelation();
   }
   if (relationType === "RelatedRelations") {
