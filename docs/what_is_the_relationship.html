@@ -685,8 +685,30 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/44dd6ccd-de32-4457-9fb5-5e006b54142d" alt="Screenshot 2024-01-04 at 20-27-19 Lesan Playground" /></p>
 </li>
 </ol>
+<p>After clicking the <code>run E2E test</code> button, you will go to the test results page.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/123c7303-d100-4009-9395-f97c68683579" alt="Screenshot 2024-01-06 at 13-34-30 Lesan Playground" /></p>
+<p>If you scroll down a little, you can see the results of each sequence separately:
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/db59ef98-b30f-4a39-8204-dc696dbd31fa" alt="Screenshot 2024-01-06 at 14-13-04 Lesan Playground" />
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/577dd55a-8faa-4686-ad8a-4de62671c490" alt="Screenshot 2024-01-06 at 14-20-03 Lesan Playground" /></p>
+<ol>
+<li>with this button you can change view of panel from <code>body-header &amp; Description</code> to <code>REQUEST &amp; RESULT</code></li>
+<li>show some description about sequence including request number &amp; timing, captured value and so on.</li>
+<li>show unparsed <code>header</code> and <code>body</code> you send to the backend.</li>
+<li>show the <code>index</code> of each sequence.</li>
+<li>show <code>response</code> get back from server.</li>
+<li>show parsed request you send to server, including parsed <code>header</code> and <code>body</code>.</li>
+<li>pagination for sequence with more than 1 request.</li>
+</ol>
+<p>After finished executing all test in <code>configdata.json</code> you have a nice data inserted to <code>sample</code> collection in mongodb.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/ca01c001-7dd9-4b99-a5d5-82ab39ee008d" alt="Screenshot from 2024-01-06 15-10-49" /></p>
+<p>You can play with this data in <code>playground</code> and change everything you want.
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/4efa9e8a-ba9b-40f0-8ebe-6d5ed139fee3" alt="Screenshot 2024-01-06 at 15-08-36 Lesan Playground" /></p>
 <h2 id="all-relationship-sweets-in-lesan"><a class="header" href="#all-relationship-sweets-in-lesan">All relationship sweets in Lesan</a></h2>
+<p>shoma tanha ba fieldhaye pure yek schema sar o kar darid va modiriat rabeteha tamaman be sorat khodkar tavasot lesan anjam mishavad.
+shoma mitavanid bar asas rabeteye yek schema an ra sort ya filter konid
+shoma baraye daryaft dadaha ba queryhaye pichide asnad besiyar kamtari ra az database jamavari mikonid. (link bedam be tozihat kamel)</p>
 <h2 id="all-relationship-bitterness-in-lesan"><a class="header" href="#all-relationship-bitterness-in-lesan">All relationship bitterness in Lesan</a></h2>
+<p>barkhi az rabeteha baes eijad updatehaye besiyar bozorg mishavand. rah hal: 1-eijad rabeteye jadid 2-qq 3-in-memory db</p>
 <p>اول راجع به ایمکه رابطه چی هست حرف می‌زنم، بعد می‌گم اس‌کیوال فقط کانکشن برقرار می‌کنه، بعد می‌گم نواس‌کیوال هم فقط امبد می‌کنه و مدیریت درست نداره.</p>
 <p>بعد میام راجع به اینکه هر فیلد پر تغییری می‌تونه به رابطه تبدیل بشه حرف می‌زنم، مثال بانک و ثبت احوال کشورها رو می‌گم.</p>
 <p>بعد میام راجع به اینکه رابطه‌های دو سر چندتایی نمی‌تونه دو سر بی انتها داشته باشه حرف می‌زنم و چندتا مثال می‌زنم.</p>
