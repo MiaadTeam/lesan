@@ -1,4 +1,4 @@
-import { assertInstanceOf } from "https://deno.land/std@0.130.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.130.0/testing/asserts.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { getPureModelByNameAndKey } from "../getPureModelByNameAndKey.ts";
 
@@ -10,6 +10,6 @@ Deno.test({
       "user",
       "name"
     );
-    assertInstanceOf(getSchemaPureModelByName, Object);
+    assertEquals(typeof getSchemaPureModelByName, "object");
   },
 });

@@ -1,4 +1,5 @@
 import {
+  assertEquals,
   assertInstanceOf,
   assertThrows,
 } from "https://deno.land/std@0.130.0/testing/asserts.ts";
@@ -9,7 +10,7 @@ Deno.test({
   name: "getPureModel should return Pure of user from schemaMockData",
   fn() {
     const getSchemaPureModel = getPureModel(schemaMockData, "user");
-    assertInstanceOf(getSchemaPureModel, Object);
+    assertEquals(typeof getSchemaPureModel, "object");
   },
 });
 

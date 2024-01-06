@@ -1,7 +1,7 @@
-import { assertInstanceOf } from "https://deno.land/std@0.210.0/assert/mod.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { addPureModel } from "../addPureModel.ts";
 import { string } from "../../../npmDeps.ts";
+import { assertEquals } from "https://deno.land/std@0.130.0/testing/asserts.ts";
 
 Deno.test({
   name: "addPureModel should add post PureModel",
@@ -10,6 +10,6 @@ Deno.test({
       _id: string(),
       title: string(),
     });
-    assertInstanceOf(addSchemaPureModel, Object);
+    assertEquals(typeof addSchemaPureModel, "object");
   },
 });

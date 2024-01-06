@@ -1,5 +1,4 @@
-import { assertInstanceOf } from "https://deno.land/std@0.130.0/testing/asserts.ts";
-import { string } from "../../../npmDeps.ts";
+import { assertEquals } from "https://deno.land/std@0.130.0/testing/asserts.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { getRelation } from "../getRelation.ts";
 
@@ -11,6 +10,6 @@ Deno.test({
       "city",
       "relatedRelations"
     );
-    assertInstanceOf(getSchemaRelations, Object);
+    assertEquals(typeof getSchemaRelations, "object");
   },
 });
