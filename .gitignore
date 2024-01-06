@@ -10,3 +10,4 @@ funql
 
 playground/build/
 pages/book
+deno.lock
