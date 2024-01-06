@@ -458,11 +458,34 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 39. update a user with `main` → `user` → `updateUser`:
 ![Screenshot 2024-01-04 at 20-27-19 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/44dd6ccd-de32-4457-9fb5-5e006b54142d)
 
+After clicking the `run E2E test` button, you will go to the test results page.
+![Screenshot 2024-01-06 at 13-34-30 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/123c7303-d100-4009-9395-f97c68683579)
+
+If you scroll down a little, you can see the results of each sequence separately:
+![Screenshot 2024-01-06 at 14-13-04 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/db59ef98-b30f-4a39-8204-dc696dbd31fa)
+![Screenshot 2024-01-06 at 14-20-03 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/577dd55a-8faa-4686-ad8a-4de62671c490)  
+  1. with this button you can change view of panel from `body-header & Description` to `REQUEST & RESULT`
+  2. show some description about sequence including request number & timing, captured value and so on.
+  3. show unparsed `header` and `body` you send to the backend.
+  4. show the `index` of each sequence.
+  5. show `response` get back from server.
+  6. show parsed request you send to server, including parsed `header` and `body`.
+  7. pagination for sequence with more than 1 request.
+
+After finished executing all test in `configdata.json` you have a nice data inserted to `sample` collection in mongodb.
+![Screenshot from 2024-01-06 15-10-49](https://github.com/MiaadTeam/lesan/assets/6236123/ca01c001-7dd9-4b99-a5d5-82ab39ee008d)
+
+You can play with this data in `playground` and change everything you want.
+![Screenshot 2024-01-06 at 15-08-36 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/4efa9e8a-ba9b-40f0-8ebe-6d5ed139fee3)
+
 
 ## All relationship sweets in Lesan
+shoma tanha ba fieldhaye pure yek schema sar o kar darid va modiriat rabeteha tamaman be sorat khodkar tavasot lesan anjam mishavad.
+shoma mitavanid bar asas rabeteye yek schema an ra sort ya filter konid
+shoma baraye daryaft dadaha ba queryhaye pichide asnad besiyar kamtari ra az database jamavari mikonid. (link bedam be tozihat kamel)
 
 ## All relationship bitterness in Lesan
-
+barkhi az rabeteha baes eijad updatehaye besiyar bozorg mishavand. rah hal: 1-eijad rabeteye jadid 2-qq 3-in-memory db
 
 
 
