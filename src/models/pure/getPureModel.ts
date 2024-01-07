@@ -1,3 +1,4 @@
+import { throwError } from "../../utils/throwError.ts";
 import { schemaFns, TSchemas } from "../mod.ts";
 
 /**
@@ -6,5 +7,7 @@ import { schemaFns, TSchemas } from "../mod.ts";
  */
 export const getPureModel = (schemasObj: TSchemas, name: string) => {
   const schemas = schemaFns(schemasObj).getSchemas();
-  return schemas[name]?.pure;
+  return schemas[name]
+    ? schemas[name].pure
+    : throwError(`Schema ${name} is not exist in the Schema Object`);
 };
