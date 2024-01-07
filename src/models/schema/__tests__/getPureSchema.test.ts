@@ -1,7 +1,9 @@
-import { assertEquals } from "https://deno.land/std@0.210.0/assert/assert_equals.ts";
+import {
+  assertEquals,
+  assertThrows,
+} from "https://deno.land/std@0.211.0/assert/mod.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { getPureSchema } from "../getPureSchema.ts";
-import { assertThrows } from "https://deno.land/std@0.210.0/assert/assert_throws.ts";
 
 Deno.test({
   name: "getPureSchema should return schema.pure from schemaMockData",

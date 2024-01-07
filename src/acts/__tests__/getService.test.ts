@@ -1,7 +1,7 @@
 import {
   assertInstanceOf,
   assertThrows,
-} from "https://deno.land/std@0.130.0/testing/asserts.ts";
+} from "https://deno.land/std@0.211.0/assert/mod.ts";
 import { getService } from "../mod.ts";
 import { mockActs } from "./actMockData.ts";
 

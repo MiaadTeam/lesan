@@ -1,4 +1,4 @@
-import { assertInstanceOf } from "https://deno.land/std@0.210.0/assert/assert_instance_of.ts";
+import { assertInstanceOf } from "https://deno.land/std@0.211.0/assert/mod.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { getPureOfMainRelations } from "../mod.ts";
 

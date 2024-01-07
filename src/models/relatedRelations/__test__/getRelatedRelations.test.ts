@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.130.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.211.0/assert/mod.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { getRelatedRelations } from "../getRelatedRelations.ts";
 

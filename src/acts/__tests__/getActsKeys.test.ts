@@ -1,7 +1,8 @@
-import { assertThrows } from "https://deno.land/std@0.130.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertThrows,
+} from "https://deno.land/std@0.211.0/assert/mod.ts";
 import { getActsKeys } from "../getActsKeys.ts";
-
-import { assertEquals } from "https://deno.land/std@0.210.0/assert/assert_equals.ts";
 import { mockActs } from "./actMockData.ts";
 
 Deno.test({

@@ -1,9 +1,9 @@
+import { mockActs } from "./actMockData.ts";
+import { getMainAct } from "../getMainAct.ts";
 import {
   assertInstanceOf,
   assertThrows,
-} from "https://deno.land/std@0.130.0/testing/asserts.ts";
-import { mockActs } from "./actMockData.ts";
-import { getMainAct } from "../getMainAct.ts";
+} from "https://deno.land/std@0.211.0/assert/mod.ts";
 
 Deno.test({
   name: "getMainAct should return getUser from mockActs",
