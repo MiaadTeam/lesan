@@ -4,15 +4,15 @@ getActs: ( schema: string )
 ```
 
 get actions of schema of main service
- <h3 style="margin-top: 0">Example</h3>
+
 <!-- >> return `getCityActs` -->
 
-<details>
+<details open>
   <summary>
-    example
+    Example
   </summary>
   <pre>
-    <code class="language-ts">
+    <code class="language-ts" style="padding: 0;">
     const coreApp = lesan();
     const locationPure = {
       name: string(),
@@ -41,7 +41,8 @@ get actions of schema of main service
     },
   );
 
-  <p style="background: #434343; border-radius: 5px; padding: 5px 1rem;">const getCityActs = coreApp.acts.getActs("city");</p>
+  <p style=" border-radius: 5px; padding: 5px 1rem; background-color: #7A7A7A">const getCityActs = coreApp.acts.getActs("city");</p>
+
 
 </code>
   </pre>
@@ -49,7 +50,7 @@ get actions of schema of main service
 
 <details>
   <summary>
-    return of example:
+    Return Of Example:
   </summary>
   <pre>
     <code class="language-json">
@@ -94,16 +95,5 @@ get actions of schema of main service
 ### Parameters
 ```ts
 schema: string
-param schema - name of schema
-param type - type of sctions of service dynamic or static
 ```
-<style>
-  summary {
-    cursor: pointer;
-    margin-bottom: 1rem;
-    font-weight: bold;
-    color: gainsboro;
 
-  }
- 
-</style>
