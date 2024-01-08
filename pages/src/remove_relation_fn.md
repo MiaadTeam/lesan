@@ -47,10 +47,14 @@ In the function above, we remove one or more cities to the set of cities where a
 
 ### Run the code
 Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-remove-relation-fn-1.ts).  
-By running the codes and going to the playground, you can see and test the functions added to the user.
-![add-relation](https://github.com/MiaadTeam/lesan/assets/6236123/1ce92eb4-0d0a-4823-acfc-33965e0d29f5)
+By running the codes and going to the playground, you can see and test the functions added to the user.  
+before execute  `main` → `user` → `removeLivedCities`:
+![Screenshot from 2024-01-08 13-48-53](https://github.com/MiaadTeam/lesan/assets/6236123/0dbbb5a7-c1be-4ed2-921b-49dd2766881c)
+executing  `main` → `user` → `removeLivedCities`:
+![Screenshot 2024-01-08 at 14-16-37 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/600ada91-88f0-443a-b926-7d423a0e9c48)
+after execute  `main` → `user` → `removeLivedCities`:
+![Screenshot from 2024-01-08 14-20-24](https://github.com/MiaadTeam/lesan/assets/6236123/8c482402-00b8-4a76-8c2a-7381d6abec0b)
 
-TODO add picture of document
 
 ## Update One to Many Relation
 If you have created a `single` type relationship, and if you set the `optional` equivalent to `false`, we can not use `removeRelation` for that please use the [`addRelation`](./add_relation_fn.md) function to replace it (for example we can not use `removeRelation` to remove `country` from a user).  
@@ -168,7 +172,12 @@ coreApp.acts.setAct({
 ```
 In the above function, we get the ID of a user and the ID of a city and store that city as `mostLovedCity` in the user. Also, on the city side, we add this user to the `lovedByUser` list.  
 
-TODO add playground photo and photoshop of user and city from Mogodb Compass  
+before execute  `main` → `user` → `addMostLovedCity`:
+![Screenshot from 2024-01-08 14-52-30](https://github.com/MiaadTeam/lesan/assets/6236123/ea1f021e-f9d6-4f01-ac4f-6c6cc692928b)
+executing  `main` → `user` → `addMostLovedCity`:
+![Screenshot 2024-01-08 at 14-53-23 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/68807ada-9944-4148-bb92-56dca9d88285)
+after execute  `main` → `user` → `addMostLovedCity`:
+![Screenshot from 2024-01-08 14-54-32](https://github.com/MiaadTeam/lesan/assets/6236123/699553c6-2655-44ab-8aff-bd4e544b91e6)
 
 Well, finally, let's write the `mostLovedCity` remove function:
 ```ts
@@ -209,9 +218,16 @@ In the above function, we get the ID of a user along with the ID of a city, and 
 ### Run the code
 Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-remove-relation-fn-2.ts).  
 By running the codes and going to the playground, you can see and test the functions added to the user.
-![add-relation](https://github.com/MiaadTeam/lesan/assets/6236123/1ce92eb4-0d0a-4823-acfc-33965e0d29f5)
 
-TODO add playground photo and photoshop of user and city from Mogodb Compass  
+before execute  `main` → `user` → `removeMostLovedCity`:
+![Screenshot from 2024-01-08 14-54-32](https://github.com/MiaadTeam/lesan/assets/6236123/699553c6-2655-44ab-8aff-bd4e544b91e6)
+executing  `main` → `user` → `removeMostLovedCity`:
+![Screenshot 2024-01-08 at 15-27-19 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/9ceb95e3-fe3a-4941-89de-65f277691d9b)
+after execute  `main` → `user` → `removeMostLovedCity`:
+![Screenshot from 2024-01-08 15-54-33](https://github.com/MiaadTeam/lesan/assets/6236123/4c202679-f10f-4c42-b120-cbd4c44f81b6)
+
+
+
 
   
 
