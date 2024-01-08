@@ -47,10 +47,13 @@ In the function above, we add one or more cities to the set of cities where a us
 
 ### Run the code
 Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/05-add-relation-fn-1.ts).  
-By running the codes and going to the playground, you can see and test the functions added to the user.
-![add-relation](https://github.com/MiaadTeam/lesan/assets/6236123/1ce92eb4-0d0a-4823-acfc-33965e0d29f5)
-
-TODO add picture of document
+By running the codes and going to the playground, you can see and test the functions added to the user.  
+before execute  `main` → `country` → `addUserLivedCities`:
+![Screenshot from 2024-01-07 13-30-44](https://github.com/MiaadTeam/lesan/assets/6236123/4d3c2797-2935-43f6-9ec3-d69c72874804)
+executing  `main` → `country` → `addUserLivedCities`:
+![Screenshot 2024-01-07 at 19-12-39 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/7e800a14-9e08-4f20-9b68-2fc537131f57)
+after execute  `main` → `country` → `addUserLivedCities`:
+![Screenshot from 2024-01-07 19-21-46](https://github.com/MiaadTeam/lesan/assets/6236123/aad25354-2ef6-4b5c-8b46-285f05488fc0)
 
 ## Update One to Many Relation
 What if in one of these sides our field is an object instead of an array (In fact, the type of relationship is one-to-many or many-to-one.)? For example, let's change the country on the user side.  
@@ -114,11 +117,13 @@ To change the country in a user, we must do the following steps:
 
 ### Run the code
 Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/05-add-relation-fn-2.ts).  
-By running the codes and going to the playground, you can see and test the functions added to the user.
-![add-relation](https://github.com/MiaadTeam/lesan/assets/6236123/1ce92eb4-0d0a-4823-acfc-33965e0d29f5)
-
-
-TODO add picture of document
+By running the codes and going to the playground, you can see and test the functions added to the user.  
+before execute  `main` → `country` → `addUserCountry`:
+![Screenshot from 2024-01-08 11-44-40](https://github.com/MiaadTeam/lesan/assets/6236123/9463858c-6fb6-422c-8757-56aa36813044)
+executing  `main` → `country` → `addUserCountry`:
+![Screenshot 2024-01-08 at 11-45-55 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/98fd47dc-02f7-44fa-be07-9e2478218465)
+before execute  `main` → `country` → `addUserCountry`:
+![Screenshot from 2024-01-08 11-47-02](https://github.com/MiaadTeam/lesan/assets/6236123/35a56cfd-c1c3-4ccd-8f09-5574725618cb)
 
 
 
