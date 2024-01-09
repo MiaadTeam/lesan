@@ -128,4 +128,7 @@
         - [`RelationSortOrderType`](./api/types/schema/model/TRelation/RelationSortOrderType.md)
         - [`TRelatedRelation`](./api/types/schema/model/TRelation/TRelatedRelation.md)
       - [`IMainRelation`](./api/types/schema/model/IMainRelation.md)
-      - [`IRelatedRelation`](./api/types/schema/model/IRelatedRelation.md) 
+      - [`IRelatedRelation`](./api/types/schema/model/IRelatedRelation.md)
+  - [`Services types`](./api/types/Services/main.md)
+    - [`Acts types`](./api/types/Services/Acts.md)
+      - [`Act`](./api/types/Services/Acts/Act.md)
