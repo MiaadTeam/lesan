@@ -14,7 +14,12 @@ export interface TRelation {
   };
 }
 ```
-the `TRelation` type has the following type :
-- [`RelationDataType`](./TRelation/RelationDataType.md) is the model type we defined in lesan
-- [`RelationSortOrderType`](./TRelation/RelationSortOrderType.md) is used for defining relation get from user
-- [`TRelatedRelation`](./TRelation/TRelatedRelation.md) is used to created main relation based on
+
+<h3>Types</h3>
+<pre>
+  <code class="language-ts" style="padding: 0; margin-top: 12px; margin-top: -18px;">
+    <a href="./TRelation/RelationDataType.md" target="_blank" style="text-decoration: none; cursor:pointer">RelationDataType</a>
+    <a href="./TRelation/RelationSortOrderType.md" target="_blank" style="text-decoration: none; cursor:pointer">RelationSortOrderType</a>
+    <a href="./TRelation/TRelatedRelation.md" target="_blank" style="text-decoration: none; cursor:pointer">TRelatedRelation</a>
+  </code>
+</pre>
