@@ -158,6 +158,70 @@ For `mostPopulousCities` Field, we should consider all the events that happened 
 - What if a city changes ?
 We need to find the country associated with the city, then see if this city is stored in the `cities` and `mostPopulousCities` fields of this country or not. If it is stored in the `cities` field, we must do the same steps as above, but if it is stored in the `mostPopulousCities` field, we must first, see which city field has changed, if the population field has changed, this city may no longer be included in this list and we want to remove it from the list and add another city to this list based on its population, otherwise it is possible This city is not in the `mostPopulousCities` list at all, but due to the change in the city's population, we want to add it to this list. Note that this city may be added anywhere in this list, and on the other hand, if this list has reached the end of the predetermined capacity, we must remove a city from the end.
 
+Let's look at this issue from the other side of the relationship.  
+What if we want to access the country related to that city from within the cities?  
+Well, for this purpose, we can add a field called the `country` in each city. And instead of storing only the country's ID in it, embed all the country's information in it. 
+```ts
+const CitySchema = new mongoose.Schema ({
+  name: String,
+  abb: String,
+  population: Number,
+  country: {
+    name: String,
+    abb: String,
+    population: Number,
+  } 
+});
+```
+The good thing here is that this field is no longer an array, it's just an object, so we don't have any of the calculations we had to manage cities in the country. And it is enough to find the country related to the city in the function we wrote to add the cities and put it as the value of the country field in the city.  
+But the critical issue here is that if the country is updated, we must find all the cities related to that country and update the country stored inside the cities as well. Sometimes this number may be very high, for example, consider the country of China or India and put users instead of the city and imagine that all the people of this country are registered in this software, in this case with every update The country should update at least another billion documents (there are different solutions for this problem in the `Lesan`, which you will see below).
+Finally, our mongoose model will probably look like this:
+```ts
+  const CountrySchema = new mongoose.Schema ({
+  name: String,
+  abb: String,
+  population: Number,
+  cities: [{
+    name: String,
+    abb: String,
+    population: Number,
+  }],
+  mostPopulousCities: [{
+    name: String,
+    abb: String,
+    population: Number,
+  }],
+});
+const Country = mongoose.model("country", CitySchema);
+
+const CitySchema = new mongoose.Schema ({
+  name: String,
+  abb: String,
+  population: Number,
+  country: {
+    name: String,
+    abb: String,
+    population: Number,
+  } 
+});
+
+const City = mongoose.model("City", CitySchema)
+
+const UserSchema = new mongoose.Schema ({
+	name: String,
+	age: Number,
+	country: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: Country
+	},
+	city: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: City
+	} 
+});
+const User = mongoose.model("User", CitySchema)
+```
+
 ### Lesan
 So, if we want to create the same relationships with **‌Lesan**, what should we do?
 Just enter the code below:
