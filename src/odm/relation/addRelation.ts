@@ -64,7 +64,7 @@ export const addRelation = async <TR extends IRelationsFileds>({
         }
 
         // first remove previus relatedRelation
-        if (foundedDoc![rel]) {
+        if (foundedDoc && foundedDoc[rel]) {
           // first remove previus relatedRelation
           await processRemoveRelatedRelations({
             db,
@@ -74,12 +74,12 @@ export const addRelation = async <TR extends IRelationsFileds>({
             foundedDocPureProjection,
             foundedSchema,
             collection,
-            prevRelationDoc: foundedDoc![rel],
+            prevRelationDoc: foundedDoc[rel],
             removeDoc: filterDocByProjection(
-              foundedDoc!,
+              foundedDoc,
               pureDocProjection,
             ),
-            relDocForUpdate: foundedDoc![rel]._id,
+            relDocForUpdate: foundedDoc[rel]._id,
           });
         }
 

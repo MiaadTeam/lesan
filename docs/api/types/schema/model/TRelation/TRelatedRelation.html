@@ -1,0 +1,250 @@
+<!DOCTYPE HTML>
+<html lang="en" class="ayu" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>TRelatedRelation - Lesan</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../../../favicon.png">
+        <link rel="stylesheet" href="../../../../../css/variables.css">
+        <link rel="stylesheet" href="../../../../../css/general.css">
+        <link rel="stylesheet" href="../../../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../../../../highlight.css">
+        <link rel="stylesheet" href="../../../../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../../.././css/animation-bench.css">
+        <link rel="stylesheet" href="../../../../.././css/styles.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../../../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "ayu";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('ayu')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../../../../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded "><a href="../../../../../installation.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../../../../getting_start.html"><strong aria-hidden="true">2.</strong> Getting start</a></li><li class="chapter-item expanded "><a href="../../../../../add_relation.html"><strong aria-hidden="true">3.</strong> Add relation</a></li><li class="chapter-item expanded "><a href="../../../../../add_more_relation.html"><strong aria-hidden="true">4.</strong> Add more relation</a></li><li class="chapter-item expanded "><a href="../../../../../mannage_relations.html"><strong aria-hidden="true">5.</strong> Mannage relations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../add_relation_fn.html"><strong aria-hidden="true">5.1.</strong> addRelation function</a></li><li class="chapter-item expanded "><a href="../../../../../remove_relation_fn.html"><strong aria-hidden="true">5.2.</strong> removeRelation function</a></li><li class="chapter-item expanded "><a href="../../../../../what_is_the_relationship.html"><strong aria-hidden="true">5.3.</strong> What is the relationship really?</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../findOne_and_find_fn.html"><strong aria-hidden="true">6.</strong> findOne and find functions</a></li><li class="chapter-item expanded "><a href="../../../../../aggregation_fn.html"><strong aria-hidden="true">7.</strong> aggregation functions</a></li><li class="chapter-item expanded "><a href="../../../../../find_one_and_update_functions.html"><strong aria-hidden="true">8.</strong> findOneAndUpdate functions</a></li><li class="chapter-item expanded "><a href="../../../../../delete_one_fn.html"><strong aria-hidden="true">9.</strong> deleteOne functions</a></li><li class="chapter-item expanded "><a href="../../../../../insert_many_fn.html"><strong aria-hidden="true">10.</strong> insertMany functions</a></li><li class="chapter-item expanded "><a href="../../../../../playground.html"><strong aria-hidden="true">11.</strong> Playground</a></li><li class="chapter-item expanded "><a href="../../../../../all_advantages_of_lesan.html"><strong aria-hidden="true">12.</strong> All the advantages of Lesan</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced Guide</li><li class="chapter-item expanded "><a href="../../../../../an_advanced_project.html"><strong aria-hidden="true">13.</strong> Implement an advanced project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../advanced_general_description.html"><strong aria-hidden="true">13.1.</strong> General description</a></li><li class="chapter-item expanded "><a href="../../../../../advanced_nx_config.html"><strong aria-hidden="true">13.2.</strong> nx configuration</a></li><li class="chapter-item expanded "><a href="../../../../../folder_structure.html"><strong aria-hidden="true">13.3.</strong> Folder Structure</a></li><li class="chapter-item expanded "><a href="../../../../../microservice-monolithic.html"><strong aria-hidden="true">13.4.</strong> Microservice or Monolithic</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../manage_replica.html"><strong aria-hidden="true">14.</strong> Manage replica</a></li><li class="chapter-item expanded affix "><li class="part-title">Lesan Philosophy</li><li class="chapter-item expanded "><a href="../../../../../Receiving_Data.html"><strong aria-hidden="true">15.</strong> Receiving Data</a></li><li class="chapter-item expanded "><a href="../../../../../Previous_methods_and_the_main_challenge.html"><strong aria-hidden="true">16.</strong> Previous methods and the main challenge</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../Lesan's_Solution_For_How_To_Communicate_Between_The_Server_And_The_Client.html"><strong aria-hidden="true">16.1.</strong> Lesan's Solution For How To Communicate Between The Server And The Client</a></li><li class="chapter-item expanded "><a href="../../../../../Why_NoSQL.html"><strong aria-hidden="true">16.2.</strong> Why noSQL?</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../Penetration_Into_Depths.html"><strong aria-hidden="true">16.2.1.</strong> Penetration Into Depths</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../Microservice.html"><strong aria-hidden="true">16.3.</strong> Microservice</a></li><li class="chapter-item expanded "><a href="../../../../../Lesan_solution.html"><strong aria-hidden="true">16.4.</strong> Lesan solution</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../Starting_work_with_Lesan.html"><strong aria-hidden="true">17.</strong> Starting work with Lesan</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../Microservice_Architecture_with_Lesan.html"><strong aria-hidden="true">17.1.</strong> Microservice Architecture with Lesan</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../Structures.html"><strong aria-hidden="true">18.</strong> Structures</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../Schemas.html"><strong aria-hidden="true">18.1.</strong> Schemas</a></li><li class="chapter-item expanded "><a href="../../../../../Pure_Structure_In_Schema.html"><strong aria-hidden="true">18.2.</strong> Pure Structure In Schema</a></li><li class="chapter-item expanded "><a href="../../../../../The_InRelation_Structure_In_Schema.html"><strong aria-hidden="true">18.3.</strong> The InRelation Structure In Schema</a></li><li class="chapter-item expanded "><a href="../../../../../The_structure_of_OutRelation_in_the_schema.html"><strong aria-hidden="true">18.4.</strong> The structure of OutRelation in the schema</a></li><li class="chapter-item expanded "><a href="../../../../../The_structure_of_embed_in_the_schema.html"><strong aria-hidden="true">18.5.</strong> The structure of embed in the schema</a></li><li class="chapter-item expanded "><a href="../../../../../The_structure_of_Struct_in_the_schema.html"><strong aria-hidden="true">18.6.</strong> The structure of Struct in the schema</a></li><li class="chapter-item expanded "><a href="../../../../../runServer_(web_server_structure).html"><strong aria-hidden="true">18.7.</strong> runServer (web server structure)</a></li><li class="chapter-item expanded "><a href="../../../../../Request_processing.html"><strong aria-hidden="true">18.8.</strong> Request processing</a></li><li class="chapter-item expanded "><a href="../../../../../Dynamic_structure.html"><strong aria-hidden="true">18.9.</strong> Dynamic structure</a></li><li class="chapter-item expanded "><a href="../../../../../Static_structure.html"><strong aria-hidden="true">18.10.</strong> Static structure</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">API Reference</li><li class="chapter-item expanded "><a href="../../../../../api/lesan_fn.html"><strong aria-hidden="true">19.</strong> lesan</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemas_fn.html"><strong aria-hidden="true">19.1.</strong> schemas</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/schemaFns_fn.html"><strong aria-hidden="true">19.1.1.</strong> schemaFns</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/getSchemas_fn.html"><strong aria-hidden="true">19.1.1.1.</strong> getSchemas</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/getPureOfMainRelations_fn.html"><strong aria-hidden="true">19.1.1.2.</strong> getPureOfMainRelations</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/getSchema_fn.html"><strong aria-hidden="true">19.1.1.3.</strong> getSchema</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/getPureSchema_fn.html"><strong aria-hidden="true">19.1.1.4.</strong> getPureSchema</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/getPureFromMainRelations_fn.html"><strong aria-hidden="true">19.1.1.5.</strong> getPureFromMainRelations</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/getPureFromRelatedRelations_fn.html"><strong aria-hidden="true">19.1.1.6.</strong> getPureFromRelatedRelations</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/createEmbedded_fn.html"><strong aria-hidden="true">19.1.1.7.</strong> createEmbedded</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/createStruct_fn.html"><strong aria-hidden="true">19.1.1.8.</strong> createStruct</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/schemaFns/_fn.html"><strong aria-hidden="true">19.1.1.9.</strong> getSchemasKeys</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/mainRelationsFns/mainRelations_Fns.html"><strong aria-hidden="true">19.1.2.</strong> mainRelationsFns</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/schemas/mainRelationsFns/getMainRelations_fn.html"><strong aria-hidden="true">19.1.2.1.</strong> getMainRelations</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/relatedRelationFns/relatedRelation_Fns.html"><strong aria-hidden="true">19.1.3.</strong> relatedRelationFns</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/schemas/relatedRelationFns/getRelatedRelations_fn.html"><strong aria-hidden="true">19.1.3.1.</strong> getRelatedRelations</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/pureFns/pure_Fns.html"><strong aria-hidden="true">19.1.4.</strong> pureFns</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/schemas/pureFns/addPureModel_Fns.html"><strong aria-hidden="true">19.1.4.1.</strong> addPureModel</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/pureFns/getPureModel_Fns.html"><strong aria-hidden="true">19.1.4.2.</strong> getPureModel</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/pureFns/getPureModelByNameAndKey_Fns.html"><strong aria-hidden="true">19.1.4.3.</strong> getPureModelByNameAndKey</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/relationFns/relation_Fns.html"><strong aria-hidden="true">19.1.5.</strong> relationFns</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/schemas/relationFns/getRelation_Fns.html"><strong aria-hidden="true">19.1.5.1.</strong> getRelation</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/selectStructFns/selectStruct_Fns.html"><strong aria-hidden="true">19.1.6.</strong> selectStructFns</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/schemas/selectStructFns/fieldType_Fns.html"><strong aria-hidden="true">19.1.6.1.</strong> fieldType</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/selectStructFns/decreaseIterate_Fns.html"><strong aria-hidden="true">19.1.6.2.</strong> decreaseIterate</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/selectStructFns/checkRelation_Fns.html"><strong aria-hidden="true">19.1.6.3.</strong> checkRelation</a></li><li class="chapter-item expanded "><a href="../../../../../api/schemas/selectStructFns/selectStruct_Fns.html"><strong aria-hidden="true">19.1.6.4.</strong> selectStruct</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/acts/acts_fn.html"><strong aria-hidden="true">19.2.</strong> acts</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/acts/setAct/setAct_Fns.html"><strong aria-hidden="true">19.2.1.</strong> setAct</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/getServiceKeys/getServiceKeys_Fns.html"><strong aria-hidden="true">19.2.2.</strong> getServiceKeys</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/getActs/getActs_Fns.html"><strong aria-hidden="true">19.2.3.</strong> getActs</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/getActsKeys/getActsKeys_Fns.html"><strong aria-hidden="true">19.2.4.</strong> getActsKeys</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/getAct/getAct_Fns.html"><strong aria-hidden="true">19.2.5.</strong> getAct</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/getAtcsWithServices/getAtcsWithServices_Fns.html"><strong aria-hidden="true">19.2.6.</strong> getAtcsWithServices</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/getMainActs/getMainActs_Fns.html"><strong aria-hidden="true">19.2.7.</strong> getMainActs</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/getMainAct/getMainAct_Fns.html"><strong aria-hidden="true">19.2.8.</strong> getMainAct</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/setService/setService_Fns.html"><strong aria-hidden="true">19.2.9.</strong> setService</a></li><li class="chapter-item expanded "><a href="../../../../../api/acts/getService/getService_Fns.html"><strong aria-hidden="true">19.2.10.</strong>   getService</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/odm/odm_fn.html"><strong aria-hidden="true">19.3.</strong> odm</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/odm/setDb/setDb_Fns.html"><strong aria-hidden="true">19.3.1.</strong> setDb</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/getCollection/getCollection_Fns.html"><strong aria-hidden="true">19.3.2.</strong> getCollection</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/newModel_Fns.html"><strong aria-hidden="true">19.3.3.</strong> newModel</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/find_Fns.html"><strong aria-hidden="true">19.3.3.1.</strong> find</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/findOne_Fns.html"><strong aria-hidden="true">19.3.3.2.</strong> findOne</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/insertOne_Fns.html"><strong aria-hidden="true">19.3.3.3.</strong> insertOne</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/insertMany_Fns.html"><strong aria-hidden="true">19.3.3.4.</strong> insertMany</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/addRelation_Fns.html"><strong aria-hidden="true">19.3.3.5.</strong> addRelation</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/removeRelation_Fns.html"><strong aria-hidden="true">19.3.3.6.</strong> removeRelation</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/findOneAndUpdate_Fns.html"><strong aria-hidden="true">19.3.3.7.</strong> findOneAndUpdate</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/deleteOne_Fns.html"><strong aria-hidden="true">19.3.3.8.</strong> deleteOne</a></li><li class="chapter-item expanded "><a href="../../../../../api/odm/newModel/aggregation_Fns.html"><strong aria-hidden="true">19.3.3.9.</strong> aggregation</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/context/contextFns_fn.html"><strong aria-hidden="true">19.4.</strong> contextFns</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/context/getContextModel/getContextModel_Fns.html"><strong aria-hidden="true">19.4.1.</strong> getContextModel</a></li><li class="chapter-item expanded "><a href="../../../../../api/context/setContext/setContext_Fns.html"><strong aria-hidden="true">19.4.2.</strong> setContext</a></li><li class="chapter-item expanded "><a href="../../../../../api/context/getContextModel/addContexts_Fns.html"><strong aria-hidden="true">19.4.3.</strong> addContexts</a></li><li class="chapter-item expanded "><a href="../../../../../api/context/getContextModel/addReqToContext_Fns.html"><strong aria-hidden="true">19.4.4.</strong> addReqToContext</a></li><li class="chapter-item expanded "><a href="../../../../../api/context/getContextModel/addHeaderToContext_Fns.html"><strong aria-hidden="true">19.4.5.</strong> addHeaderToContext</a></li><li class="chapter-item expanded "><a href="../../../../../api/context/getContextModel/addBodyToContext_Fns.html"><strong aria-hidden="true">19.4.6.</strong> addBodyToContext</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/runServer/runServer_fn.html"><strong aria-hidden="true">19.5.</strong> runServer</a></li><li class="chapter-item expanded "><a href="../../../../../api/generateSchema/generateSchemTypes_fn.html"><strong aria-hidden="true">19.6.</strong> generateSchemTypes</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/types/main.html"><strong aria-hidden="true">20.</strong> types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/types/schema/main.html"><strong aria-hidden="true">20.1.</strong> schema types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/types/schema/model.html"><strong aria-hidden="true">20.1.1.</strong> model types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/types/schema/model/TRelation.html"><strong aria-hidden="true">20.1.1.1.</strong> TRelation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/types/schema/model/TRelation/RelationDataType.html"><strong aria-hidden="true">20.1.1.1.1.</strong> RelationDataType</a></li><li class="chapter-item expanded "><a href="../../../../../api/types/schema/model/TRelation/RelationSortOrderType.html"><strong aria-hidden="true">20.1.1.1.2.</strong> RelationSortOrderType</a></li><li class="chapter-item expanded "><a href="../../../../../api/types/schema/model/TRelation/TRelatedRelation.html" class="active"><strong aria-hidden="true">20.1.1.1.3.</strong> TRelatedRelation</a></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/types/schema/model/IMainRelation.html"><strong aria-hidden="true">20.1.1.2.</strong> IMainRelation</a></li><li class="chapter-item expanded "><a href="../../../../../api/types/schema/model/IRelatedRelation.html"><strong aria-hidden="true">20.1.1.3.</strong> IRelatedRelation</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../../../../api/types/Services/main.html"><strong aria-hidden="true">20.2.</strong> Services types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/types/Services/Acts.html"><strong aria-hidden="true">20.2.1.</strong> Acts types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../../../api/types/Services/Acts/Act.html"><strong aria-hidden="true">20.2.1.1.</strong> Act</a></li></ol></li></ol></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Lesan</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/MiaadTeam/lesan" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/MiaadTeam/lesan/tree/main/pages/src/api/types/schema/model/TRelation/TRelatedRelation.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="trelatedrelation"><a class="header" href="#trelatedrelation">TRelatedRelation</a></h1>
+<pre><code class="language-ts">export type TRelatedRelation = {
+  type: RelationDataType;
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType;
+  };
+};
+</code></pre>
+<p>the <code>TRelatedRelation</code> type has the following type :</p>
+<ul>
+<li><a href="./RelationDataType.html"><code>RelationDataType</code></a></li>
+<li><a href="./RelationSortOrderType.html"><code>RelationSortOrderType</code></a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../../../api/types/schema/model/TRelation/RelationSortOrderType.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../../../api/types/schema/model/IMainRelation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../../../api/types/schema/model/TRelation/RelationSortOrderType.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../../../api/types/schema/model/IMainRelation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../../../elasticlunr.min.js"></script>
+        <script src="../../../../../mark.min.js"></script>
+        <script src="../../../../../searcher.js"></script>
+
+        <script src="../../../../../clipboard.min.js"></script>
+        <script src="../../../../../highlight.js"></script>
+        <script src="../../../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

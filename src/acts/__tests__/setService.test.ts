@@ -1,8 +1,10 @@
-import { assertExists } from "https://deno.land/std/assert/mod.ts";
 import { object, string } from "../../npmDeps.ts";
-import { mockActs } from "./getAct.test.ts";
+import { mockActs } from "./actMockData.ts";
 import { setService } from "../setService.ts";
-import { assertEquals } from "https://deno.land/std@0.210.0/assert/assert_equals.ts";
+import {
+  assertEquals,
+  assertExists,
+} from "https://deno.land/std@0.211.0/assert/mod.ts";
 
 Deno.test({
   name: "setService creates service within mockActs",

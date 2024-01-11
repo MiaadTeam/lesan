@@ -14,15 +14,13 @@ import { IPureFields, schemaFns, TSchemas } from "../mod.ts";
 export const addPureModel = (
   schemasObj: TSchemas,
   name: string,
-  pureModel: IPureFields,
+  pureModel: IPureFields
 ) => {
   const schemas = schemaFns(schemasObj).getSchemas();
-  return schemas[name] = {
+  return (schemas[name] = {
     pure: pureModel,
     relations: {},
     mainRelations: {},
     relatedRelations: {},
-  };
-
-  // schemas[name].pure = pureModel;
+  });
 };
