@@ -1,20 +1,23 @@
 # Penetration Into Depths
 
-The next issue is how to penetrate the depths. [In GraphQL, you have very complex solutions to manage it](https://escape.tech/blog/cyclic-queries-and-depth-limit/), but in Lesan, this issue does not exist by default because in projects written with Lassan, the server-side programmer must determine the depth of the relationships of each accessible point from the program before writing any accessible point. Let’s take a look at implementing a small project with Lesan to clarify the matter.
+The next issue is how to penetrate the `depths`. [In `GraphQL`, you have very complex solutions to manage it](https://escape.tech/blog/cyclic-queries-and-depth-limit/), but in `Lesan`, this issue does not exist by default because in projects written with `Lesan`, the server-side programmer must determine the `depth` of the relationships of each accessible point from the program `before` writing any accessible point. Let’s take a look at implementing a small project with `Lesan` to clarify the matter.
 
-In Lassan, starting a project will be like this:
+In `Lesan`, starting a project will be like this:
 
-- First of all, we create an app with the Lesan framework, for example (this sample is written in TypeScript):
+- First of all, we create an app with the `Lesan` framework, for example (this sample is written in TypeScript):
 
 ```typescript
 const ecommerceApp = lesan();
 ```
 
-- We write the model we want for the software using the pure - inrelation - outrelation method and add it to our ODM application. Like this (consider the same information we mentioned in the above example for country and cities):
+- We write the `model` we want for the software using the `pure` and `relations` object and add it to our `ODM` application. Like this (consider the same information we mentioned in the above example for `country` and `cities`):
 
 ```typescript
-const statePureObj = {
-  id: optional(any()),
+const cityPure = {
+  _id: optional(union([
+  	instance(ObjectId),
+  	size(string(), 24),
+  ]));
   name: string(),
   geometries: optional(
     object({
@@ -26,114 +29,140 @@ const statePureObj = {
   description: optional(string()),
 };
 
-const stateInRel = {
+const cityRelations = {
   country: {
-    schemaName: "country",
-    type: "one",
     optional: false,
-  },
-  cities: {
-    schemaName: "city",
-    type: "many",
-    optional: true,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      citiesByPopulation: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "population",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      capital: {
+        type: "single" as RelationDataType,
+      },
+    },
   },
 };
 
-const stateOutRel = {};
+const cities = coreApp.odm.newModel(
+  "city",
+  cityPure,
+  cityRelations,
+);```
 
-const states = () =>
-  ecommerceApp.odm.setModel(
-    "state",
-    statePureObj,
-    stateInRel as Record<string, InRelation>,
-    stateOutRel as Record<string, OutRelation>
-  );
-```
+- Now we create a `function` for this `model` and add it to our application `acts` (in fact, this `act` is available to the `client-side` user to call it) like this:
 
-- Now we create a function for this model and add it to our application actions (in fact, this action is available to the customer side user to call it) like this:
-
-```typescript
-const addStateFn: ActFn = async (body) => {
+```ts
+const getCitiesFn: ActFn = async (body) => {
   const {
-    set: { name, enName, countryId, geometries },
+    set: { page, take, countryId },
     get,
   } = body.details;
+  const pipeline = [];
 
-  return await states().insertOne({
-    doc: {
-      name,
-      enName,
-      geometries,
-    },
-    relation: { country: new ObjectId(countryId) },
-    get,
-  });
+  pipeline.push({ $skip: (page - 1) * take });
+  pipeline.push({ $limit: take });
+  countryId &&
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
+
+  return await cities
+    .aggregation({
+      pipeline,
+      projection: get,
+    })
+    .toArray();
 };
 ```
 
-##### In the Method written for insertOne in Lesan’s ODM, the input get is also received and returned using the aggregation method. The input relation also receives the relationships of the selected model and finds the pure information of all relationships based on the information we have given it before and stores them in an embedded form.
+- Now we write a `validator` for this function as follows:
 
-- Now we write a validator for this function as follows:
-
-```typescript
-const addStateValidator = () => {
+```ts
+const getCitiesValidator = () => {
   return object({
     set: object({
-      countryId: string(),
-      name: string(),
-      enName: string(),
-      geometries: optional(
-        object({
-          type: string(),
-          coordinates: array(array(number())),
-        })
-      ),
+      page: number(),
+      take: number(),
+      countryId: optional(size(string(), 24)),
     }),
-    get: selectStruct("state", 2),
+    get: coreApp.schemas.selectStruct("city", 2),
   });
 };
 ```
 
-- As you can see, the validator function addState has an object with keys set and get. The set key is used for information that we need to add state, and as you saw in addStateFn, this information has been used. But the value of the get key is what we need to penetrate into its depth. This value must be an object of a model that accurately specifies the degree of penetration into each of the relationships of that model (here in addStateFn). Here the get key is generated by a function called selectStruct. This function has two inputs. The first input is the name of the model for which we want to generate this object, and the second input specifies the degree of penetration into each relationship. The second input of the selectStruct function can be entered as a number or an object. If entered as an object, the keys of this object must be the names of the selected model relationships, and its value can again be a number or an object of its key relationships. Such as:
+- As you can see, the `validator` function `getCitiesValidator` has an `object` with keys `set` and `get`. The `set` key is used for information that we need to `filter` and `limit` cities, and as you saw in `getCitiesFn`, this information has been used. But the value of the `get` key is what we need to penetrate into its depth. This value must be an `object` of a model that accurately specifies the degree of penetration into each of the `relationships` of that `model` (here in `city` modelr. Here the `get` key is generated by a function called `selectStruct`. This function has two inputs. The first input is the name of the `model` for which we want to generate this `object`, and the second input specifies the `degree` of penetration into each `relationship`. The second input of the `selectStruct` function can be entered as a `number` or an `object`. If entered as an `object`, the `keys` of this object must be the `names` of the selected model `relationships`, and its value can again be a `number` or an `object` of its key relationships. Such as:
 
-```typescript
-{ country : { state: 2 }, cities: 1 }
+```ts
+{ country : { provinces: 2 }, cities: 1 }
 ```
 
 As a result, an object will be produced as follows :
 
-```typescript
+```ts
 {
-    id: enums([0,1]),
+    _id: enums([0,1]),
     name: enums([0,1]),
     abb: enums([0,1]),
     description: enums([0,1]),
     geoLocation: enums([0,1]),
     country: {
-        id: enums([0,1]),
+        _id: enums([0,1]),
         name: enums([0,1]),
         abb: enums([0,1]),
         description: enums([0,1]),
         geoLocation: enums([0,1]),
+        provinces: {
+           _id: enums([0,1]),
+            name: enums([0,1]),
+            abb: enums([0,1]),
+            description: enums([0,1]),
+            geoLocation: enums([0,1]),
+        },
+        cities: {
+            _id: enums([0,1]),
+            name: enums([0,1]),
+            abb: enums([0,1]),
+            description: enums([0,1]),
+            geoLocation: enums([0,1]),
+        },
     },
-    cities: {
-        id: enums([0,1]),
+    province: {
+        _id: enums([0,1]),
         name: enums([0,1]),
         abb: enums([0,1]),
         description: enums([0,1]),
         geoLocation: enums([0,1]),
+        cities: {
+            _id: enums([0,1]),
+            name: enums([0,1]),
+            abb: enums([0,1]),
+            description: enums([0,1]),
+            geoLocation: enums([0,1]),
+        }
     }
 }
 ```
 
-This object is used for validating the data sent from the client to the server. With this method, we have accurately and separately determined the depth of penetration for each function. If you notice, the key “get” is exactly similar to “projection” in MongoDB and after validating this object, we send it to the database without any changes to receive the data. Besides, we can inform the customer side of all the details of the written requests on the server. As a result, even before sending a request on the customer's side, we can understand what information needs to be sent and what information we can receive. Finally, we add this function and validator to our software with the setAct function.
+This `object` is used for `validating` the data sent from the `client` to the `server`. With this method, we have accurately and separately determined the `depth` of penetration for each function. If you notice, the key `get` is exactly similar to `projection` in `MongoDB` and after validating this `object`, we send it to the `database` without any changes to receive the data. Besides, we can inform the customer side of all the details of the written requests on the `server`. As a result, even before sending a request on the customer's side, we can understand what information needs to be sent and what information we can receive. Finally, we add this function and `validator` to our software with the `setAct` function.
 
 ```typescript
 ecommerceApp.acts.setAct({
-  type: "dynamic",
-  schema: "state",
-  fn: addStateFn,
-  actName: "addState",
-  validator: addStateValidator(),
+  schema: "city",
+  actName: "getCities",
+  validator: getCitiesValidator(),
+  fn: getCitiesFn,
 });
 ```
