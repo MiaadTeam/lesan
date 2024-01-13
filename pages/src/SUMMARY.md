@@ -32,10 +32,10 @@
 # Lesan Philosophy
 
 - [Receiving Data](./Receiving_Data.md)
-- [Previous methods and the main challenge](./Previous_methods_and_the_main_challenge.md)
+  - [Previous methods and the main challenge](./Previous_methods_and_the_main_challenge.md)
   - [Lesan's Solution For How To Communicate Between The Server And The Client](./Lesan's_Solution_For_How_To_Communicate_Between_The_Server_And_The_Client.md)
-  - [Why noSQL?](./Why_NoSQL.md)
-    - [Penetration Into Depths](./Penetration_Into_Depths.md)
+- [Why noSQL?](./Why_NoSQL.md)
+  - [Penetration Into Depths](./Penetration_Into_Depths.md)
   - [Microservice](./Microservice.md)
   - [Lesan solution](./Lesan_solution.md)
 - [Starting work with Lesan](./Starting_work_with_Lesan.md)
