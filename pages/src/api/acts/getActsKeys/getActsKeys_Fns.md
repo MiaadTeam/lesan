@@ -1,4 +1,5 @@
 # getActsKeys
+
 ```ts
 getActsKeys: (
   service: keyof typeof acts,
@@ -6,7 +7,7 @@ getActsKeys: (
 )
 ```
 
-*get actions of schema of specific service*
+_get actions of schema of specific service_
 
 <br>
 
@@ -70,8 +71,6 @@ getActsKeys: (
   <code class="language-ts" style="padding: 0; margin-top: 12px; margin-top: -18px;">
       schema: string;
       service: keyof typeof acts;
-      acts: <a href="../../types/Services/main.md" style="text-decoration: none; cursor:pointer">Services</a>; 
+      acts: <a href="../../types/Services/Services.md" target="_blank" style="text-decoration: none; cursor:pointer">Services</a>; 
   </code>
 </pre>
-
-
