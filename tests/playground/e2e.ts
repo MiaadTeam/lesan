@@ -32,58 +32,54 @@ const countryRelations = {};
 const countries = coreApp.odm.newModel(
   "country",
   locationPure,
-  countryRelations,
+  countryRelations
 );
 
 // ------------------ City Model ------------------
-const cities = coreApp.odm.newModel(
-  "city",
-  locationPure,
-  {
-    country: {
-      schemaName: "country",
-      type: "single",
-      optional: false,
-      relatedRelations: {
-        citiesAsc: {
-          type: "multiple",
-          limit: 5,
-          sort: {
-            field: "_id",
-            order: "asc",
-          },
+const cities = coreApp.odm.newModel("city", locationPure, {
+  country: {
+    schemaName: "country",
+    type: "single",
+    optional: false,
+    relatedRelations: {
+      citiesAsc: {
+        type: "multiple",
+        limit: 5,
+        sort: {
+          field: "_id",
+          order: "asc",
         },
-        citiesDesc: {
-          type: "multiple",
-          limit: 5,
-          sort: {
-            field: "_id",
-            order: "desc",
-          },
+      },
+      citiesDesc: {
+        type: "multiple",
+        limit: 5,
+        sort: {
+          field: "_id",
+          order: "desc",
         },
-        citiesByPopAsc: {
-          type: "multiple",
-          limit: 5,
-          sort: {
-            field: "population",
-            order: "asc",
-          },
+      },
+      citiesByPopAsc: {
+        type: "multiple",
+        limit: 5,
+        sort: {
+          field: "population",
+          order: "asc",
         },
-        citiesByPopDesc: {
-          type: "multiple",
-          limit: 5,
-          sort: {
-            field: "population",
-            order: "desc",
-          },
+      },
+      citiesByPopDesc: {
+        type: "multiple",
+        limit: 5,
+        sort: {
+          field: "population",
+          order: "desc",
         },
-        capitalCity: {
-          type: "single",
-        },
+      },
+      capitalCity: {
+        type: "single",
       },
     },
   },
-);
+});
 // ------------------ User Model ------------------
 const userPure = {
   name: string(),
@@ -216,7 +212,7 @@ coreApp.acts.setAct({
 // ------------------ Add Multiple Countries ------------------
 const addMultipleCountriesValidator = () => {
   return object({
-    set: (object({ multiCountries: array(object()) })),
+    set: object({ multiCountries: array(object()) }),
     get: coreApp.schemas.selectStruct("country", { users: 1 }),
   });
 };
@@ -284,8 +280,10 @@ const deleteCountry: ActFn = async (body) => {
     set: { _id },
     get,
   } = body.details;
-  return await countries
-    .deleteOne({ filter: { _id: new ObjectId(_id) }, hardCascade: true });
+  return await countries.deleteOne({
+    filter: { _id: new ObjectId(_id) },
+    hardCascade: true,
+  });
 };
 
 coreApp.acts.setAct({
@@ -500,9 +498,7 @@ const addUserValidator = () => {
 };
 const addUser: ActFn = async (body) => {
   const { country, livedCities, name, age } = body.details.set;
-  const obIdLivedCities = livedCities.map(
-    (lp: string) => new ObjectId(lp),
-  );
+  const obIdLivedCities = livedCities.map((lp: string) => new ObjectId(lp));
 
   return await users.insertOne({
     doc: { name, age },
@@ -546,9 +542,7 @@ const addUsersValidator = () => {
 
 const addUsers: ActFn = async (body) => {
   const { country, multiUsers, livedCities, city } = body.details.set;
-  const obIdLivedCities = livedCities.map(
-    (lp: string) => new ObjectId(lp),
-  );
+  const obIdLivedCities = livedCities.map((lp: string) => new ObjectId(lp));
 
   return await users.insertMany({
     docs: multiUsers,
@@ -596,9 +590,7 @@ const addUserLivedCityValidator = () => {
 };
 const addUserLivedCity: ActFn = async (body) => {
   const { livedCities, _id } = body.details.set;
-  const obIdLivedCities = livedCities.map(
-    (lc: string) => new ObjectId(lc),
-  );
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
 
   return await users.addRelation({
     filters: { _id: new ObjectId(_id) },
@@ -667,9 +659,7 @@ const addUserCitiesValidator = () => {
 };
 const addUserCities: ActFn = async (body) => {
   const { livedCities, _id } = body.details.set;
-  const obIdLivedCities = livedCities.map(
-    (lc: string) => new ObjectId(lc),
-  );
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
 
   return await users.addRelation({
     filters: { _id: new ObjectId(_id) },
@@ -772,9 +762,7 @@ const removeLivedCitiesValidator = () => {
 const removeLivedCities: ActFn = async (body) => {
   const { livedCities, _id } = body.details.set;
 
-  const obIdLivedCities = livedCities.map(
-    (lc: string) => new ObjectId(lc),
-  );
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
 
   return await users.removeRelation({
     filters: { _id: new ObjectId(_id) },
