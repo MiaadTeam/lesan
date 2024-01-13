@@ -149,7 +149,7 @@ coreApp.acts.setAct({
   fn: getUsers,
 });
 ```
-`findOne` functions accept three inputs:
+`find` functions accept three inputs:
 - `filters` which is mongodb [filter query operation](https://mongodb.github.io/node-mongodb-native/6.3/types/Filter.html)
 - `projection` which is mongodb [projection operation](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/#std-label-findOne-projection)
 - and optional `option` which is mongodb [findOption](https://mongodb.github.io/node-mongodb-native/6.3/interfaces/FindOptions.html)  
