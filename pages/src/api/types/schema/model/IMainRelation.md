@@ -2,25 +2,24 @@
 
 ```ts
 export interface IMainRelation {
-  /**
-   * name of schema that this schema has relation with
-   */
   schemaName: string;
-  /**
-   * type of relation if equal to one: this schema record one object from other schema else
-   * this schema record array of object from other schema
-   */
   type: RelationDataType;
-
   optional: boolean;
-  /**
-   * sort : {field , order} - field of sort , and order of sort
-   */
   sort?: {
     field: string;
     order: "asc" | "desc";
   };
 }
 ```
-the `IMainRelation` type has the following type :
-- [`RelationDataType`](./TRelation/RelationDataType.md)
+
+_if schema has relation with other schema and in SQL that we keep foreign key._
+<br>
+
+_store in InRelation feature_
+
+<h3>Types</h3>
+<pre>
+  <code class="language-ts" style="padding: 0; margin-top: 12px; margin-top: -18px;">
+    <a href="./TRelation/RelationDataType.md" target="_blank" style="text-decoration: none; cursor:pointer">RelationDataType</a>
+  </code>
+</pre>
