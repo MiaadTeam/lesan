@@ -14,12 +14,13 @@ Now let's look at the relationship features in `SQL`:
 - Relationships are not together. And each lives independently.
 - Relationships are not deep.
 - Relationships do not give birth to any children. (In **Lesan**, you will see that relationships encourage you to create new models)  
+- And the most important thing is that it is not clear what kind of effects each relationship we create will have on the other side of the relationship.
 
 What are the relationships in `NoSQL`?
 - There is no real relationship. In fact, there is no proper connection between the two sides.
 - If we consider embeding as a relationship: 
   - the changes of each party have no effect on the other side and cause many inconsistencies in the data.
-  - the two sides leave each other after the relationship.
+  - the two sides leave each other after the relationship. Infact, it is not clear what kind of effects each relationship we create will have on the other side of the relationship.
 - In this type of databases, they prevent the child from being born, and if a child is born, only one side will be informed of it and probably will not take much responsibility for it.  
 
 And finally what are the relationships in `Lesan`:
@@ -27,6 +28,7 @@ And finally what are the relationships in `Lesan`:
 - Relationships fully contain each other's pure properties within themselves.
 - If a relationship changes, all related parties will be notified and apply the changes according to a process.
 - By establishing a relationship and seeing many changes on one side of this relationship, you are encouraged to create new relationships. Don't worry, this issue will not add more complexity to the data model, but it will also make the data more understandable. (Below there is an example to understand this)
+- And the most important point is that it is exactly clear what effects each relationship we have created will have on the other side of the relationship.
 
 ## Example
 ### SQL
