@@ -1,28 +1,105 @@
 # getPureFromRelatedRelations
 
-- extract pure feature of outrelation of schema
-
-- @param schemaName - name of schema
-
-- @returns return pure fetaures of schema that we have outrelation with it
-- for example if: outrelation of schema is equal to
-
 ```
-'{
-
-       "comments": {
-         schemaName: "comment",
-         number: 50,
-         sort: { filed: "id", order: "desc" },
-       },
-  }'
+getPureFromRelatedRelations:(schemaName: string)
 ```
 
-```
-   output of this function is equal to :{
-         "comments": array({
-          "id": string(),
-          "content": string(),
-        }),
+_Extract pure feature of outrelation of schema_
+
+</br>
+<details open>
+ <summary>
+  Example
+  </summary>
+  <pre>
+    <code class="language-ts" style="padding: 0;">
+      const coreApp = lesan();
+      const locationPure = {
+        name: string(),
+        population: number(),
+        abb: string(),
+      };
+      const cities = coreApp.odm.newModel(
+        "city",
+        locationPure,
+        {
+          country: {
+            schemaName: "country",
+            type: "single",
+            optional: false,
+            relatedRelations: {
+              cities: {
+                type: "multiple",
+                limit: 5,
+                sort: {
+                  field: "_id",
+                  order: "asc",
+                },
+              },
+            },
+          },
+        },
+      );
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" > const getCityPureFromRelatedRelations = coreApp.schemas.getPureFromRelatedRelations("city");</p>
+    </code>
+  </pre>
+</details>
+
+<details>
+  <summary>
+    Return Of Example
+  </summary>
+  <pre>
+    <code class="language-json" style="padding: 0;">
+{
+  "users": {
+    "type": "array",
+    "schema": {
+      "type": "object",
+      "schema": {
+        "_id": {
+          "type": "union",
+          "schema": null
+        },
+        "name": {
+          "type": "string",
+          "schema": null
+        },
+        "age": {
+          "type": "number",
+          "schema": null
+        }
+      }
+    }
+  },
+  "lovedByUser": {
+    "type": "array",
+    "schema": {
+      "type": "object",
+      "schema": {
+        "_id": {
+          "type": "union",
+          "schema": null
+        },
+        "name": {
+          "type": "string",
+          "schema": null
+        },
+        "age": {
+          "type": "number",
+          "schema": null
+        }
+      }
+    }
   }
-```
+}
+    </code>
+  </pre>
+</details>
+
+<h3>Parameters</h3>
+<pre>
+  <code class="language-ts" style="padding: 0; margin-top: 12px; margin-top: -18px;">
+  schemaName: string
+  </code>
+</pre>
