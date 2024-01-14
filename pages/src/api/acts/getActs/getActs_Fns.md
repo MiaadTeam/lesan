@@ -1,8 +1,10 @@
 # getActs
+
 ```ts
-getActs: ( schema: string ) 
+getActs: ( schema: string )
 ```
-*get actions of schema of main service*
+
+_get actions of schema of main service_
 
 <br>
 
@@ -41,7 +43,6 @@ getActs: ( schema: string )
       );
 
   <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000">const getCityActs = coreApp.acts.getActs("city");</p>
-
 
 </code>
   </pre>
@@ -91,6 +92,7 @@ getActs: ( schema: string )
 </details>
 
 ### Parameters
+
 ```ts
-    schema: string;
+schema: string;
 ```
