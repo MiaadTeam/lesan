@@ -44,7 +44,7 @@ _get actions of schema of specific service_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000">const getCityActsKeys = coreApp.acts.getActsKeys("main", "city");</P>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const getCityActsKeys = coreApp.acts.getActsKeys("main", "city");</P>
     </code>
   </pre>
 </details>

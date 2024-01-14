@@ -40,7 +40,7 @@ _Add pure feature of model to schema_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getPostPureModel = coreApp.schemas.addPureModel("post", {name: string(), title: string(),});</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getPostPureModel = coreApp.schemas.addPureModel("post", {name: string(), title: string(),});</p>
     </code>
   </pre>
 </details>

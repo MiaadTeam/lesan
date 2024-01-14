@@ -52,7 +52,7 @@ _Create embed features, embed feature is equal to all of pure features of inerRe
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const createCityEmbedded = coreApp.schemas.createEmbedded("city");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const createCityEmbedded = coreApp.schemas.createEmbedded("city");</p>
     </code>
   </pre>
 </details>

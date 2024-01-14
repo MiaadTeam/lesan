@@ -27,7 +27,7 @@ const selectStruct = <T>(schema: keyof TSchemas, depth: number | T = 2)
       },
     },
   });
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const selectStruct = coreApp.schemas.selectStruct("city", {});</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const selectStruct = coreApp.schemas.selectStruct("city", {});</p>
     </code>
   </pre>
 </details>

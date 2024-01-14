@@ -38,7 +38,7 @@ getSchemasKeys: ()
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getSchemasKeys = coreApp.schemas.getSchemasKeys();</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getSchemasKeys = coreApp.schemas.getSchemasKeys();</p>
     </code>
   </pre>
 </details>

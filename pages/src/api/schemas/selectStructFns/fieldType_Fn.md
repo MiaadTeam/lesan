@@ -27,7 +27,7 @@ const cities = coreApp.odm.newModel("city", locationPure, {
     },
   },
 });
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const fieldType = coreApp.schemas.fieldType;</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const fieldType = coreApp.schemas.fieldType;</p>
     </code>
   </pre>
 </details>

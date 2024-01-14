@@ -20,7 +20,7 @@ _Get all of acts of specific service_
       validator: addCityValidator(),
       fn: addCity,
     });
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getMainService = coreApp.acts.getService("main");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getMainService = coreApp.acts.getService("main");</p>
     </code>
   </pre>
 </details>
