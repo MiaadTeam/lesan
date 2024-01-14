@@ -9,4 +9,6 @@ export const setService = (
   acts: Services,
   serviceName: keyof typeof acts,
   service: Acts | string
-) => (acts[serviceName] = service);
+) => {
+  return (acts[serviceName] = service);
+};
