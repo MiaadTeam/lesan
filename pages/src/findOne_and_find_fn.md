@@ -39,6 +39,7 @@ coreApp.acts.setAct({
 - and optional `option` which is mongodb [findOption](https://mongodb.github.io/node-mongodb-native/6.3/interfaces/FindOptions.html)  
 
 You can also read mongodb [`findOne`](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/) section for more information.  
+
 executing  `main` → `user` → `getUser`:
 ![Screenshot 2024-01-08 at 19-21-17 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/d010bd29-18a1-4c85-881a-8c4c5745a883)
 

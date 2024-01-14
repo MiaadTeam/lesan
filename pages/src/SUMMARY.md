@@ -44,7 +44,7 @@
 # Structures
 
 - [Schemas](./Schemas.md)
-- [Pure Structure In Schema](./Pure_Structure_In_Schema.md)
+  - [Pure Structure In Schema](./Pure_Structure_In_Schema.md)
 - [The InRelation Structure In Schema](./The_InRelation_Structure_In_Schema.md)
 - [The structure of OutRelation in the schema](./The_structure_of_OutRelation_in_the_schema.md)
 - [The structure of embed in the schema](./The_structure_of_embed_in_the_schema.md)
