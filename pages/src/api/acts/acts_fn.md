@@ -1,60 +1,38 @@
 # acts functions
 
-this function is create for define all things in local scope
-and also all functions define in this function
-@function
-@param {Services} acts - is type of Services for get ServiceKeys in function
-@returns - return objects of all functions that define in this function
-
+```ts
+acts = (acts: Services);
 ```
- const actsSample = {
 
-   dynamic: {
-     user: {
-       create: {
-         validator: (input: any) => {
-           return true;
-         },
-         fn: (input: any) => {
-           return input;
-         },
-       },
-       update: {
-         validator: (input: any) => {
-           return true;
-         },
-         fn: (input: any) => {
-           return input;
-         },
-       },
-     },
-   },
-   static: {
-     "blogFirstPage": {
-       "get": {
-         "validator": (input: any) => {
-           return true;
-         },
-         "fn": (input: any) => {
-           return input;
-         },
-       },
-       "set": {
-         "validator": (input: any) => {
-           return true;
-         },
-         "fn": (input: any) => {
-           return input;
-         },
-       },
-     },
-   },
- };
+_this function is create for define all things in local scope
+and also all functions define in this function_
 
- const actsObj: Services = {
-   main: {
-     dynamic: {},
-     static: {},
-   },
- };
-```
+<details open>
+  <summary>
+    Return
+  </summary>
+<pre>
+<code>
+<ul style="display:flex; flex-direction:column; gap:10px">
+<li><a href="./setAct/setAct_Fns.md" target="_blank">setAct</a></li>
+<li><a href="./getServiceKeys/getServiceKeys_Fns.md" target="_blank">getServiceKeys</a></li>
+<li><a href="./getActs/getActs_Fns.md" target="_blank">getActs</a></li>
+<li><a href="./getActsKeys/getActsKeys_Fns.md" target="_blank">getActsKeys</a></li>
+<li><a href="./getActKeys/getActKeys_Fns.md" target="_blank">getActKeys</a></li>
+<li><a href="./getAct/getAct_Fns.md" target="_blank">getAct</a></li>
+<li><a href="./getAtcsWithServices/getAtcsWithServices_Fns.md" target="_blank">getAtcsWithServices</a></li>
+<li><a href="./getMainActs/getMainActs_Fns.md)" target="_blank">getMainActs</a></li>
+<li><a href="./getMainAct/getMainAct_Fns.md)" target="_blank">getMainAct</a></li>
+<li><a href="./setService/setService_Fns.md" target="_blank">setService</a></li>
+<li><a href="./getService/getService_Fns.md" target="_blank">getService</a></li>
+</ul>
+</code>
+</pre>
+</details>
+
+<h3>Parameters</h3>
+<pre>
+  <code class="language-ts" style="padding: 0; margin-top: 12px; margin-top: -18px;">
+      acts: <a href="../types/Services/Services.md" target="_blank" style="text-decoration: none; cursor:pointer">Services</a>; 
+  </code>
+</pre>
