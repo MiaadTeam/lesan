@@ -32,7 +32,7 @@ const countryRelations = {};
 const countries = coreApp.odm.newModel(
   "country",
   locationPure,
-  countryRelations
+  countryRelations,
 );
 
 // ------------------ City Model ------------------
@@ -405,7 +405,7 @@ coreApp.acts.setAct({
   fn: addCities,
 });
 
-// ------------------ Get City ------------------
+// ------------------ Get Cities ------------------
 const getCitiesValidator = () => {
   return object({
     set: object({
