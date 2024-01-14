@@ -20,7 +20,7 @@ _Get acts of main service_
         validator: addCityValidator(),
         fn: addCity,
       });
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getMainActs = coreApp.acts.getMainActs();</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getMainActs = coreApp.acts.getMainActs();</p>
     </code>
   </pre>
 </details>

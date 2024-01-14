@@ -36,7 +36,7 @@ _Get object of schema_
        },
      },
   });
-  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line"" >const getSchemas = coreApp.schemas.getSchemas();</p>
+  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getSchemas = coreApp.schemas.getSchemas();</p>
     </code>
   </pre>
 

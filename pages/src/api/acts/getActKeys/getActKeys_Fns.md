@@ -40,7 +40,7 @@ _Get key of Dynamic Actions wih service Name_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000">const getMainActKeys = coreApp.acts.getActKeys("main");</P>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const getMainActKeys = coreApp.acts.getActKeys("main");</P>
     </code>
   </pre>
 </details>

@@ -31,7 +31,7 @@ const decreaseIterate = (depth: Iterate)
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const decreaseIterate = coreApp.schemas.decreaseIterate({ value: "hello" });</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const decreaseIterate = coreApp.schemas.decreaseIterate({ value: "hello" });</p>
     </code>
   </pre>
 </details>

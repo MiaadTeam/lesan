@@ -1,8 +1,10 @@
 # getServiceKeys
+
 ```ts
 getServiceKeys: ()
 ```
-*get key of services*
+
+_get key of services_
 
 <br>
 
@@ -39,7 +41,7 @@ getServiceKeys: ()
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getServiceKeys = coreApp.acts.getServiceKeys();</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getServiceKeys = coreApp.acts.getServiceKeys();</p>
     </code>
   </pre>
 </details>

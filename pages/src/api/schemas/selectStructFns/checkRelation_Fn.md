@@ -37,7 +37,7 @@ const checkRelation: CheckRelation = (depth, relation);
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const checkCityRelation = coreApp.schemas.checkRelation({}, "city");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const checkCityRelation = coreApp.schemas.checkRelation({}, "city");</p>
     </code>
   </pre>
 </details>

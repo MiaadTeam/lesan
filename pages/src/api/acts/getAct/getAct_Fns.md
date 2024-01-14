@@ -20,7 +20,7 @@ _Get specific action of schema of specific service_
         validator: addCityValidator(),
         fn: addCity,
       });
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getCountryActs = coreApp.acts.getAct("main", "country", "addCountry");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000 ; white-space: pre-line" >const getCountryActs = coreApp.acts.getAct("main", "country", "addCountry");</p>
     </code>
   </pre>
 </details>

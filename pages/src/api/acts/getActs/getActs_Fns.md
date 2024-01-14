@@ -42,7 +42,7 @@ _get actions of schema of main service_
         },
       );
 
-  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000">const getCityActs = coreApp.acts.getActs("city");</p>
+  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const getCityActs = coreApp.acts.getActs("city");</p>
 
 </code>
   </pre>

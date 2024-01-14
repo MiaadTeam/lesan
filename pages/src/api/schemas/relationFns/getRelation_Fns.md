@@ -39,7 +39,7 @@ _Get inerRelatrion or outerRealtion of one schema_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getCityRelation = coreApp.schemas.getRelation("city", "relations");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getCityRelation = coreApp.schemas.getRelation("city", "relations");</p>
     </code>
   </pre>
 </details>

@@ -40,7 +40,7 @@ _Get all of inerRealation of one schema_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getCityMainRelations = coreApp.schemas.getMainRelations("city");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getCityMainRelations = coreApp.schemas.getMainRelations("city");</p>
     </code>
   </pre>
 </details>

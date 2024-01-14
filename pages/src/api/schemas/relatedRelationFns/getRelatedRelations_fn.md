@@ -39,7 +39,7 @@ _GetOutRelations of one schema_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getCityRelatedRelations = coreApp.schemas.getRelatedRelations("city");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getCityRelatedRelations = coreApp.schemas.getRelatedRelations("city");</p>
     </code>
   </pre>
 </details>

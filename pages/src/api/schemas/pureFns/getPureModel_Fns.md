@@ -41,7 +41,7 @@ _Get pure features of one schema_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getCityPureModel = coreApp.schemas.getPureModel("city");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getCityPureModel = coreApp.schemas.getPureModel("city");</p>
     </code>
   </pre>
 </details>
