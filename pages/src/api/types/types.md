@@ -30,6 +30,7 @@
 <li><a href="../types/Services/ActInp.md" target="_blank" style="text-decoration: none;       cursor:pointer">ActInp</a></li>
 <li><a href="../types/TInsertRelations.md" target="_blank" style="text-decoration: none;       cursor:pointer">TInsertRelations</a></li>
 <li><a href="../types/TInsertRelations/IRelationsFileds.md" target="_blank" style="text-decoration: none;       cursor:pointer">IRelationsFileds</a></li>
+<li><a href="../types/aggregation/projection/projection.md" target="_blank" style="text-decoration: none;       cursor:pointer">projection</a></li>
 </ul>
 </code>
 </pre>
