@@ -1,9 +1,11 @@
 # Add relation
-As we said before, we embed all relationships. So when you define a relation we store the pure fields of both models in each other.  
 
-So far we have defined only one model, let us add the second model.  
+As we said before, we embed all relationships. So when you define a relation we store the pure fields of both models in each other.
+
+So far we have defined only one model, let us add the second model.
 
 We add the following code to the previous codes to add a new model called `city`.
+
 ```ts
 const cityPure = {
   name: string(),
@@ -29,16 +31,13 @@ const cityRelations = {
   },
 };
 
-const cities = coreApp.odm.newModel(
-  "city",
-  cityPure,
-  cityRelations,
-);
+const cities = coreApp.odm.newModel("city", cityPure, cityRelations);
 ```
 
-We talked about `newModel` and its input [here](https://miaadteam.github.io/lesan/getting_start.html#add-new-model).  
+We talked about `newModel` and its input [here](https://miaadteam.github.io/lesan/getting_start.html#add-new-model).
 
 Now we only talk about the third input, the **relation** definition. which receives an object with string key which is the feild name and we store the relation data by this name inside each document, and `TRelation` value (`relations: Record<string, TRelation>;`) which gave us some `metadata` about the relation. The `TRelation` type is as follows:
+
 ```ts
 export type RelationDataType = "single" | "multiple";
 
@@ -49,7 +48,7 @@ export type TRelatedRelation = {
   limit?: null | number;
   sort?: {
     field: string;
-    order: RelationSortOrderType
+    order: RelationSortOrderType;
   };
 };
 
@@ -71,20 +70,21 @@ interface TRelation {
 - The `type` key specifies whether the relationship type should be `single` or `multiple`.
 - The `optional` key specifies whether or not it is mandatory to enter information about this relationship when importing a new document.
 - The `sort` key is optional and specifies that if the relationship type is `multiple`, based on which `field` of the relationship schema, the information should be arranged. This key receives an object with two keys:
-   - The `field` that receives the name of one of the schema fields in the relation.
-   - An `order` that receives the value of `asc` and `desc` and specifies whether the arrangement should be from bottom to top or vice versa.
+  - The `field` that receives the name of one of the schema fields in the relation.
+  - An `order` that receives the value of `asc` and `desc` and specifies whether the arrangement should be from bottom to top or vice versa.
 - `relatedRelations` key that specifies the effects of this schema on the other side of the relationship. This key receives the value of the object with the following keys:
-   - The `type` key specifies whether the relationship type should be `single` or `multiple`.
-   - `limit` which specifies the number of relations to be kept if the relation `type` is `multiple`.
+  - The `type` key specifies whether the relationship type should be `single` or `multiple`.
+  - `limit` which specifies the number of relations to be kept if the relation `type` is `multiple`.
   - The `sort` key is optional and specifies that if the relationship type is `multiple`, based on which `field` of the relationship schema, the information should be arranged. This key receives an object with two keys:
-     - The `field` that receives the name of one of the schema fields in the relation.
-     - An `order` that receives the value of `asc` and `desc` and specifies whether the arrangement should be from bottom to top or vice versa.
+    - The `field` that receives the name of one of the schema fields in the relation.
+    - An `order` that receives the value of `asc` and `desc` and specifies whether the arrangement should be from bottom to top or vice versa.
 
 ## Add new `Act` with relation
 
-Let us define an `Act` for this new model. We add the following code for this purpose: 
+Let us define an `Act` for this new model. We add the following code for this purpose:
+
 ```ts
-  const addCityValidator = () => {
+const addCityValidator = () => {
   return object({
     set: object({
       ...cityPure,
@@ -117,11 +117,12 @@ coreApp.acts.setAct({
   validator: addCityValidator(),
   fn: addCity,
 });
-
 ```
-> We need to import `objectIdValidation` and  `ObjectId` from `lesan`
+
+> We need to import `objectIdValidation` and `ObjectId` from `lesan`
 
 We see `Validator` and `Act` and `setAct` and `insertOne` functions before, Here we are only talking about the `relations` input in the insert function. The type of this input is as follow:
+
 ```ts
 export type TInsertRelations<T extends IRelationsFileds> = {
   [mainKey in keyof T]?: {
@@ -134,13 +135,16 @@ export type TInsertRelations<T extends IRelationsFileds> = {
 ```
 
 This input receives an object with the key name of the relations that we have previously defined in the model. This object has the following keys:
+
 - `ids` which receives either an `ObjectId` or an array of `ObjectIds`.
-- `relatedRelations`, which receives an object with the key of the name of the related relations that we have previously defined in the model along with a `boolean` value. If the value is `true`, in addition to the given relationship being saved in this new document, this created document is also saved in the related relationship. And if it is `false`, the relationship will be saved only in this new document.  
+- `relatedRelations`, which receives an object with the key of the name of the related relations that we have previously defined in the model along with a `boolean` value. If the value is `true`, in addition to the given relationship being saved in this new document, this created document is also saved in the related relationship. And if it is `false`, the relationship will be saved only in this new document.
 
 Here, by adding a city and giving the country ID associated with that city, we store both the pure fields of that country in this newly created city, and within that country in an array of objects, we also store the pure fields of this city.
 
 ### All codes
+
 Let's see all the code written here and run it. (You can also see and download this code from [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/03-add-first-relation.ts))
+
 ```ts
 import {
   ActFn,
@@ -174,7 +178,7 @@ const countryRelations = {};
 const countries = coreApp.odm.newModel(
   "country",
   countryCityPure,
-  countryRelations,
+  countryRelations
 );
 
 const cityRelations = {
@@ -195,11 +199,7 @@ const cityRelations = {
   },
 };
 
-const cities = coreApp.odm.newModel(
-  "city",
-  countryCityPure,
-  cityRelations,
-);
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
 
 const addCountryValidator = () => {
   return object({
@@ -263,12 +263,13 @@ coreApp.acts.setAct({
 
 coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
 ```
+
 Now, by running this code and going to playgroun, you should see this page to add the country:
-  
+
 ![add-country](https://github.com/MiaadTeam/lesan/assets/6236123/4d2bc0d0-8715-44ce-b31c-c6222d1aaed2)
 
 And to add a new city, you should see this page:
-  
+
 ![add-city](https://github.com/MiaadTeam/lesan/assets/6236123/b59ae7fc-2f11-4326-9944-f5a99d698486)
 
 What exactly happened to the database? If you open MongoDB Compass, the following data should be stored for the country:
@@ -281,3 +282,29 @@ And the following data should be stored for the city:
 
 As you can see, when you add a city, the pure values are stored as embedded on both sides of the relation. This makes receiving data much faster.  
 The only noteworthy point is that a limited number of cities are stored in the country. Try to save as many as you think you will need in the first paginate. To get the rest of the cities, we will also query their own schema.
+
+### E2E
+
+Like before, you can click on the e2e button (like bottom picture) to add your request to E2E section.
+
+<img alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
+
+Then, when you go to the E2E section, you can see 2 sequense that first one is add country from getting start section and second one, is curent request.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/ac44b737-5e70-4282-bf8b-b28db0871681">
+
+In the first sequence, you can click on "Add Capture" button to show you two input to set variable and value:
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/ad8ec679-09f4-4d3d-b15e-38651bc91602">
+
+Then, you should fill the inputs like bottom picture:
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/d20b6bd4-5b1d-4155-850b-e8f7a8cb8822">
+
+Finaly, In the second sequence (add city), you should delete the country id :
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/507eae94-a957-4eb8-b5a4-8d301ff10a4e">
+
+And put the variable name that you set in the capture in the past, in my example, (iranid).
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/6ace4171-5047-41c0-8e9e-ca4c9c2187f5">
