@@ -295,12 +295,12 @@ In the first sequence, you can click on "Add Capture" button to show you two inp
 
 Then, you should fill the inputs like bottom picture:
 
-<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/d20b6bd4-5b1d-4155-850b-e8f7a8cb8822">
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/aba2d54e-70b1-42d0-a4bb-8739a89f27bf">
 
 Finaly, In the second sequence (add city), you should delete the country id :
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/507eae94-a957-4eb8-b5a4-8d301ff10a4e">
 
-And put the variable name that you set in the capture in the past, in my example, (iranid).
+And put the variable name that you set in the capture in the past, in my example, « {IranId} ».
 
-<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/6ace4171-5047-41c0-8e9e-ca4c9c2187f5">
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/4014e0c4-0db2-454d-86f7-fe4e3ad376bd">
