@@ -1,5 +1,5 @@
 # `findOneAndUpdate` functions
-Updating is the most challenging issue in **Lesan**. Because by updating one document, thousands or maybe millions of other documents may also be updated. Don't worry, this is done automatically by **Lesan**. And also for complex scenarios where millions of documents need to be updated, we have created various solutions.
+Updating is the most challenging issue in **Lesan**. Because by updating `one` document, `thousands` or maybe `millions` of other documents may also be updated. Don't worry, this is done automatically by **Lesan**. And also for complex scenarios where `millions` of documents need to be updated, we have created various solutions.
 
 Let's explore a few scenarios.  
 
@@ -104,6 +104,68 @@ As you have seen, we face a big problem for `updating` the `country` and `millio
 `QQ` stands for query queue, a queue of commands to be sent to the `database`. We use `QQ` to chunk `millions` of `updates`. In this way, we take a section of several hundred thousand that we guess should be updated immediately and perform the update, then we store the ID of the last updated document along with the necessary commands for updating in `QQ`. And we do another part of the update whenever hardware resources are low on contention.
 
 ### In-memmory DB solutions
+Because we have `detailed` relationship information, we can know when sending information to the customer that the information sent has changes in `QQ`. As a result, by saving the changes in an `in-memory` database, we can correct the `sent` information in the same `RAM` and send it to the client, without changing the actual data in the `hard disk`.
 
 ### Make new relation solutions
+Perhaps the most beautiful thing about database `relations` is here.  
+In `Lesan`, after checking the data model, we can convert frequently changing fields into a `new relationship`.  
+Going back to the previous example, our real problem was updating `a country` because `millions` of documents needed to be `updated`.  
+In our example, each `country` had the following `pure` fields:
+- name
+- abb
+- population
+
+The `name` and `abb` fields usually do not change, in fact, in our example, they never change, but the `population` field may change a lot, imagine that we want to have the updated `population` of each country every second, that is, all `countries` are updated every second. And by updating each country, all the `cities` and `users` belonging to that `country` must be updated. Well, this is almost impossible.  
+But if we convert the `population` field into a `new schema` and create a `relationship` with the `country` for it, all problems will be solved.  
+Pay attention to the following code:
+```ts
+const populationPure = {
+  population: number(),
+  type: enums(["City", "Country"])
+};
+
+const populationRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      populations: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+  city: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      populations: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const populations = coreApp.odm.newModel(
+  "population",
+  populationPure,
+  populationRelations
+);
+```
+Now we can `remove` the `population` field from both the `pure` fields of the `city` and the `pure` fields of the `country`. But there is still the `population` field in both the `country` and the `city`, and we can write any type of `filter` or `sort` for the `city` and `country` schemas based on the `population`. Even better, now we have a list of the last 50 `population` records for each `country` and each `city`, and we can `find`, for example, `countries` that have added more than `100` people to their `population` in the last minute, without sending a `complex query` to the database.
+
+And the most **important** thing is that now, with the `population` change, instead of `millions` of documents, only `two` documents change.  
+Because to change the `population`, we make a `new record` for the `population` and store this new record only in the `country` or `city` that belongs to it in the `populations` list. And we no longer need to update `thousands` of `cities` or `millions` of `users`.
+
 
