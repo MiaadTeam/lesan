@@ -263,20 +263,17 @@ coreApp.acts.setAct({
 
 coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
 ```
+
 Now, by running this code and going to playgroun, you should see this page to add the country:
-  
 ![add-country](https://github.com/MiaadTeam/lesan/assets/6236123/4d2bc0d0-8715-44ce-b31c-c6222d1aaed2)
 
 And to add a new city, you should see this page:
-  
 ![add-city](https://github.com/MiaadTeam/lesan/assets/6236123/b59ae7fc-2f11-4326-9944-f5a99d698486)
 
 What exactly happened to the database? If you open MongoDB Compass, the following data should be stored for the country:
-
 ![country-data](https://github.com/MiaadTeam/lesan/assets/6236123/9824ded0-ba32-4d4b-a726-838b31bea988)
 
 And the following data should be stored for the city:
-
 ![city-data](https://github.com/MiaadTeam/lesan/assets/6236123/eb1a7ea0-fe7e-44e3-96df-08b2d37d4fd9)
 
 As you can see, when you add a city, the pure values are stored as embedded on both sides of the relation. This makes receiving data much faster.  
