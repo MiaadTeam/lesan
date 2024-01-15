@@ -20,7 +20,7 @@ _Get all acts of all service_
         validator: addCityValidator(),
         fn: addCity,
       });
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getAtcsWithServices = coreApp.acts.getAtcsWithServices();</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getAtcsWithServices = coreApp.acts.getAtcsWithServices();</p>
     </code>
   </pre>
 </details>

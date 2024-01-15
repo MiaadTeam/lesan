@@ -1,12 +1,9 @@
-# addPureModel
+# checkRelation
 
 ```ts
-addPureModel: (name: string, pureModel: IPureFields)
+const checkRelation: CheckRelation = (depth, relation);
 ```
 
-_Add pure feature of model to schema_
-
-</br>
 <details open>
  <summary>
   Example
@@ -40,7 +37,7 @@ _Add pure feature of model to schema_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getPostPureModel = coreApp.schemas.addPureModel("post", {name: string(), title: string(),});</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const checkCityRelation = coreApp.schemas.checkRelation({}, "city");</p>
     </code>
   </pre>
 </details>
@@ -51,25 +48,22 @@ _Add pure feature of model to schema_
   </summary>
   <pre>
     <code class="language-json" style="padding: 0;">
-{
-  "pure": {
-    "title": {
-      "type": "string",
-      "schema": null
-    }
-  },
-  "relations": {},
-  "mainRelations": {},
-  "relatedRelations": {}
-}
+false
     </code>
   </pre>
 </details>
 
+<h3>Types</h3>
+<pre>
+  <code class="language-ts" style="padding: 0; margin-top: 12px; margin-top: -18px;">
+    <a href="../../types/schema/CheckRelation.md" target="_blank" style="text-decoration: none; cursor:pointer">CheckRelation</a>
+  </code>
+</pre>
+
 <h3>Parameters</h3>
 <pre>
   <code class="language-ts" style="padding: 0; margin-top: 12px; margin-top: -18px;">
-  name: string,
-  pureModel: <a href="../../types/schema/IPureFields.md" target="_blank" style="text-decoration: none; cursor:pointer">IPureFields</a>
+    depth,
+    relation
   </code>
 </pre>

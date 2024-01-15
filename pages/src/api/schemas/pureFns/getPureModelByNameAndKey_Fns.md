@@ -39,7 +39,7 @@ _Get pure one feature of one schema by name of schema and key of feature_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getCityPureModelByNameAndKey = coreApp.schemas.getPureModelByNameAndKey("city","abb");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getCityPureModelByNameAndKey = coreApp.schemas.getPureModelByNameAndKey("city","abb");</p>
     </code>
   </pre>
 </details>

@@ -20,7 +20,7 @@ _Get specific Dynamic Action of main service with schemaName and actName_
         validator: addCityValidator(),
         fn: addCity,
       });
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const getMainAct = coreApp.acts.getMainAct("city", "addCity");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getMainAct = coreApp.acts.getMainAct("city", "addCity");</p>
     </code>
   </pre>
 </details>

@@ -42,7 +42,7 @@ _Struct feature is include pure feature and embed features_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000" >const createCityStruct = coreApp.schemas.createStruct("city");</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const createCityStruct = coreApp.schemas.createStruct("city");</p>
     </code>
   </pre>
 </details>

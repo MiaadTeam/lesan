@@ -41,7 +41,7 @@ _set Actions to main service_
         },
       );
 
-  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000">const setAddCityAct = coreApp.acts.setAct({
+  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const setAddCityAct = coreApp.acts.setAct({
   schema: "city",
   actName: "addCity",
   validator: addCityValidator(),

@@ -1,24 +1,15 @@
-# addPureModel
+# decreaseIterate
 
 ```ts
-addPureModel: (name: string, pureModel: IPureFields)
+const decreaseIterate = (depth: Iterate)
 ```
 
-_Add pure feature of model to schema_
-
-</br>
 <details open>
  <summary>
   Example
   </summary>
   <pre>
     <code class="language-ts" style="padding: 0;">
-      const coreApp = lesan();
-      const locationPure = {
-        name: string(),
-        population: number(),
-        abb: string(),
-      };
       const cities = coreApp.odm.newModel(
         "city",
         locationPure,
@@ -40,7 +31,7 @@ _Add pure feature of model to schema_
           },
         },
       );
-      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const getPostPureModel = coreApp.schemas.addPureModel("post", {name: string(), title: string(),});</p>
+      <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line" >const decreaseIterate = coreApp.schemas.decreaseIterate({ value: "hello" });</p>
     </code>
   </pre>
 </details>
@@ -52,15 +43,7 @@ _Add pure feature of model to schema_
   <pre>
     <code class="language-json" style="padding: 0;">
 {
-  "pure": {
-    "title": {
-      "type": "string",
-      "schema": null
-    }
-  },
-  "relations": {},
-  "mainRelations": {},
-  "relatedRelations": {}
+  "value": "hello"
 }
     </code>
   </pre>
@@ -69,7 +52,6 @@ _Add pure feature of model to schema_
 <h3>Parameters</h3>
 <pre>
   <code class="language-ts" style="padding: 0; margin-top: 12px; margin-top: -18px;">
-  name: string,
-  pureModel: <a href="../../types/schema/IPureFields.md" target="_blank" style="text-decoration: none; cursor:pointer">IPureFields</a>
+    depth: <a href="../../types/schema/Iterate.md" target="_blank" style="text-decoration: none; cursor:pointer">Iterate</a>
   </code>
 </pre>
