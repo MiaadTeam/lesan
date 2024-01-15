@@ -225,7 +225,7 @@ Note that `pipelines` are always one step behind the `request`, and send `indexe
 
 Because we have given the second input `3` in the `coreApp.schemas.selectStruct("city", 3)` function, we can penetrate one more step in the depth of relationships, you can send more complex queries in the playground.
 
-You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-find-one.ts) and test the `aggregation` method in local computer.
+You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/07-1-aggregation.ts) and test the `aggregation` method in local computer.
 
 executing  `main` → `city` → `getCitiesAggregation`:
 ![aggregation-cities](https://github.com/MiaadTeam/lesan/assets/6236123/1e6610c7-fe20-4772-84fd-d2916a082f62)
@@ -271,5 +271,5 @@ Note that the returned information will still be in an `array` but with one memb
 
 You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-find-one.ts) and test the `aggregation` method in local computer.
 
-executing  `main` → `user` → `getCitiesAggregation`:
+executing  `main` → `user` → `getUserAggregation`:
 ![aggregation-user](https://github.com/MiaadTeam/lesan/assets/6236123/54522471-cd4d-42dd-abd8-040663bcbb6c)
