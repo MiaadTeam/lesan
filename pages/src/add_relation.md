@@ -279,7 +279,7 @@ And the following data should be stored for the city:
 As you can see, when you add a city, the pure values are stored as embedded on both sides of the relation. This makes receiving data much faster.  
 The only noteworthy point is that a limited number of cities are stored in the country. Try to save as many as you think you will need in the first paginate. To get the rest of the cities, we will also query their own schema.
 
-### E2E
+### Add E2E Test
 
 Like before, you can click on the e2e button (like bottom picture) to add your request to E2E section.
 
