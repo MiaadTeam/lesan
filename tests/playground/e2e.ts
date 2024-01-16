@@ -309,6 +309,10 @@ const addCityValidator = () => {
 const addCity: ActFn = async (body) => {
   const { country, isCapital, name, population, abb } = body.details.set;
 
+  const myContext = coreApp.contextFns.getContextModel();
+
+  console.log('loooog', { myContext }); 
+
   return await cities.insertOne({
     doc: { name, population, abb },
     projection: body.details.get,
@@ -316,7 +320,7 @@ const addCity: ActFn = async (body) => {
       country: {
         _ids: new ObjectId(country),
         relatedRelations: {
-          citiesAsc: true,
+          citiesAsc: true, 
           citiesDesc: true,
           citiesByPopAsc: true,
           citiesByPopDesc: true,
@@ -327,11 +331,17 @@ const addCity: ActFn = async (body) => {
   });
 };
 
+const addSomthingToContext = () => {
+  const prevContext = coreApp.contextFns.getContextModel()
+  coreApp.contextFns.addContext({ ...prevContext, userName: "Mina" });
+}
+
 coreApp.acts.setAct({
   schema: "city",
   actName: "addCity",
   validator: addCityValidator(),
   fn: addCity,
+  preAct: [addSomthingToContext]
 });
 
 // ------------------ Update City ------------------
@@ -888,6 +898,21 @@ coreApp.acts.setAct({
   fn: getUser,
 });
 
+
+
+const getCityActsKeys = coreApp.acts.getActsKeys("main", "city");
+
+const getCityActsKeysText = new TextEncoder().encode(
+  JSON.stringify(getCityActsKeys, null, 2)
+);
+
+// console.log(' ============== getCityActsKeysText ');
+// await Deno.writeAll(Deno.stdout, getCityActsKeysText);
+// console.log(' ------------ end of getCityActsKeysText ');
+// console.log('        ');
+
 // ================== RUNNING SECTION ==================
 // --------------------- Run Server ----------------------
 coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
+
+
