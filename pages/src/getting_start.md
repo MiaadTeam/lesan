@@ -371,7 +371,7 @@ You shuold get this result:
 }
 ```
 
-### E2E
+### Add E2E Test
 
 After that, you can click on the e2e button (like bottom picture) to add your request to E2E section.
 
