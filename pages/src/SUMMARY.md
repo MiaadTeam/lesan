@@ -114,6 +114,7 @@
   - [`contextFns`](./api/context/contextFns_fn.md)
     - [`getContextModel`](./api/context/getContextModel/getContextModel_Fns.md)
     - [`setContext`](./api/context/setContext/setContext_Fns.md)
+    - [`addContext`](./api/context/getContextModel/addContext_Fns.md)
     - [`addContexts`](./api/context/getContextModel/addContexts_Fns.md)
     - [`addReqToContext`](./api/context/getContextModel/addReqToContext_Fns.md)
     - [`addHeaderToContext`](./api/context/getContextModel/addHeaderToContext_Fns.md)
@@ -145,4 +146,6 @@
     - [`TInsertRelations`](./api/types/TInsertRelations.md)
       - [`IRelationsFileds`](./api/types/TInsertRelations/IRelationsFileds.md)
     - [`projection`](./api/types/aggregation/projection/projection.md)
+  - [`context types`](./api/types/context.md)
+    - [`LesanContenxt`](./api/types/context/LesanContenxt.md)
 
