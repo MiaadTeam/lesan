@@ -612,7 +612,11 @@ Note that the `livedCities` field receives an array of IDs, you just need to ent
 
 ### Add E2E Test
 
-Probably you know what to do! like before, you should change the country id and this time, change the city id. Of course that first you should add capture to lived cities.
+Probably you know what to do! you should click on the e2e button (like bottom picture) to add your request to E2E section.
+
+<img alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
+
+And like before, you should change the country id and this time, change the city id. Of course that first you should add capture to lived cities.
 
 In my example, i add the Hamedan city and Tehran city to my user. so , in the add city sequence of Hamedan, i click on the Add Capture button and fill the inputs like below picture.
 
@@ -629,3 +633,7 @@ Then, in the add user sequence, you can see the curent country id and also lived
 Only thing you do is just to replace the country id and lived cities id with country id and cities id that you set in the sequences capture. in my example, country id is « {IranId} » and also my first city id is « {HamedanId} » and second one is «{TehranId}». like below picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/9582fd44-e8b1-4186-9335-b720be24190e">
+
+And last thing you should done is that add capture to "add user" sequence for using in feature. i click on the Add Captue button and fill the inputs like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/a379db0f-614f-4ce5-8757-2994a12b26e7">
