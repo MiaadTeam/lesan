@@ -316,6 +316,40 @@ coreApp.acts.setAct({
   fn: addCity,
 });
 
+const addCitiesValidator = () => {
+  return object({
+    set: object({
+      multiCities: array(object(countryCityPure)),
+      country: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+const addCities: ActFn = async (body) => {
+  const { country, multiCities } = body.details.set;
+
+  return await cities.insertMany({
+    docs: multiCities,
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+          citiesByPopulation: true,
+          capital: false,
+        },
+      },
+    },
+  });
+};
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCities",
+  validator: addCitiesValidator(),
+  fn: addCities,
+});
+
 const getCitiesValidator = () => {
   return object({
     set: object({
