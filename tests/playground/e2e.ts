@@ -2,6 +2,7 @@ import {
   ActFn,
   array,
   boolean,
+  enums,
   lesan,
   MongoClient,
   number,
@@ -845,6 +846,35 @@ coreApp.acts.setAct({
   actName: "getUser",
   validator: getUserValidator(),
   fn: getUser,
+});
+
+// ------------------ Delete a User ------------------
+const deleteUserValidator = () => {
+  return object({
+    set: object({
+      _id: string(),
+    }),
+    get: object({
+      success: optional(enums([0, 1])),
+    }),
+  });
+};
+
+const deleteUser: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+  return await users.deleteOne({
+    filter: { _id: new ObjectId(_id) },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "deleteUser",
+  validator: deleteUserValidator(),
+  fn: deleteUser,
 });
 
 // ================== RUNNING SECTION ==================
