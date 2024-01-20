@@ -33,7 +33,7 @@ const countryRelations = {};
 const countries = coreApp.odm.newModel(
   "country",
   locationPure,
-  countryRelations
+  countryRelations,
 );
 
 // ------------------ City Model ------------------
@@ -292,6 +292,44 @@ coreApp.acts.setAct({
   actName: "deleteCountry",
   validator: deleteCountryValidator(),
   fn: deleteCountry,
+});
+
+// ------------------ Add a City ------------------
+const addCityValidator = () => {
+  return object({
+    set: object({
+      ...locationPure,
+      country: objectIdValidation,
+      isCapital: optional(boolean()),
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+const addCity: ActFn = async (body) => {
+  const { name, abb, population, country, isCapital } = body.details.set;
+
+  return await cities.insertOne({
+    doc: { name, abb, population },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          citiesAsc: true,
+          citiesDesc: true,
+          citiesByPopAsc: true,
+          citiesByPopDesc: true,
+          capitalCity: isCapital ? isCapital : false,
+        },
+      },
+    },
+  });
+};
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCity",
+  validator: addCityValidator(),
+  fn: addCity,
 });
 
 // ------------------ Update City ------------------
