@@ -100,10 +100,10 @@ const decodeBody = async (req: Request): Promise<TLesanBody> => {
 };
 
 export const parsBody = async (req: Request, port: number) => {
-  const parsedBody = await decodeBody(req);
+  const parsedBody = async () => await decodeBody(req);
   const url = req.url.split(`${port}`)[1];
 
   return req.method === "POST" && url === "/lesan"
-    ? parsedBody
+    ? await parsedBody()
     : throwError("you most send a post request to /lesan url");
 };
