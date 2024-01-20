@@ -8,12 +8,14 @@ what are a real relationship between `People`?
 - Changes on one side of the relationship also affect the other side.
 - The two sides of a relationship live together.
 - If the relationship leads to the birth of a child, both parties will accept the relationship.  
+- If one party dies, especially if it's a lover, the other party probably won't want to live either.
 
 Now let's look at the relationship features in `SQL`:
 - There is no real relationship. The two sides have only one connection.
 - Relationships are not together. And each lives independently.
 - Relationships are not deep.
 - Relationships do not give birth to any children. (In **Lesan**, you will see that relationships encourage you to create new models)  
+- If we want to delete one side of the relationship, especially if the other side is dependent on this side, we will only receive an error message.
 - And the most important thing is that it is not clear what kind of effects each relationship we create will have on the other side of the relationship.
 
 What are the relationships in `NoSQL`?
@@ -22,12 +24,14 @@ What are the relationships in `NoSQL`?
   - the changes of each party have no effect on the other side and cause many inconsistencies in the data.
   - the two sides leave each other after the relationship. Infact, it is not clear what kind of effects each relationship we create will have on the other side of the relationship.
 - In this type of databases, they prevent the child from being born, and if a child is born, only one side will be informed of it and probably will not take much responsibility for it.  
+- There is no management in deleting information and they are easily deleted by either side of the relationship.
 
 And finally what are the relationships in `Lesan`:
 - Relationships are as strong as possible, and are described in detail when creating a model.
 - Relationships fully contain each other's pure properties within themselves.
 - If a relationship changes, all related parties will be notified and apply the changes according to a process.
 - By establishing a relationship and seeing many changes on one side of this relationship, you are encouraged to create new relationships. Don't worry, this issue will not add more complexity to the data model, but it will also make the data more understandable. (Below there is an example to understand this)
+- Having complete information about relationships, we can prevent the deletion of a document that other documents are dependent on with an error message, and we can recursively delete all dependent documents by setting a small option.
 - And the most important point is that it is exactly clear what effects each relationship we have created will have on the other side of the relationship.
 
 ## Example
