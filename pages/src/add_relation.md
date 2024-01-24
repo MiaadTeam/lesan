@@ -281,15 +281,15 @@ The only noteworthy point is that a limited number of cities are stored in the c
 
 ### Add E2E Test
 
-Like before, you can click on the e2e button (like bottom picture) to add your request to E2E section.
+Like before, you can click on the **E2E button** (like bottom picture) to add your request to E2E section.
 
 <img alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
 
-Then, when you go to the E2E section, you can see 2 sequense that first one is add country from getting start section and second one, is curent request.
+Then, when you go to the E2E section, you can see 2 sequense that first one is `addCountry` from getting start page and second one, is `addCity` request.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/ac44b737-5e70-4282-bf8b-b28db0871681">
 
-In the first sequence, you can click on "Add Capture" button to show you two input to set variable and value:
+In the first sequence, you can click on **Add Capture** button to show you two input to set variable and value:
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/ad8ec679-09f4-4d3d-b15e-38651bc91602">
 
@@ -297,10 +297,10 @@ Then, you should fill the inputs like bottom picture:
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/aba2d54e-70b1-42d0-a4bb-8739a89f27bf">
 
-Finaly, In the second sequence (add city), you should delete the country id :
+Finaly, In the second sequence, `add city`, you should delete the **country id** :
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/507eae94-a957-4eb8-b5a4-8d301ff10a4e">
 
-And put the variable name that you set in the capture in the past, in my example, « {IranId} ».
+And put the variable name that you set in the capture in the `addCountry` sequence, in my example, `{IranId}`.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/4014e0c4-0db2-454d-86f7-fe4e3ad376bd">
