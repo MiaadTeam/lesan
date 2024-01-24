@@ -373,11 +373,11 @@ You shuold get this result:
 
 ### Add E2E Test
 
-After that, you can click on the e2e button (like bottom picture) to add your request to E2E section.
+For adding `addCountry` request to E2E section you should click on the **E2E button**, like below picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
 
-Then, when you go to the E2E section, you can see 2 sequense that first one is the default sequence that you should delete this.
+Then, when you go to the **E2E section**, you can see 2 sequense that first one is the default sequence that you should delete that.
 so, you have one sequence that include your request information(like bottom picture).
 
 <img alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/e56cfaea-5a7c-4aab-ab7f-4c215e875fb6">

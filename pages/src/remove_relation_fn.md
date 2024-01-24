@@ -1,6 +1,9 @@
 # `removeRelation` function
+
 ## Update Many to Many Relation
+
 Pay attention to the following code:
+
 ```ts
 const removeLivedCitiesValidator = () => {
   return object({
@@ -14,9 +17,7 @@ const removeLivedCitiesValidator = () => {
 const removeLivedCities: ActFn = async (body) => {
   const { livedCities, _id } = body.details.set;
 
-  const obIdLivedCities = livedCities.map(
-    (lc: string) => new ObjectId(lc),
-  );
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
 
   return await users.removeRelation({
     filters: { _id: new ObjectId(_id) },
@@ -38,28 +39,46 @@ coreApp.acts.setAct({
   fn: removeLivedCities,
 });
 ```
+
 In the code above, the `removeRelation` function is used. This function receives an object input with the following keys:
+
 - A `filter` key that receives [MongoDB findOne filter](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/) and finds only one document to change its relationships.
 - The `relations` key receives an object from the relations of this model. We talk about the relation input [here](https://miaadteam.github.io/lesan/add_relation.html#add-new-act-with-relation)
 - The `projection` key is used to receive written data. Also we talk about `projection` key [here](https://miaadteam.github.io/lesan/getting_start.html#the-fn-function)
 
-In the function above, we remove one or more cities to the set of cities where a user has lived. In fact, in the validation function, the user ID is received along with an array of city IDs, and in the Act function, we convert the array of city IDs into an array of object IDs and give it to the `removeRelation` function along with the user ID. As a result, on the `user` side, one or more cities are removed from the `livedCities` array, and on the `city` side, this user is removed from each of the cities whose IDs have been sent. (To know the steps to do this and understand how the `relatedRelations` are managed, [please read this section](./add_relation_fn.md#steps-to-add-a-country-to-a-user), just note that we do not have a document to add here, and we only do the steps to remove and place the next document in the limited lists.)  
+In the function above, we remove one or more cities to the set of cities where a user has lived. In fact, in the validation function, the user ID is received along with an array of city IDs, and in the Act function, we convert the array of city IDs into an array of object IDs and give it to the `removeRelation` function along with the user ID. As a result, on the `user` side, one or more cities are removed from the `livedCities` array, and on the `city` side, this user is removed from each of the cities whose IDs have been sent. (To know the steps to do this and understand how the `relatedRelations` are managed, [please read this section](./add_relation_fn.md#steps-to-add-a-country-to-a-user), just note that we do not have a document to add here, and we only do the steps to remove and place the next document in the limited lists.)
 
 ### Run the code
+
 Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-remove-relation-fn-1.ts).  
 By running the codes and going to the playground, you can see and test the functions added to the user.  
-before execute  `main` → `user` → `removeLivedCities`:
+before execute `main` → `user` → `removeLivedCities`:
 ![Screenshot from 2024-01-08 13-48-53](https://github.com/MiaadTeam/lesan/assets/6236123/0dbbb5a7-c1be-4ed2-921b-49dd2766881c)
-executing  `main` → `user` → `removeLivedCities`:
+executing `main` → `user` → `removeLivedCities`:
 ![Screenshot 2024-01-08 at 14-16-37 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/600ada91-88f0-443a-b926-7d423a0e9c48)
-after execute  `main` → `user` → `removeLivedCities`:
+after execute `main` → `user` → `removeLivedCities`:
 ![Screenshot from 2024-01-08 14-20-24](https://github.com/MiaadTeam/lesan/assets/6236123/8c482402-00b8-4a76-8c2a-7381d6abec0b)
 
+### Add E2E Test
+
+For adding `removeLivedCities` request to E2E section you should click on the **E2E button**, like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
+
+Then, in the E2E section and `removeLivedCities` sequence, you should replace the **user id** and **cities id** that you set capture in _own sequence_ with _default_ **user id** and **cities id**. _default_ **user id** and **cities id** in `livedCities` is like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/9b71e407-8813-4483-b64a-41b19cb3695d">
+
+The replaced **user** and **cities id** is like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/e24c942b-d570-4038-b4f6-eb74d803771c">
 
 ## Update One to Many Relation
+
 If you have created a `single` type relationship, and if you set the `optional` equivalent to `false`, we can not use `removeRelation` for that please use the [`addRelation`](./add_relation_fn.md) function to replace it (for example we can not use `removeRelation` to remove `country` from a user).  
 But if you set the `optional` equal to `true`, we can use the `removeRelation` function to erase that relationship along with its relatedrelations.  
 Let's make an `optional` one-to-many relationship. We create a new relationship for the user:
+
 ```ts
   mostLovedCity: {
     optional: true,
@@ -77,7 +96,9 @@ Let's make an `optional` one-to-many relationship. We create a new relationship 
     },
   },
 ```
+
 So the full form of `users` will be:
+
 ```ts
 const users = coreApp.odm.newModel("user", userPure, {
   livedCities: {
@@ -133,9 +154,11 @@ const users = coreApp.odm.newModel("user", userPure, {
   },
 });
 ```
+
 In this relationship, we add a city as a `mostLovedCity` for a user, and on the side of the city we add a field called `lovedByUser`, where we store the last five users who have chosen it as their `mostLovedCity`.  
 To erase the `mostLovedCity` relationship in a user. We must first create this relationship.  
 So let's write a function to add this relationship:
+
 ```ts
 const addMostLovedCityValidator = () => {
   return object({
@@ -170,16 +193,32 @@ coreApp.acts.setAct({
   fn: addMostLovedCity,
 });
 ```
-In the above function, we get the ID of a user and the ID of a city and store that city as `mostLovedCity` in the user. Also, on the city side, we add this user to the `lovedByUser` list.  
 
-before execute  `main` → `user` → `addMostLovedCity`:
+In the above function, we get the ID of a user and the ID of a city and store that city as `mostLovedCity` in the user. Also, on the city side, we add this user to the `lovedByUser` list.
+
+before execute `main` → `user` → `addMostLovedCity`:
 ![Screenshot from 2024-01-08 14-52-30](https://github.com/MiaadTeam/lesan/assets/6236123/ea1f021e-f9d6-4f01-ac4f-6c6cc692928b)
-executing  `main` → `user` → `addMostLovedCity`:
+executing `main` → `user` → `addMostLovedCity`:
 ![Screenshot 2024-01-08 at 14-53-23 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/68807ada-9944-4148-bb92-56dca9d88285)
-after execute  `main` → `user` → `addMostLovedCity`:
+after execute `main` → `user` → `addMostLovedCity`:
 ![Screenshot from 2024-01-08 14-54-32](https://github.com/MiaadTeam/lesan/assets/6236123/699553c6-2655-44ab-8aff-bd4e544b91e6)
 
+### Add E2E Test
+
+Like before, for adding `addMostLovedCity` request to E2E test section, you should click on the **E2E button**, like bottom picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
+
+Then, in the E2E section and `addMostLovedCity` sequence, you should _replace_ the **user id** and **city id** that you set capture in _own sequence_ with _default_ **user id** and **city id**. _default_ **user id** and **city id** in `addMostLovedCity` sequence is like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/7e1dde1c-f5f9-4d1c-9686-e65837b36d70">
+
+The _replaced_ **user** and **city id** is like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/7905bcb9-9628-4a11-ae2a-f10d490cb7bd">
+
 Well, finally, let's write the `mostLovedCity` remove function:
+
 ```ts
 const removeMostLovedCityValidator = () => {
   return object({
@@ -213,24 +252,31 @@ coreApp.acts.setAct({
   fn: removeMostLovedCity,
 });
 ```
+
 In the above function, we get the ID of a user along with the ID of a city, and in that user, we delete the `mostLovedCity` field if it matches this ID, and on the city side, we remove this user from the `lovedByUser` list. (To know the steps to do this and understand how the `relatedRelations` are managed, [please read this section](./add_relation_fn.md#steps-to-add-a-country-to-a-user), just note that we do not have a document to add here, and we only do the steps to remove and place the next document in the limited lists.)
 
 ### Run the code
+
 Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-remove-relation-fn-2.ts).  
 By running the codes and going to the playground, you can see and test the functions added to the user.
 
-before execute  `main` → `user` → `removeMostLovedCity`:
+before execute `main` → `user` → `removeMostLovedCity`:
 ![Screenshot from 2024-01-08 14-54-32](https://github.com/MiaadTeam/lesan/assets/6236123/699553c6-2655-44ab-8aff-bd4e544b91e6)
-executing  `main` → `user` → `removeMostLovedCity`:
+executing `main` → `user` → `removeMostLovedCity`:
 ![Screenshot 2024-01-08 at 15-27-19 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/9ceb95e3-fe3a-4941-89de-65f277691d9b)
-after execute  `main` → `user` → `removeMostLovedCity`:
+after execute `main` → `user` → `removeMostLovedCity`:
 ![Screenshot from 2024-01-08 15-54-33](https://github.com/MiaadTeam/lesan/assets/6236123/4c202679-f10f-4c42-b120-cbd4c44f81b6)
 
+### Add E2E Test
 
+For adding `removeMostLovedCity` request to E2E section you should click on the **E2E button**, like below picture.
 
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
 
-  
+Then, in the E2E section and `removeMostLovedCity` sequence, you should _replace_ the **user id** and **city id** that you set capture in _own sequence_ with _default_ **user id** and **city id**. _default_ **user id** and **city id** in `removeMostLovedCity` sequence is like below picture.
 
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/7e1dde1c-f5f9-4d1c-9686-e65837b36d70">
 
+The _replaced_ **user** and **city id** is like below picture.
 
-
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/7905bcb9-9628-4a11-ae2a-f10d490cb7bd">

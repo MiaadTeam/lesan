@@ -271,15 +271,15 @@ Please note that you only send a request for a new city, and the new city is sto
 
 ### Add E2E Test
 
-In following to adding requests to the E2E test section, like before, you can click on the e2e button (like bottom picture) to add your request to E2E section.
+In following to adding requests to the E2E test section, For adding `addCity` request to E2E section you should click on the **E2E button**, like below picture.
 
 <img alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
 
-Like before, you should change the country id of the last request. In the last sequence (add city), you should delete the country id :
+Like before, you should change the **country id** of the `addCity` request. In the `addCity` sequence, you should delete the **country id** :
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/ab3d275f-a041-4f31-abe9-8e9be9ee8d7c">
 
-And put the variable name that you set in the capture in add country sequence , in my example, « {IranId} ».
+And put the variable name that you set in the capture in `addCountry` sequence , in my example, `{IranId}`.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/f51b483a-e160-4bbb-8713-04be8ae77c4b">
 
@@ -612,28 +612,28 @@ Note that the `livedCities` field receives an array of IDs, you just need to ent
 
 ### Add E2E Test
 
-Probably you know what to do! you should click on the e2e button (like bottom picture) to add your request to E2E section.
+Probably you know what to do! For adding `addUser` request to E2E section you should click on the **E2E button**, like below picture.
 
 <img alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
 
-And like before, you should change the country id and this time, change the city id. Of course that first you should add capture to lived cities.
+And like before, you should change the **country id** and this time, change the **city id**. Of course that first you should add capture to `addCity` sequences.
 
-In my example, i add the Hamedan city and Tehran city to my user. so , in the add city sequence of Hamedan, i click on the Add Capture button and fill the inputs like below picture.
+In my example, i add the Hamedan city and Tehran city to my user. so , in the `addCity` sequence of Hamedan, i click on the **Add Capture** button and fill the inputs like below picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/8aaae323-fd5a-4797-a956-5d219939403d">
 
-And in the add city sequence of Tehran, i click on the Add Capture button and fill the inputs like below picture.
+And in the `addCity` sequence of Tehran, i click on the **Add Capture** button and fill the inputs like below picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/542a8f3a-0d70-461e-8ed3-da474cc1d30e">
 
-Then, in the add user sequence, you can see the curent country id and also lived cities id like below picture.
+Then, in the `addUser` sequence, you can see the curent **country id** and also **lived cities id** like below picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/6186fbdf-792d-4787-bb14-c99513f87069">
 
-Only thing you do is just to replace the country id and lived cities id with country id and cities id that you set in the sequences capture. in my example, country id is « {IranId} » and also my first city id is « {HamedanId} » and second one is «{TehranId}». like below picture.
+Only thing you do is just to replace the **country id** and **lived cities id** with **country id** and **cities id** that you set in the capture sequences. in my example, _country id_ is `{IranId}` and also my first _city id_ is `{HamedanId}` and second one is `{TehranId}`. like below picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/9582fd44-e8b1-4186-9335-b720be24190e">
 
-And last thing you should done is that add capture to "add user" sequence for using in feature. i click on the Add Captue button and fill the inputs like below picture.
+And last thing you should done is that _add capture_ to `addUser` sequence for using in feature. i click on the **Add Captue** button and fill the inputs like below picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/a379db0f-614f-4ce5-8757-2994a12b26e7">

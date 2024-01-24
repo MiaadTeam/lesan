@@ -1,6 +1,8 @@
 # deleteOne functions
+
 `Deletion` has the same problems as `update`.  
 Pay attention to the following code:
+
 ```ts
 const deleteUserValidator = () => {
   return object({
@@ -30,7 +32,9 @@ coreApp.acts.setAct({
   fn: deleteUser,
 });
 ```
+
 If you remember, when we defined a relationship for the user, we gave it the following object as a relationship:
+
 ```ts
 {
   livedCities: {
@@ -70,10 +74,11 @@ If you remember, when we defined a relationship for the user, we gave it the fol
   },
 }
 ```
+
 Fortunately, all the relationships that exist for the user are the ones we have defined above, and there is no `relatedRelation` for the `user`.
 ![user-schema-for-delete](https://github.com/MiaadTeam/lesan/assets/6236123/233343a0-b384-4651-91e6-fef86eed7ff2)
 
-That's why we said fortunately, because if a document has `relatedRelations`, by `deleting` that document, some `documents` may be meaningless or not used. For example, if we want to delete a `country` in the example we have completed so far, the `cities` belonging to that country will become meaningless data.  
+That's why we said fortunately, because if a document has `relatedRelations`, by `deleting` that document, some `documents` may be meaningless or not used. For example, if we want to delete a `country` in the example we have completed so far, the `cities` belonging to that country will become meaningless data.
 
 There is no problem for `users` and we can simply use `delete` without other data being unused. But by `deleting` each `user`, we have to check its `mainRelations` and if the `user` is stored as an `embed`, `delete` the `user` there, and if another `user` needs to be added to the `embed` list, add the other `user` as well.
 
@@ -83,6 +88,7 @@ TODO : should be fixed delete one method to delete mainRelations also and add ph
 
 What if we want to remove a `country`?
 Although we have not defined any `relationship` for the `country`, both the `city` and the `user` have created `relationships` with the `country`.
+
 ```ts
 const countryRelations = {};
 
@@ -151,11 +157,13 @@ const userRelations = {
       },
     },
   },
-}
+};
 ```
+
 ![Screen-Shot-1402-10-28-at-10 04 16](https://github.com/MiaadTeam/lesan/assets/6236123/13bfac05-a2ec-43f6-84b6-af5d45fcb244)
 As we said earlier, the data created based on this `country` will be useless. Here the `cities` and `users` created based on this `country` become useless.
 Pay attention to the following code:
+
 ```ts
 const deleteCountryValidator = () => {
   return object({
@@ -183,7 +191,9 @@ coreApp.acts.setAct({
   fn: deleteCountry,
 });
 ```
+
 By adding the above `code` and running the software and sending a `request` to `delete` a `country`, and finally if that country has a `city` or `user`, we will encounter the following `error`:
+
 ```json
 {
   body: {
@@ -192,26 +202,43 @@ By adding the above `code` and running the software and sending a `request` to `
   success: false
 }
 ```
+
 We have two ways:
+
 - `Delete` all these documents `related` to this `country` one by one.
 - Set the `hardCascade` option to `true` in the `deleteOne` function.
-We change the above code as follows:
+  We change the above code as follows:
+
 ```ts
 return await countries.deleteOne({
   filter: { _id: new ObjectId(_id) },
-  hardCascade: true
+  hardCascade: true,
 });
 ```
+
 This will cause all the dependent documents and the dependent documents of these dependent documents to be `deleted` recursively.
 
 You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/09-2-deleteOne.ts) and test the `deleteOne` method in local computer.
 
-bfore execut  `main` → `country` → `deleteCountry`:
+bfore execut `main` → `country` → `deleteCountry`:
 ![delete-country-before](https://github.com/MiaadTeam/lesan/assets/6236123/19cd739a-b5ae-43e3-8991-d190b4b0f500)
 
-executing  `main` → `country` → `deleteCountry`:
+executing `main` → `country` → `deleteCountry`:
 ![deleteing-country](https://github.com/MiaadTeam/lesan/assets/6236123/93080e4d-847a-4968-a587-bb02a36ff360)
 
-after execut  `main` → `country` → `deleteCountry`:
+after execut `main` → `country` → `deleteCountry`:
 ![delete-country-after](https://github.com/MiaadTeam/lesan/assets/6236123/f12495a1-11ec-4cc3-9ec3-0924c014cbdd)
 
+### Add E2E Test
+
+Like before, for adding `deleteCountry` request to E2E section you should click on the e2e button (like bottom picture) to add your request to E2E section.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
+
+Then, in the E2E section and `deleteCountry` sequence, you should _replace_ the **country id** that you set capture in _own sequence_ with _default_ **country id**. _default_ **country id** in `deleteCountry` sequence is like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/1ed7e065-338a-4bea-9aa9-439b34c45d3d">
+
+The _replaced_ **country id** is like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/1c91c3ff-83f3-4136-80d7-c1f97fa11272">

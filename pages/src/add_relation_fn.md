@@ -61,15 +61,15 @@ after execute `main` → `country` → `addUserLivedCities`:
 
 ### Add E2E Test
 
-For adding "addUserLivedCities" request to E2E test section, you should click on the e2e button, like bottom picture.
+For adding `addUserLivedCities` request to E2E test section, you should click on the **E2E button**, like bottom picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
 
-Then, you should click on the "Add Capture" button in the add city sequence and fill the inputs like below picture. in my example i add "Mashhad" city.
+Then, you should click on the **Add Capture** button in the `addCity` sequence and fill the inputs like below picture. in my example i add `Mashhad` city.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/ec9f2807-f547-4b40-b10f-d1d915239481">
 
-After that, you should change the default user id add lived cities id with capture that you set in the past. the default id is like below picture.
+After that, you should change the _default_ **user id** add **lived cities id** with capture that you set in the past. the _default id_ is like below picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/88a6aa3f-b2bd-4c4d-aeb2-a18807b57705">
 
@@ -155,14 +155,14 @@ before execute `main` → `country` → `addUserCountry`:
 
 ### Add E2E Test
 
-Like before, for adding "addUserCountry" request to E2E section you should click on the e2e button (like bottom picture) to add your request to E2E section.
+For adding `addUserCountry` request to E2E test section, you should click on the **E2E button**, like bottom picture.
 
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
 
-Then, also like before, you should replace the user id and country id that you set capture in own sequence with default user id and country id. default user and country id is like below picture.
+Then, in the E2E section and `addUserCountry` sequence you should replace the **user id** and **country id** that you set capture in own sequence with _default_ **user id** and **country id**. _default_ user and country id is like below picture.
 
-<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/86eb134d-72ae-4294-ba7e-1e1008b74910">
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/b67f9619-7a8c-4303-b026-09fdc96ea1b7">
 
-The relaced user and country id is like below picture.
+The replaced **user** and **country id** is like below picture.
 
-<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/09a13ecc-e961-4427-8a53-284cf409f272">
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/35a53fe8-ea5c-4b1d-af77-da8fa044feee">
