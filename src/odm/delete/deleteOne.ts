@@ -232,8 +232,9 @@ export const deleteOne = async <PureFields extends Document = Document>({
   };
 
   const deleteProcces = async () => {
+    const deleteRelated = await deleteRelatedRelation();
     await deleteOwnRelation();
-    return await deleteRelatedRelation();
+    return deleteRelated;
   };
 
   return foundedDoc
