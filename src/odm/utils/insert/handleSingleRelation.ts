@@ -35,7 +35,7 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
   });
 
   if (!foundedSingleMainRelation) {
-    throwError(`can not find this relatation : ${rel}`);
+    throwError(`can not find this relation : ${rel}`);
   }
 
   const pureOfFoundedSingleMainRelation: Record<string, any> = {};
