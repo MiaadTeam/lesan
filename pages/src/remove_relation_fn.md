@@ -50,7 +50,7 @@ In the function above, we remove one or more cities to the set of cities where a
 
 ### Run the code
 
-Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-remove-relation-fn-1.ts).  
+Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/05-2-remove-relation-fn-1.ts).  
 By running the codes and going to the playground, you can see and test the functions added to the user.  
 before execute `main` → `user` → `removeLivedCities`:
 ![Screenshot from 2024-01-08 13-48-53](https://github.com/MiaadTeam/lesan/assets/6236123/0dbbb5a7-c1be-4ed2-921b-49dd2766881c)
@@ -257,7 +257,7 @@ In the above function, we get the ID of a user along with the ID of a city, and 
 
 ### Run the code
 
-Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-remove-relation-fn-2.ts).  
+Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/05-2-remove-relation-fn-2.ts).  
 By running the codes and going to the playground, you can see and test the functions added to the user.
 
 before execute `main` → `user` → `removeMostLovedCity`:

@@ -86,6 +86,8 @@ There is no problem for `users` and we can simply use `delete` without other dat
 
 In our example, we have to check the `embedded` list of `users` in the `cities` where the user lives, as well as the list of `users` in the `country` belonging to that user.
 
+You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/09-1-deleteOne.ts) and test the `deleteOne` method in local computer.
+
 bfore execut `main` → `user` → `deleteUser`:  
 ![15-0-before-execute-delete-user](https://github.com/MiaadTeam/lesan/assets/6236123/681173da-9fc0-4c81-930a-12c63ded6228)
 

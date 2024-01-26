@@ -297,7 +297,7 @@ coreApp.acts.setAct({
 
 Note that the returned information will still be in an `array` but with one member.
 
-You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-find-one.ts) and test the `aggregation` method in local computer.
+You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/07-2-aggregation.ts) and test the `aggregation` method in local computer.
 
 executing `main` → `user` → `getUserAggregation`:
 ![aggregation-user](https://github.com/MiaadTeam/lesan/assets/6236123/54522471-cd4d-42dd-abd8-040663bcbb6c)

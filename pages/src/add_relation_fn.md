@@ -50,7 +50,7 @@ In the function above, we add one or more cities to the set of cities where a us
 
 ### Run the code
 
-Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/05-add-relation-fn-1.ts).  
+Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/05-1-add-relation-fn-1.ts).  
 By running the codes and going to the playground, you can see and test the functions added to the user.  
 before execute `main` → `country` → `addUserLivedCities`:
 ![Screenshot from 2024-01-07 13-30-44](https://github.com/MiaadTeam/lesan/assets/6236123/4d3c2797-2935-43f6-9ec3-d69c72874804)
@@ -144,7 +144,7 @@ To change the country in a user, we must do the following steps:
 
 ### Run the code
 
-Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/05-add-relation-fn-2.ts).  
+Since all the code is getting bigger and bigger, we put it on [GitHub](https://github.com/MiaadTeam/lesan/tree/main/examples/document), you can see and download it [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/05-1-add-relation-fn-2.ts).  
 By running the codes and going to the playground, you can see and test the functions added to the user.  
 before execute `main` → `country` → `addUserCountry`:
 ![Screenshot from 2024-01-08 11-44-40](https://github.com/MiaadTeam/lesan/assets/6236123/9463858c-6fb6-422c-8757-56aa36813044)
