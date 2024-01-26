@@ -194,7 +194,7 @@ export const deleteOne = async <PureFields extends Document = Document>({
       const mr of foundedOtherSchemaMainRelations
     ) {
       const findedMr = await db.collection(mr.collection).findOne({
-        [`${mr.schemaName}._id`]: foundedDoc!._id,
+        [`${mr.fieldName}._id`]: foundedDoc!._id,
       });
       findedMr &&
         findDocsBasedOnOtherSchemaMainRelationt.push({ ...mr, doc: findedMr });
