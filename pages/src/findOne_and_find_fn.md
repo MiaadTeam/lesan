@@ -146,7 +146,7 @@ The _replaced_ **city id** is like below picture.
 executing `main` → `country` → `getCountry`:
 ![Screenshot 2024-01-09 at 15-03-45 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/78959737-363c-4505-90a8-b4841b7ad548)
 
-You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-find-one.ts) and test the `findOne` method in local computer.
+You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/06-1-find-one.ts) and test the `findOne` method in local computer.
 
 ### Add E2E Test
 

@@ -12,7 +12,7 @@ import {
   RelationDataType,
   RelationSortOrderType,
   string,
-} from "https://deno.land/x/lesan@v0.0.95/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@v0.0.98/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 

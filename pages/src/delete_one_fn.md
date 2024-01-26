@@ -1,6 +1,8 @@
 # deleteOne functions
 
 `Deletion` has the same problems as `update`.  
+
+### Delete a User
 Pay attention to the following code:
 
 ```ts
@@ -84,8 +86,18 @@ There is no problem for `users` and we can simply use `delete` without other dat
 
 In our example, we have to check the `embedded` list of `users` in the `cities` where the user lives, as well as the list of `users` in the `country` belonging to that user.
 
-TODO : should be fixed delete one method to delete mainRelations also and add photos here ...
+You can find full example [here](https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/09-1-deleteOne.ts) and test the `deleteOne` method in local computer.
 
+bfore execut `main` → `user` → `deleteUser`:  
+![15-0-before-execute-delete-user](https://github.com/MiaadTeam/lesan/assets/6236123/681173da-9fc0-4c81-930a-12c63ded6228)
+
+executing `main` → `user` → `deleteUser`:  
+![15-1-delete-user-executing](https://github.com/MiaadTeam/lesan/assets/6236123/a6d2e8bd-7340-4e0d-97c8-78bf9ecd7b0e)
+
+after execut `main` → `user` → `deleteUser`:  
+![15-2-after-delete-user](https://github.com/MiaadTeam/lesan/assets/6236123/a997cc73-3d63-4bc9-b2d1-e8ee0d4c7e9f)
+
+### Delete a Country
 What if we want to remove a `country`?
 Although we have not defined any `relationship` for the `country`, both the `city` and the `user` have created `relationships` with the `country`.
 
