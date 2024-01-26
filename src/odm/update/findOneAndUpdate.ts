@@ -37,7 +37,10 @@ export const proccessUpdateOrDeleteRelations = async (
   const updatePipeline = [];
   for (const relatedRel in relatedRelations) {
     const actualRelatedRel = relatedRelations[relatedRel];
-    if (actualRelatedRel.type === "single") {
+    if (
+      actualRelatedRel.type === "single" && foundedDoc[relatedRel] &&
+      foundedDoc[relatedRel]._id
+    ) {
       if (
         foundedDoc[relatedRel]._id.equals(
           pureUpdatedDoc._id,
@@ -104,7 +107,10 @@ export const proccessUpdateOrDeleteRelations = async (
                 [fieldName]: actualRelatedRel.sort?.order === "asc" ? 1 : -1,
               },
               limit: 2,
-            }).toArray()).filter((doc) => !doc._id.equals(pureUpdatedDoc._id));
+            }).toArray()).filter((doc) =>
+              !doc._id.equals(pureUpdatedDoc._id) &&
+              !doc._id.equals(relatedRelDocs[relatedRelDocs.length - 1]._id)
+            );
 
           const concatArrays = isDelete
             ? findNextRelatedRelForAdd ? findNextRelatedRelForAdd : []
@@ -118,8 +124,8 @@ export const proccessUpdateOrDeleteRelations = async (
                 $set: {
                   [relatedRel]: {
                     $setUnion: [
-                      concatArrays,
                       `$${relatedRel}`,
+                      concatArrays,
                     ],
                   },
                 },
@@ -153,8 +159,8 @@ export const proccessUpdateOrDeleteRelations = async (
                 $set: {
                   [relatedRel]: {
                     $setUnion: [
-                      [pureUpdatedDoc],
                       `$${relatedRel}`,
+                      [pureUpdatedDoc],
                     ],
                   },
                 },
