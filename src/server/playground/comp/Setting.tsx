@@ -1,6 +1,5 @@
 /** @jsx h */
-import { fa } from "https://cdn.skypack.dev/@faker-js/faker";
-import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
+import { h, useEffect, useState } from "../reactDeps.ts";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import AddIcon from "./icon/AddIcon.tsx";
 import TickIcon from "./icon/TickIcon.tsx";
