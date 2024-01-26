@@ -1,4 +1,4 @@
-import { lesan, MongoClient } from "https://deno.land/x/lesan@v0.0.95/mod.ts";
+import { lesan, MongoClient } from "https://deno.land/x/lesan@v0.0.98/mod.ts";
 
 const coreApp = lesan();
 
