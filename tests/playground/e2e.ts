@@ -33,7 +33,7 @@ const countryRelations = {};
 const countries = coreApp.odm.newModel(
   "country",
   locationPure,
-  countryRelations
+  countryRelations,
 );
 
 // ------------------ City Model ------------------
@@ -294,6 +294,44 @@ coreApp.acts.setAct({
   fn: deleteCountry,
 });
 
+// ------------------ Add a City ------------------
+const addCityValidator = () => {
+  return object({
+    set: object({
+      ...locationPure,
+      country: objectIdValidation,
+      isCapital: optional(boolean()),
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+const addCity: ActFn = async (body) => {
+  const { name, abb, population, country, isCapital } = body.details.set;
+
+  return await cities.insertOne({
+    doc: { name, abb, population },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          citiesAsc: true,
+          citiesDesc: true,
+          citiesByPopAsc: true,
+          citiesByPopDesc: true,
+          capitalCity: isCapital ? isCapital : false,
+        },
+      },
+    },
+  });
+};
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCity",
+  validator: addCityValidator(),
+  fn: addCity,
+});
+
 // ------------------ Update City ------------------
 const updateCityValidator = () => {
   return object({
@@ -442,6 +480,37 @@ coreApp.acts.setAct({
   actName: "addCityCountry",
   validator: addCityCountryValidator(),
   fn: addCityCountry,
+});
+
+// ------------------ Delete City ------------------
+const deleteCityValidator = () => {
+  return object({
+    set: object({
+      _id: string(),
+    }),
+    get: object({
+      success: optional(enums([0, 1])),
+    }),
+  });
+};
+
+const deleteCity: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  return await cities.deleteOne({
+    filter: { _id: new ObjectId(_id) },
+    hardCascade: true,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "deleteCity",
+  validator: deleteCityValidator(),
+  fn: deleteCity,
 });
 
 // ------------------ User Founctions ------------------

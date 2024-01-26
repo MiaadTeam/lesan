@@ -11,7 +11,7 @@ import {
 import { throwError } from "../../utils/mod.ts";
 import { filterDocByProjection } from "../utils/filterDocByProjection.ts";
 
-const proccessUpdateRelations = async (
+export const proccessUpdateOrDeleteRelations = async (
   {
     db,
     collection,
@@ -21,6 +21,7 @@ const proccessUpdateRelations = async (
     pureUpdatedDoc,
     pureDocProjection,
     relationSchemaName,
+    isDelete,
   }: {
     db: Db;
     collection: string;
@@ -30,18 +31,24 @@ const proccessUpdateRelations = async (
     pureUpdatedDoc: Record<string, any>;
     pureDocProjection: Record<string, any>;
     relationSchemaName: string;
+    isDelete?: boolean;
   },
 ) => {
   const updatePipeline = [];
   for (const relatedRel in relatedRelations) {
     const actualRelatedRel = relatedRelations[relatedRel];
-    if (actualRelatedRel.type === "single") {
+    if (
+      actualRelatedRel.type === "single" && foundedDoc[relatedRel] &&
+      foundedDoc[relatedRel]._id
+    ) {
       if (
         foundedDoc[relatedRel]._id.equals(
           pureUpdatedDoc._id,
         )
       ) {
-        updatePipeline.push({ $set: { [relatedRel]: pureUpdatedDoc } });
+        isDelete
+          ? updatePipeline.push({ $set: { [relatedRel]: {} } })
+          : updatePipeline.push({ $set: { [relatedRel]: pureUpdatedDoc } });
       }
     } else {
       const relatedRelDocs = foundedDoc![relatedRel];
@@ -89,95 +96,108 @@ const proccessUpdateRelations = async (
               $lte: relatedRelDocs[relatedRelDocs.length - 1][fieldName],
             };
 
-          const findOneCommand = {
+          const findNextCommand = {
             [`${rel}._id`]: foundedDoc._id,
             [fieldName]: operator,
           };
-          const findNextRelatedRelForAdd = await db.collection(collection)
-            .find(findOneCommand, {
+          const findNextRelatedRelForAdd = (await db.collection(collection)
+            .find(findNextCommand, {
               projection: pureDocProjection,
               sort: {
                 [fieldName]: actualRelatedRel.sort?.order === "asc" ? 1 : -1,
               },
               limit: 2,
-            }).toArray();
+            }).toArray()).filter((doc) =>
+              !doc._id.equals(pureUpdatedDoc._id) &&
+              !doc._id.equals(relatedRelDocs[relatedRelDocs.length - 1]._id)
+            );
 
-          const concatArrays = findNextRelatedRelForAdd
+          const concatArrays = isDelete
+            ? findNextRelatedRelForAdd ? findNextRelatedRelForAdd : []
+            : findNextRelatedRelForAdd
             ? [...findNextRelatedRelForAdd, pureUpdatedDoc]
             : [pureUpdatedDoc];
 
-          updatePipeline.push(
-            {
-              $set: {
-                [relatedRel]: {
-                  $setUnion: [
-                    concatArrays,
-                    `$${relatedRel}`,
-                  ],
+          if (concatArrays.length > 0) {
+            updatePipeline.push(
+              {
+                $set: {
+                  [relatedRel]: {
+                    $setUnion: [
+                      `$${relatedRel}`,
+                      concatArrays,
+                    ],
+                  },
                 },
               },
-            },
-            {
-              $set: {
-                [relatedRel]: {
-                  $sortArray: {
-                    input: `$${relatedRel}`,
-                    sortBy: {
-                      [actualRelatedRel.sort!.field]:
-                        actualRelatedRel.sort?.order === "asc" ? 1 : -1,
+              {
+                $set: {
+                  [relatedRel]: {
+                    $sortArray: {
+                      input: `$${relatedRel}`,
+                      sortBy: {
+                        [actualRelatedRel.sort!.field]:
+                          actualRelatedRel.sort?.order === "asc" ? 1 : -1,
+                      },
                     },
                   },
                 },
               },
-            },
-            {
-              $set: {
-                [relatedRel]: {
-                  $slice: [`$${relatedRel}`, actualRelatedRel.limit],
+              {
+                $set: {
+                  [relatedRel]: {
+                    $slice: [`$${relatedRel}`, actualRelatedRel.limit],
+                  },
                 },
               },
-            },
-          );
+            );
+          }
         } else {
-          updatePipeline.push(
-            {
-              $set: {
-                [relatedRel]: {
-                  $setUnion: [
-                    [pureUpdatedDoc],
-                    `$${relatedRel}`,
-                  ],
+          if (isDelete === false || isDelete === undefined) {
+            updatePipeline.push(
+              {
+                $set: {
+                  [relatedRel]: {
+                    $setUnion: [
+                      `$${relatedRel}`,
+                      [pureUpdatedDoc],
+                    ],
+                  },
                 },
               },
-            },
-            {
-              $set: {
-                [relatedRel]: {
-                  $sortArray: {
-                    input: `$${relatedRel}`,
-                    sortBy: {
-                      [actualRelatedRel.sort!.field]:
-                        actualRelatedRel.sort?.order === "asc" ? 1 : -1,
+              {
+                $set: {
+                  [relatedRel]: {
+                    $sortArray: {
+                      input: `$${relatedRel}`,
+                      sortBy: {
+                        [actualRelatedRel.sort!.field]:
+                          actualRelatedRel.sort?.order === "asc" ? 1 : -1,
+                      },
                     },
                   },
                 },
               },
-            },
-            {
-              $set: {
-                [relatedRel]: {
-                  $slice: [`$${relatedRel}`, actualRelatedRel.limit],
+              {
+                $set: {
+                  [relatedRel]: {
+                    $slice: [`$${relatedRel}`, actualRelatedRel.limit],
+                  },
                 },
               },
-            },
-          );
+            );
+          }
         }
       }
     }
   }
-  const updatedActualRelSingleDoc = await db.collection(
-    relationSchemaName,
-  ).updateOne({ _id: foundedDoc._id }, updatePipeline);
+
+  const updatedActualRelSingleDoc = updatePipeline.length > 0
+    ? await db.collection(
+      relationSchemaName,
+    ).updateOne({ _id: foundedDoc._id }, updatePipeline)
+    : {};
+
   // /*
   //  * 	@LOG @DEBUG @INFO
   //  * 	This log written by ::==> {{ `` }}
@@ -249,7 +269,7 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
           actualRel.schemaName,
         ).findOne({ _id: updatedDocValue[rel]._id });
 
-        await proccessUpdateRelations({
+        await proccessUpdateOrDeleteRelations({
           db,
           collection,
           rel,
@@ -273,10 +293,11 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
           .toArray();
 
         if (foundedActualRelMultiDocs) {
+          // TODO :: Shoud be updated by one Pipeline
           for await (
             const eachActualRel of foundedActualRelMultiDocs
           ) {
-            await proccessUpdateRelations({
+            await proccessUpdateOrDeleteRelations({
               db,
               collection,
               rel,
