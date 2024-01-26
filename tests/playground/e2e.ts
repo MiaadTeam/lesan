@@ -488,7 +488,9 @@ const deleteCityValidator = () => {
     set: object({
       _id: string(),
     }),
-    get: coreApp.schemas.selectStruct("city", 1),
+    get: object({
+      success: optional(enums([0, 1])),
+    }),
   });
 };
 
@@ -497,6 +499,7 @@ const deleteCity: ActFn = async (body) => {
     set: { _id },
     get,
   } = body.details;
+
   return await cities.deleteOne({
     filter: { _id: new ObjectId(_id) },
     hardCascade: true,
