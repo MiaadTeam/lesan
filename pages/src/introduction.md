@@ -1,3 +1,5 @@
+![Besmellah Allah Alrahman Alrahim](./img/besmelah.jpg)
+
 # Introduction
 **Lesan** is a collection of a [Web Server](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_web_server) and an `ODM` along with an idea to implement [microservices](https://www.ibm.com/cloud/learn/microservices).
 
