@@ -18,6 +18,8 @@
 - [`deleteOne` functions](./delete_one_fn.md)
 - [`insertMany` functions](./insert_many_fn.md)
 - [Playground](./playground.md)
+- [`Request` flow in Lesan](./request_flow.md)
+- [`Lesan` vs `GraphQL`](./leasan_vs_graphql.md)
 - [All the advantages of Lesan](./all_advantages_of_lesan.md)
 
 # Advanced Guide
