@@ -100,17 +100,14 @@ export const proccessUpdateOrDeleteRelations = async (
             [`${rel}._id`]: foundedDoc._id,
             [fieldName]: operator,
           };
-          const findNextRelatedRelForAdd = (await db.collection(collection)
+          const findNextRelatedRelForAdd = await db.collection(collection)
             .find(findNextCommand, {
               projection: pureDocProjection,
               sort: {
                 [fieldName]: actualRelatedRel.sort?.order === "asc" ? 1 : -1,
               },
               limit: 2,
-            }).toArray()).filter((doc) =>
-              !doc._id.equals(pureUpdatedDoc._id) &&
-              !doc._id.equals(relatedRelDocs[relatedRelDocs.length - 1]._id)
-            );
+            }).toArray();
 
           const concatArrays = isDelete
             ? findNextRelatedRelForAdd ? findNextRelatedRelForAdd : []
@@ -123,10 +120,36 @@ export const proccessUpdateOrDeleteRelations = async (
               {
                 $set: {
                   [relatedRel]: {
-                    $setUnion: [
-                      `$${relatedRel}`,
-                      concatArrays,
-                    ],
+                    $reduce: {
+                      input: concatArrays,
+                      initialValue: `$${relatedRel}`,
+                      in: {
+                        $concatArrays: [
+                          "$$value",
+                          {
+                            $ifNull: [
+                              {
+                                $cond: {
+                                  if: {
+                                    $not: {
+                                      $in: [
+                                        "$$this._id",
+                                        `$${relatedRel}._id`,
+                                      ],
+                                    },
+                                  },
+                                  then: [
+                                    "$$this",
+                                  ],
+                                  else: null,
+                                },
+                              },
+                              [],
+                            ],
+                          },
+                        ],
+                      },
+                    },
                   },
                 },
               },
@@ -158,10 +181,36 @@ export const proccessUpdateOrDeleteRelations = async (
               {
                 $set: {
                   [relatedRel]: {
-                    $setUnion: [
-                      `$${relatedRel}`,
-                      [pureUpdatedDoc],
-                    ],
+                    $reduce: {
+                      input: [pureUpdatedDoc],
+                      initialValue: `$${relatedRel}`,
+                      in: {
+                        $concatArrays: [
+                          "$$value",
+                          {
+                            $ifNull: [
+                              {
+                                $cond: {
+                                  if: {
+                                    $not: {
+                                      $in: [
+                                        "$$this._id",
+                                        `$${relatedRel}._id`,
+                                      ],
+                                    },
+                                  },
+                                  then: [
+                                    "$$this",
+                                  ],
+                                  else: null,
+                                },
+                              },
+                              [],
+                            ],
+                          },
+                        ],
+                      },
+                    },
                   },
                 },
               },
