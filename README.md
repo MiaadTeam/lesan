@@ -286,8 +286,20 @@ alternativly you can send post request to `http://localhost:1366/lesan` with `po
 We handle all relationships between the data and `embed` everything. You can also control the level of penetration into the `action get` depth. On the `client-side`, you can describe what you want and get back exactly what you described.
 
 
-# contributors
+# Contributors
 
 <a href="https://github.com/MiaadTeam/lesan/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=MiaadTeam/lesan" />
 </a>
+
+
+# Many thanks to those who supported us
+
+<a href="https://github.com/MCKH03">
+  <img src="https://avatars.githubusercontent.com/u/127620974?v=4" />
+</a>
+
+<a href="https://github.com/MahdiRamezani8">
+  <img src="https://avatars.githubusercontent.com/u/110328874?v=4" />
+</a>
+
