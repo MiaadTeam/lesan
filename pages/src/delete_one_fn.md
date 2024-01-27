@@ -1,8 +1,9 @@
 # deleteOne functions
 
-`Deletion` has the same problems as `update`.  
+`Deletion` has the same problems as `update`.
 
 ### Delete a User
+
 Pay attention to the following code:
 
 ```ts
@@ -97,7 +98,22 @@ executing `main` → `user` → `deleteUser`:
 after execut `main` → `user` → `deleteUser`:  
 ![15-2-after-delete-user](https://github.com/MiaadTeam/lesan/assets/6236123/a997cc73-3d63-4bc9-b2d1-e8ee0d4c7e9f)
 
+### Add E2E Test
+
+For adding `deleteUser` request to E2E section you should click on the e2e button (like bottom picture) to add your request to E2E section.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
+
+Then, in the E2E section and `deleteUser` sequence, you should _replace_ the **user id** that you set capture in _own sequence_ with _default_ **user id**. _default_ **user id** in `deleteUser` sequence is like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/6f86428d-7c7a-447c-ad3e-e2875991c112">
+
+The _replaced_ **country id** is like below picture.
+
+<img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/687647c7-03c6-47d2-bca2-ad00acc85b89">
+
 ### Delete a Country
+
 What if we want to remove a `country`?
 Although we have not defined any `relationship` for the `country`, both the `city` and the `user` have created `relationships` with the `country`.
 
