@@ -22,12 +22,11 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
   - [Introduction](https://miaadteam.github.io/lesan/introduction.html)
   - [Installation](https://miaadteam.github.io/lesan/installation.html)
   - [Getting start](https://miaadteam.github.io/lesan/getting_start.html)
-  - [Mannage relations](https://miaadteam.github.io/lesan/mannage_relations.html)
-  - [Other functions](https://miaadteam.github.io/lesan/other_functions.html)
-  - [Playground](https://miaadteam.github.io/lesan/playground.html)
-  - [Folder Structure](https://miaadteam.github.io/lesan/folder_structure.html)
-  - [Microservice or Monolithic](https://miaadteam.github.io/lesan/microservice-monolithic.html)
-  - [Manage replica](https://miaadteam.github.io/lesan/manage_replica.html)
+  - [Advanced Guide](https://miaadteam.github.io/lesan/an_advanced_project.html)
+  - [Lesan Philosophy](https://miaadteam.github.io/lesan/Receiving_Data.html)
+  - [Structures](https://miaadteam.github.io/lesan/Schemas.html)
+  - [API Reference](https://miaadteam.github.io/lesan/api/lesan_fn.html)
+  - [Types](https://miaadteam.github.io/lesan/api/types/types.html)
 
 # A little trip
 ### Look below code:
@@ -285,3 +284,10 @@ alternativly you can send post request to `http://localhost:1366/lesan` with `po
 ![Screen Shot 1402-04-25 at 18 24 16](https://github.com/MiaadTeam/lesan/assets/6236123/7e9c7c93-cf08-4120-9c44-df93475c108f)
 
 We handle all relationships between the data and `embed` everything. You can also control the level of penetration into the `action get` depth. On the `client-side`, you can describe what you want and get back exactly what you described.
+
+
+# contributors
+
+<a href="https://github.com/MiaadTeam/lesan/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=MiaadTeam/lesan" />
+</a>
