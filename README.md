@@ -296,10 +296,10 @@ We handle all relationships between the data and `embed` everything. You can als
 # Many thanks to those who supported us
 
 <a href="https://github.com/MCKH03">
-  <img src="https://avatars.githubusercontent.com/u/127620974?v=4" />
+  <img style="width: 4rem; border-radius: 50%; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/127620974?v=4" />
 </a>
 
 <a href="https://github.com/MahdiRamezani8">
-  <img src="https://avatars.githubusercontent.com/u/110328874?v=4" />
+  <img style="width: 4rem; border-radius: 50%; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/110328874?v=4" />
 </a>
 
