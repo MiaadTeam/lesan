@@ -8,4 +8,5 @@ Let's use addRelation.
 
 - [Add Relation function](./add_relation_fn.md)
 - [Remove Relation function](./remove_relation_fn.md)
+- [What is the relationship really?](./what_is_the_relationship.md)
 
