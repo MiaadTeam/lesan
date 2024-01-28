@@ -7,7 +7,7 @@ In this framework, we tried to delegate data retrieval management to the `client
 
 Meanwhile, we should have a regular structure (such as [SQL](https://en.wikipedia.org/wiki/SQL)) for data models in the `ODM` layer so that we can always `validate` the data.
 
-Also, we have provided a new definition for creating `relationships` between `data`, which makes us fully master its details and do wonderful things with them.[read here](./what_is_the_relationship.md)
+Also, we have provided a new definition for creating `relationships` between `data`, which makes us fully master its details and do wonderful things with them. Read more aboit it [here](./what_is_the_relationship.md)
 
 Furthermore, we tried to provide the possibility of being movable for the `data structure` along with the `functions` written on the `server` side so that we can manage microservices more easily.
 
