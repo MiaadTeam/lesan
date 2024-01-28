@@ -59,10 +59,10 @@ In one sentence, **Lesan** may add a few to five hundred milliseconds to the `cr
  
  We use this formula to calculate the difference : (B - A) ÷ A * 100  
  As you see on the chart:
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1417%` faster than the `prisma-express-graphql`. Which uses `postgres` as a database.
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `4435%` faster than the `mongoose-express-rest` (Note that we did not sort in this query)
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `72289%` faster than the `mongo-express-rest` (Note that we did not sort in this query)
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `298971%` faster than the `mongoose-express-rest` (used sortby)
+ - [Lesan](https://github.com/MiaadTeam/lesan) returns data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.
+ - [Lesan](https://github.com/MiaadTeam/lesan) returns data to client `1417%` faster than the `prisma-express-graphql`. Which uses `postgres` as a database.
+ - [Lesan](https://github.com/MiaadTeam/lesan) returns data to client `4435%` faster than the `mongoose-express-rest` (Note that we did not sort in this query)
+ - [Lesan](https://github.com/MiaadTeam/lesan) returns data to client `72289%` faster than the `mongo-express-rest` (Note that we did not sort in this query)
+ - [Lesan](https://github.com/MiaadTeam/lesan) returns data to client `298971%` faster than the `mongoose-express-rest` (used sortby)
 
 **Maybe we created the most performant framework in the world!** [see more detailed benchmark](https://github.com/MiaadTeam/benchmark)
