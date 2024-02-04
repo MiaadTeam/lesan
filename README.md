@@ -296,14 +296,33 @@ We handle all relationships between the data and `embed` everything. You can als
 
 # Many thanks to those who supported us
 
+<!-- <style>
+  .profiles {
+    display: flex;
+    gap: 3px;
+    padding: 1rem 5px;
+  }
+
+  .profile img{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+
+  .profile--image {
+    width: 4rem;
+    border: 1px solid bisqu;
+  }
+</style> -->
+
 <div style="display: flex; gap: 3px; padding: 1rem 5px;">
-    <a class="profile" href="https://github.com/MCKH03">
-      <img style="width: 50px; height: 50px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/127620974?v=4" />
-    </a>
-    <a class="profile" href="https://github.com/MahdiRamezani8">
-      <img style="width: 50px; height: 50px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/110328874?v=4" />
-    </a>
-    <a class="profile" href="https://github.com/asafaeirad">
-      <img style="width: 50px; height: 50px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/28571761?v=4" />
-    </a>
+  <a  href="https://github.com/MCKH03">
+    <img style="width: 50px; height: 56px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/127620974?v=4" />
+  </a>
+  <a  href="https://github.com/MahdiRamezani8">
+    <img style="width: 50px; height: 56px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/110328874?v=4" />
+  </a>
+  <a  href="https://github.com/asafaeirad">
+    <img style="width: 50px; height: 56px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/28571761?v=4" />
+  </a>
 </div>
