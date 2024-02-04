@@ -12,27 +12,30 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
   <img src="chart.svg" width="800" height="180" alt="benchmark-animation">
 </div>
 
- We use this formula to calculate the difference : (B - A) ÷ A * 100  
+We use this formula to calculate the difference : (B - A) ÷ A \* 100  
  As you see on the chart:
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1417%` faster than the `prisma-express-graphql`. Which uses `postgres` as a database.
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `4435%` faster than the `mongoose-express-rest` (Note that we did not sort in this query)
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `72289%` faster than the `mongo-express-rest` (Note that we did not sort in this query)
- - [Lesan](https://github.com/MiaadTeam/lesan) return data to client `298971%` faster than the `mongoose-express-rest` (used sortby)
+
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1417%` faster than the `prisma-express-graphql`. Which uses `postgres` as a database.
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `4435%` faster than the `mongoose-express-rest` (Note that we did not sort in this query)
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `72289%` faster than the `mongo-express-rest` (Note that we did not sort in this query)
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `298971%` faster than the `mongoose-express-rest` (used sortby)
 
 **Maybe we created the most performant framework in the world!** [see more detailed benchmark](https://github.com/MiaadTeam/benchmark)
 
 # Documantation
-  - [Introduction](https://miaadteam.github.io/lesan/introduction.html)
-  - [Installation](https://miaadteam.github.io/lesan/installation.html)
-  - [Getting start](https://miaadteam.github.io/lesan/getting_start.html)
-  - [Advanced Guide](https://miaadteam.github.io/lesan/an_advanced_project.html)
-  - [Lesan Philosophy](https://miaadteam.github.io/lesan/Receiving_Data.html)
-  - [Structures](https://miaadteam.github.io/lesan/Schemas.html)
-  - [API Reference](https://miaadteam.github.io/lesan/api/lesan_fn.html)
-  - [Types](https://miaadteam.github.io/lesan/api/types/types.html)
+
+- [Introduction](https://miaadteam.github.io/lesan/introduction.html)
+- [Installation](https://miaadteam.github.io/lesan/installation.html)
+- [Getting start](https://miaadteam.github.io/lesan/getting_start.html)
+- [Advanced Guide](https://miaadteam.github.io/lesan/an_advanced_project.html)
+- [Lesan Philosophy](https://miaadteam.github.io/lesan/Receiving_Data.html)
+- [Structures](https://miaadteam.github.io/lesan/Schemas.html)
+- [API Reference](https://miaadteam.github.io/lesan/api/lesan_fn.html)
+- [Types](https://miaadteam.github.io/lesan/api/types/types.html)
 
 # A little trip
+
 ### Look below code:
 
 Create a file called `mod.ts` and paste the code below into it:
@@ -71,7 +74,7 @@ const countryRelations = {};
 const countries = coreApp.odm.newModel(
   "country",
   countryPure,
-  countryRelations,
+  countryRelations
 );
 
 // ------------------ User Model ------------------
@@ -209,11 +212,7 @@ const getUsersValidator = () => {
 };
 const getUsers: ActFn = async (body) => {
   let {
-    set: {
-      page,
-      limit,
-      countryId,
-    },
+    set: { page, limit, countryId },
     get,
   } = body.details;
 
@@ -289,21 +288,42 @@ alternativly you can send post request to `http://localhost:1366/lesan` with `po
 
 We handle all relationships between the data and `embed` everything. You can also control the level of penetration into the `action get` depth. On the `client-side`, you can describe what you want and get back exactly what you described.
 
-
 # Contributors
 
 <a href="https://github.com/MiaadTeam/lesan/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=MiaadTeam/lesan" />
 </a>
 
-
 # Many thanks to those who supported us
 
-<a href="https://github.com/MCKH03">
-  <img style="width: 4rem; border-radius: 50%; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/127620974?v=4" />
-</a>
+<style>
+  .profiles {
+    display: flex;
+    gap: 3px;
+    padding: 1rem 5px;
+  }
 
-<a href="https://github.com/MahdiRamezani8">
-  <img style="width: 4rem; border-radius: 50%; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/110328874?v=4" />
-</a>
+  .profile img{
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    border-radius: 50%;
+  }
 
+  .profile--image {
+    width: 4rem;
+    border: 1px solid bisqu;
+  }
+</style>
+
+<div class="profiles">
+    <a class="profile" href="https://github.com/MCKH03">
+      <img class="profile--image" src="https://avatars.githubusercontent.com/u/127620974?v=4" />
+    </a>
+    <a class="profile" href="https://github.com/MahdiRamezani8">
+      <img class="profile--image" src="https://avatars.githubusercontent.com/u/110328874?v=4" />
+    </a>
+    <a class="profile" href="https://github.com/asafaeirad">
+      <img class="profile--image" src="https://avatars.githubusercontent.com/u/28571761?v=4" />
+    </a>
+</div>
