@@ -290,8 +290,9 @@ We handle all relationships between the data and `embed` everything. You can als
 
 # Contributors
 
+z
 <a href="https://github.com/MiaadTeam/lesan/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=MiaadTeam/lesan" />
+<img src="https://contrib.rocks/image?repo=MiaadTeam/lesan" />
 </a>
 
 # Many thanks to those who supported us
@@ -315,7 +316,7 @@ We handle all relationships between the data and `embed` everything. You can als
   }
 </style> -->
 
-<div style="display: flex; gap: 3px; padding: 1rem 5px;">
+<!-- <div style="display: flex; gap: 3px; padding: 1rem 5px;">
   <a  href="https://github.com/MCKH03">
     <img style="width: 50px; height: 56px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/127620974?v=4" />
   </a>
@@ -325,4 +326,13 @@ We handle all relationships between the data and `embed` everything. You can als
   <a  href="https://github.com/asafaeirad">
     <img style="width: 50px; height: 56px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/28571761?v=4" />
   </a>
-</div>
+</div> -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://kentcdodds.com"><img src="https://avatars.githubusercontent.com/u/1500684?v=3?s=100" width="100px;" alt="Kent C. Dodds"/><br /><sub><b>Kent C. Dodds</b></sub></a><br /><a href="https://github.com/testing-library/react-testing-library/commits?author=kentcdodds" title="Code">💻</a> <a href="https://github.com/testing-library/react-testing-library/commits?author=kentcdodds" title="Documentation">📖</a> <a href="#infra-kentcdodds" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/testing-library/react-testing-library/commits?author=kentcdodds" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://audiolion.github.io"><img src="https://avatars1.githubusercontent.com/u/2430381?v=4?s=100" width="100px;" alt="Ryan Castner"/><br /><sub><b>Ryan Castner</b></sub></a><br /><a href="https://github.com/testing-library/react-testing-library/commits?author=audiolion" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.dnlsandiego.com"><img src="https://avatars0.githubusercontent.com/u/8008023?v=4?s=100" width="100px;" alt="Daniel Sandiego"/><br /><sub><b>Daniel Sandiego</b></sub></a><br /><a href="https://github.com/testing-library/react-testing-library/commits?author=dnlsandiego" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
