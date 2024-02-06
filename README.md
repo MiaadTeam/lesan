@@ -334,6 +334,9 @@ z
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/MCKH03"><img src="https://avatars.githubusercontent.com/u/127620974?v=4?s=100" width="100px;" alt="Mehrshad Cheshm Khavari"/><br /><sub><b>Mehrshad Cheshm Khavari</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/MahdiRamezani8"><img src="https://avatars.githubusercontent.com/u/110328874?v=4?s=100" width="100px;" alt="Mahdi Ramezani"/><br /><sub><b>Mahdi Ramezani</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/asafaeirad"><img src="https://avatars.githubusercontent.com/u/28571761?v=4?s=100" width="100px;" alt="Alireza Safaierad"/><br /><sub><b>Alireza Safaierad</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/alidavodii"><img src="https://avatars.githubusercontent.com/u/52744305?v=4?s=100" width="100px;" alt="ali davodi"/><br /><sub><b>ali davodi</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/soorenaganji"><img src="https://avatars.githubusercontent.com/u/109369184?v=4?s=100" width="100px;" alt="sorena ganji"/><br /><sub><b>sorena ganji</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://t.me/NodeMaster"><img src="https://github.com/MiaadTeam/lesan/assets/72462171/659d2c0a-6803-46a9-95a5-64f8b5f1affb" width="100px;" alt="Node Master"/><br /><sub><b>Node Master</b></sub></a></td>
     </tr>
   </tbody>
 </table>
