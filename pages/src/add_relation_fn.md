@@ -19,7 +19,7 @@ const addUserLivedCity: ActFn = async (body) => {
   const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
 
   return await users.addRelation({
-    _id: new ObjectId(_id),
+    filters: { _id: new ObjectId(_id) },
     projection: body.details.get,
     relations: {
       livedCities: {
