@@ -290,7 +290,6 @@ We handle all relationships between the data and `embed` everything. You can als
 
 # Contributors
 
-z
 <a href="https://github.com/MiaadTeam/lesan/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=MiaadTeam/lesan" />
 </a>
@@ -338,5 +337,7 @@ z
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/soorenaganji"><img src="https://avatars.githubusercontent.com/u/109369184?v=4?s=100" width="100px;" alt="sorena ganji"/><br /><sub><b>sorena ganji</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://t.me/NodeMaster"><img src="https://github.com/MiaadTeam/lesan/assets/72462171/659d2c0a-6803-46a9-95a5-64f8b5f1affb" width="100px;" alt="Node Master"/><br /><sub><b>Node Master</b></sub></a></td>
     </tr>
-  </tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/erfan-asadi"><img src="https://avatars.githubusercontent.com/u/50593999?v=4?s=100" width="100px;" alt="Erfan Asadi"/><br /><sub><b>Erfan Asadi</b></sub></a></td>
+    </tr>
 </table>
