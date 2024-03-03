@@ -10,15 +10,15 @@ export const generateSchemTypes = async (schemasObj: TSchemas) => {
     str = str + `
     export type ${schema}Inp = {
       ${
-      Object.keys(schemas[schema].mainRelations).map(schemaName =>
-        `${schemaName}: number | ${
+      Object.keys(schemas[schema].mainRelations).map((schemaName) =>
+        `${schemaName}?: number | ${
           schemas[schema].mainRelations[schemaName].schemaName
         }Inp`
       ).join("\n")
     }
       ${
-      Object.keys(schemas[schema].relatedRelations).map(schemaName =>
-        `${schemaName}: number | ${
+      Object.keys(schemas[schema].relatedRelations).map((schemaName) =>
+        `${schemaName}?: number | ${
           schemas[schema].relatedRelations[schemaName].schemaName
         }Inp`
       ).join("\n")
