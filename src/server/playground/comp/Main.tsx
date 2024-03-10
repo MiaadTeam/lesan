@@ -49,17 +49,17 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     value: 0 | 1 | null,
     keyname: string,
     getObj: Record<string, any>,
-    returnObj: Record<string, any>
+    returnObj: Record<string, any>,
   ) => {
     for (const key in getObj) {
       getObj[key].type === "enums"
         ? (returnObj[`${keyname}.${key}`] = value)
         : changeGetValue(
-            value,
-            `${keyname}.${key}`,
-            getObj[key].schema,
-            returnObj
-          );
+          value,
+          `${keyname}.${key}`,
+          getObj[key].schema,
+          returnObj,
+        );
     }
     return returnObj;
   };
@@ -123,7 +123,8 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             });
             localStorage.setItem("localTabsData", JSON.stringify(tabsData));
           }}
-        ></MultiSelect>
+        >
+        </MultiSelect>
       );
     } else if (field["type"] === "enums") {
       return (
@@ -280,7 +281,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     setTimeout(() => {
       setSendLoading(false);
     }, 450);
-    const tookTime = t1 - t0;
+    const tookTime = (t1 - t0).toFixed(2);
 
     /* event.target.reset(); */
     /* setFormData({}); */
@@ -305,8 +306,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
     localStorage.setItem("localTabsData", JSON.stringify(tabsData));
   };
 
-  const canShowRequestFields =
-    tabsData[activeTab].service &&
+  const canShowRequestFields = tabsData[activeTab].service &&
     tabsData[activeTab].schema &&
     tabsData[activeTab].postFields &&
     tabsData[activeTab].getFields &&
@@ -343,7 +343,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
 
   const onClickItem = (
     item: string,
-    type: "service" | "method" | "schema" | "action"
+    type: "service" | "method" | "schema" | "action",
   ) => {
     if (type === "service") {
       setService({
@@ -392,9 +392,9 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             <Selected
               onClickItem={(item: string) => onClickItem(item, "service")}
               items={Object.keys(actsObj)}
-              incomeActiveItem={
-                tabsData[activeTab].service ? tabsData[activeTab].service : null
-              }
+              incomeActiveItem={tabsData[activeTab].service
+                ? tabsData[activeTab].service
+                : null}
             />
           </div>
 
@@ -408,14 +408,12 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             <Selected
               canShow={!canShowSchema}
               onClickItem={(item: string) => onClickItem(item, "schema")}
-              items={
-                canShowSchema
-                  ? Object.keys((actsObj as any)[tabsData[activeTab].service])
-                  : []
-              }
-              incomeActiveItem={
-                tabsData[activeTab].schema ? tabsData[activeTab].schema : null
-              }
+              items={canShowSchema
+                ? Object.keys((actsObj as any)[tabsData[activeTab].service])
+                : []}
+              incomeActiveItem={tabsData[activeTab].schema
+                ? tabsData[activeTab].schema
+                : null}
             />
           </div>
 
@@ -424,18 +422,16 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
             <Selected
               canShow={!canShowAct}
               onClickItem={(item: string) => onClickItem(item, "action")}
-              items={
-                canShowAct
-                  ? Object.keys(
-                      (actsObj as any)[tabsData[activeTab].service][
-                        tabsData[activeTab].schema
-                      ]
-                    )
-                  : []
-              }
-              incomeActiveItem={
-                tabsData[activeTab].act ? tabsData[activeTab].act : null
-              }
+              items={canShowAct
+                ? Object.keys(
+                  (actsObj as any)[tabsData[activeTab].service][
+                    tabsData[activeTab].schema
+                  ],
+                )
+                : []}
+              incomeActiveItem={tabsData[activeTab].act
+                ? tabsData[activeTab].act
+                : null}
             />
           </div>
         </div>
@@ -470,7 +466,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                       null,
                       "get",
                       tabsData[activeTab].getFields,
-                      {}
+                      {},
                     );
 
                     setFormData({
@@ -478,14 +474,15 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                       index: activeTab,
                     });
                   }}
-                ></span>
+                >
+                </span>
                 <span
                   onClick={() => {
                     const copy = changeGetValue(
                       0,
                       "get",
                       tabsData[activeTab].getFields,
-                      {}
+                      {},
                     );
                     setFormData({
                       data: {
@@ -504,7 +501,7 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                       1,
                       "get",
                       tabsData[activeTab].getFields,
-                      {}
+                      {},
                     );
                     setFormData({
                       data: {
@@ -520,69 +517,70 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
               </div>
             </div>
             {Object.keys(tabsData[activeTab].getFields).map((item) =>
-              tabsData[activeTab].getFields[item].type === "enums" ? (
-                <div
-                  className="input-cnt get-items"
-                  key={`${activeTab}.${item}-------`}
-                >
-                  <label htmlFor={item}>{item}:</label>
-                  <div className="get-values">
-                    <span
-                      onClick={() => {
-                        setFormData({
-                          data: {
-                            ...tabsData[activeTab].formData,
-                            [`get.${item}`]: null,
-                          },
-                          index: activeTab,
-                        });
-                      }}
-                    ></span>
-                    <span
-                      className={
-                        tabsData[activeTab].formData[`get.${item}`] === 0
+              tabsData[activeTab].getFields[item].type === "enums"
+                ? (
+                  <div
+                    className="input-cnt get-items"
+                    key={`${activeTab}.${item}-------`}
+                  >
+                    <label htmlFor={item}>{item}:</label>
+                    <div className="get-values">
+                      <span
+                        onClick={() => {
+                          setFormData({
+                            data: {
+                              ...tabsData[activeTab].formData,
+                              [`get.${item}`]: null,
+                            },
+                            index: activeTab,
+                          });
+                        }}
+                      >
+                      </span>
+                      <span
+                        className={tabsData[activeTab]
+                            .formData[`get.${item}`] === 0
                           ? "active"
-                          : ""
-                      }
-                      onClick={() => {
-                        setFormData({
-                          data: {
-                            ...tabsData[activeTab].formData,
-                            [`get.${item}`]: 0,
-                          },
-                          index: activeTab,
-                        });
-                      }}
-                    >
-                      0
-                    </span>
-                    <span
-                      className={
-                        tabsData[activeTab].formData[`get.${item}`] === 1
+                          : ""}
+                        onClick={() => {
+                          setFormData({
+                            data: {
+                              ...tabsData[activeTab].formData,
+                              [`get.${item}`]: 0,
+                            },
+                            index: activeTab,
+                          });
+                        }}
+                      >
+                        0
+                      </span>
+                      <span
+                        className={tabsData[activeTab]
+                            .formData[`get.${item}`] === 1
                           ? "active"
-                          : ""
-                      }
-                      onClick={() => {
-                        setFormData({
-                          data: {
-                            ...tabsData[activeTab].formData,
-                            [`get.${item}`]: 1,
-                          },
-                          index: activeTab,
-                        });
-                      }}
-                    >
-                      1
-                    </span>
+                          : ""}
+                        onClick={() => {
+                          setFormData({
+                            data: {
+                              ...tabsData[activeTab].formData,
+                              [`get.${item}`]: 1,
+                            },
+                            index: activeTab,
+                          });
+                        }}
+                      >
+                        1
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                renderGetFields({
-                  getField: tabsData[activeTab].getFields[item],
-                  keyName: item,
-                  margin: 0,
-                })
-              )
+                )
+                : (
+                  renderGetFields({
+                    getField: tabsData[activeTab].getFields[item],
+                    keyName: item,
+                    margin: 0,
+                  })
+                )
             )}
             <div class="wrapper">
               <button
@@ -649,11 +647,9 @@ export const Main = ({ urlAddress }: { urlAddress: string }) => {
                 {ConvertMilliseconds(tabsData[activeTab].response?.tookTime!)}
               </span>
               {tabsData[activeTab].response &&
-              tabsData[activeTab].response?.success === true ? (
-                <div className="success"></div>
-              ) : (
-                <div className="fail"></div>
-              )}
+                  tabsData[activeTab].response?.success === true
+                ? <div className="success"></div>
+                : <div className="fail"></div>}
             </div>
           </div>
         )}
