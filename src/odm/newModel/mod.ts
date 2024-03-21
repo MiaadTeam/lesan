@@ -11,6 +11,7 @@ import {
 import { IPureFields, schemaFns, TSchemas } from "../../models/mod.ts";
 import {
   BulkWriteOptions,
+  CountDocumentsOptions,
   Db,
   DeleteOptions,
   Document,
@@ -259,5 +260,15 @@ export const newModel = <
         options,
         projection,
       }),
+
+    countDocument: (
+      {
+        filter,
+        options,
+      }: {
+        filter?: Document | undefined;
+        options?: CountDocumentsOptions | undefined;
+      },
+    ) => db.collection(name).countDocuments(filter, options),
   };
 };

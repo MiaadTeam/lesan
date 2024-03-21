@@ -313,7 +313,10 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
     const relatedRelations = actualRel.relatedRelations;
 
     if (actualRel.type === "single") {
-      if (updatedDocValue && updatedDocValue[rel]) {
+      if (
+        updatedDocValue && updatedDocValue[rel] &&
+        updatedDocValue[rel]._id
+      ) {
         const foundedActualRelSingleDoc = await db.collection(
           actualRel.schemaName,
         ).findOne({ _id: updatedDocValue[rel]._id });
