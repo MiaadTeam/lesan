@@ -66,3 +66,5 @@ In one sentence, **Lesan** may add a few to five hundred milliseconds to the `cr
  - [Lesan](https://github.com/MiaadTeam/lesan) returns data to client `298971%` faster than the `mongoose-express-rest` (used sortby)
 
 **Maybe we created the most performant framework in the world!** [see more detailed benchmark](https://github.com/MiaadTeam/benchmark)
+
+[This video](https://youtu.be/FzMNIGanXSQ) is an introductory tutorial on **Lesan** framework in Farsi language
