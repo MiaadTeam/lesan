@@ -230,13 +230,14 @@
 <p>We use this formula to calculate the difference : (B - A) ÷ A * 100<br />
 As you see on the chart:</p>
 <ul>
-<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>1168%</code> faster than the <code>prisma-express-rest</code>. Which uses <code>postgres</code> as a database.</li>
-<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>1417%</code> faster than the <code>prisma-express-graphql</code>. Which uses <code>postgres</code> as a database.</li>
-<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>4435%</code> faster than the <code>mongoose-express-rest</code> (Note that we did not sort in this query)</li>
-<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>72289%</code> faster than the <code>mongo-express-rest</code> (Note that we did not sort in this query)</li>
-<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> return data to client <code>298971%</code> faster than the <code>mongoose-express-rest</code> (used sortby)</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> returns data to client <code>1168%</code> faster than the <code>prisma-express-rest</code>. Which uses <code>postgres</code> as a database.</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> returns data to client <code>1417%</code> faster than the <code>prisma-express-graphql</code>. Which uses <code>postgres</code> as a database.</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> returns data to client <code>4435%</code> faster than the <code>mongoose-express-rest</code> (Note that we did not sort in this query)</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> returns data to client <code>72289%</code> faster than the <code>mongo-express-rest</code> (Note that we did not sort in this query)</li>
+<li><a href="https://github.com/MiaadTeam/lesan">Lesan</a> returns data to client <code>298971%</code> faster than the <code>mongoose-express-rest</code> (used sortby)</li>
 </ul>
 <p><strong>Maybe we created the most performant framework in the world!</strong> <a href="https://github.com/MiaadTeam/benchmark">see more detailed benchmark</a></p>
+<p><a href="https://youtu.be/FzMNIGanXSQ">This video</a> is an introductory tutorial on <strong>Lesan</strong> framework in Farsi language</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <p>Currently, only the <a href="https://deno.land/">Deno</a> version of <strong>Lesan's</strong> framework is ready and usable, <a href="https://nodejs.org/en">Node</a> and <a href="https://bun.sh/">Bun</a> versions will also be ready soon.</p>
 <h3 id="pre-request"><a class="header" href="#pre-request">Pre request</a></h3>
@@ -1516,7 +1517,7 @@ const addUserLivedCity: ActFn = async (body) =&gt; {
   const obIdLivedCities = livedCities.map((lc: string) =&gt; new ObjectId(lc));
 
   return await users.addRelation({
-    _id: new ObjectId(_id),
+    filters: { _id: new ObjectId(_id) },
     projection: body.details.get,
     relations: {
       livedCities: {
@@ -3766,6 +3767,8 @@ which sends two <code>JSON</code> data, <code>schemas</code> and <code>acts</cod
 <li>Requests sent to <code>upload</code> a document.</li>
 <li>Requests sent to <code>receive data</code> from the <code>server</code> (in fact, these requests are the main requests sent to <strong>Lesan</strong>).</li>
 </ul>
+<h4 id="upload-documents"><a class="header" href="#upload-documents">Upload documents</a></h4>
+<p>for uploading a document you should send a <code>POST</code> request to <strong>Lesan</strong> endpoint </p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="lesan-vs-graphql"><a class="header" href="#lesan-vs-graphql">Lesan vs GraphQL</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="all-the-advantages-of-lesan"><a class="header" href="#all-the-advantages-of-lesan">All the advantages of Lesan</a></h1>
 <p>راجع به فانکشنال پروگرمینگ حتما بگم و اینهارو توش توضیح بدم :<br />
