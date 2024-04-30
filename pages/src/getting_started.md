@@ -1,4 +1,4 @@
-# Getting start
+# Getting started
 
 I copy this simple example from [installation](./installation.md) page. We will keep this file as `mod.ts` and continue to add various models and functions to it.
 
@@ -199,7 +199,7 @@ const addCountry: ActFn = async (body) => {
 ```
 
 This function receives an input called `body`, the `body` of the `request` sent from the client side is passed to it when this function is called, as a result, we have access to the information sent by users.
-The request body sent from the client side should be a json like this:
+The request body sent from the client side should be a `JSON` like this:
 
 ```JSON
 {
@@ -222,12 +222,11 @@ The request body sent from the client side should be a json like this:
 }
 ```
 
-- The `service` key is used to select one of the microservices set on the application. You can read more about this here.
-- The `model` key is used to select one of the models added to the application.
-- The `act` key is used to select one of the acts added to the application.
-- The `act` key is used to select one of the acts added to the application.
+- The `service` key is used to select one of the `microservices` set on the application. You can read more about this here.
+- The `model` key is used to select one of the `Models` added to the application.
+- The `act` key is used to select one of the `Acts` added to the application.
 - The `details` key is used to receive data to be sent from the client side along with data to be delivered to users. This key has two internal keys called `get` and `set`, we talked a little about it before.
-  - `set`: It contains the information we need in the main function. For this reason, we can extract `name`, `population`, and `abb` from within `body.details.set`.
+  - `set`: It contains the information we need in the `Act` function. For this reason, we can extract `name`, `population`, and `abb` from within `body.details.set`.
   - `get`: Contains selected information that the user needs to be returned. Therefore, we can pass this object directly to Mongo `projection`.
 
 As you can see, we have used the `insertOne` function, which was exported from the `countries` model, to add a new document. This function accepts an object as input, which has the following keys:

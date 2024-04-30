@@ -1,3 +1,4 @@
+import { createProjection, TProjectionType } from "./createProjection.ts";
 import { mainRelationsFns } from "./mainRelations/mod.ts";
 import { pureFns } from "./pure/mod.ts";
 import { relatedRelationFns } from "./relatedRelations/mod.ts";
@@ -18,6 +19,8 @@ export const schemas = (schemas: TSchemas) => {
     ...pureFns(schemas),
     ...relationFns(schemas),
     ...selectStructFns(schemas),
+    createProjection: (schemaName: string, projectionType: TProjectionType) =>
+      createProjection(schemas, schemaName, projectionType),
   };
 };
 

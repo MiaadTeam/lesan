@@ -5,7 +5,7 @@
 # User Guide
 
 - [Installation](./installation.md)
-- [Getting start](./getting_start.md)
+- [Getting started](./getting_started.md)
 - [Add relation](./add_relation.md)
 - [Add more relation](./add_more_relation.md)
 - [Mannage relations](./mannage_relations.md)
