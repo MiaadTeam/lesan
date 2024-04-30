@@ -35,6 +35,58 @@ In order to access the `playground`, you must set the `playground` entry in the 
 
 ### POST Requests:
 We accept two models of `POST` requests:
-- Requests sent to `upload` a document.
 - Requests sent to `receive data` from the `server` (in fact, these requests are the main requests sent to **Lesan**).
+- Requests sent to `upload` a document.
 
+#### Receive data
+To `receive data` from the **Lesan** server, you must send a `POST` request to the final address of **Lesan**.
+In the `body` of this request, must be an `object` in `JSON` format with the following keys:
+
+- The `service` key is used to select one of the `microservices` set on the application. This key is optional and by default the value of `main` is placed in it.
+- The `model` key is used to select one of the `Models` added to the application.
+- The `act` key is used to select one of the `Acts` added to the application.
+- The `details` key is used to receive data to be sent from the client side along with data to be delivered to users. This key has two internal keys called `get` and `set`, we talked a little about it before.
+  - `set`: It contains the information we need in the `Act` function. 
+  - `get`: Contains selected information that the user needs to be returned. This selection is based on `zero` or `one`. Therefore, we can pass this object directly to MongoDB `projection`.
+  
+An example of this `JSON` object is as follows:
+```JSON
+{
+  "service": "main",
+  "model": "country",
+  "act": "addCountry",
+  "details": {
+    "set": {
+      "name": "Iran",
+      "population": 85000000,
+      "abb": "IR"
+    },
+    "get": {
+      "_id": 1,
+      "name": 1,
+      "population": 1,
+      "cities": {
+         "name": 1,
+         "population": 1,
+      }
+    }
+  }
+}
+```
+
+This request finally reaches the function we specified for `Act` to extract the necessary information from it and return the information requested by the user.  
+If you remember, we set up each `Act` as follows:
+```ts
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addUser",
+  validator: addUserValidator(),
+  fn: addUser,
+  preValidation: [setUser, checkLevel],
+  preAct: [justAdmin],
+  validationRunType: "create",
+});
+```
+
+#### Upload documents
+For uploading a document you should send a `POST` request to **Lesan** endpoint.
