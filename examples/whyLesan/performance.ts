@@ -63,3 +63,32 @@ const provinces = coreApp.odm.newModel(
   locationPure,
   provinceRelations,
 );
+
+// ================== FUNCTIONS SECTION ==================
+// ------------------ Country Founctions ------------------
+// ------------------ Add Country ------------------
+const addCountryValidator = () => {
+  return object({
+    set: object(locationPure),
+    get: coreApp.schemas.selectStruct("country", 1),
+  });
+};
+
+const addCountry: ActFn = async (body) => {
+  const { name, population, abb } = body.details.set;
+  return await countries.insertOne({
+    doc: {
+      name,
+      population,
+      abb,
+    },
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "addCountry",
+  validator: addCountryValidator(),
+  fn: addCountry,
+});
