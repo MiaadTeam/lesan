@@ -190,3 +190,52 @@ coreApp.acts.setAct({
   validator: addProvinceValidator(),
   fn: addProvince,
 });
+
+// ------------------ City Founctions ------------------
+// ------------------ Add City ------------------
+const addCityValidator = () => {
+  return object({
+    set: object({
+      ...pure,
+      countryId: objectIdValidation,
+      provinceId: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+
+const addCity: ActFn = async (body) => {
+  const { name, population, abb, countryId, provinceId } = body.details.set;
+
+  return await cities.insertOne({
+    doc: {
+      name,
+      population,
+      abb,
+    },
+    relations: {
+      country: {
+        _ids: new ObjectId(countryId),
+        relatedRelations: {
+          cities: true,
+          citiesByPopulation: true,
+        },
+      },
+      province: {
+        _ids: new ObjectId(provinceId),
+        relatedRelations: {
+          cities: true,
+          citiesByPopulation: true,
+        },
+      },
+    },
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCity",
+  validator: addCityValidator(),
+  fn: addCity,
+});
