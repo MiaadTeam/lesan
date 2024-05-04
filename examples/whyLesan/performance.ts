@@ -66,6 +66,62 @@ const provinces = coreApp.odm.newModel(
   provinceRelations,
 );
 
+// ------------------ City Model ------------------
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      citiesByPopulation: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "population",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+  province: {
+    optional: false,
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      citiesByPopulation: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "population",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel(
+  "city",
+  pure,
+  cityRelations,
+);
+
 // ================== FUNCTIONS SECTION ==================
 // ------------------ Country Founctions ------------------
 // ------------------ Add Country ------------------
