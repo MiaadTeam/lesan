@@ -122,6 +122,91 @@ const cities = coreApp.odm.newModel(
   cityRelations,
 );
 
+// ------------------ User Model ------------------
+const userPure = {
+  name: string(),
+  family: string(),
+  age: number(),
+};
+
+const userRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      users: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      usersByAge: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "age",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+  province: {
+    optional: false,
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      users: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      usersByAge: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "age",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+  city: {
+    optional: false,
+    schemaName: "city",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      users: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      usersByAge: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "age",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const users = coreApp.odm.newModel(
+  "user",
+  userPure,
+  userRelations,
+);
+
 // ================== FUNCTIONS SECTION ==================
 // ------------------ Country Founctions ------------------
 // ------------------ Add Country ------------------
@@ -149,6 +234,34 @@ coreApp.acts.setAct({
   actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
+});
+
+// ------------------ get Countries ------------------
+const getCountriesValidator = () => {
+  return object({
+    set: object({}),
+    get: coreApp.schemas.selectStruct("country", 2),
+  });
+};
+const getCountries: ActFn = async (body) => {
+  const {
+    set,
+    get,
+  } = body.details;
+
+  return await countries
+    .aggregation({
+      pipeline: [],
+      projection: get,
+    })
+    .toArray();
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "getCountries",
+  validator: getCountriesValidator(),
+  fn: getCountries,
 });
 
 // ------------------ Province Founctions ------------------
