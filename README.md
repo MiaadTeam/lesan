@@ -38,7 +38,7 @@ We use this formula to calculate the difference : (B - A) ÷ A \* 100
 
 # A little trip
 
-### Look below code:
+### Look at the code below:
 
 Create a file called `mod.ts` and paste the code below into it:
 
