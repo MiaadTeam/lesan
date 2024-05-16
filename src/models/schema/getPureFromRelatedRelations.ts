@@ -1,3 +1,4 @@
+import { getPureSchema } from "https://deno.land/x/lesan@v0.0.98/src/models/mod.ts";
 import { array, object } from "../../npmDeps.ts";
 import { getSchema } from "./getSchema.ts";
 import { TSchemas } from "./mod.ts";
@@ -32,7 +33,9 @@ export const getPureFromRelatedRelations = (
     pureSchemas = {
       ...pureSchemas,
       [property]: array(
-        object(schemas[schema.relatedRelations[property].schemaName]?.pure),
+        object(
+          getPureSchema(schemas, schema.relatedRelations[property].schemaName),
+        ),
       ),
     };
   }

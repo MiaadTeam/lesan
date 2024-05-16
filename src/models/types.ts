@@ -113,4 +113,5 @@ export interface IModel {
   relations: Record<string, TRelation>;
   mainRelations: Record<string, IMainRelation>;
   relatedRelations: Record<string, IRelatedRelation>;
+  options?: { excludes?: (string | number)[] };
 }

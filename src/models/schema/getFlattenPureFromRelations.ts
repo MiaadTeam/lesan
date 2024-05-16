@@ -1,11 +1,12 @@
 import { object } from "../../npmDeps.ts";
+import { getPureSchema } from "./getPureSchema.ts";
 import { getSchema } from "./getSchema.ts";
 import { TSchemas } from "./mod.ts";
 
 export const getFlattenPureFromRelations = (
   schemas: TSchemas,
   schemaName: string,
-  relationType: "MainRelations" | "RelatedRelations" | "All"
+  relationType: "MainRelations" | "RelatedRelations" | "All",
 ) => {
   const schema = getSchema(schemas, schemaName);
   let pureSchemas = {};
@@ -15,7 +16,7 @@ export const getFlattenPureFromRelations = (
       pureSchemas = {
         ...pureSchemas,
         [property]: object(
-          schemas[schema.mainRelations[property].schemaName]?.pure
+          getPureSchema(schemas, schema.mainRelations[property].schemaName),
         ),
       };
     }
@@ -25,7 +26,7 @@ export const getFlattenPureFromRelations = (
       pureSchemas = {
         ...pureSchemas,
         [property]: object(
-          schemas[schema.relatedRelations[property].schemaName]?.pure
+          getPureSchema(schemas, schema.relatedRelations[property].schemaName),
         ),
       };
     }
