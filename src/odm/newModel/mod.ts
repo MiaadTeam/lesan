@@ -40,6 +40,7 @@ export const newModel = <
   name: string,
   pureFields: PF,
   relations: TR,
+  options?: { excludes?: Partial<(keyof PF)>[] },
 ) => {
   type InferPureFieldsType = {
     [key in keyof PF]?: Infer<PF[key]>;
@@ -85,6 +86,7 @@ export const newModel = <
     relations,
     mainRelations,
     relatedRelations: {},
+    options: (options as { excludes?: (string | number)[] }),
   };
 
   interface IFindModelInputs {

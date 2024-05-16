@@ -1,6 +1,6 @@
 import { array, object, optional } from "../../npmDeps.ts";
 import { getSchema } from "./getSchema.ts";
-import { TSchemas } from "./mod.ts";
+import { getPureSchema, TSchemas } from "./mod.ts";
 
 export const getPureFromMainRelations = (
   schemas: TSchemas,
@@ -15,15 +15,23 @@ export const getPureFromMainRelations = (
       [property]: schema.mainRelations[property].type === "single"
         ? schema.mainRelations[property].optional === true
           ? optional(
-            object(schemas[schema.mainRelations[property].schemaName]?.pure),
+            object(
+              getPureSchema(schemas, schema.mainRelations[property].schemaName),
+            ),
           )
-          : object(schemas[schema.mainRelations[property].schemaName]?.pure)
+          : object(
+            getPureSchema(schemas, schema.mainRelations[property].schemaName),
+          )
         : schema.mainRelations[property].optional === true
         ? optional(array(
-          object(schemas[schema.mainRelations[property].schemaName]?.pure),
+          object(
+            getPureSchema(schemas, schema.mainRelations[property].schemaName),
+          ),
         ))
         : array(
-          object(schemas[schema.mainRelations[property].schemaName]?.pure),
+          object(
+            getPureSchema(schemas, schema.mainRelations[property].schemaName),
+          ),
         ),
     };
   }

@@ -17,5 +17,11 @@ export const getPureSchema = (schemas: TSchemas, schemaName: string) => {
     throw new Error(`Schema ${schemaName} not found`);
   }
 
-  return schema.pure;
+  const pure = schema.pure;
+
+  if (schema.options && schema.options.excludes) {
+    schema.options.excludes.forEach((p) => delete pure[p]);
+  }
+
+  return pure;
 };
