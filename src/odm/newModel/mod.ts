@@ -12,10 +12,12 @@ import { IPureFields, schemaFns, TSchemas } from "../../models/mod.ts";
 import {
   BulkWriteOptions,
   CountDocumentsOptions,
+  CreateIndexesOptions,
   Db,
   DeleteOptions,
   Document,
   FindOneAndUpdateOptions,
+  IndexSpecification,
   Infer,
   InsertOneOptions,
   OptionalUnlessRequiredId,
@@ -31,6 +33,14 @@ import { insertMany } from "../insert/insertMany.ts";
 import { removeRelation } from "../relation/removeRelation.ts";
 import { findOneAndUpdate } from "../update/findOneAndUpdate.ts";
 
+export type OptionType<PF extends IPureFields> = {
+  createIndex?: {
+    indexSpec: IndexSpecification;
+    options?: CreateIndexesOptions;
+  };
+  excludes?: Partial<(keyof PF)>[];
+};
+
 export const newModel = <
   PF extends IPureFields,
   TR extends IRelationsFileds,
@@ -40,7 +50,7 @@ export const newModel = <
   name: string,
   pureFields: PF,
   relations: TR,
-  options?: { excludes?: Partial<(keyof PF)>[] },
+  options?: OptionType<PF>,
 ) => {
   type InferPureFieldsType = {
     [key in keyof PF]?: Infer<PF[key]>;
@@ -88,6 +98,13 @@ export const newModel = <
     relatedRelations: {},
     options: (options as { excludes?: (string | number)[] }),
   };
+
+  if (options && options.createIndex) {
+    db.collection(name).createIndex(
+      options.createIndex.indexSpec,
+      options.createIndex.options,
+    );
+  }
 
   interface IFindModelInputs {
     filters: Filter<Document>;
