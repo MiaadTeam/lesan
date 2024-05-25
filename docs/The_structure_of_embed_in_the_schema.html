@@ -185,25 +185,25 @@
 <p>The embed structure is created at runtime and when the createEmbeded function is executed, it finds all the inrelation and outrelation relationships of all schemas from other schemas and replaces the pure relationship values.</p>
 <p>If we consider the relationships of a schema as follows:</p>
 <pre><code class="language-typescript">inrelation: {
-&quot;country&quot;: { schemaName: &quot;country&quot;, type: &quot;many&quot; },
+"country": { schemaName: "country", type: "many" },
  },
 outrelation: {
-   	&quot;orders&quot;: {
-     	schemaName: &quot;order&quot;,
+   	"orders": {
+     	schemaName: "order",
      	number: 50,
-     	sort: { filed: &quot;id&quot;, order: &quot;desc&quot; },
+     	sort: { filed: "id", order: "desc" },
    	},
 },
 </code></pre>
 <p>The structure of the embedded will be as follows:</p>
 <pre><code class="language-typescript">embedded: {
-   	&quot;country&quot;: object({
-     	    &quot;id&quot;: string(),
-     	    &quot;name&quot;: string(),
+   	"country": object({
+     	    "id": string(),
+     	    "name": string(),
   	}),
- 	&quot;orders&quot;: array({
-     	    &quot;id&quot;: string(),
-     	    &quot;price&quot;: number(),
+ 	"orders": array({
+     	    "id": string(),
+     	    "price": number(),
   	}),
  },
 </code></pre>

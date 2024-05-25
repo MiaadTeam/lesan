@@ -185,26 +185,26 @@
 <p>Inside the lesan, there is a web server without any dependencies that receives requests and responds appropriately. The structure of this web server is included in a try-catch, so the rest of the written code does not need to be covered with try-catch and it is only necessary to return an appropriate error for each function so that the same error can be sent to the customer side without any unexpected crashes.</p>
 <p>The structure of the requests that should be sent to the server is a JSON as follows:</p>
 <pre><code class="language-typescript">{
-   &quot;service&quot;: &quot;ecommerce&quot;,
-   &quot;contents&quot;: &quot;dynamic&quot;,
-   &quot;wants&quot;: {
-       &quot;model&quot;: &quot;state&quot;,
-       &quot;act&quot;: &quot;getState&quot;
+   "service": "ecommerce",
+   "contents": "dynamic",
+   "wants": {
+       "model": "state",
+       "act": "getState"
    },
-   &quot;details&quot;: {
-       &quot;set&quot;: {
-           &quot;_id&quot;: &quot;626fbe6e4b628d43f7e92ae9&quot;
+   "details": {
+       "set": {
+           "_id": "626fbe6e4b628d43f7e92ae9"
        },
-       &quot;get&quot;: {
-           &quot;name&quot;: 1,
-           &quot;country&quot;: {
-               &quot;_id&quot;: 1,
-               &quot;name&quot;: 1,
-               &quot;states&quot;: {
-                   &quot;_id&quot;: 1,
-                   &quot;name&quot;: 1,
-                   &quot;country&quot;: {
-                       &quot;name&quot;: 1
+       "get": {
+           "name": 1,
+           "country": {
+               "_id": 1,
+               "name": 1,
+               "states": {
+                   "_id": 1,
+                   "name": 1,
+                   "country": {
+                       "name": 1
                    }
                }
            }

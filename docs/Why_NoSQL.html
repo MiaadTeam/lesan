@@ -215,19 +215,19 @@
 <pre><code class="language-typescript">provinces.aggregation([
   {
     $lookup: {
-      from: &quot;country&quot;,
-      localField: &quot;country._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;country&quot;,
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
     },
   },
-  { $unwind: { path: &quot;$country&quot;, preserveNullAndEmptyArrays: true } },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
   {
     $lookup: {
-      from: &quot;city&quot;,
-      localField: &quot;cities._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;cities&quot;,
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
     },
   },
   {
@@ -243,7 +243,7 @@
 </code></pre>
 <p>Now if we create the same <code>Pipeline</code> for a project that has been created with <code>Lesan</code>, it will be as follows:</p>
 <pre><code class="language-typescript">states.aggregation([
-      	&quot;$project&quot;: {
+      	"$project": {
         	_id: 1,
         	name: 1,
         	abb: 1,
@@ -256,38 +256,38 @@
 <pre><code class="language-typescript">states.aggregation([
   {
     $lookup: {
-      from: &quot;country&quot;,
-      localField: &quot;country._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;country&quot;,
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
     },
   },
-  { $unwind: { path: &quot;$country&quot;, preserveNullAndEmptyArrays: true } },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
   {
     $lookup: {
-      from: &quot;state&quot;,
-      localField: &quot;country.states._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;country.states&quot;,
-    },
-  },
-  {
-    $lookup: {
-      from: &quot;city&quot;,
-      localField: &quot;cities._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;cities&quot;,
+      from: "state",
+      localField: "country.states._id",
+      foreignField: "_id",
+      as: "country.states",
     },
   },
   {
     $lookup: {
-      from: &quot;country&quot;,
-      localField: &quot;cities.country._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;cities.country&quot;,
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
     },
   },
-  { $unwind: { path: &quot;$cities.country&quot;, preserveNullAndEmptyArrays: true } },
+  {
+    $lookup: {
+      from: "country",
+      localField: "cities.country._id",
+      foreignField: "_id",
+      as: "cities.country",
+    },
+  },
+  { $unwind: { path: "$cities.country", preserveNullAndEmptyArrays: true } },
   {
     $project: {
       _id: 1,
@@ -303,19 +303,19 @@
 <pre><code class="language-typescript">states.aggregation([
   {
     $lookup: {
-      from: &quot;country&quot;,
-      localField: &quot;country._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;country&quot;,
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
     },
   },
-  { $unwind: { path: &quot;$country&quot;, preserveNullAndEmptyArrays: true } },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
   {
     $lookup: {
-      from: &quot;city&quot;,
-      localField: &quot;cities._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;cities&quot;,
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
     },
   },
   {

@@ -190,7 +190,7 @@
       _id: objectIdValidation,
       livedCities: array(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const removeLivedCities: ActFn = async (body) =&gt; {
@@ -212,8 +212,8 @@ const removeLivedCities: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;removeLivedCities&quot;,
+  schema: "user",
+  actName: "removeLivedCities",
   validator: removeLivedCitiesValidator(),
   fn: removeLivedCities,
 });
@@ -247,37 +247,37 @@ But if you set the <code>optional</code> equal to <code>true</code>, we can use 
 Let's make an <code>optional</code> one-to-many relationship. We create a new relationship for the user:</p>
 <pre><code class="language-ts">  mostLovedCity: {
     optional: true,
-    schemaName: &quot;city&quot;,
-    type: &quot;single&quot;,
+    schemaName: "city",
+    type: "single",
     relatedRelations: {
       lovedByUser: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 3,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
   },
 </code></pre>
 <p>So the full form of <code>users</code> will be:</p>
-<pre><code class="language-ts">const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
+<pre><code class="language-ts">const users = coreApp.odm.newModel("user", userPure, {
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -285,15 +285,15 @@ Let's make an <code>optional</code> one-to-many relationship. We create a new re
 
   mostLovedCity: {
     optional: true,
-    schemaName: &quot;city&quot;,
-    type: &quot;single&quot;,
+    schemaName: "city",
+    type: "single",
     relatedRelations: {
       lovedByUser: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -301,15 +301,15 @@ Let's make an <code>optional</code> one-to-many relationship. We create a new re
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -325,7 +325,7 @@ So let's write a function to add this relationship:</p>
       _id: objectIdValidation,
       lovedCity: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addMostLovedCity: ActFn = async (body) =&gt; {
@@ -346,8 +346,8 @@ const addMostLovedCity: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addMostLovedCity&quot;,
+  schema: "user",
+  actName: "addMostLovedCity",
   validator: addMostLovedCityValidator(),
   fn: addMostLovedCity,
 });
@@ -373,7 +373,7 @@ after execute <code>main</code> → <code>user</code> → <code>addMostLovedCity
       _id: objectIdValidation,
       lovedCity: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const removeMostLovedCity: ActFn = async (body) =&gt; {
@@ -393,8 +393,8 @@ const removeMostLovedCity: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;removeMostLovedCity&quot;,
+  schema: "user",
+  actName: "removeMostLovedCity",
   validator: removeMostLovedCityValidator(),
   fn: removeMostLovedCity,
 });

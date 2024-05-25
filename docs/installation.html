@@ -189,7 +189,7 @@
 <li>The latest version of <a href="https://docs.deno.com/runtime/manual/getting_started/installation">Deno</a> must be installed.</li>
 <li>It is good to have <a href="https://nodejs.org/en/download">NodeJS</a> installed on your system.</li>
 <li>If you need to see database information, it is better to install <a href="https://www.mongodb.com/docs/compass/current/install/">MongoDB Compass</a>.</li>
-<li>Using a suitable editor such as: 
+<li>Using a suitable editor such as:
 <ul>
 <li><a href="https://code.visualstudio.com/download">VS Code</a> please install <a href="https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno">deno extension</a></li>
 <li><a href="https://github.com/MiaadTeam/lesvim">Lesvim</a> The configuration of this editor is a bit difficult.</li>
@@ -203,13 +203,13 @@ Now just use the latest version of <code>Lesan</code> along with <code>MongoClie
 <pre><code class="language-ts">import {
   lesan,
   MongoClient,
-} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 

@@ -207,8 +207,8 @@ const deleteUser: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;deleteUser&quot;,
+  schema: "user",
+  actName: "deleteUser",
   validator: deleteUserValidator(),
   fn: deleteUser,
 });
@@ -217,19 +217,19 @@ coreApp.acts.setAct({
 <pre><code class="language-ts">{
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -237,15 +237,15 @@ coreApp.acts.setAct({
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -279,27 +279,27 @@ Although we have not defined any <code>relationship</code> for the <code>country
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot; as RelationDataType,
+        type: "single" as RelationDataType,
       },
     },
   },
@@ -308,19 +308,19 @@ const cityRelations = {
 const userRelations = {
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -328,15 +328,15 @@ const userRelations = {
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -366,8 +366,8 @@ const deleteCountry: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;deleteCountry&quot;,
+  schema: "country",
+  actName: "deleteCountry",
   validator: deleteCountryValidator(),
   fn: deleteCountry,
 });

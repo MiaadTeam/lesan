@@ -187,20 +187,20 @@
 <p>Finally, the static structure acts as a cache layer, a layer whose information has an appropriate interaction with the actual data inside the database and can be easily updated and managed.</p>
 <p>The structure of static is as follows:</p>
 <pre><code class="language-typescript">static: {
-	&quot;blogFirstPage&quot;: {
-  		&quot;get&quot;: {
-    			&quot;validator&quot;: (input: any) =&gt; {
+	"blogFirstPage": {
+  		"get": {
+    			"validator": (input: any) =&gt; {
       				return true;
     		},
-    		&quot;fn&quot;: (input: any) =&gt; {
+    		"fn": (input: any) =&gt; {
       			return input;
     		},
   	},
-  		&quot;set&quot;: {
-    			&quot;validator&quot;: (input: any) =&gt; {
+  		"set": {
+    			"validator": (input: any) =&gt; {
       				return true;
     		},
-    		&quot;fn&quot;: (input: any) =&gt; {
+    		"fn": (input: any) =&gt; {
       			return input;
     		},
   	},

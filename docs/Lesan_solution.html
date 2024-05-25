@@ -207,10 +207,10 @@
   optional,
   OutRelation,
   string,
-} from &quot;../../../deps.ts&quot;;
+} from "../../../deps.ts";
 
-export const level = enums([&quot;Admin&quot;, &quot;Editor&quot;, &quot;Author&quot;, &quot;Ghost&quot;, &quot;Normal&quot;]);
-export const gender = enums([&quot;Male&quot;, &quot;Female&quot;]);
+export const level = enums(["Admin", "Editor", "Author", "Ghost", "Normal"]);
+export const gender = enums(["Male", "Female"]);
 
 export const addressObj = object({
   addressId: string(),
@@ -245,45 +245,45 @@ export const pureUserObj = {
 const userRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
   },
   province: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
   },
   city: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -291,7 +291,7 @@ const userRelations = {
 };
 </code></pre>
 <p>Now, for example, we create a model of the user for ecommerce as well and write its fields in such a way that it does not have anything more than the shared user model, like this:</p>
-<pre><code class="language-typescript">import { ecommerceApp } from &quot;../../../../../apps/ecommerce/mod.ts&quot;;
+<pre><code class="language-typescript">import { ecommerceApp } from "../../../../../apps/ecommerce/mod.ts";
 import {
   any,
   array,
@@ -302,7 +302,7 @@ import {
   optional,
   OutRelation,
   string,
-} from &quot;../../../deps.ts&quot;;
+} from "../../../deps.ts";
 
 import {
   addressObj,
@@ -310,7 +310,7 @@ import {
   level,
   pureUserObj as sharedPureUserObj,
   userRelations as sharedUserRelations,
-} from &quot;../../shared/mod.ts&quot;;
+} from "../../shared/mod.ts";
 
 const userPureObj: Partial&lt;typeof sharedPureUserObj&gt; = {
   _id: optional(any()),
@@ -331,45 +331,45 @@ const userPureObj: Partial&lt;typeof sharedPureUserObj&gt; = {
 const userRelations: Partial&lt;typeof sharedUserRelations&gt; = {
   // country: {
   //   optional: false,
-  //   schemaName: &quot;country&quot;,
-  //   type: &quot;single&quot; as RelationDataType,
+  //   schemaName: "country",
+  //   type: "single" as RelationDataType,
   //   relatedRelations: {
   //     users: {
-  //       type: &quot;multiple&quot; as RelationDataType,
+  //       type: "multiple" as RelationDataType,
   //       limit: 50,
   //       sort: {
-  //         field: &quot;_id&quot;,
-  //         order: &quot;desc&quot; as RelationSortOrderType,
+  //         field: "_id",
+  //         order: "desc" as RelationSortOrderType,
   //       },
   //     },
   //   }
   // },
   // province: {
   //   optional: false,
-  //   schemaName: &quot;province&quot;,
-  //   type: &quot;single&quot; as RelationDataType,
+  //   schemaName: "province",
+  //   type: "single" as RelationDataType,
   //   relatedRelations: {
   //     users: {
-  //       type: &quot;multiple&quot; as RelationDataType,
+  //       type: "multiple" as RelationDataType,
   //       limit: 50,
   //       sort: {
-  //         field: &quot;_id&quot;,
-  //         order: &quot;desc&quot; as RelationSortOrderType,
+  //         field: "_id",
+  //         order: "desc" as RelationSortOrderType,
   //       },
   //     },
   //   }
   // },
   city: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }

@@ -186,7 +186,7 @@
   [mainKey in keyof T]?: {
     _ids: ObjectId | ObjectId[];
     relatedRelations?: {
-      [key in keyof T[mainKey][&quot;relatedRelations&quot;]]: boolean;
+      [key in keyof T[mainKey]["relatedRelations"]]: boolean;
     };
   };
 };

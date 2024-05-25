@@ -246,7 +246,7 @@ As you see on the chart:</p>
 <li>The latest version of <a href="https://docs.deno.com/runtime/manual/getting_started/installation">Deno</a> must be installed.</li>
 <li>It is good to have <a href="https://nodejs.org/en/download">NodeJS</a> installed on your system.</li>
 <li>If you need to see database information, it is better to install <a href="https://www.mongodb.com/docs/compass/current/install/">MongoDB Compass</a>.</li>
-<li>Using a suitable editor such as: 
+<li>Using a suitable editor such as:
 <ul>
 <li><a href="https://code.visualstudio.com/download">VS Code</a> please install <a href="https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno">deno extension</a></li>
 <li><a href="https://github.com/MiaadTeam/lesvim">Lesvim</a> The configuration of this editor is a bit difficult.</li>
@@ -260,13 +260,13 @@ Now just use the latest version of <code>Lesan</code> along with <code>MongoClie
 <pre><code class="language-ts">import {
   lesan,
   MongoClient,
-} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -293,13 +293,13 @@ Listening on http://localhost:1366/
 <p><strong><a href="./getting_start.html">implement first <code>model</code></a></strong></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h1>
 <p>I copy this simple example from <a href="./installation.html">installation</a> page. We will keep this file as <code>mod.ts</code> and continue to add various models and functions to it.</p>
-<pre><code class="language-ts">import { lesan, MongoClient } from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+<pre><code class="language-ts">import { lesan, MongoClient } from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -319,7 +319,7 @@ coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryPure,
   countryRelations
 );
@@ -339,7 +339,7 @@ const countries = coreApp.odm.newModel(
 <pre><code class="language-ts">const addCountryValidator = () =&gt; {
   return object({
     set: object(countryPure),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+    get: coreApp.schemas.selectStruct("country", 1),
   });
 };
 
@@ -356,8 +356,8 @@ const addCountry: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;addCountry&quot;,
+  schema: "country",
+  actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
 });
@@ -392,7 +392,7 @@ This <code>object</code> contains two key:</p>
 });
 </code></pre>
 But as you can see, we have used <code>selectStruct</code> function of <code>coreApp.schemas.selectStruct</code>. This function has two inputs. The first input is the <code>name</code> of the model for which we want to generate this object, and the second input specifies the degree of penetration into each <code>relationship</code>. The second input of the <code>selectStruct</code> function can be entered as a <code>number</code> or an <code>object</code>. If entered as an object, the keys of this object must be the <code>names</code> of the selected model relationships, and its value can again be a <code>number</code> or an <code>object</code> of its key relationships. Such as:
-<pre><code class="language-ts">  get: coreApp.schemas.selectStruct(&quot;country&quot;, {
+<pre><code class="language-ts">  get: coreApp.schemas.selectStruct("country", {
       provinces: {
         cities: 1
       },
@@ -473,20 +473,20 @@ We directly send the data received from the get key as a projection to MongoDB.<
 <p>This function receives an input called <code>body</code>, the <code>body</code> of the <code>request</code> sent from the client side is passed to it when this function is called, as a result, we have access to the information sent by users.
 The request body sent from the client side should be a <code>JSON</code> like this:</p>
 <pre><code class="language-JSON">{
-  &quot;service&quot;: &quot;main&quot;,
-  &quot;model&quot;: &quot;country&quot;,
-  &quot;act&quot;: &quot;addCountry&quot;,
-  &quot;details&quot;: {
-    &quot;set&quot;: {
-      &quot;name&quot;: &quot;Iran&quot;,
-      &quot;population&quot;: 85000000,
-      &quot;abb&quot;: &quot;IR&quot;
+  "service": "main",
+  "model": "country",
+  "act": "addCountry",
+  "details": {
+    "set": {
+      "name": "Iran",
+      "population": 85000000,
+      "abb": "IR"
     },
-    &quot;get&quot;: {
-      &quot;_id&quot;: 1,
-      &quot;name&quot;: 1,
-      &quot;population&quot;: 1,
-      &quot;abb&quot;: 1
+    "get": {
+      "_id": 1,
+      "name": 1,
+      "population": 1,
+      "abb": 1
     }
   }
 }
@@ -525,13 +525,13 @@ The request body sent from the client side should be a <code>JSON</code> like th
   number,
   object,
   string,
-} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -544,7 +544,7 @@ const countryPure = {
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryPure,
   countryRelations
 );
@@ -552,7 +552,7 @@ const countries = coreApp.odm.newModel(
 const addCountryValidator = () =&gt; {
   return object({
     set: object(countryPure),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, { users: 1 }),
+    get: coreApp.schemas.selectStruct("country", { users: 1 }),
   });
 };
 
@@ -569,8 +569,8 @@ const addCountry: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;addCountry&quot;,
+  schema: "country",
+  actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
 });
@@ -599,20 +599,20 @@ Or postman:
 <img width="1643" alt="Screen Shot 1402-07-30 at 11 35 40" src="https://github.com/MiaadTeam/lesan/assets/6236123/1c9e0d4a-c875-4b14-9832-8d7c680ebe18"></p>
 <p>To send a <code>post</code> request to <code>http://localhost:1366/lesan</code> with this <code>request body</code>:</p>
 <pre><code class="language-JSON">{
-  &quot;service&quot;: &quot;main&quot;,
-  &quot;model&quot;: &quot;country&quot;,
-  &quot;act&quot;: &quot;addCountry&quot;,
-  &quot;details&quot;: {
-    &quot;set&quot;: {
-      &quot;name&quot;: &quot;Iran&quot;,
-      &quot;population&quot;: 85000000,
-      &quot;abb&quot;: &quot;IR&quot;
+  "service": "main",
+  "model": "country",
+  "act": "addCountry",
+  "details": {
+    "set": {
+      "name": "Iran",
+      "population": 85000000,
+      "abb": "IR"
     },
-    &quot;get&quot;: {
-      &quot;_id&quot;: 1,
-      &quot;name&quot;: 1,
-      &quot;population&quot;: 1,
-      &quot;abb&quot;: 1
+    "get": {
+      "_id": 1,
+      "name": 1,
+      "population": 1,
+      "abb": 1
     }
   }
 }
@@ -620,13 +620,13 @@ Or postman:
 <p>For inserting a new country.</p>
 <p>You shuold get this result:</p>
 <pre><code class="language-JSON">{
-  &quot;body&quot;: {
-    &quot;_id&quot;: &quot;6534d7c6c5dec0be8e7bf751&quot;,
-    &quot;name&quot;: &quot;Iran&quot;,
-    &quot;population&quot;: 85000000,
-    &quot;abb&quot;: &quot;IR&quot;
+  "body": {
+    "_id": "6534d7c6c5dec0be8e7bf751",
+    "name": "Iran",
+    "population": 85000000,
+    "abb": "IR"
   },
-  &quot;success&quot;: true
+  "success": true
 }
 </code></pre>
 <h3 id="add-e2e-test"><a class="header" href="#add-e2e-test">Add E2E Test</a></h3>
@@ -648,28 +648,28 @@ so, you have one sequence that include your request information(like bottom pict
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
   },
 };
 
-const cities = coreApp.odm.newModel(&quot;city&quot;, cityPure, cityRelations);
+const cities = coreApp.odm.newModel("city", cityPure, cityRelations);
 </code></pre>
 <p>We talked about <code>newModel</code> and its input <a href="https://miaadteam.github.io/lesan/getting_start.html#add-new-model">here</a>.</p>
 <p>Now we only talk about the third input, the <strong>relation</strong> definition. which receives an object with string key which is the feild name and we store the relation data by this name inside each document, and <code>TRelation</code> value (<code>relations: Record&lt;string, TRelation&gt;;</code>) which gave us some <code>metadata</code> about the relation. The <code>TRelation</code> type is as follows:</p>
-<pre><code class="language-ts">export type RelationDataType = &quot;single&quot; | &quot;multiple&quot;;
+<pre><code class="language-ts">export type RelationDataType = "single" | "multiple";
 
-export type RelationSortOrderType = &quot;asc&quot; | &quot;desc&quot;;
+export type RelationSortOrderType = "asc" | "desc";
 
 export type TRelatedRelation = {
   type: RelationDataType;
@@ -724,7 +724,7 @@ interface TRelation {
       ...cityPure,
       country: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
@@ -746,8 +746,8 @@ const addCity: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;addCity&quot;,
+  schema: "city",
+  actName: "addCity",
   validator: addCityValidator(),
   fn: addCity,
 });
@@ -760,7 +760,7 @@ coreApp.acts.setAct({
   [mainKey in keyof T]?: {
     _ids: ObjectId | ObjectId[];
     relatedRelations?: {
-      [key in keyof T[mainKey][&quot;relatedRelations&quot;]]: boolean;
+      [key in keyof T[mainKey]["relatedRelations"]]: boolean;
     };
   };
 };
@@ -784,13 +784,13 @@ coreApp.acts.setAct({
   RelationDataType,
   RelationSortOrderType,
   string,
-} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -803,7 +803,7 @@ const countryCityPure = {
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryCityPure,
   countryRelations
 );
@@ -811,27 +811,27 @@ const countries = coreApp.odm.newModel(
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
   },
 };
 
-const cities = coreApp.odm.newModel(&quot;city&quot;, countryCityPure, cityRelations);
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
 
 const addCountryValidator = () =&gt; {
   return object({
     set: object(countryCityPure),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+    get: coreApp.schemas.selectStruct("country", 1),
   });
 };
 
@@ -848,8 +848,8 @@ const addCountry: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;addCountry&quot;,
+  schema: "country",
+  actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
 });
@@ -860,7 +860,7 @@ const addCityValidator = () =&gt; {
       ...countryCityPure,
       country: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
@@ -882,8 +882,8 @@ const addCity: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;addCity&quot;,
+  schema: "city",
+  actName: "addCity",
   validator: addCityValidator(),
   fn: addCity,
 });
@@ -917,11 +917,11 @@ The only noteworthy point is that a limited number of cities are stored in the c
 <p>So far we have created two models and one relationship. Let us create another relationship for these two models.<br />
 Just add this object to relatedRelations of city:</p>
 <pre><code class="language-ts">citiesByPopulation: {
-  type: &quot;multiple&quot; as RelationDataType,
+  type: "multiple" as RelationDataType,
   limit: 50,
   sort: {
-    field: &quot;population&quot;,
-    order: &quot;desc&quot; as RelationSortOrderType,
+    field: "population",
+    order: "desc" as RelationSortOrderType,
   },
 }
 </code></pre>
@@ -930,23 +930,23 @@ Now the <code>cityRelations</code> object should look like this:</p>
 <pre><code class="language-ts">const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
@@ -979,7 +979,7 @@ Now the <code>cityRelations</code> object should look like this:</p>
 <h3 id="add-arbitrary-relation"><a class="header" href="#add-arbitrary-relation">Add arbitrary relation</a></h3>
 <p>Let's choose a city as the capital for the countries. For this purpose we must have a single relatedRelation for each country selectively. So we add this code:</p>
 <pre><code class="language-ts">capital: {
-  type: &quot;single&quot; as RelationDataType,
+  type: "single" as RelationDataType,
 },
 </code></pre>
 <p>And we change the function and validation we wrote to add the city as follows:</p>
@@ -990,7 +990,7 @@ Now the <code>cityRelations</code> object should look like this:</p>
       country: objectIdValidation,
       isCapital: boolean(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
@@ -1028,13 +1028,13 @@ const addCity: ActFn = async (body) =&gt; {
   RelationDataType,
   RelationSortOrderType,
   string,
-} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -1047,7 +1047,7 @@ const countryCityPure = {
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryCityPure,
   countryRelations
 );
@@ -1055,38 +1055,38 @@ const countries = coreApp.odm.newModel(
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot; as RelationDataType,
+        type: "single" as RelationDataType,
       },
     },
   },
 };
 
-const cities = coreApp.odm.newModel(&quot;city&quot;, countryCityPure, cityRelations);
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
 
 const addCountryValidator = () =&gt; {
   return object({
     set: object(countryCityPure),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+    get: coreApp.schemas.selectStruct("country", 1),
   });
 };
 
@@ -1103,8 +1103,8 @@ const addCountry: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;addCountry&quot;,
+  schema: "country",
+  actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
 });
@@ -1116,7 +1116,7 @@ const addCityValidator = () =&gt; {
       country: objectIdValidation,
       isCapital: boolean(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
@@ -1140,8 +1140,8 @@ const addCity: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;addCity&quot;,
+  schema: "city",
+  actName: "addCity",
   validator: addCityValidator(),
   fn: addCity,
 });
@@ -1168,22 +1168,22 @@ coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
   age: number(),
 };
 
-const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
+const users = coreApp.odm.newModel("user", userPure, {
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -1191,15 +1191,15 @@ const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -1215,7 +1215,7 @@ The function we want to add a user is as follows:</p>
       country: objectIdValidation,
       livedCities: array(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUser: ActFn = async (body) =&gt; {
@@ -1242,8 +1242,8 @@ const addUser: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUser&quot;,
+  schema: "user",
+  actName: "addUser",
   validator: addUserValidator(),
   fn: addUser,
 });
@@ -1268,13 +1268,13 @@ coreApp.acts.setAct({
   RelationDataType,
   RelationSortOrderType,
   string,
-} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -1287,7 +1287,7 @@ const countryCityPure = {
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryCityPure,
   countryRelations
 );
@@ -1295,55 +1295,55 @@ const countries = coreApp.odm.newModel(
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot; as RelationDataType,
+        type: "single" as RelationDataType,
       },
     },
   },
 };
 
-const cities = coreApp.odm.newModel(&quot;city&quot;, countryCityPure, cityRelations);
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
 
 const userPure = {
   name: string(),
   age: number(),
 };
 
-const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
+const users = coreApp.odm.newModel("user", userPure, {
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -1351,15 +1351,15 @@ const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -1369,7 +1369,7 @@ const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
 const addCountryValidator = () =&gt; {
   return object({
     set: object(countryCityPure),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+    get: coreApp.schemas.selectStruct("country", 1),
   });
 };
 
@@ -1386,8 +1386,8 @@ const addCountry: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;addCountry&quot;,
+  schema: "country",
+  actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
 });
@@ -1399,7 +1399,7 @@ const addCityValidator = () =&gt; {
       country: objectIdValidation,
       isCapital: boolean(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
@@ -1423,8 +1423,8 @@ const addCity: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;addCity&quot;,
+  schema: "city",
+  actName: "addCity",
   validator: addCityValidator(),
   fn: addCity,
 });
@@ -1436,7 +1436,7 @@ const addUserValidator = () =&gt; {
       country: objectIdValidation,
       livedCities: array(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUser: ActFn = async (body) =&gt; {
@@ -1463,8 +1463,8 @@ const addUser: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUser&quot;,
+  schema: "user",
+  actName: "addUser",
   validator: addUserValidator(),
   fn: addUser,
 });
@@ -1473,7 +1473,7 @@ coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
 </code></pre>
 <p>Open Playground in the browser and go to addUser function.<br />
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/4717c9a0-808f-47ad-8e95-2b16f6419305" alt="add-user" /></p>
-<p>Note that the <code>livedCities</code> field receives an array of IDs, you just need to enter an input like <code>[&quot;65466c407123faa9c1f3c180&quot;, &quot;65466c2c7123faa9c1f3c17e&quot;]</code>. playground parses it and converts it into an array suitable for sending.</p>
+<p>Note that the <code>livedCities</code> field receives an array of IDs, you just need to enter an input like <code>["65466c407123faa9c1f3c180", "65466c2c7123faa9c1f3c17e"]</code>. playground parses it and converts it into an array suitable for sending.</p>
 <h3 id="add-e2e-test-3"><a class="header" href="#add-e2e-test-3">Add E2E Test</a></h3>
 <p>Probably you know what to do! For adding <code>addUser</code> request to E2E section you should click on the <strong>E2E button</strong>, like below picture.</p>
 <img alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">
@@ -1508,7 +1508,7 @@ Let's use addRelation.</p>
       _id: objectIdValidation,
       livedCities: array(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUserLivedCity: ActFn = async (body) =&gt; {
@@ -1529,8 +1529,8 @@ const addUserLivedCity: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUserLivedCities&quot;,
+  schema: "user",
+  actName: "addUserLivedCities",
   validator: addUserLivedCityValidator(),
   fn: addUserLivedCity,
 });
@@ -1570,7 +1570,7 @@ Look at code below:</p>
       _id: objectIdValidation,
       country: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUserCountry: ActFn = async (body) =&gt; {
@@ -1591,8 +1591,8 @@ const addUserCountry: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUserCountry&quot;,
+  schema: "user",
+  actName: "addUserCountry",
   validator: addUserCountryValidator(),
   fn: addUserCountry,
 });
@@ -1649,7 +1649,7 @@ before execute <code>main</code> → <code>country</code> → <code>addUserCount
       _id: objectIdValidation,
       livedCities: array(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const removeLivedCities: ActFn = async (body) =&gt; {
@@ -1671,8 +1671,8 @@ const removeLivedCities: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;removeLivedCities&quot;,
+  schema: "user",
+  actName: "removeLivedCities",
   validator: removeLivedCitiesValidator(),
   fn: removeLivedCities,
 });
@@ -1706,37 +1706,37 @@ But if you set the <code>optional</code> equal to <code>true</code>, we can use 
 Let's make an <code>optional</code> one-to-many relationship. We create a new relationship for the user:</p>
 <pre><code class="language-ts">  mostLovedCity: {
     optional: true,
-    schemaName: &quot;city&quot;,
-    type: &quot;single&quot;,
+    schemaName: "city",
+    type: "single",
     relatedRelations: {
       lovedByUser: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 3,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
   },
 </code></pre>
 <p>So the full form of <code>users</code> will be:</p>
-<pre><code class="language-ts">const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
+<pre><code class="language-ts">const users = coreApp.odm.newModel("user", userPure, {
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -1744,15 +1744,15 @@ Let's make an <code>optional</code> one-to-many relationship. We create a new re
 
   mostLovedCity: {
     optional: true,
-    schemaName: &quot;city&quot;,
-    type: &quot;single&quot;,
+    schemaName: "city",
+    type: "single",
     relatedRelations: {
       lovedByUser: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -1760,15 +1760,15 @@ Let's make an <code>optional</code> one-to-many relationship. We create a new re
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -1784,7 +1784,7 @@ So let's write a function to add this relationship:</p>
       _id: objectIdValidation,
       lovedCity: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addMostLovedCity: ActFn = async (body) =&gt; {
@@ -1805,8 +1805,8 @@ const addMostLovedCity: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addMostLovedCity&quot;,
+  schema: "user",
+  actName: "addMostLovedCity",
   validator: addMostLovedCityValidator(),
   fn: addMostLovedCity,
 });
@@ -1832,7 +1832,7 @@ after execute <code>main</code> → <code>user</code> → <code>addMostLovedCity
       _id: objectIdValidation,
       lovedCity: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const removeMostLovedCity: ActFn = async (body) =&gt; {
@@ -1852,8 +1852,8 @@ const removeMostLovedCity: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;removeMostLovedCity&quot;,
+  schema: "user",
+  actName: "removeMostLovedCity",
   validator: removeMostLovedCityValidator(),
   fn: removeMostLovedCity,
 });
@@ -1898,7 +1898,7 @@ after execute <code>main</code> → <code>user</code> → <code>removeMostLovedC
 <p>What are the relationships in <code>NoSQL</code>?</p>
 <ul>
 <li>There is no real relationship. In fact, there is no proper connection between the two sides.</li>
-<li>If we consider embeding as a relationship: 
+<li>If we consider embeding as a relationship:
 <ul>
 <li>the changes of each party have no effect on the other side and cause many inconsistencies in the data.</li>
 <li>the two sides leave each other after the relationship. Infact, it is not clear what kind of effects each relationship we create will have on the other side of the relationship.</li>
@@ -1963,7 +1963,7 @@ To get the above cities or users, we have to create and execute much more comple
 	abb: String,
 	population: Number,
 });
-const Country = mongoose.model(&quot;Country&quot;, CountrySchema)
+const Country = mongoose.model("Country", CountrySchema)
 
 const CitySchema = new mongoose.Schema ({
 	name: String,
@@ -1974,7 +1974,7 @@ const CitySchema = new mongoose.Schema ({
 		ref: Country
 	} 
 });
-const City = mongoose.model(&quot;City&quot;, CitySchema)
+const City = mongoose.model("City", CitySchema)
 
 const UserSchema = new mongoose.Schema ({
 	name: String,
@@ -1988,7 +1988,7 @@ const UserSchema = new mongoose.Schema ({
 		ref: City
 	} 
 });
-const User = mongoose.model(&quot;User&quot;, CitySchema)
+const User = mongoose.model("User", CitySchema)
 </code></pre>
 <p>The code above is exactly equivalent to the code we wrote for <code>PostgreSQL</code> and creates exactly the same tables in <code>MongoDB</code>. All the issues we described for <code>SQL</code> will be present here as well, but wait, we can add other fields to these tables to simplify the complex queries we talked about above.</p>
 <p>We can store its cities inside each country by adding a field called cities. Pay attention to the following code:</p>
@@ -2041,7 +2041,7 @@ We need to find the country associated with the city, then see if this city is s
 </ul>
 <p>Let's look at this issue from the other side of the relationship.<br />
 What if we want to access the country related to that city from within the cities?<br />
-Well, for this purpose, we can add a field called the <code>country</code> in each city. And instead of storing only the country's ID in it, embed all the country's information in it. </p>
+Well, for this purpose, we can add a field called the <code>country</code> in each city. And instead of storing only the country's ID in it, embed all the country's information in it.</p>
 <pre><code class="language-ts">const CitySchema = new mongoose.Schema ({
   name: String,
   abb: String,
@@ -2071,7 +2071,7 @@ Finally, our mongoose model will probably look like this:</p>
     population: Number,
   }],
 });
-const Country = mongoose.model(&quot;country&quot;, CitySchema);
+const Country = mongoose.model("country", CitySchema);
 
 const CitySchema = new mongoose.Schema ({
   name: String,
@@ -2084,7 +2084,7 @@ const CitySchema = new mongoose.Schema ({
   } 
 });
 
-const City = mongoose.model(&quot;City&quot;, CitySchema)
+const City = mongoose.model("City", CitySchema)
 
 const UserSchema = new mongoose.Schema ({
 	name: String,
@@ -2098,7 +2098,7 @@ const UserSchema = new mongoose.Schema ({
 		ref: City
 	} 
 });
-const User = mongoose.model(&quot;User&quot;, CitySchema)
+const User = mongoose.model("User", CitySchema)
 </code></pre>
 <h3 id="lesan"><a class="header" href="#lesan">Lesan</a></h3>
 <p>So, if we want to create the same relationships with <strong>‌Lesan</strong>, what should we do?
@@ -2113,7 +2113,7 @@ const countryCityPure = {
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryCityPure,
   countryRelations,
 );
@@ -2122,23 +2122,23 @@ const countries = coreApp.odm.newModel(
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       mostPopulousCities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
@@ -2146,7 +2146,7 @@ const cityRelations = {
 };
 
 const cities = coreApp.odm.newModel(
-  &quot;city&quot;,
+  "city",
   countryCityPure,
   cityRelations,
 );
@@ -2160,30 +2160,30 @@ const userPure = {
 const userRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
   },
   city: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
@@ -2191,7 +2191,7 @@ const userRelations = {
 };
 
 const users = coreApp.odm.newModel(
-  &quot;user&quot;,
+  "user",
   userPure,
   userRelations,
 );
@@ -2213,7 +2213,7 @@ Listening on http://localhost:1366/
 <p>Now you can visit the <code>playground</code> at <code>http://localhost:1366/playground</code> and send requests to the server for <code>country</code>, <code>city</code>, and <code>user</code> models:
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/668ad7d6-70aa-4720-a33c-9bbc417cf579" alt="Screenshot 2023-12-31 at 21-35-56 Lesan Playground" /></p>
 <p>and use <code>addCountry</code>, <code>addCountries</code>, <code>updateCountry</code>, <code>getCountries</code>, <code>deleteCountry</code> methods for country models:
-<img src="https://github.com/MiaadTeam/lesan/assets/6236123/4ef81e63-4eb7-4852-a6e7-92e91e0e3716" alt="Screenshot 2023-12-31 at 21-42-37 Lesan Playground" /> </p>
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/4ef81e63-4eb7-4852-a6e7-92e91e0e3716" alt="Screenshot 2023-12-31 at 21-42-37 Lesan Playground" /></p>
 <p>also use <code>addCity</code>, <code>updateCity</code>, <code>addCities</code>, <code>getCities</code> and <code>addCityCountry</code> for city model:
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/caf69ec5-44fc-4f14-82fd-335e87a04b38" alt="Screenshot 2023-12-31 at 22-03-07 Lesan Playground" /></p>
 <p>and also use <code>addUser</code>, <code>addUsers</code>, <code>addUserLivedCities</code>, <code>addUserCountry</code>, <code>addUserCities</code>, <code>addMostLovedCity</code>, <code>removeMostLovedCity</code>, <code>removeLivedCities</code>, <code>updateUser</code>, <code>getUser</code> and <code>getUsers</code> for user model:</p>
@@ -2267,7 +2267,7 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 <p>create new city with <code>main</code> → <code>city</code> → <code>addCity</code>:
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/f7abbf20-4e6e-4372-a936-a1a715016663" alt="Screenshot 2024-01-04 at 14-20-22 Lesan Playground" /></p>
 <ol>
-<li>here we used <code>iranId</code> the captured variable we get from request number 2 response. </li>
+<li>here we used <code>iranId</code> the captured variable we get from request number 2 response.</li>
 <li>we captured <code>body._id</code> with the <code>haratId</code> from response.</li>
 </ol>
 </li>
@@ -2276,7 +2276,7 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/4d0de202-f206-4ab4-9888-7fdba54484e7" alt="Screenshot 2024-01-04 at 14-42-12 Lesan Playground" /></p>
 <ol>
 <li>here we insert an array of <code>city</code> for <code>multiCities</code> key inside <code>set</code> object.</li>
-<li>here we used <code>iraqId</code> the captured variable we get from request number 2 response. </li>
+<li>here we used <code>iraqId</code> the captured variable we get from request number 2 response.</li>
 </ol>
 </li>
 <li>
@@ -2284,7 +2284,7 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/0f1e1049-0ac2-4306-87e2-150c36e7232f" alt="Screenshot 2024-01-04 at 14-56-21 Lesan Playground" /></p>
 <ol>
 <li>here we insert an array of <code>city</code> for <code>multiCities</code> key inside <code>set</code> object. We also used <code>faker</code> here.</li>
-<li>here we used <code>afghanId</code> the captured variable we get from request number 2 response. </li>
+<li>here we used <code>afghanId</code> the captured variable we get from request number 2 response.</li>
 </ol>
 </li>
 <li>
@@ -2526,7 +2526,7 @@ According to Mongo's behavior, only <code>Aggregation</code> can be used to send
     set: object({
       userId: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const getUser: ActFn = async (body) =&gt; {
@@ -2541,8 +2541,8 @@ const getUser: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;getUser&quot;,
+  schema: "user",
+  actName: "getUser",
   validator: getUserValidator(),
   fn: getUser,
 });
@@ -2571,7 +2571,7 @@ Pay attention to the following code:</p>
     set: object({
       countryId: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, {
+    get: coreApp.schemas.selectStruct("country", {
       citiesByPopulation: 1,
       users: 1,
       capital: 1,
@@ -2590,8 +2590,8 @@ const getCountry: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;getCountry&quot;,
+  schema: "country",
+  actName: "getCountry",
   validator: getCountryValidator(),
   fn: getCountry,
 });
@@ -2601,7 +2601,7 @@ const getCityValidator = () =&gt; {
     set: object({
       cityId: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, { country: 1, lovedByUser: 1 }),
+    get: coreApp.schemas.selectStruct("city", { country: 1, lovedByUser: 1 }),
   });
 };
 const getCity: ActFn = async (body) =&gt; {
@@ -2616,8 +2616,8 @@ const getCity: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;getCity&quot;,
+  schema: "city",
+  actName: "getCity",
   validator: getCityValidator(),
   fn: getCity,
 });
@@ -2651,7 +2651,7 @@ executing <code>main</code> → <code>city</code> → <code>getCity</code>:
       page: number(),
       limit: number(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const getUsers: ActFn = async (body) =&gt; {
@@ -2670,8 +2670,8 @@ const getUsers: ActFn = async (body) =&gt; {
     .toArray();
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;getUsers&quot;,
+  schema: "user",
+  actName: "getUsers",
   validator: getUsersValidator(),
   fn: getUsers,
 });
@@ -2698,7 +2698,7 @@ Pay attention to the following code:</p>
       page: number(),
       limit: number(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, {
+    get: coreApp.schemas.selectStruct("country", {
       citiesByPopulation: 1,
       users: 1,
       capital: 1,
@@ -2721,8 +2721,8 @@ const getCountries: ActFn = async (body) =&gt; {
     .toArray();
 };
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;getCountries&quot;,
+  schema: "country",
+  actName: "getCountries",
   validator: getCountriesValidator(),
   fn: getCountries,
 });
@@ -2733,7 +2733,7 @@ const getCitiesValidator = () =&gt; {
       page: number(),
       limit: number(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, { country: 1, lovedByUser: 1 }),
+    get: coreApp.schemas.selectStruct("city", { country: 1, lovedByUser: 1 }),
   });
 };
 const getCities: ActFn = async (body) =&gt; {
@@ -2752,8 +2752,8 @@ const getCities: ActFn = async (body) =&gt; {
     .toArray();
 };
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;getCities&quot;,
+  schema: "city",
+  actName: "getCities",
   validator: getCitiesValidator(),
   fn: getCities,
 });
@@ -2786,7 +2786,7 @@ We can use <code>aggregation</code> instead of <code>find</code> and <code>findO
       take: number(),
       countryId: optional(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 3),
+    get: coreApp.schemas.selectStruct("city", 3),
   });
 };
 const getCitiesAggregation: ActFn = async (body) =&gt; {
@@ -2799,7 +2799,7 @@ const getCitiesAggregation: ActFn = async (body) =&gt; {
   pipeline.push({ $skip: (page - 1) * take });
   pipeline.push({ $limit: take });
   countryId &amp;&amp;
-    pipeline.push({ $match: { &quot;country._id&quot;: new ObjectId(countryId) } });
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
 
   return await cities
     .aggregation({
@@ -2810,8 +2810,8 @@ const getCitiesAggregation: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;getCitiesAggregation&quot;,
+  schema: "city",
+  actName: "getCitiesAggregation",
   validator: getCitiesAggregationValidator(),
   fn: getCitiesAggregation,
 });
@@ -2820,32 +2820,32 @@ coreApp.acts.setAct({
 As you can see, we have added two <code>pipelines</code> to create pagination by using <code>page</code> and <code>take</code> inputs, but these two <code>pipelines</code> are not all that is sent to the database. <strong>Lesan</strong> automatically creates <code>lookup</code>, <code>unwind</code> and <code>projection</code> pipelines based on <code>get</code> input. So that we can establish a <code>join</code> between the <code>schemas</code> and <code>select</code> and <code>return</code> the data requested by the user.</p>
 <p>If this <code>request</code> is sent to the server:</p>
 <pre><code class="language-json">{
-  &quot;body&quot;: {
-    &quot;method&quot;: &quot;POST&quot;,
-    &quot;headers&quot;: {
-      &quot;Content-Type&quot;: &quot;application/json&quot;,
-      &quot;Authorization&quot;: &quot;&quot;
+  "body": {
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": ""
     },
-    &quot;body&quot;: {
-      &quot;service&quot;: &quot;main&quot;,
-      &quot;model&quot;: &quot;city&quot;,
-      &quot;act&quot;: &quot;getCitiesAggregation&quot;,
-      &quot;details&quot;: {
-        &quot;get&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1,
-          &quot;country&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1
+    "body": {
+      "service": "main",
+      "model": "city",
+      "act": "getCitiesAggregation",
+      "details": {
+        "get": {
+          "_id": 1,
+          "name": 1,
+          "country": {
+            "_id": 1,
+            "name": 1
           },
-          &quot;users&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1
+          "users": {
+            "_id": 1,
+            "name": 1
           }
         },
-        &quot;set&quot;: {
-          &quot;page&quot;: 1,
-          &quot;take&quot;: 10
+        "set": {
+          "page": 1,
+          "take": 10
         }
       }
     }
@@ -2855,67 +2855,67 @@ As you can see, we have added two <code>pipelines</code> to create pagination by
 <p>these <code>pipelines</code> will be created:</p>
 <pre><code class="language-json">[
   {
-    &quot;$project&quot;: {
-      &quot;_id&quot;: 1,
-      &quot;name&quot;: 1,
-      &quot;country&quot;: { &quot;_id&quot;: 1, &quot;name&quot;: 1 },
-      &quot;users&quot;: { &quot;_id&quot;: 1, &quot;name&quot;: 1 }
+    "$project": {
+      "_id": 1,
+      "name": 1,
+      "country": { "_id": 1, "name": 1 },
+      "users": { "_id": 1, "name": 1 }
     }
   }
 ]
 </code></pre>
 <p>And if this <code>request</code> is sent to the server:</p>
 <pre><code class="language-json">{
-  &quot;body&quot;: {
-    &quot;method&quot;: &quot;POST&quot;,
-    &quot;headers&quot;: {
-      &quot;Content-Type&quot;: &quot;application/json&quot;,
-      &quot;Authorization&quot;: &quot;&quot;
+  "body": {
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": ""
     },
-    &quot;body&quot;: {
-      &quot;service&quot;: &quot;main&quot;,
-      &quot;model&quot;: &quot;city&quot;,
-      &quot;act&quot;: &quot;getCitiesAggregation&quot;,
-      &quot;details&quot;: {
-        &quot;get&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1,
-          &quot;country&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1,
-            &quot;cities&quot;: {
-              &quot;_id&quot;: 1,
-              &quot;name&quot;: 1
+    "body": {
+      "service": "main",
+      "model": "city",
+      "act": "getCitiesAggregation",
+      "details": {
+        "get": {
+          "_id": 1,
+          "name": 1,
+          "country": {
+            "_id": 1,
+            "name": 1,
+            "cities": {
+              "_id": 1,
+              "name": 1
             },
-            &quot;citiesByPopulation&quot;: {
-              &quot;name&quot;: 1,
-              &quot;_id&quot;: 1
+            "citiesByPopulation": {
+              "name": 1,
+              "_id": 1
             },
-            &quot;capital&quot;: {
-              &quot;_id&quot;: 1,
-              &quot;name&quot;: 1
+            "capital": {
+              "_id": 1,
+              "name": 1
             }
           },
-          &quot;users&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1,
-            &quot;livedCities&quot;: {
-              &quot;name&quot;: 1,
-              &quot;_id&quot;: 1
+          "users": {
+            "_id": 1,
+            "name": 1,
+            "livedCities": {
+              "name": 1,
+              "_id": 1
             },
-            &quot;country&quot;: {
-              &quot;_id&quot;: 1,
-              &quot;name&quot;: 1
+            "country": {
+              "_id": 1,
+              "name": 1
             }
           },
-          &quot;lovedByUser&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1
+          "lovedByUser": {
+            "_id": 1,
+            "name": 1
           }
         },
-        &quot;set&quot;: {
-          &quot;page&quot;: 1,
-          &quot;take&quot;: 10
+        "set": {
+          "page": 1,
+          "take": 10
         }
       }
     }
@@ -2925,69 +2925,69 @@ As you can see, we have added two <code>pipelines</code> to create pagination by
 <p>these <code>pipelines</code> will be created:</p>
 <pre><code class="language-json">[
   {
-    &quot;$lookup&quot;: {
-      &quot;from&quot;: &quot;country&quot;,
-      &quot;localField&quot;: &quot;country._id&quot;,
-      &quot;foreignField&quot;: &quot;_id&quot;,
-      &quot;as&quot;: &quot;country&quot;
+    "$lookup": {
+      "from": "country",
+      "localField": "country._id",
+      "foreignField": "_id",
+      "as": "country"
     }
   },
   {
-    &quot;$unwind&quot;: {
-      &quot;path&quot;: &quot;$country&quot;,
-      &quot;preserveNullAndEmptyArrays&quot;: true
+    "$unwind": {
+      "path": "$country",
+      "preserveNullAndEmptyArrays": true
     }
   },
   {
-    &quot;$lookup&quot;: {
-      &quot;from&quot;: &quot;user&quot;,
-      &quot;localField&quot;: &quot;users._id&quot;,
-      &quot;foreignField&quot;: &quot;_id&quot;,
-      &quot;as&quot;: &quot;users&quot;
+    "$lookup": {
+      "from": "user",
+      "localField": "users._id",
+      "foreignField": "_id",
+      "as": "users"
     }
   },
   {
-    &quot;$project&quot;: {
-      &quot;_id&quot;: 1,
-      &quot;name&quot;: 1,
-      &quot;country&quot;: {
-        &quot;_id&quot;: 1,
-        &quot;name&quot;: 1,
-        &quot;cities&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1
+    "$project": {
+      "_id": 1,
+      "name": 1,
+      "country": {
+        "_id": 1,
+        "name": 1,
+        "cities": {
+          "_id": 1,
+          "name": 1
         },
-        &quot;citiesByPopulation&quot;: {
-          &quot;name&quot;: 1,
-          &quot;_id&quot;: 1
+        "citiesByPopulation": {
+          "name": 1,
+          "_id": 1
         },
-        &quot;capital&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1
+        "capital": {
+          "_id": 1,
+          "name": 1
         }
       },
-      &quot;users&quot;: {
-        &quot;_id&quot;: 1,
-        &quot;name&quot;: 1,
-        &quot;livedCities&quot;: {
-          &quot;name&quot;: 1,
-          &quot;_id&quot;: 1
+      "users": {
+        "_id": 1,
+        "name": 1,
+        "livedCities": {
+          "name": 1,
+          "_id": 1
         },
-        &quot;country&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1
+        "country": {
+          "_id": 1,
+          "name": 1
         }
       },
-      &quot;lovedByUser&quot;: {
-        &quot;_id&quot;: 1,
-        &quot;name&quot;: 1
+      "lovedByUser": {
+        "_id": 1,
+        "name": 1
       }
     }
   }
 ]
 </code></pre>
 <p>Note that <code>pipelines</code> are always one step behind the <code>request</code>, and send <code>indexed</code> lookup with <code>_id</code> for anything. because we <code>embed</code> all relations.</p>
-<p>Because we have given the second input <code>3</code> in the <code>coreApp.schemas.selectStruct(&quot;city&quot;, 3)</code> function, we can penetrate one more step in the depth of relationships, you can send more complex queries in the playground.</p>
+<p>Because we have given the second input <code>3</code> in the <code>coreApp.schemas.selectStruct("city", 3)</code> function, we can penetrate one more step in the depth of relationships, you can send more complex queries in the playground.</p>
 <p>You can find full example <a href="https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/07-1-aggregation.ts">here</a> and test the <code>aggregation</code> method in local computer.</p>
 <p>executing <code>main</code> → <code>city</code> → <code>getCitiesAggregation</code>:
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/1e6610c7-fe20-4772-84fd-d2916a082f62" alt="aggregation-cities" /></p>
@@ -3006,7 +3006,7 @@ As you can see, we have added two <code>pipelines</code> to create pagination by
     set: object({
       userId: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 2),
+    get: coreApp.schemas.selectStruct("user", 2),
   });
 };
 const getUserAggregation: ActFn = async (body) =&gt; {
@@ -3027,8 +3027,8 @@ const getUserAggregation: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;getUserAggregation&quot;,
+  schema: "user",
+  actName: "getUserAggregation",
   validator: getUserAggregationValidator(),
   fn: getUserAggregation,
 });
@@ -3048,7 +3048,7 @@ coreApp.acts.setAct({
 <p>Updating is the most challenging issue in <strong>Lesan</strong>. Because by updating <code>one</code> document, <code>thousands</code> or maybe <code>millions</code> of other documents may also be updated. Don't worry, this is done automatically by <strong>Lesan</strong>. And also for complex scenarios where <code>millions</code> of documents need to be updated, we have created various solutions.</p>
 <p>Let's explore a few scenarios.</p>
 <ul>
-<li>Best case &quot;Update <code>a user</code>&quot;:</li>
+<li>Best case "Update <code>a user</code>":</li>
 </ul>
 <pre><code class="language-ts">const updateUserValidator = () =&gt; {
   return object({
@@ -3057,7 +3057,7 @@ coreApp.acts.setAct({
       name: optional(string()),
       age: optional(number()),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const updateUser: ActFn = async (body) =&gt; {
@@ -3073,8 +3073,8 @@ const updateUser: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;updateUser&quot;,
+  schema: "user",
+  actName: "updateUser",
   validator: updateUserValidator(),
   fn: updateUser,
 });
@@ -3097,7 +3097,7 @@ If we set the <code>order</code> of saving this list of 50 items based on a <cod
 <p>The <em>replaced</em> <strong>user id</strong> is like below picture.</p>
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/d3278025-daa9-47a2-b441-df8c9b52cec0">
 <ul>
-<li>Worse case &quot;Update <code>a country</code>&quot;:</li>
+<li>Worse case "Update <code>a country</code>":</li>
 </ul>
 <pre><code class="language-ts">const updateCountryValidator = () =&gt; {
   return object({
@@ -3107,7 +3107,7 @@ If we set the <code>order</code> of saving this list of 50 items based on a <cod
       abb: optional(string()),
       population: optional(number()),
     }),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+    get: coreApp.schemas.selectStruct("country", 1),
   });
 };
 const updateCountry: ActFn = async (body) =&gt; {
@@ -3124,8 +3124,8 @@ const updateCountry: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;updateCountry&quot;,
+  schema: "country",
+  actName: "updateCountry",
   validator: updateCountryValidator(),
   fn: updateCountry,
 });
@@ -3166,36 +3166,36 @@ But if we convert the <code>population</code> field into a <code>new schema</cod
 Pay attention to the following code:</p>
 <pre><code class="language-ts">const populationPure = {
   population: number(),
-  type: enums([&quot;City&quot;, &quot;Country&quot;]),
+  type: enums(["City", "Country"]),
 };
 
 const populationRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       populations: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
   },
   city: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       populations: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
@@ -3203,7 +3203,7 @@ const populationRelations = {
 };
 
 const populations = coreApp.odm.newModel(
-  &quot;population&quot;,
+  "population",
   populationPure,
   populationRelations
 );
@@ -3237,8 +3237,8 @@ const deleteUser: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;deleteUser&quot;,
+  schema: "user",
+  actName: "deleteUser",
   validator: deleteUserValidator(),
   fn: deleteUser,
 });
@@ -3247,19 +3247,19 @@ coreApp.acts.setAct({
 <pre><code class="language-ts">{
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -3267,15 +3267,15 @@ coreApp.acts.setAct({
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -3309,27 +3309,27 @@ Although we have not defined any <code>relationship</code> for the <code>country
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot; as RelationDataType,
+        type: "single" as RelationDataType,
       },
     },
   },
@@ -3338,19 +3338,19 @@ const cityRelations = {
 const userRelations = {
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -3358,15 +3358,15 @@ const userRelations = {
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -3396,8 +3396,8 @@ const deleteCountry: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;deleteCountry&quot;,
+  schema: "country",
+  actName: "deleteCountry",
   validator: deleteCountryValidator(),
   fn: deleteCountry,
 });
@@ -3445,7 +3445,7 @@ Consider the following example:</p>
       multiCities: array(object(countryCityPure)),
       country: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 const addCities: ActFn = async (body) =&gt; {
@@ -3467,8 +3467,8 @@ const addCities: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;addCities&quot;,
+  schema: "city",
+  actName: "addCities",
   validator: addCitiesValidator(),
   fn: addCities,
 });
@@ -3477,16 +3477,16 @@ coreApp.acts.setAct({
 <ul>
 <li>
 <p>The <code>multiCities</code> input is an <code>array</code> of <code>pure</code> <code>city</code> field <code>objects</code>. Therefore, it must have the following value:</p>
-<pre><code class="language-json">&quot;multiCities&quot;: [
+<pre><code class="language-json">"multiCities": [
   {
-    &quot;name&quot;: &quot;Beirout&quot;,
-    &quot;abb&quot;: &quot;BI&quot;,
-    &quot;population&quot;: 20000000
+    "name": "Beirout",
+    "abb": "BI",
+    "population": 20000000
   },
   {
-    &quot;name&quot;: &quot;Baalbak&quot;,
-    &quot;abb&quot;: &quot;BA&quot;,
-    &quot;population&quot;: 850000
+    "name": "Baalbak",
+    "abb": "BA",
+    "population": 850000
   }
 ]
 </code></pre>
@@ -3513,7 +3513,7 @@ coreApp.acts.setAct({
       livedCities: array(objectIdValidation),
       lovedCity: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUsers: ActFn = async (body) =&gt; {
@@ -3546,8 +3546,8 @@ const addUsers: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUsers&quot;,
+  schema: "user",
+  actName: "addUsers",
   validator: addUsersValidator(),
   fn: addUsers,
 });
@@ -3731,7 +3731,7 @@ Act have <strong>main</strong> and main have country(1), city(2), user(3).
 <li>
 <p>Requests sent to serve a <code>static</code> document.<br />
 In order to receive a <code>static</code> document with a <code>GET</code> request, you must first allow its <code>path</code> to <strong>Lesan</strong>, for this you only need to add the following settings when calling the <code>runServer</code> function:</p>
-<pre><code class="language-ts">  coreApp.runServer({ staticPath: [&quot;/pictures&quot;, &quot;/videos&quot;] });
+<pre><code class="language-ts">  coreApp.runServer({ staticPath: ["/pictures", "/videos"] });
 </code></pre>
 <blockquote>
 <p>The <code>staticPath</code> key receives an <code>array</code> of <code>strings</code></p>
@@ -3775,29 +3775,29 @@ In the <code>body</code> of this request, must be an <code>object</code> in <cod
 <li>The <code>act</code> key is used to select one of the <code>Acts</code> added to the application.</li>
 <li>The <code>details</code> key is used to receive data to be sent from the client side along with data to be delivered to users. This key has two internal keys called <code>get</code> and <code>set</code>, we talked a little about it before.
 <ul>
-<li><code>set</code>: It contains the information we need in the <code>Act</code> function. </li>
+<li><code>set</code>: It contains the information we need in the <code>Act</code> function.</li>
 <li><code>get</code>: Contains selected information that the user needs to be returned. This selection is based on <code>zero</code> or <code>one</code>. Therefore, we can pass this object directly to MongoDB <code>projection</code>.</li>
 </ul>
 </li>
 </ul>
 <p>An example of this <code>JSON</code> object is as follows:</p>
 <pre><code class="language-JSON">{
-  &quot;service&quot;: &quot;main&quot;,
-  &quot;model&quot;: &quot;country&quot;,
-  &quot;act&quot;: &quot;addCountry&quot;,
-  &quot;details&quot;: {
-    &quot;set&quot;: {
-      &quot;name&quot;: &quot;Iran&quot;,
-      &quot;population&quot;: 85000000,
-      &quot;abb&quot;: &quot;IR&quot;
+  "service": "main",
+  "model": "country",
+  "act": "addCountry",
+  "details": {
+    "set": {
+      "name": "Iran",
+      "population": 85000000,
+      "abb": "IR"
     },
-    &quot;get&quot;: {
-      &quot;_id&quot;: 1,
-      &quot;name&quot;: 1,
-      &quot;population&quot;: 1,
-      &quot;cities&quot;: {
-         &quot;name&quot;: 1,
-         &quot;population&quot;: 1,
+    "get": {
+      "_id": 1,
+      "name": 1,
+      "population": 1,
+      "cities": {
+         "name": 1,
+         "population": 1,
       }
     }
   }
@@ -3806,13 +3806,13 @@ In the <code>body</code> of this request, must be an <code>object</code> in <cod
 <p>This request finally reaches the function we specified for <code>Act</code> to extract the necessary information from it and return the information requested by the user.<br />
 If you remember, we set up each <code>Act</code> as follows:</p>
 <pre><code class="language-ts">coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUser&quot;,
+  schema: "user",
+  actName: "addUser",
   validator: addUserValidator(),
   fn: addUser,
   preValidation: [setUser, checkLevel],
   preAct: [justAdmin],
-  validationRunType: &quot;create&quot;,
+  validationRunType: "create",
 });
 </code></pre>
 <h4 id="upload-documents"><a class="header" href="#upload-documents">Upload documents</a></h4>
@@ -3843,7 +3843,7 @@ If you remember, we set up each <code>Act</code> as follows:</p>
 <p>The second problem is known as <code>over-fetching</code>, meaning that the customer only needs a specific part of the information, but the server sends other data in a <code>schema</code> regardless of their needs. This problem causes additional bandwidth occupation and increases data exchange time. Facebook has introduced a new concept called <code>GraphQL</code> to solve these problems to some extent. This idea is very creative and practical but also comes with problems and challenges.</p>
 <p><img src="https://lh3.googleusercontent.com/e8kqfRVjEZ9Dl3MaZv_8Iq7XddcvZweVOpgu_EvJrGCtRdsBV9wDHKbWlax_ogP8FRf3CJlr1QSVw9oLej4xsvATgH9tKAu5w76P6JU58Rt2JdwvNLEuNZYwNGKCT2h6sAWQIkzUdlgxD_BXhL5VS0k" alt="" /></p>
 <h2 id="graphql-problems"><a class="header" href="#graphql-problems">GraphQL Problems</a></h2>
-<p>Given that <code>GraphQL</code> is a language for describing data models and how to request them, in addition to the implementation of the usual server program, there is also a need for a dedicated implementation of GraphQL. This violates one of the fundamental principles of programming, which is <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">&quot;Don't repeat yourself&quot; (DRY)</a>, and forces developers to learn the descriptive language specific to GraphQL, which is <code>GQL</code>.</p>
+<p>Given that <code>GraphQL</code> is a language for describing data models and how to request them, in addition to the implementation of the usual server program, there is also a need for a dedicated implementation of GraphQL. This violates one of the fundamental principles of programming, which is <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">"Don't repeat yourself" (DRY)</a>, and forces developers to learn the descriptive language specific to GraphQL, which is <code>GQL</code>.</p>
 <pre><code class="language-typescript"># This Book type has two fields: title and author
 type Book {
   title: String # returns a String
@@ -3912,20 +3912,20 @@ province;
 <pre><code class="language-ts">const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
   },
   province: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
   },
 };
 const provinceRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
   },
 };
 
@@ -3936,30 +3936,30 @@ const provinceRelations = {
 <pre><code class="language-typescript">const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
   },
   province: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -3968,15 +3968,15 @@ const provinceRelations = {
 const provinceRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       provinces: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -3990,15 +3990,15 @@ We can define as many <code>relatedRelations</code> as we want for each direct r
 So we can add a new <code>relatedRelation</code> in the definition of city relationships where we have linked the country to the city:</p>
 <pre><code class="language-ts">relatedRelations: {
   cities: {
-    type: &quot;multiple&quot; as RelationDataType,
+    type: "multiple" as RelationDataType,
     limit: 50,
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot; as RelationSortOrderType,
+      field: "_id",
+      order: "desc" as RelationSortOrderType,
     },
   },
   capital: {
-    type: &quot;single&quot;,
+    type: "single",
   },
 }
 </code></pre>
@@ -4008,37 +4008,37 @@ So we can add a new <code>relatedRelation</code> in the definition of city relat
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot;,
+        type: "single",
       },
     }
   },
   province: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       center: {
-        type: &quot;single&quot;,
+        type: "single",
       },
     }
   },
@@ -4048,15 +4048,15 @@ const cityRelations = {
 const provinceRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       provinces: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -4084,47 +4084,47 @@ cities;
 </code></pre>
 <p>The amount of pure fields is known. And the value of the fields that are of the relation type of schemas will be in the form of <code>objects</code> or <code>array of objects</code> of the pure type of that relation. That is, for example, for the country:</p>
 <pre><code class="language-ts">{
-id: &quot;234fwee656&quot;,
-name: &quot;iran&quot;,
-abb: &quot;ir&quot;,
-description: &quot;a big country in asia&quot;,
+id: "234fwee656",
+name: "iran",
+abb: "ir",
+description: "a big country in asia",
 geoLocation : [ [12,4], [32,45], ... ],
 capital : {
-	id: &quot;234fwee656&quot;,
-	name: &quot;tehran&quot;,
-	abb: &quot;th&quot;,
-	description: &quot;the beautiful city in middle of iran&quot;,
+	id: "234fwee656",
+	name: "tehran",
+	abb: "th",
+	description: "the beautiful city in middle of iran",
 	geoLocation : [ [12,4], [32,45], ... ]
 },
 provinces : [{
-	id: &quot;234fwee656&quot;,
-	name: &quot;tehran&quot;,
-	abb: &quot;th&quot;,
-	description: &quot;one of the irans provinces&quot;,
+	id: "234fwee656",
+	name: "tehran",
+	abb: "th",
+	description: "one of the irans provinces",
 	geoLocation : [ [12,4], [32,45], ... ]
 	},
 	{
 
-	id: &quot;234fwee656&quot;,
-	name: &quot;hamedan&quot;,
-	abb: &quot;hm&quot;,
-	description: &quot;one of the irans provinces&quot;,
+	id: "234fwee656",
+	name: "hamedan",
+	abb: "hm",
+	description: "one of the irans provinces",
 	geoLocation : [ [12,4], [32,45], ... ]
 },
 ... til to end of the provinces
 }],
 cities :  [{
-		id: &quot;234fwee656&quot;,
-	name: &quot;tehran&quot;,
-	abb: &quot;th&quot;,
-	description: &quot;the beautiful city in middle of iran&quot;,
+		id: "234fwee656",
+	name: "tehran",
+	abb: "th",
+	description: "the beautiful city in middle of iran",
 	geoLocation : [ [12,4], [32,45], ... ]
 	},
 	{
-		Id: &quot;234fwee656&quot;,
-	name: &quot;hamedan&quot;,
-	abb: &quot;hm&quot;,
-	description: &quot;one of the irans cities&quot;,
+		Id: "234fwee656",
+	name: "hamedan",
+	abb: "hm",
+	description: "one of the irans cities",
 	geoLocation : [ [12,4], [32,45], ... ]
 },
 ... til to end of the number limit for the first paginate
@@ -4250,19 +4250,19 @@ cities :  [{
 <pre><code class="language-typescript">provinces.aggregation([
   {
     $lookup: {
-      from: &quot;country&quot;,
-      localField: &quot;country._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;country&quot;,
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
     },
   },
-  { $unwind: { path: &quot;$country&quot;, preserveNullAndEmptyArrays: true } },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
   {
     $lookup: {
-      from: &quot;city&quot;,
-      localField: &quot;cities._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;cities&quot;,
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
     },
   },
   {
@@ -4278,7 +4278,7 @@ cities :  [{
 </code></pre>
 <p>Now if we create the same <code>Pipeline</code> for a project that has been created with <code>Lesan</code>, it will be as follows:</p>
 <pre><code class="language-typescript">states.aggregation([
-      	&quot;$project&quot;: {
+      	"$project": {
         	_id: 1,
         	name: 1,
         	abb: 1,
@@ -4291,38 +4291,38 @@ cities :  [{
 <pre><code class="language-typescript">states.aggregation([
   {
     $lookup: {
-      from: &quot;country&quot;,
-      localField: &quot;country._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;country&quot;,
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
     },
   },
-  { $unwind: { path: &quot;$country&quot;, preserveNullAndEmptyArrays: true } },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
   {
     $lookup: {
-      from: &quot;state&quot;,
-      localField: &quot;country.states._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;country.states&quot;,
-    },
-  },
-  {
-    $lookup: {
-      from: &quot;city&quot;,
-      localField: &quot;cities._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;cities&quot;,
+      from: "state",
+      localField: "country.states._id",
+      foreignField: "_id",
+      as: "country.states",
     },
   },
   {
     $lookup: {
-      from: &quot;country&quot;,
-      localField: &quot;cities.country._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;cities.country&quot;,
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
     },
   },
-  { $unwind: { path: &quot;$cities.country&quot;, preserveNullAndEmptyArrays: true } },
+  {
+    $lookup: {
+      from: "country",
+      localField: "cities.country._id",
+      foreignField: "_id",
+      as: "cities.country",
+    },
+  },
+  { $unwind: { path: "$cities.country", preserveNullAndEmptyArrays: true } },
   {
     $project: {
       _id: 1,
@@ -4338,19 +4338,19 @@ cities :  [{
 <pre><code class="language-typescript">states.aggregation([
   {
     $lookup: {
-      from: &quot;country&quot;,
-      localField: &quot;country._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;country&quot;,
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
     },
   },
-  { $unwind: { path: &quot;$country&quot;, preserveNullAndEmptyArrays: true } },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
   {
     $lookup: {
-      from: &quot;city&quot;,
-      localField: &quot;cities._id&quot;,
-      foreignField: &quot;_id&quot;,
-      as: &quot;cities&quot;,
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
     },
   },
   {
@@ -4379,10 +4379,10 @@ cities :  [{
 <div style="break-before: page; page-break-before: always;"></div><h1 id="csr-ssr-or-ssg-content"><a class="header" href="#csr-ssr-or-ssg-content">CSR, SSR or SSG content</a></h1>
 <p>Content on the internet is usually divided into three parts: <code>CSR</code> or Client-Side Rendering, <code>SSR</code> or Server-Side Rendering and <code>SSG</code> or Static Site Generation. <code>CSR</code> content is usually created by JavaScript frameworks on the client side, which is why search engines cannot easily understand them. <code>SSR</code> content is processed on the server side and is easily understandable by search engines. However, to create this content, the server must be involved in processing them each time. The best contents for publishing on the web are <code>SSG</code> contents because they are completely understandable by search engines and the server will not be involved in processing their data. Static contents can be placed on <code>CDNs</code> (Content Delivery Networks) and requests for this content can be returned from the stored location on the network before it reaches the <code>server</code>. To understand the popularity of <code>SSG</code> content, you can refer to popular JavaScript frameworks such as <code>Gastby</code> and <code>NextJS</code>.</p>
 <p>One of the biggest problems with creating <code>SSG</code> content is the complexity of the data model. As the <code>number</code> of requests for data from the <code>database</code> increases, the amount of content that can be converted to <code>SSG</code> decreases. Because to create <code>SSG</code> content, the number of requests to the <code>database</code> must reach <code>zero</code> in order to produce static content.</p>
-<p><code>Lesan’s</code> framework has simplified the conditions for creating <code>SSG</code> content by reducing the <code>number</code> of requests to the <code>database</code>. </p>
-<p>In addition, <code>Lesan</code> only updates <code>SSG</code> content when a data has changed. Unlike the process that is usually used in <code>NextJS</code> or <code>Gastby</code>, which uses time periods to create and update <code>SSG</code> content due to lack of <code>awareness</code> of data changes. In this way, a specific time is determined in advance (for example, one day) to generate <code>SSG</code> content, and when that time ends, they send a request to the server to receive the content again and convert it to <code>SSG</code> and repeat this process. This cycle has two major problems: </p>
+<p><code>Lesan’s</code> framework has simplified the conditions for creating <code>SSG</code> content by reducing the <code>number</code> of requests to the <code>database</code>.</p>
+<p>In addition, <code>Lesan</code> only updates <code>SSG</code> content when a data has changed. Unlike the process that is usually used in <code>NextJS</code> or <code>Gastby</code>, which uses time periods to create and update <code>SSG</code> content due to lack of <code>awareness</code> of data changes. In this way, a specific time is determined in advance (for example, one day) to generate <code>SSG</code> content, and when that time ends, they send a request to the server to receive the content again and convert it to <code>SSG</code> and repeat this process. This cycle has two major problems:</p>
 <ul>
-<li>First, it is possible that the data has <code>not changed</code> and an unnecessary processing task is imposed on the server which can cause problems if the <code>number</code> of these requests on the server increases. </li>
+<li>First, it is possible that the data has <code>not changed</code> and an unnecessary processing task is imposed on the server which can cause problems if the <code>number</code> of these requests on the server increases.</li>
 <li>And the second problem is that it is possible for the content on the server to change and it may be <code>necessary</code> to quickly update that content everywhere, including places where <code>SSG</code> content is stored. But in current processes, we have to <code>wait</code> until the time we have set in advance ends and send <code>another</code> request to the server to update the <code>SSG</code> content.</li>
 </ul>
 <p>Returning to the example of a news agency, if this website intends to convert its news to <code>SSG</code> content, it will face both of the above problems. On the one hand, the process of generating <code>SSG</code> content may be performed for many news items that have <code>not changed</code>, which creates an unnecessary processing load for the server. On the other hand, it is possible that a news item has been mistakenly converted to <code>SSG</code> content and the news agency wants to remove it quickly, but we have to wait until the end of the specified time for that content to disappear. Also, someone has to request this news after the end of this time. For these two simple reasons, many websites prefer to process their content in <code>SSR</code> form. But how can we create <code>SSG</code> content only when data changes in the main <code>database</code>? This can be easily done with <code>Lesan</code>.</p>
@@ -4416,34 +4416,34 @@ cities :  [{
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot; as RelationDataType,
+        type: "single" as RelationDataType,
       },
     },
   },
 };
 
 const cities = coreApp.odm.newModel(
-  &quot;city&quot;,
+  "city",
   cityPure,
   cityRelations,
 );```
@@ -4461,7 +4461,7 @@ const getCitiesFn: ActFn = async (body) =&gt; {
   pipeline.push({ $skip: (page - 1) * take });
   pipeline.push({ $limit: take });
   countryId &amp;&amp;
-    pipeline.push({ $match: { &quot;country._id&quot;: new ObjectId(countryId) } });
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
 
   return await cities
     .aggregation({
@@ -4481,7 +4481,7 @@ const getCitiesFn: ActFn = async (body) =&gt; {
       take: number(),
       countryId: optional(size(string(), 24)),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 2),
+    get: coreApp.schemas.selectStruct("city", 2),
   });
 };
 </code></pre>
@@ -4536,8 +4536,8 @@ const getCitiesFn: ActFn = async (body) =&gt; {
 </code></pre>
 <p>This <code>object</code> is used for <code>validating</code> the data sent from the <code>client</code> to the <code>server</code>. With this method, we have accurately and separately determined the <code>depth</code> of penetration for each function. If you notice, the key <code>get</code> is exactly similar to <code>projection</code> in <code>MongoDB</code> and after validating this <code>object</code>, we send it to the <code>database</code> without any changes to receive the data. Besides, we can inform the customer side of all the details of the written requests on the <code>server</code>. As a result, even before sending a request on the customer's side, we can understand what information needs to be sent and what information we can receive. Finally, we add this function and <code>validator</code> to our software with the <code>setAct</code> function.</p>
 <pre><code class="language-typescript">ecommerceApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;getCities&quot;,
+  schema: "city",
+  actName: "getCities",
   validator: getCitiesValidator(),
   fn: getCitiesFn,
 });
@@ -4574,10 +4574,10 @@ const getCitiesFn: ActFn = async (body) =&gt; {
   optional,
   OutRelation,
   string,
-} from &quot;../../../deps.ts&quot;;
+} from "../../../deps.ts";
 
-export const level = enums([&quot;Admin&quot;, &quot;Editor&quot;, &quot;Author&quot;, &quot;Ghost&quot;, &quot;Normal&quot;]);
-export const gender = enums([&quot;Male&quot;, &quot;Female&quot;]);
+export const level = enums(["Admin", "Editor", "Author", "Ghost", "Normal"]);
+export const gender = enums(["Male", "Female"]);
 
 export const addressObj = object({
   addressId: string(),
@@ -4612,45 +4612,45 @@ export const pureUserObj = {
 const userRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
   },
   province: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
   },
   city: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -4658,7 +4658,7 @@ const userRelations = {
 };
 </code></pre>
 <p>Now, for example, we create a model of the user for ecommerce as well and write its fields in such a way that it does not have anything more than the shared user model, like this:</p>
-<pre><code class="language-typescript">import { ecommerceApp } from &quot;../../../../../apps/ecommerce/mod.ts&quot;;
+<pre><code class="language-typescript">import { ecommerceApp } from "../../../../../apps/ecommerce/mod.ts";
 import {
   any,
   array,
@@ -4669,7 +4669,7 @@ import {
   optional,
   OutRelation,
   string,
-} from &quot;../../../deps.ts&quot;;
+} from "../../../deps.ts";
 
 import {
   addressObj,
@@ -4677,7 +4677,7 @@ import {
   level,
   pureUserObj as sharedPureUserObj,
   userRelations as sharedUserRelations,
-} from &quot;../../shared/mod.ts&quot;;
+} from "../../shared/mod.ts";
 
 const userPureObj: Partial&lt;typeof sharedPureUserObj&gt; = {
   _id: optional(any()),
@@ -4698,45 +4698,45 @@ const userPureObj: Partial&lt;typeof sharedPureUserObj&gt; = {
 const userRelations: Partial&lt;typeof sharedUserRelations&gt; = {
   // country: {
   //   optional: false,
-  //   schemaName: &quot;country&quot;,
-  //   type: &quot;single&quot; as RelationDataType,
+  //   schemaName: "country",
+  //   type: "single" as RelationDataType,
   //   relatedRelations: {
   //     users: {
-  //       type: &quot;multiple&quot; as RelationDataType,
+  //       type: "multiple" as RelationDataType,
   //       limit: 50,
   //       sort: {
-  //         field: &quot;_id&quot;,
-  //         order: &quot;desc&quot; as RelationSortOrderType,
+  //         field: "_id",
+  //         order: "desc" as RelationSortOrderType,
   //       },
   //     },
   //   }
   // },
   // province: {
   //   optional: false,
-  //   schemaName: &quot;province&quot;,
-  //   type: &quot;single&quot; as RelationDataType,
+  //   schemaName: "province",
+  //   type: "single" as RelationDataType,
   //   relatedRelations: {
   //     users: {
-  //       type: &quot;multiple&quot; as RelationDataType,
+  //       type: "multiple" as RelationDataType,
   //       limit: 50,
   //       sort: {
-  //         field: &quot;_id&quot;,
-  //         order: &quot;desc&quot; as RelationSortOrderType,
+  //         field: "_id",
+  //         order: "desc" as RelationSortOrderType,
   //       },
   //     },
   //   }
   // },
   city: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -4779,14 +4779,14 @@ const userRelations: Partial&lt;typeof sharedUserRelations&gt; = {
    * type of relation if equal to one: this schema record one object from other schema else
    * this schema record array of object from other schema
    */
-  type: &quot;one&quot; | &quot;many&quot;;
+  type: "one" | "many";
 }
 </code></pre>
 <p>In this structure, SchemaName is the name of the schema that schema ‘A’ is associated with. Type can also have the values one or many. If the relationship is single, type takes the value of one and if it is more, it receives the value of many.</p>
 <p>For example; As you can see below, the province schema has an inrelation relationship with the country schema, and since each province has only one country, the type of this relationship is single, so type = “one”. And since the number of cities in a province is also very limited. The province schema also has an inRelation relationship with the city, and since its number is more than one, its type becomes many.</p>
 <pre><code class="language-typescript">stateInrelations = {
-  cities: { schemaName: &quot;city&quot;, type: &quot;many&quot; },
-  country: { schemaName: &quot;country&quot;, type: &quot;one&quot; },
+  cities: { schemaName: "city", type: "many" },
+  country: { schemaName: "country", type: "one" },
 };
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-structure-of-outrelation-in-the-schema"><a class="header" href="#the-structure-of-outrelation-in-the-schema">The structure of OutRelation in the schema</a></h1>
@@ -4807,8 +4807,8 @@ const userRelations: Partial&lt;typeof sharedUserRelations&gt; = {
    */
   sort: {
     field: string;
-    order: &quot;asc&quot; | &quot;desc&quot;;
-    type: &quot;number&quot; | &quot;date&quot; | &quot;objectId&quot;;
+    order: "asc" | "desc";
+    type: "number" | "date" | "objectId";
   };
 }
 </code></pre>
@@ -4820,25 +4820,25 @@ const userRelations: Partial&lt;typeof sharedUserRelations&gt; = {
 <p>The embed structure is created at runtime and when the createEmbeded function is executed, it finds all the inrelation and outrelation relationships of all schemas from other schemas and replaces the pure relationship values.</p>
 <p>If we consider the relationships of a schema as follows:</p>
 <pre><code class="language-typescript">inrelation: {
-&quot;country&quot;: { schemaName: &quot;country&quot;, type: &quot;many&quot; },
+"country": { schemaName: "country", type: "many" },
  },
 outrelation: {
-   	&quot;orders&quot;: {
-     	schemaName: &quot;order&quot;,
+   	"orders": {
+     	schemaName: "order",
      	number: 50,
-     	sort: { filed: &quot;id&quot;, order: &quot;desc&quot; },
+     	sort: { filed: "id", order: "desc" },
    	},
 },
 </code></pre>
 <p>The structure of the embedded will be as follows:</p>
 <pre><code class="language-typescript">embedded: {
-   	&quot;country&quot;: object({
-     	    &quot;id&quot;: string(),
-     	    &quot;name&quot;: string(),
+   	"country": object({
+     	    "id": string(),
+     	    "name": string(),
   	}),
- 	&quot;orders&quot;: array({
-     	    &quot;id&quot;: string(),
-     	    &quot;price&quot;: number(),
+ 	"orders": array({
+     	    "id": string(),
+     	    "price": number(),
   	}),
  },
 </code></pre>
@@ -4847,13 +4847,13 @@ outrelation: {
 <pre><code class="language-typescript">struct: {
 	name:string(),
 	lastName:string(),
-   	&quot;country&quot;: {
-     	    &quot;id&quot;: string(),
-     	    &quot;name&quot;: string(),
+   	"country": {
+     	    "id": string(),
+     	    "name": string(),
   	}),
- 	&quot;orders&quot;: array({
-     	    &quot;id&quot;: string(),
-     	    &quot;price&quot;: number(),
+ 	"orders": array({
+     	    "id": string(),
+     	    "price": number(),
   	}),
  },
 </code></pre>
@@ -4862,26 +4862,26 @@ outrelation: {
 <p>Inside the lesan, there is a web server without any dependencies that receives requests and responds appropriately. The structure of this web server is included in a try-catch, so the rest of the written code does not need to be covered with try-catch and it is only necessary to return an appropriate error for each function so that the same error can be sent to the customer side without any unexpected crashes.</p>
 <p>The structure of the requests that should be sent to the server is a JSON as follows:</p>
 <pre><code class="language-typescript">{
-   &quot;service&quot;: &quot;ecommerce&quot;,
-   &quot;contents&quot;: &quot;dynamic&quot;,
-   &quot;wants&quot;: {
-       &quot;model&quot;: &quot;state&quot;,
-       &quot;act&quot;: &quot;getState&quot;
+   "service": "ecommerce",
+   "contents": "dynamic",
+   "wants": {
+       "model": "state",
+       "act": "getState"
    },
-   &quot;details&quot;: {
-       &quot;set&quot;: {
-           &quot;_id&quot;: &quot;626fbe6e4b628d43f7e92ae9&quot;
+   "details": {
+       "set": {
+           "_id": "626fbe6e4b628d43f7e92ae9"
        },
-       &quot;get&quot;: {
-           &quot;name&quot;: 1,
-           &quot;country&quot;: {
-               &quot;_id&quot;: 1,
-               &quot;name&quot;: 1,
-               &quot;states&quot;: {
-                   &quot;_id&quot;: 1,
-                   &quot;name&quot;: 1,
-                   &quot;country&quot;: {
-                       &quot;name&quot;: 1
+       "get": {
+           "name": 1,
+           "country": {
+               "_id": 1,
+               "name": 1,
+               "states": {
+                   "_id": 1,
+                   "name": 1,
+                   "country": {
+                       "name": 1
                    }
                }
            }
@@ -4925,20 +4925,20 @@ outrelation: {
 <p>Finally, the static structure acts as a cache layer, a layer whose information has an appropriate interaction with the actual data inside the database and can be easily updated and managed.</p>
 <p>The structure of static is as follows:</p>
 <pre><code class="language-typescript">static: {
-	&quot;blogFirstPage&quot;: {
-  		&quot;get&quot;: {
-    			&quot;validator&quot;: (input: any) =&gt; {
+	"blogFirstPage": {
+  		"get": {
+    			"validator": (input: any) =&gt; {
       				return true;
     		},
-    		&quot;fn&quot;: (input: any) =&gt; {
+    		"fn": (input: any) =&gt; {
       			return input;
     		},
   	},
-  		&quot;set&quot;: {
-    			&quot;validator&quot;: (input: any) =&gt; {
+  		"set": {
+    			"validator": (input: any) =&gt; {
       				return true;
     		},
-    		&quot;fn&quot;: (input: any) =&gt; {
+    		"fn": (input: any) =&gt; {
       			return input;
     		},
   	},
@@ -6890,7 +6890,7 @@ and also all functions define in this function</em></p>
           },
         },
       );
-<p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const setAddCityAct = coreApp.acts.setAct({
+  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const setAddCityAct = coreApp.acts.setAct({
   schema: "city",
   actName: "addCity",
   validator: addCityValidator(),
@@ -7058,7 +7058,7 @@ and also all functions define in this function</em></p>
           },
         },
       );
-<p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const getCityActs = coreApp.acts.getActs("city");</p>
+  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const getCityActs = coreApp.acts.getActs("city");</p>
 </code>
   </pre>
 </details>
@@ -40765,7 +40765,7 @@ and also all functions define in this function</em></p>
           },
         },
       );
-<p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const setMainService = coreApp.acts.setService("main", "main");</P>
+  <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line">const setMainService = coreApp.acts.setService("main", "main");</P>
 </code>
   </pre>
 </details>
@@ -73913,7 +73913,7 @@ and also all functions define in this function</em></p>
     validator: getCountriesValidator(),
     fn: getCountries,
   });
-</code>
+  </code>
   </pre>
 </details>
 <p><code>find</code> functions accept three inputs:</p>
@@ -73990,7 +73990,7 @@ and also all functions define in this function</em></p>
     validator: getCountryValidator(),
     fn: getCountry,
   });
-</code>
+  </code>
   </pre>
 </details>
 <p><code>findOne</code> functions accept three inputs:</p>
@@ -74060,8 +74060,8 @@ and also all functions define in this function</em></p>
                       });</p>
 <pre><code>    };
     coreApp.acts.setAct({
-      schema: &quot;country&quot;,
-      actName: &quot;addCountry&quot;,
+      schema: "country",
+      actName: "addCountry",
       validator: addCountryValidator(),
       fn: addCountry,
     });
@@ -74205,7 +74205,7 @@ coreApp.acts.setAct({
   validator: addCityCountryValidator(),
   fn: addCityCountry,
 });
-</code>
+  </code>
   </pre>
 </details>
 <p><code>addRelations</code> functions accept three inputs:</p>
@@ -74279,7 +74279,7 @@ coreApp.acts.setAct({
   validator: removeMostLovedCityValidator(),
   fn: removeMostLovedCity,
 });
-</code>
+  </code>
   </pre>
 </details>
 <p><code>removeRelations</code> functions accept three inputs:</p>
@@ -74464,7 +74464,7 @@ Let's explore a few scenarios.</p>
         validator: deleteCountryValidator(),
         fn: deleteCountry,
     });
-</code>
+  </code>
   </pre>
 </details>
 <p><code>deleteOne</code> functions accept three inputs:</p>
@@ -74530,7 +74530,7 @@ Let's explore a few scenarios.</p>
     validator: getCitiesValidator(),
     fn: getCities,
   });
-</code>
+  </code>
   </pre>
 </details>
 <p><code>find</code> functions accept three inputs:</p>
@@ -74663,9 +74663,9 @@ Let's explore a few scenarios.</p>
     })
 <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line;">preAct: [addSomthingToContext]</P>
     </code>
-</pre>
+  </pre>
 </details>
-<details>
+  <details>
   <summary>
     Return Of Example
   </summary>
@@ -74807,7 +74807,7 @@ Let's explore a few scenarios.</p>
     </code>
   </pre>
 </details>
-<details>
+  <details>
   <summary>
     Return Of Example
   </summary>
@@ -74916,9 +74916,9 @@ Let's explore a few scenarios.</p>
     })
 <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line;">preAct: [addSomthingToContext]</P>
     </code>
-</pre>
+  </pre>
 </details>
-<details>
+  <details>
   <summary>
     Return Of Example
   </summary>
@@ -75051,9 +75051,9 @@ Let's explore a few scenarios.</p>
     })
 <p style="border: 2px solid gray; border-right: transparent; border-left: transparent; padding: 5px 1rem; background-color: #000000; white-space: pre-line;">preAct: [addSomthingToContext]</P>
     </code>
-</pre>
+  </pre>
 </details>
-<details>
+  <details>
   <summary>
     Return Of Example
   </summary>
@@ -75208,10 +75208,10 @@ and also all functions of context define in this function
   </code>
 </pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="relationdatatype"><a class="header" href="#relationdatatype">RelationDataType</a></h1>
-<pre><code class="language-ts">export type RelationDataType = &quot;single&quot; | &quot;multiple&quot;;
+<pre><code class="language-ts">export type RelationDataType = "single" | "multiple";
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="relationsortordertype"><a class="header" href="#relationsortordertype">RelationSortOrderType</a></h1>
-<pre><code class="language-ts">export type RelationSortOrderType = &quot;asc&quot; | &quot;desc&quot;;
+<pre><code class="language-ts">export type RelationSortOrderType = "asc" | "desc";
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="trelatedrelation"><a class="header" href="#trelatedrelation">TRelatedRelation</a></h1>
 <pre><code class="language-ts">export type TRelatedRelation = {
@@ -75237,7 +75237,7 @@ and also all functions of context define in this function
   optional: boolean;
   sort?: {
     field: string;
-    order: &quot;asc&quot; | &quot;desc&quot;;
+    order: "asc" | "desc";
   };
 }
 </code></pre>
@@ -75259,7 +75259,7 @@ and also all functions of context define in this function
   limit?: null | number;
   sort?: {
     field: string;
-    order: &quot;asc&quot; | &quot;desc&quot;;
+    order: "asc" | "desc";
   };
 }
 </code></pre>
@@ -75273,7 +75273,7 @@ and also all functions of context define in this function
   </code>
 </pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="relationtype"><a class="header" href="#relationtype">RelationType</a></h1>
-<pre><code class="language-ts">export type RelationType = &quot;mainRelations&quot; | &quot;relatedRelations&quot; | &quot;relations&quot;;
+<pre><code class="language-ts">export type RelationType = "mainRelations" | "relatedRelations" | "relations";
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ipurefields"><a class="header" href="#ipurefields">IPureFields</a></h1>
 <pre><code class="language-ts">export interface IPureFields {
@@ -75338,7 +75338,7 @@ and also all functions of context define in this function
   fn: ActFn;
   preAct?: Function[];
   preValidation?: Function[];
-  validationRunType?: &quot;assert&quot; | &quot;create&quot;;
+  validationRunType?: "assert" | "create";
 }
 </code></pre>
 <p><em>interface of Act is include of two features: validator of function and fn</em>
@@ -75390,7 +75390,7 @@ and also all functions of context define in this function
   fn: ActFn;
   preAct?: Function[];
   preValidation?: Function[];
-  validationRunType?: &quot;assert&quot; | &quot;create&quot;;
+  validationRunType?: "assert" | "create";
 }
 </code></pre>
 <p><em>ActInp is type of action in lesan for set action function</em></p>
@@ -75420,7 +75420,7 @@ and also all functions of context define in this function
   [mainKey in keyof T]?: {
     _ids: ObjectId | ObjectId[];
     relatedRelations?: {
-      [key in keyof T[mainKey][&quot;relatedRelations&quot;]]: boolean;
+      [key in keyof T[mainKey]["relatedRelations"]]: boolean;
     };
   };
 };

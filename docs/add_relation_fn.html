@@ -190,7 +190,7 @@
       _id: objectIdValidation,
       livedCities: array(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUserLivedCity: ActFn = async (body) =&gt; {
@@ -211,8 +211,8 @@ const addUserLivedCity: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUserLivedCities&quot;,
+  schema: "user",
+  actName: "addUserLivedCities",
   validator: addUserLivedCityValidator(),
   fn: addUserLivedCity,
 });
@@ -252,7 +252,7 @@ Look at code below:</p>
       _id: objectIdValidation,
       country: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUserCountry: ActFn = async (body) =&gt; {
@@ -273,8 +273,8 @@ const addUserCountry: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUserCountry&quot;,
+  schema: "user",
+  actName: "addUserCountry",
   validator: addUserCountryValidator(),
   fn: addUserCountry,
 });

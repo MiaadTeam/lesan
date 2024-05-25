@@ -185,11 +185,11 @@
 <p>So far we have created two models and one relationship. Let us create another relationship for these two models.<br />
 Just add this object to relatedRelations of city:</p>
 <pre><code class="language-ts">citiesByPopulation: {
-  type: &quot;multiple&quot; as RelationDataType,
+  type: "multiple" as RelationDataType,
   limit: 50,
   sort: {
-    field: &quot;population&quot;,
-    order: &quot;desc&quot; as RelationSortOrderType,
+    field: "population",
+    order: "desc" as RelationSortOrderType,
   },
 }
 </code></pre>
@@ -198,23 +198,23 @@ Now the <code>cityRelations</code> object should look like this:</p>
 <pre><code class="language-ts">const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
@@ -247,7 +247,7 @@ Now the <code>cityRelations</code> object should look like this:</p>
 <h3 id="add-arbitrary-relation"><a class="header" href="#add-arbitrary-relation">Add arbitrary relation</a></h3>
 <p>Let's choose a city as the capital for the countries. For this purpose we must have a single relatedRelation for each country selectively. So we add this code:</p>
 <pre><code class="language-ts">capital: {
-  type: &quot;single&quot; as RelationDataType,
+  type: "single" as RelationDataType,
 },
 </code></pre>
 <p>And we change the function and validation we wrote to add the city as follows:</p>
@@ -258,7 +258,7 @@ Now the <code>cityRelations</code> object should look like this:</p>
       country: objectIdValidation,
       isCapital: boolean(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
@@ -296,13 +296,13 @@ const addCity: ActFn = async (body) =&gt; {
   RelationDataType,
   RelationSortOrderType,
   string,
-} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -315,7 +315,7 @@ const countryCityPure = {
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryCityPure,
   countryRelations
 );
@@ -323,38 +323,38 @@ const countries = coreApp.odm.newModel(
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot; as RelationDataType,
+        type: "single" as RelationDataType,
       },
     },
   },
 };
 
-const cities = coreApp.odm.newModel(&quot;city&quot;, countryCityPure, cityRelations);
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
 
 const addCountryValidator = () =&gt; {
   return object({
     set: object(countryCityPure),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+    get: coreApp.schemas.selectStruct("country", 1),
   });
 };
 
@@ -371,8 +371,8 @@ const addCountry: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;addCountry&quot;,
+  schema: "country",
+  actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
 });
@@ -384,7 +384,7 @@ const addCityValidator = () =&gt; {
       country: objectIdValidation,
       isCapital: boolean(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
@@ -408,8 +408,8 @@ const addCity: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;addCity&quot;,
+  schema: "city",
+  actName: "addCity",
   validator: addCityValidator(),
   fn: addCity,
 });
@@ -436,22 +436,22 @@ coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
   age: number(),
 };
 
-const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
+const users = coreApp.odm.newModel("user", userPure, {
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -459,15 +459,15 @@ const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -483,7 +483,7 @@ The function we want to add a user is as follows:</p>
       country: objectIdValidation,
       livedCities: array(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUser: ActFn = async (body) =&gt; {
@@ -510,8 +510,8 @@ const addUser: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUser&quot;,
+  schema: "user",
+  actName: "addUser",
   validator: addUserValidator(),
   fn: addUser,
 });
@@ -536,13 +536,13 @@ coreApp.acts.setAct({
   RelationDataType,
   RelationSortOrderType,
   string,
-} from &quot;https://deno.land/x/lesan@vx.x.x/mod.ts&quot;; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
 
 const coreApp = lesan();
 
-const client = await new MongoClient(&quot;mongodb://127.0.0.1:27017/&quot;).connect();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
 
-const db = client.db(&quot;dbName&quot;); // change dbName to the appropriate name for your project.
+const db = client.db("dbName"); // change dbName to the appropriate name for your project.
 
 coreApp.odm.setDb(db);
 
@@ -555,7 +555,7 @@ const countryCityPure = {
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryCityPure,
   countryRelations
 );
@@ -563,55 +563,55 @@ const countries = coreApp.odm.newModel(
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot; as RelationDataType,
+        type: "single" as RelationDataType,
       },
     },
   },
 };
 
-const cities = coreApp.odm.newModel(&quot;city&quot;, countryCityPure, cityRelations);
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
 
 const userPure = {
   name: string(),
   age: number(),
 };
 
-const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
+const users = coreApp.odm.newModel("user", userPure, {
   livedCities: {
     optional: false,
-    schemaName: &quot;city&quot;,
-    type: &quot;multiple&quot;,
+    schemaName: "city",
+    type: "multiple",
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot;,
+      field: "_id",
+      order: "desc",
     },
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -619,15 +619,15 @@ const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
 
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot;,
+    schemaName: "country",
+    type: "single",
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot;,
+        type: "multiple",
         limit: 5,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot;,
+          field: "_id",
+          order: "desc",
         },
       },
     },
@@ -637,7 +637,7 @@ const users = coreApp.odm.newModel(&quot;user&quot;, userPure, {
 const addCountryValidator = () =&gt; {
   return object({
     set: object(countryCityPure),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+    get: coreApp.schemas.selectStruct("country", 1),
   });
 };
 
@@ -654,8 +654,8 @@ const addCountry: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;addCountry&quot;,
+  schema: "country",
+  actName: "addCountry",
   validator: addCountryValidator(),
   fn: addCountry,
 });
@@ -667,7 +667,7 @@ const addCityValidator = () =&gt; {
       country: objectIdValidation,
       isCapital: boolean(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 
@@ -691,8 +691,8 @@ const addCity: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;addCity&quot;,
+  schema: "city",
+  actName: "addCity",
   validator: addCityValidator(),
   fn: addCity,
 });
@@ -704,7 +704,7 @@ const addUserValidator = () =&gt; {
       country: objectIdValidation,
       livedCities: array(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUser: ActFn = async (body) =&gt; {
@@ -731,8 +731,8 @@ const addUser: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUser&quot;,
+  schema: "user",
+  actName: "addUser",
   validator: addUserValidator(),
   fn: addUser,
 });
@@ -741,7 +741,7 @@ coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
 </code></pre>
 <p>Open Playground in the browser and go to addUser function.<br />
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/4717c9a0-808f-47ad-8e95-2b16f6419305" alt="add-user" /></p>
-<p>Note that the <code>livedCities</code> field receives an array of IDs, you just need to enter an input like <code>[&quot;65466c407123faa9c1f3c180&quot;, &quot;65466c2c7123faa9c1f3c17e&quot;]</code>. playground parses it and converts it into an array suitable for sending.</p>
+<p>Note that the <code>livedCities</code> field receives an array of IDs, you just need to enter an input like <code>["65466c407123faa9c1f3c180", "65466c2c7123faa9c1f3c17e"]</code>. playground parses it and converts it into an array suitable for sending.</p>
 <h3 id="add-e2e-test-1"><a class="header" href="#add-e2e-test-1">Add E2E Test</a></h3>
 <p>Probably you know what to do! For adding <code>addUser</code> request to E2E section you should click on the <strong>E2E button</strong>, like below picture.</p>
 <img alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/fae58c10-f792-4041-89ca-186dc89bcee1">

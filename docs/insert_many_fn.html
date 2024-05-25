@@ -190,7 +190,7 @@ Consider the following example:</p>
       multiCities: array(object(countryCityPure)),
       country: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 1),
+    get: coreApp.schemas.selectStruct("city", 1),
   });
 };
 const addCities: ActFn = async (body) =&gt; {
@@ -212,8 +212,8 @@ const addCities: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;addCities&quot;,
+  schema: "city",
+  actName: "addCities",
   validator: addCitiesValidator(),
   fn: addCities,
 });
@@ -222,16 +222,16 @@ coreApp.acts.setAct({
 <ul>
 <li>
 <p>The <code>multiCities</code> input is an <code>array</code> of <code>pure</code> <code>city</code> field <code>objects</code>. Therefore, it must have the following value:</p>
-<pre><code class="language-json">&quot;multiCities&quot;: [
+<pre><code class="language-json">"multiCities": [
   {
-    &quot;name&quot;: &quot;Beirout&quot;,
-    &quot;abb&quot;: &quot;BI&quot;,
-    &quot;population&quot;: 20000000
+    "name": "Beirout",
+    "abb": "BI",
+    "population": 20000000
   },
   {
-    &quot;name&quot;: &quot;Baalbak&quot;,
-    &quot;abb&quot;: &quot;BA&quot;,
-    &quot;population&quot;: 850000
+    "name": "Baalbak",
+    "abb": "BA",
+    "population": 850000
   }
 ]
 </code></pre>
@@ -258,7 +258,7 @@ coreApp.acts.setAct({
       livedCities: array(objectIdValidation),
       lovedCity: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const addUsers: ActFn = async (body) =&gt; {
@@ -291,8 +291,8 @@ const addUsers: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUsers&quot;,
+  schema: "user",
+  actName: "addUsers",
   validator: addUsersValidator(),
   fn: addUsers,
 });

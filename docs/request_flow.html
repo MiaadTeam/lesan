@@ -193,7 +193,7 @@
 <li>
 <p>Requests sent to serve a <code>static</code> document.<br />
 In order to receive a <code>static</code> document with a <code>GET</code> request, you must first allow its <code>path</code> to <strong>Lesan</strong>, for this you only need to add the following settings when calling the <code>runServer</code> function:</p>
-<pre><code class="language-ts">  coreApp.runServer({ staticPath: [&quot;/pictures&quot;, &quot;/videos&quot;] });
+<pre><code class="language-ts">  coreApp.runServer({ staticPath: ["/pictures", "/videos"] });
 </code></pre>
 <blockquote>
 <p>The <code>staticPath</code> key receives an <code>array</code> of <code>strings</code></p>
@@ -237,29 +237,29 @@ In the <code>body</code> of this request, must be an <code>object</code> in <cod
 <li>The <code>act</code> key is used to select one of the <code>Acts</code> added to the application.</li>
 <li>The <code>details</code> key is used to receive data to be sent from the client side along with data to be delivered to users. This key has two internal keys called <code>get</code> and <code>set</code>, we talked a little about it before.
 <ul>
-<li><code>set</code>: It contains the information we need in the <code>Act</code> function. </li>
+<li><code>set</code>: It contains the information we need in the <code>Act</code> function.</li>
 <li><code>get</code>: Contains selected information that the user needs to be returned. This selection is based on <code>zero</code> or <code>one</code>. Therefore, we can pass this object directly to MongoDB <code>projection</code>.</li>
 </ul>
 </li>
 </ul>
 <p>An example of this <code>JSON</code> object is as follows:</p>
 <pre><code class="language-JSON">{
-  &quot;service&quot;: &quot;main&quot;,
-  &quot;model&quot;: &quot;country&quot;,
-  &quot;act&quot;: &quot;addCountry&quot;,
-  &quot;details&quot;: {
-    &quot;set&quot;: {
-      &quot;name&quot;: &quot;Iran&quot;,
-      &quot;population&quot;: 85000000,
-      &quot;abb&quot;: &quot;IR&quot;
+  "service": "main",
+  "model": "country",
+  "act": "addCountry",
+  "details": {
+    "set": {
+      "name": "Iran",
+      "population": 85000000,
+      "abb": "IR"
     },
-    &quot;get&quot;: {
-      &quot;_id&quot;: 1,
-      &quot;name&quot;: 1,
-      &quot;population&quot;: 1,
-      &quot;cities&quot;: {
-         &quot;name&quot;: 1,
-         &quot;population&quot;: 1,
+    "get": {
+      "_id": 1,
+      "name": 1,
+      "population": 1,
+      "cities": {
+         "name": 1,
+         "population": 1,
       }
     }
   }
@@ -268,13 +268,13 @@ In the <code>body</code> of this request, must be an <code>object</code> in <cod
 <p>This request finally reaches the function we specified for <code>Act</code> to extract the necessary information from it and return the information requested by the user.<br />
 If you remember, we set up each <code>Act</code> as follows:</p>
 <pre><code class="language-ts">coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;addUser&quot;,
+  schema: "user",
+  actName: "addUser",
   validator: addUserValidator(),
   fn: addUser,
   preValidation: [setUser, checkLevel],
   preAct: [justAdmin],
-  validationRunType: &quot;create&quot;,
+  validationRunType: "create",
 });
 </code></pre>
 <h4 id="upload-documents"><a class="header" href="#upload-documents">Upload documents</a></h4>
