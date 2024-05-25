@@ -233,20 +233,20 @@ province;
 <pre><code class="language-ts">const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
   },
   province: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
   },
 };
 const provinceRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
   },
 };
 
@@ -257,30 +257,30 @@ const provinceRelations = {
 <pre><code class="language-typescript">const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
   },
   province: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -289,15 +289,15 @@ const provinceRelations = {
 const provinceRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       provinces: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -311,15 +311,15 @@ We can define as many <code>relatedRelations</code> as we want for each direct r
 So we can add a new <code>relatedRelation</code> in the definition of city relationships where we have linked the country to the city:</p>
 <pre><code class="language-ts">relatedRelations: {
   cities: {
-    type: &quot;multiple&quot; as RelationDataType,
+    type: "multiple" as RelationDataType,
     limit: 50,
     sort: {
-      field: &quot;_id&quot;,
-      order: &quot;desc&quot; as RelationSortOrderType,
+      field: "_id",
+      order: "desc" as RelationSortOrderType,
     },
   },
   capital: {
-    type: &quot;single&quot;,
+    type: "single",
   },
 }
 </code></pre>
@@ -329,37 +329,37 @@ So we can add a new <code>relatedRelation</code> in the definition of city relat
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot;,
+        type: "single",
       },
     }
   },
   province: {
     optional: false,
-    schemaName: &quot;province&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "province",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       center: {
-        type: &quot;single&quot;,
+        type: "single",
       },
     }
   },
@@ -369,15 +369,15 @@ const cityRelations = {
 const provinceRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       provinces: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     }
@@ -405,47 +405,47 @@ cities;
 </code></pre>
 <p>The amount of pure fields is known. And the value of the fields that are of the relation type of schemas will be in the form of <code>objects</code> or <code>array of objects</code> of the pure type of that relation. That is, for example, for the country:</p>
 <pre><code class="language-ts">{
-id: &quot;234fwee656&quot;,
-name: &quot;iran&quot;,
-abb: &quot;ir&quot;,
-description: &quot;a big country in asia&quot;,
+id: "234fwee656",
+name: "iran",
+abb: "ir",
+description: "a big country in asia",
 geoLocation : [ [12,4], [32,45], ... ],
 capital : {
-	id: &quot;234fwee656&quot;,
-	name: &quot;tehran&quot;,
-	abb: &quot;th&quot;,
-	description: &quot;the beautiful city in middle of iran&quot;,
+	id: "234fwee656",
+	name: "tehran",
+	abb: "th",
+	description: "the beautiful city in middle of iran",
 	geoLocation : [ [12,4], [32,45], ... ]
 },
 provinces : [{
-	id: &quot;234fwee656&quot;,
-	name: &quot;tehran&quot;,
-	abb: &quot;th&quot;,
-	description: &quot;one of the irans provinces&quot;,
+	id: "234fwee656",
+	name: "tehran",
+	abb: "th",
+	description: "one of the irans provinces",
 	geoLocation : [ [12,4], [32,45], ... ]
 	},
 	{
 
-	id: &quot;234fwee656&quot;,
-	name: &quot;hamedan&quot;,
-	abb: &quot;hm&quot;,
-	description: &quot;one of the irans provinces&quot;,
+	id: "234fwee656",
+	name: "hamedan",
+	abb: "hm",
+	description: "one of the irans provinces",
 	geoLocation : [ [12,4], [32,45], ... ]
 },
 ... til to end of the provinces
 }],
 cities :  [{
-		id: &quot;234fwee656&quot;,
-	name: &quot;tehran&quot;,
-	abb: &quot;th&quot;,
-	description: &quot;the beautiful city in middle of iran&quot;,
+		id: "234fwee656",
+	name: "tehran",
+	abb: "th",
+	description: "the beautiful city in middle of iran",
 	geoLocation : [ [12,4], [32,45], ... ]
 	},
 	{
-		Id: &quot;234fwee656&quot;,
-	name: &quot;hamedan&quot;,
-	abb: &quot;hm&quot;,
-	description: &quot;one of the irans cities&quot;,
+		Id: "234fwee656",
+	name: "hamedan",
+	abb: "hm",
+	description: "one of the irans cities",
 	geoLocation : [ [12,4], [32,45], ... ]
 },
 ... til to end of the number limit for the first paginate

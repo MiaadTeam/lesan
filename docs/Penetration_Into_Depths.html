@@ -211,34 +211,34 @@
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       citiesByPopulation: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
       capital: {
-        type: &quot;single&quot; as RelationDataType,
+        type: "single" as RelationDataType,
       },
     },
   },
 };
 
 const cities = coreApp.odm.newModel(
-  &quot;city&quot;,
+  "city",
   cityPure,
   cityRelations,
 );```
@@ -256,7 +256,7 @@ const getCitiesFn: ActFn = async (body) =&gt; {
   pipeline.push({ $skip: (page - 1) * take });
   pipeline.push({ $limit: take });
   countryId &amp;&amp;
-    pipeline.push({ $match: { &quot;country._id&quot;: new ObjectId(countryId) } });
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
 
   return await cities
     .aggregation({
@@ -276,7 +276,7 @@ const getCitiesFn: ActFn = async (body) =&gt; {
       take: number(),
       countryId: optional(size(string(), 24)),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 2),
+    get: coreApp.schemas.selectStruct("city", 2),
   });
 };
 </code></pre>
@@ -331,8 +331,8 @@ const getCitiesFn: ActFn = async (body) =&gt; {
 </code></pre>
 <p>This <code>object</code> is used for <code>validating</code> the data sent from the <code>client</code> to the <code>server</code>. With this method, we have accurately and separately determined the <code>depth</code> of penetration for each function. If you notice, the key <code>get</code> is exactly similar to <code>projection</code> in <code>MongoDB</code> and after validating this <code>object</code>, we send it to the <code>database</code> without any changes to receive the data. Besides, we can inform the customer side of all the details of the written requests on the <code>server</code>. As a result, even before sending a request on the customer's side, we can understand what information needs to be sent and what information we can receive. Finally, we add this function and <code>validator</code> to our software with the <code>setAct</code> function.</p>
 <pre><code class="language-typescript">ecommerceApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;getCities&quot;,
+  schema: "city",
+  actName: "getCities",
   validator: getCitiesValidator(),
   fn: getCitiesFn,
 });

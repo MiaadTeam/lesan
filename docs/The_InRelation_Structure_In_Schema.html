@@ -194,14 +194,14 @@
    * type of relation if equal to one: this schema record one object from other schema else
    * this schema record array of object from other schema
    */
-  type: &quot;one&quot; | &quot;many&quot;;
+  type: "one" | "many";
 }
 </code></pre>
 <p>In this structure, SchemaName is the name of the schema that schema ‘A’ is associated with. Type can also have the values one or many. If the relationship is single, type takes the value of one and if it is more, it receives the value of many.</p>
 <p>For example; As you can see below, the province schema has an inrelation relationship with the country schema, and since each province has only one country, the type of this relationship is single, so type = “one”. And since the number of cities in a province is also very limited. The province schema also has an inRelation relationship with the city, and since its number is more than one, its type becomes many.</p>
 <pre><code class="language-typescript">stateInrelations = {
-  cities: { schemaName: &quot;city&quot;, type: &quot;many&quot; },
-  country: { schemaName: &quot;country&quot;, type: &quot;one&quot; },
+  cities: { schemaName: "city", type: "many" },
+  country: { schemaName: "country", type: "one" },
 };
 </code></pre>
 

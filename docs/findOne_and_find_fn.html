@@ -192,7 +192,7 @@ According to Mongo's behavior, only <code>Aggregation</code> can be used to send
     set: object({
       userId: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const getUser: ActFn = async (body) =&gt; {
@@ -207,8 +207,8 @@ const getUser: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;getUser&quot;,
+  schema: "user",
+  actName: "getUser",
   validator: getUserValidator(),
   fn: getUser,
 });
@@ -237,7 +237,7 @@ Pay attention to the following code:</p>
     set: object({
       countryId: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, {
+    get: coreApp.schemas.selectStruct("country", {
       citiesByPopulation: 1,
       users: 1,
       capital: 1,
@@ -256,8 +256,8 @@ const getCountry: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;getCountry&quot;,
+  schema: "country",
+  actName: "getCountry",
   validator: getCountryValidator(),
   fn: getCountry,
 });
@@ -267,7 +267,7 @@ const getCityValidator = () =&gt; {
     set: object({
       cityId: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, { country: 1, lovedByUser: 1 }),
+    get: coreApp.schemas.selectStruct("city", { country: 1, lovedByUser: 1 }),
   });
 };
 const getCity: ActFn = async (body) =&gt; {
@@ -282,8 +282,8 @@ const getCity: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;getCity&quot;,
+  schema: "city",
+  actName: "getCity",
   validator: getCityValidator(),
   fn: getCity,
 });
@@ -317,7 +317,7 @@ executing <code>main</code> → <code>city</code> → <code>getCity</code>:
       page: number(),
       limit: number(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const getUsers: ActFn = async (body) =&gt; {
@@ -336,8 +336,8 @@ const getUsers: ActFn = async (body) =&gt; {
     .toArray();
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;getUsers&quot;,
+  schema: "user",
+  actName: "getUsers",
   validator: getUsersValidator(),
   fn: getUsers,
 });
@@ -364,7 +364,7 @@ Pay attention to the following code:</p>
       page: number(),
       limit: number(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, {
+    get: coreApp.schemas.selectStruct("country", {
       citiesByPopulation: 1,
       users: 1,
       capital: 1,
@@ -387,8 +387,8 @@ const getCountries: ActFn = async (body) =&gt; {
     .toArray();
 };
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;getCountries&quot;,
+  schema: "country",
+  actName: "getCountries",
   validator: getCountriesValidator(),
   fn: getCountries,
 });
@@ -399,7 +399,7 @@ const getCitiesValidator = () =&gt; {
       page: number(),
       limit: number(),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, { country: 1, lovedByUser: 1 }),
+    get: coreApp.schemas.selectStruct("city", { country: 1, lovedByUser: 1 }),
   });
 };
 const getCities: ActFn = async (body) =&gt; {
@@ -418,8 +418,8 @@ const getCities: ActFn = async (body) =&gt; {
     .toArray();
 };
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;getCities&quot;,
+  schema: "city",
+  actName: "getCities",
   validator: getCitiesValidator(),
   fn: getCities,
 });

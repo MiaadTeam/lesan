@@ -195,7 +195,7 @@ We can use <code>aggregation</code> instead of <code>find</code> and <code>findO
       take: number(),
       countryId: optional(objectIdValidation),
     }),
-    get: coreApp.schemas.selectStruct(&quot;city&quot;, 3),
+    get: coreApp.schemas.selectStruct("city", 3),
   });
 };
 const getCitiesAggregation: ActFn = async (body) =&gt; {
@@ -208,7 +208,7 @@ const getCitiesAggregation: ActFn = async (body) =&gt; {
   pipeline.push({ $skip: (page - 1) * take });
   pipeline.push({ $limit: take });
   countryId &amp;&amp;
-    pipeline.push({ $match: { &quot;country._id&quot;: new ObjectId(countryId) } });
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
 
   return await cities
     .aggregation({
@@ -219,8 +219,8 @@ const getCitiesAggregation: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;city&quot;,
-  actName: &quot;getCitiesAggregation&quot;,
+  schema: "city",
+  actName: "getCitiesAggregation",
   validator: getCitiesAggregationValidator(),
   fn: getCitiesAggregation,
 });
@@ -229,32 +229,32 @@ coreApp.acts.setAct({
 As you can see, we have added two <code>pipelines</code> to create pagination by using <code>page</code> and <code>take</code> inputs, but these two <code>pipelines</code> are not all that is sent to the database. <strong>Lesan</strong> automatically creates <code>lookup</code>, <code>unwind</code> and <code>projection</code> pipelines based on <code>get</code> input. So that we can establish a <code>join</code> between the <code>schemas</code> and <code>select</code> and <code>return</code> the data requested by the user.</p>
 <p>If this <code>request</code> is sent to the server:</p>
 <pre><code class="language-json">{
-  &quot;body&quot;: {
-    &quot;method&quot;: &quot;POST&quot;,
-    &quot;headers&quot;: {
-      &quot;Content-Type&quot;: &quot;application/json&quot;,
-      &quot;Authorization&quot;: &quot;&quot;
+  "body": {
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": ""
     },
-    &quot;body&quot;: {
-      &quot;service&quot;: &quot;main&quot;,
-      &quot;model&quot;: &quot;city&quot;,
-      &quot;act&quot;: &quot;getCitiesAggregation&quot;,
-      &quot;details&quot;: {
-        &quot;get&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1,
-          &quot;country&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1
+    "body": {
+      "service": "main",
+      "model": "city",
+      "act": "getCitiesAggregation",
+      "details": {
+        "get": {
+          "_id": 1,
+          "name": 1,
+          "country": {
+            "_id": 1,
+            "name": 1
           },
-          &quot;users&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1
+          "users": {
+            "_id": 1,
+            "name": 1
           }
         },
-        &quot;set&quot;: {
-          &quot;page&quot;: 1,
-          &quot;take&quot;: 10
+        "set": {
+          "page": 1,
+          "take": 10
         }
       }
     }
@@ -264,67 +264,67 @@ As you can see, we have added two <code>pipelines</code> to create pagination by
 <p>these <code>pipelines</code> will be created:</p>
 <pre><code class="language-json">[
   {
-    &quot;$project&quot;: {
-      &quot;_id&quot;: 1,
-      &quot;name&quot;: 1,
-      &quot;country&quot;: { &quot;_id&quot;: 1, &quot;name&quot;: 1 },
-      &quot;users&quot;: { &quot;_id&quot;: 1, &quot;name&quot;: 1 }
+    "$project": {
+      "_id": 1,
+      "name": 1,
+      "country": { "_id": 1, "name": 1 },
+      "users": { "_id": 1, "name": 1 }
     }
   }
 ]
 </code></pre>
 <p>And if this <code>request</code> is sent to the server:</p>
 <pre><code class="language-json">{
-  &quot;body&quot;: {
-    &quot;method&quot;: &quot;POST&quot;,
-    &quot;headers&quot;: {
-      &quot;Content-Type&quot;: &quot;application/json&quot;,
-      &quot;Authorization&quot;: &quot;&quot;
+  "body": {
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": ""
     },
-    &quot;body&quot;: {
-      &quot;service&quot;: &quot;main&quot;,
-      &quot;model&quot;: &quot;city&quot;,
-      &quot;act&quot;: &quot;getCitiesAggregation&quot;,
-      &quot;details&quot;: {
-        &quot;get&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1,
-          &quot;country&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1,
-            &quot;cities&quot;: {
-              &quot;_id&quot;: 1,
-              &quot;name&quot;: 1
+    "body": {
+      "service": "main",
+      "model": "city",
+      "act": "getCitiesAggregation",
+      "details": {
+        "get": {
+          "_id": 1,
+          "name": 1,
+          "country": {
+            "_id": 1,
+            "name": 1,
+            "cities": {
+              "_id": 1,
+              "name": 1
             },
-            &quot;citiesByPopulation&quot;: {
-              &quot;name&quot;: 1,
-              &quot;_id&quot;: 1
+            "citiesByPopulation": {
+              "name": 1,
+              "_id": 1
             },
-            &quot;capital&quot;: {
-              &quot;_id&quot;: 1,
-              &quot;name&quot;: 1
+            "capital": {
+              "_id": 1,
+              "name": 1
             }
           },
-          &quot;users&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1,
-            &quot;livedCities&quot;: {
-              &quot;name&quot;: 1,
-              &quot;_id&quot;: 1
+          "users": {
+            "_id": 1,
+            "name": 1,
+            "livedCities": {
+              "name": 1,
+              "_id": 1
             },
-            &quot;country&quot;: {
-              &quot;_id&quot;: 1,
-              &quot;name&quot;: 1
+            "country": {
+              "_id": 1,
+              "name": 1
             }
           },
-          &quot;lovedByUser&quot;: {
-            &quot;_id&quot;: 1,
-            &quot;name&quot;: 1
+          "lovedByUser": {
+            "_id": 1,
+            "name": 1
           }
         },
-        &quot;set&quot;: {
-          &quot;page&quot;: 1,
-          &quot;take&quot;: 10
+        "set": {
+          "page": 1,
+          "take": 10
         }
       }
     }
@@ -334,69 +334,69 @@ As you can see, we have added two <code>pipelines</code> to create pagination by
 <p>these <code>pipelines</code> will be created:</p>
 <pre><code class="language-json">[
   {
-    &quot;$lookup&quot;: {
-      &quot;from&quot;: &quot;country&quot;,
-      &quot;localField&quot;: &quot;country._id&quot;,
-      &quot;foreignField&quot;: &quot;_id&quot;,
-      &quot;as&quot;: &quot;country&quot;
+    "$lookup": {
+      "from": "country",
+      "localField": "country._id",
+      "foreignField": "_id",
+      "as": "country"
     }
   },
   {
-    &quot;$unwind&quot;: {
-      &quot;path&quot;: &quot;$country&quot;,
-      &quot;preserveNullAndEmptyArrays&quot;: true
+    "$unwind": {
+      "path": "$country",
+      "preserveNullAndEmptyArrays": true
     }
   },
   {
-    &quot;$lookup&quot;: {
-      &quot;from&quot;: &quot;user&quot;,
-      &quot;localField&quot;: &quot;users._id&quot;,
-      &quot;foreignField&quot;: &quot;_id&quot;,
-      &quot;as&quot;: &quot;users&quot;
+    "$lookup": {
+      "from": "user",
+      "localField": "users._id",
+      "foreignField": "_id",
+      "as": "users"
     }
   },
   {
-    &quot;$project&quot;: {
-      &quot;_id&quot;: 1,
-      &quot;name&quot;: 1,
-      &quot;country&quot;: {
-        &quot;_id&quot;: 1,
-        &quot;name&quot;: 1,
-        &quot;cities&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1
+    "$project": {
+      "_id": 1,
+      "name": 1,
+      "country": {
+        "_id": 1,
+        "name": 1,
+        "cities": {
+          "_id": 1,
+          "name": 1
         },
-        &quot;citiesByPopulation&quot;: {
-          &quot;name&quot;: 1,
-          &quot;_id&quot;: 1
+        "citiesByPopulation": {
+          "name": 1,
+          "_id": 1
         },
-        &quot;capital&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1
+        "capital": {
+          "_id": 1,
+          "name": 1
         }
       },
-      &quot;users&quot;: {
-        &quot;_id&quot;: 1,
-        &quot;name&quot;: 1,
-        &quot;livedCities&quot;: {
-          &quot;name&quot;: 1,
-          &quot;_id&quot;: 1
+      "users": {
+        "_id": 1,
+        "name": 1,
+        "livedCities": {
+          "name": 1,
+          "_id": 1
         },
-        &quot;country&quot;: {
-          &quot;_id&quot;: 1,
-          &quot;name&quot;: 1
+        "country": {
+          "_id": 1,
+          "name": 1
         }
       },
-      &quot;lovedByUser&quot;: {
-        &quot;_id&quot;: 1,
-        &quot;name&quot;: 1
+      "lovedByUser": {
+        "_id": 1,
+        "name": 1
       }
     }
   }
 ]
 </code></pre>
 <p>Note that <code>pipelines</code> are always one step behind the <code>request</code>, and send <code>indexed</code> lookup with <code>_id</code> for anything. because we <code>embed</code> all relations.</p>
-<p>Because we have given the second input <code>3</code> in the <code>coreApp.schemas.selectStruct(&quot;city&quot;, 3)</code> function, we can penetrate one more step in the depth of relationships, you can send more complex queries in the playground.</p>
+<p>Because we have given the second input <code>3</code> in the <code>coreApp.schemas.selectStruct("city", 3)</code> function, we can penetrate one more step in the depth of relationships, you can send more complex queries in the playground.</p>
 <p>You can find full example <a href="https://raw.githubusercontent.com/MiaadTeam/lesan/main/examples/document/07-1-aggregation.ts">here</a> and test the <code>aggregation</code> method in local computer.</p>
 <p>executing <code>main</code> → <code>city</code> → <code>getCitiesAggregation</code>:
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/1e6610c7-fe20-4772-84fd-d2916a082f62" alt="aggregation-cities" /></p>
@@ -415,7 +415,7 @@ As you can see, we have added two <code>pipelines</code> to create pagination by
     set: object({
       userId: objectIdValidation,
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 2),
+    get: coreApp.schemas.selectStruct("user", 2),
   });
 };
 const getUserAggregation: ActFn = async (body) =&gt; {
@@ -436,8 +436,8 @@ const getUserAggregation: ActFn = async (body) =&gt; {
 };
 
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;getUserAggregation&quot;,
+  schema: "user",
+  actName: "getUserAggregation",
   validator: getUserAggregationValidator(),
   fn: getUserAggregation,
 });

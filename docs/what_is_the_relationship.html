@@ -204,7 +204,7 @@
 <p>What are the relationships in <code>NoSQL</code>?</p>
 <ul>
 <li>There is no real relationship. In fact, there is no proper connection between the two sides.</li>
-<li>If we consider embeding as a relationship: 
+<li>If we consider embeding as a relationship:
 <ul>
 <li>the changes of each party have no effect on the other side and cause many inconsistencies in the data.</li>
 <li>the two sides leave each other after the relationship. Infact, it is not clear what kind of effects each relationship we create will have on the other side of the relationship.</li>
@@ -269,7 +269,7 @@ To get the above cities or users, we have to create and execute much more comple
 	abb: String,
 	population: Number,
 });
-const Country = mongoose.model(&quot;Country&quot;, CountrySchema)
+const Country = mongoose.model("Country", CountrySchema)
 
 const CitySchema = new mongoose.Schema ({
 	name: String,
@@ -280,7 +280,7 @@ const CitySchema = new mongoose.Schema ({
 		ref: Country
 	} 
 });
-const City = mongoose.model(&quot;City&quot;, CitySchema)
+const City = mongoose.model("City", CitySchema)
 
 const UserSchema = new mongoose.Schema ({
 	name: String,
@@ -294,7 +294,7 @@ const UserSchema = new mongoose.Schema ({
 		ref: City
 	} 
 });
-const User = mongoose.model(&quot;User&quot;, CitySchema)
+const User = mongoose.model("User", CitySchema)
 </code></pre>
 <p>The code above is exactly equivalent to the code we wrote for <code>PostgreSQL</code> and creates exactly the same tables in <code>MongoDB</code>. All the issues we described for <code>SQL</code> will be present here as well, but wait, we can add other fields to these tables to simplify the complex queries we talked about above.</p>
 <p>We can store its cities inside each country by adding a field called cities. Pay attention to the following code:</p>
@@ -347,7 +347,7 @@ We need to find the country associated with the city, then see if this city is s
 </ul>
 <p>Let's look at this issue from the other side of the relationship.<br />
 What if we want to access the country related to that city from within the cities?<br />
-Well, for this purpose, we can add a field called the <code>country</code> in each city. And instead of storing only the country's ID in it, embed all the country's information in it. </p>
+Well, for this purpose, we can add a field called the <code>country</code> in each city. And instead of storing only the country's ID in it, embed all the country's information in it.</p>
 <pre><code class="language-ts">const CitySchema = new mongoose.Schema ({
   name: String,
   abb: String,
@@ -377,7 +377,7 @@ Finally, our mongoose model will probably look like this:</p>
     population: Number,
   }],
 });
-const Country = mongoose.model(&quot;country&quot;, CitySchema);
+const Country = mongoose.model("country", CitySchema);
 
 const CitySchema = new mongoose.Schema ({
   name: String,
@@ -390,7 +390,7 @@ const CitySchema = new mongoose.Schema ({
   } 
 });
 
-const City = mongoose.model(&quot;City&quot;, CitySchema)
+const City = mongoose.model("City", CitySchema)
 
 const UserSchema = new mongoose.Schema ({
 	name: String,
@@ -404,7 +404,7 @@ const UserSchema = new mongoose.Schema ({
 		ref: City
 	} 
 });
-const User = mongoose.model(&quot;User&quot;, CitySchema)
+const User = mongoose.model("User", CitySchema)
 </code></pre>
 <h3 id="lesan"><a class="header" href="#lesan">Lesan</a></h3>
 <p>So, if we want to create the same relationships with <strong>‌Lesan</strong>, what should we do?
@@ -419,7 +419,7 @@ const countryCityPure = {
 const countryRelations = {};
 
 const countries = coreApp.odm.newModel(
-  &quot;country&quot;,
+  "country",
   countryCityPure,
   countryRelations,
 );
@@ -428,23 +428,23 @@ const countries = coreApp.odm.newModel(
 const cityRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       cities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
       mostPopulousCities: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;population&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "population",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
@@ -452,7 +452,7 @@ const cityRelations = {
 };
 
 const cities = coreApp.odm.newModel(
-  &quot;city&quot;,
+  "city",
   countryCityPure,
   cityRelations,
 );
@@ -466,30 +466,30 @@ const userPure = {
 const userRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
   },
   city: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       users: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
@@ -497,7 +497,7 @@ const userRelations = {
 };
 
 const users = coreApp.odm.newModel(
-  &quot;user&quot;,
+  "user",
   userPure,
   userRelations,
 );
@@ -519,7 +519,7 @@ Listening on http://localhost:1366/
 <p>Now you can visit the <code>playground</code> at <code>http://localhost:1366/playground</code> and send requests to the server for <code>country</code>, <code>city</code>, and <code>user</code> models:
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/668ad7d6-70aa-4720-a33c-9bbc417cf579" alt="Screenshot 2023-12-31 at 21-35-56 Lesan Playground" /></p>
 <p>and use <code>addCountry</code>, <code>addCountries</code>, <code>updateCountry</code>, <code>getCountries</code>, <code>deleteCountry</code> methods for country models:
-<img src="https://github.com/MiaadTeam/lesan/assets/6236123/4ef81e63-4eb7-4852-a6e7-92e91e0e3716" alt="Screenshot 2023-12-31 at 21-42-37 Lesan Playground" /> </p>
+<img src="https://github.com/MiaadTeam/lesan/assets/6236123/4ef81e63-4eb7-4852-a6e7-92e91e0e3716" alt="Screenshot 2023-12-31 at 21-42-37 Lesan Playground" /></p>
 <p>also use <code>addCity</code>, <code>updateCity</code>, <code>addCities</code>, <code>getCities</code> and <code>addCityCountry</code> for city model:
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/caf69ec5-44fc-4f14-82fd-335e87a04b38" alt="Screenshot 2023-12-31 at 22-03-07 Lesan Playground" /></p>
 <p>and also use <code>addUser</code>, <code>addUsers</code>, <code>addUserLivedCities</code>, <code>addUserCountry</code>, <code>addUserCities</code>, <code>addMostLovedCity</code>, <code>removeMostLovedCity</code>, <code>removeLivedCities</code>, <code>updateUser</code>, <code>getUser</code> and <code>getUsers</code> for user model:</p>
@@ -573,7 +573,7 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 <p>create new city with <code>main</code> → <code>city</code> → <code>addCity</code>:
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/f7abbf20-4e6e-4372-a936-a1a715016663" alt="Screenshot 2024-01-04 at 14-20-22 Lesan Playground" /></p>
 <ol>
-<li>here we used <code>iranId</code> the captured variable we get from request number 2 response. </li>
+<li>here we used <code>iranId</code> the captured variable we get from request number 2 response.</li>
 <li>we captured <code>body._id</code> with the <code>haratId</code> from response.</li>
 </ol>
 </li>
@@ -582,7 +582,7 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/4d0de202-f206-4ab4-9888-7fdba54484e7" alt="Screenshot 2024-01-04 at 14-42-12 Lesan Playground" /></p>
 <ol>
 <li>here we insert an array of <code>city</code> for <code>multiCities</code> key inside <code>set</code> object.</li>
-<li>here we used <code>iraqId</code> the captured variable we get from request number 2 response. </li>
+<li>here we used <code>iraqId</code> the captured variable we get from request number 2 response.</li>
 </ol>
 </li>
 <li>
@@ -590,7 +590,7 @@ Let us see all the parts of this E2E test one by one (The point is that in almos
 <img src="https://github.com/MiaadTeam/lesan/assets/6236123/0f1e1049-0ac2-4306-87e2-150c36e7232f" alt="Screenshot 2024-01-04 at 14-56-21 Lesan Playground" /></p>
 <ol>
 <li>here we insert an array of <code>city</code> for <code>multiCities</code> key inside <code>set</code> object. We also used <code>faker</code> here.</li>
-<li>here we used <code>afghanId</code> the captured variable we get from request number 2 response. </li>
+<li>here we used <code>afghanId</code> the captured variable we get from request number 2 response.</li>
 </ol>
 </li>
 <li>

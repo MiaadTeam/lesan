@@ -185,7 +185,7 @@
 <p>Updating is the most challenging issue in <strong>Lesan</strong>. Because by updating <code>one</code> document, <code>thousands</code> or maybe <code>millions</code> of other documents may also be updated. Don't worry, this is done automatically by <strong>Lesan</strong>. And also for complex scenarios where <code>millions</code> of documents need to be updated, we have created various solutions.</p>
 <p>Let's explore a few scenarios.</p>
 <ul>
-<li>Best case &quot;Update <code>a user</code>&quot;:</li>
+<li>Best case "Update <code>a user</code>":</li>
 </ul>
 <pre><code class="language-ts">const updateUserValidator = () =&gt; {
   return object({
@@ -194,7 +194,7 @@
       name: optional(string()),
       age: optional(number()),
     }),
-    get: coreApp.schemas.selectStruct(&quot;user&quot;, 1),
+    get: coreApp.schemas.selectStruct("user", 1),
   });
 };
 const updateUser: ActFn = async (body) =&gt; {
@@ -210,8 +210,8 @@ const updateUser: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;user&quot;,
-  actName: &quot;updateUser&quot;,
+  schema: "user",
+  actName: "updateUser",
   validator: updateUserValidator(),
   fn: updateUser,
 });
@@ -234,7 +234,7 @@ If we set the <code>order</code> of saving this list of 50 items based on a <cod
 <p>The <em>replaced</em> <strong>user id</strong> is like below picture.</p>
 <img width="1680" alt="e2e sequence" src="https://github.com/MiaadTeam/lesan/assets/96171913/d3278025-daa9-47a2-b441-df8c9b52cec0">
 <ul>
-<li>Worse case &quot;Update <code>a country</code>&quot;:</li>
+<li>Worse case "Update <code>a country</code>":</li>
 </ul>
 <pre><code class="language-ts">const updateCountryValidator = () =&gt; {
   return object({
@@ -244,7 +244,7 @@ If we set the <code>order</code> of saving this list of 50 items based on a <cod
       abb: optional(string()),
       population: optional(number()),
     }),
-    get: coreApp.schemas.selectStruct(&quot;country&quot;, 1),
+    get: coreApp.schemas.selectStruct("country", 1),
   });
 };
 const updateCountry: ActFn = async (body) =&gt; {
@@ -261,8 +261,8 @@ const updateCountry: ActFn = async (body) =&gt; {
   });
 };
 coreApp.acts.setAct({
-  schema: &quot;country&quot;,
-  actName: &quot;updateCountry&quot;,
+  schema: "country",
+  actName: "updateCountry",
   validator: updateCountryValidator(),
   fn: updateCountry,
 });
@@ -303,36 +303,36 @@ But if we convert the <code>population</code> field into a <code>new schema</cod
 Pay attention to the following code:</p>
 <pre><code class="language-ts">const populationPure = {
   population: number(),
-  type: enums([&quot;City&quot;, &quot;Country&quot;]),
+  type: enums(["City", "Country"]),
 };
 
 const populationRelations = {
   country: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       populations: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
   },
   city: {
     optional: false,
-    schemaName: &quot;country&quot;,
-    type: &quot;single&quot; as RelationDataType,
+    schemaName: "country",
+    type: "single" as RelationDataType,
     relatedRelations: {
       populations: {
-        type: &quot;multiple&quot; as RelationDataType,
+        type: "multiple" as RelationDataType,
         limit: 50,
         sort: {
-          field: &quot;_id&quot;,
-          order: &quot;desc&quot; as RelationSortOrderType,
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
         },
       },
     },
@@ -340,7 +340,7 @@ const populationRelations = {
 };
 
 const populations = coreApp.odm.newModel(
-  &quot;population&quot;,
+  "population",
   populationPure,
   populationRelations
 );
