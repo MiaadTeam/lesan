@@ -1,9 +1,12 @@
-import { ensureDir } from "../mod.ts";
+import { Acts, ensureDir, Services } from "../mod.ts";
 import { createStruct } from "../models/mod.ts";
 import { schemas as schemaFns, TSchemas } from "../models/mod.ts";
 import { generateTypesFromStruct } from "./generateTypesFromStruct.ts";
 
-export const generateSchemTypes = async (schemasObj: TSchemas) => {
+export const generateSchemTypes = async (
+  schemasObj: TSchemas,
+  actsObj: Services,
+) => {
   const schemas = schemaFns(schemasObj).getSchemas();
 
   let str = "";
@@ -36,6 +39,40 @@ export const generateSchemTypes = async (schemasObj: TSchemas) => {
     };\n
 `;
   }
+
+  str = str + `
+    export type ReqType = {\n
+  `;
+  for (const service in actsObj) {
+    if (typeof actsObj[service] === "object") {
+      str = str + `
+        ${service}: {\n
+      `;
+      for (const model in actsObj[service] as Acts) {
+        str = str + `
+        ${model}: {\n
+      `;
+        for (const fn in (actsObj[service] as Acts)[model]) {
+          str = str + `
+            ${fn}: ${
+            generateTypesFromStruct({
+              schemaStruct: (actsObj[service] as Acts)[model][fn].validator,
+            })
+          }
+          `;
+        }
+        str = str + `
+          }\n
+        `;
+      }
+      str = str + `
+        }\n
+      `;
+    }
+  }
+  str = str + `
+    }\n
+  `;
 
   await ensureDir("./declarations");
   await Deno.writeTextFile("./declarations/selectInp.ts", str);
