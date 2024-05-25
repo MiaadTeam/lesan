@@ -36,10 +36,11 @@ export const generateTypesFromStruct = (
     let currentCount = 0;
     for (const key in schemaStruct.schema as Object) {
       currentCount++;
+      const keyValue = isNaN(key as any) ? `"${key}"` : Number(key);
       if (currentCount === propertyCount) {
-        returnStr = returnStr + `"${key}" `;
+        returnStr = returnStr + `${keyValue} `;
       } else {
-        returnStr = returnStr + `"${key}" | `;
+        returnStr = returnStr + `${keyValue} | `;
       }
     }
     returnStr = returnStr +
