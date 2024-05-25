@@ -40,7 +40,7 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
     typeGeneration: false,
     staticPath: [],
   }) => {
-    typeGeneration && (await generateSchemTypes(schemasObj));
+    typeGeneration && (await generateSchemTypes(schemasObj, actsObj));
     const handler = async (request: Request): Promise<Response> => {
       try {
         if (request.method === "OPTIONS") {
