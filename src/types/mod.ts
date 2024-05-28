@@ -33,7 +33,6 @@ export const generateSchemTypes = async (
     const schemaStruct = createStruct(schemas, schema);
 
     str = str + `
-    export const ${schema}Strutct = ${JSON.stringify(schemaStruct, null, 2)};\n
     export type ${schema}Schema = ${
       generateTypesFromStruct({ schemaStruct })
     };\n
@@ -71,7 +70,55 @@ export const generateSchemTypes = async (
     }
   }
   str = str + `
-    }\n
+    };\n
+  `;
+
+  str = str + `
+export const lesanApi = (
+	{ URL, settings, baseHeaders }: {
+		URL: string;
+		settings?: Record<string, any>;
+		baseHeaders?: Record<string, any>;
+	},
+) => {
+	const setting = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			...baseHeaders,
+		},
+		...settings,
+	};
+
+	const send = async <
+		TService extends keyof ReqType,
+		TModel extends keyof ReqType[TService],
+		TAct extends keyof ReqType[TService][TModel],
+		TSet extends Partial<ReqType[TService][TModel][TAct]["set"]>,
+		TGet extends Partial<ReqType[TService][TModel][TAct]["get"]>,
+	>(body: {
+		service?: TService;
+		model: TModel;
+		act: TAct;
+		details: {
+			set: TSet;
+			get: TGet;
+		};
+	}, additionalHeaders?: Record<string, any>) => {
+		const req = await fetch(URL, {
+			...setting,
+			headers: {
+				...setting.headers,
+				...additionalHeaders,
+			},
+			body: JSON.stringify(body),
+		});
+
+		return await req.json();
+	};
+
+	return { send };
+};\n
   `;
 
   await ensureDir("./declarations");
