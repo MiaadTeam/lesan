@@ -90,6 +90,15 @@ export const lesanApi = (
 		...settings,
 	};
 
+	const setHeaders = (headers: Record<string, any>) => {
+		setting.headers = {
+			...setting.headers,
+			...headers,
+		};
+	};
+
+	const getSetting = () => setting;
+
 	const send = async <
 		TService extends keyof ReqType,
 		TModel extends keyof ReqType[TService],
@@ -106,9 +115,9 @@ export const lesanApi = (
 		};
 	}, additionalHeaders?: Record<string, any>) => {
 		const req = await fetch(URL, {
-			...setting,
+			...getSetting(),
 			headers: {
-				...setting.headers,
+				...getSetting().headers,
 				...additionalHeaders,
 			},
 			body: JSON.stringify(body),
@@ -117,7 +126,7 @@ export const lesanApi = (
 		return await req.json();
 	};
 
-	return { send };
+	return { send, setHeaders };
 };\n
   `;
 
