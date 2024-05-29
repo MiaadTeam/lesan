@@ -74,6 +74,10 @@ export const generateSchemTypes = async (
   `;
 
   str = str + `
+type DeepPartial<T> = {
+	[P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
 export const lesanApi = (
 	{ URL, settings, baseHeaders }: {
 		URL: string;
@@ -103,8 +107,8 @@ export const lesanApi = (
 		TService extends keyof ReqType,
 		TModel extends keyof ReqType[TService],
 		TAct extends keyof ReqType[TService][TModel],
-		TSet extends Partial<ReqType[TService][TModel][TAct]["set"]>,
-		TGet extends Partial<ReqType[TService][TModel][TAct]["get"]>,
+		TSet extends DeepPartial<ReqType[TService][TModel][TAct]["set"]>,
+		TGet extends DeepPartial<ReqType[TService][TModel][TAct]["get"]>,
 	>(body: {
 		service?: TService;
 		model: TModel;
