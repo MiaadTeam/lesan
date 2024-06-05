@@ -5,7 +5,7 @@ import { addCorsObj } from "../server/cors.ts";
 import { parsBody, TLesanBody } from "./mod.ts";
 
 const runPreHooks = async (preActs: Function[]) => {
-  for (const func of preActs) {
+  for await (const func of preActs) {
     await func();
   }
 };
@@ -36,15 +36,18 @@ export const lesanFns = (actsObj: Services) => {
     );
 
     act.preValidation && await runPreHooks(act.preValidation);
-    body = contextFns.getContextModel().body!;
 
-    act.validationRunType === "create"
-      ? create(body.details, act.validator)
-      : assert(body.details, act.validator);
-    body = contextFns.getContextModel().body!;
+    if (act.validationRunType === "create") {
+      const createdDetails = await create(body.details, act.validator);
+      body = {
+        ...body,
+        details: createdDetails,
+      };
+    } else {
+      assert(body.details, act.validator);
+    }
 
     act.preAct && await runPreHooks(act.preAct);
-    body = contextFns.getContextModel().body!;
 
     return await act.fn(body);
   };
@@ -183,8 +186,10 @@ export const lesanFns = (actsObj: Services) => {
       return await checkServices(req, port);
     };
 
+    const RS = await response();
+
     return new Response(
-      JSON.stringify({ body: await response(), success: true }),
+      JSON.stringify({ body: RS, success: true }),
       {
         headers: {
           ...addCorsObj(cors, req.headers.get("origin")),
