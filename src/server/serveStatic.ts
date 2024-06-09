@@ -55,6 +55,6 @@ export const serveStatic = async (
 ) => {
   const url = new URL(req.url);
   return playground && url.pathname === "/playground"
-    ? await runPlayground(url)
+    ? runPlayground(url)
     : await checkStaticPath(req, url, staticPath, schemasObj, actsObj);
 };
