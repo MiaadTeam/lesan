@@ -1,5 +1,4 @@
 import { Services } from "../acts/mod.ts";
-import { serve } from "../deps.ts";
 import { TSchemas } from "../models/mod.ts";
 import { generateSchemTypes } from "../types/mod.ts";
 import { lesanFns } from "../utils/mod.ts";
@@ -95,8 +94,7 @@ ${
           : ""
       }\n`,
     );
-    await serve(handler, { port });
-    // playground && runPlayground();
+    Deno.serve({ port }, handler);
   };
   return runServer;
 };
