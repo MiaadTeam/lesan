@@ -8,21 +8,12 @@ import {
 } from "../../npmDeps.ts";
 import { IRelationsFileds } from "../../mod.ts";
 import { createProjection } from "../../models/createProjection.ts";
-import { schemaFns, TSchemas } from "../../models/mod.ts";
+import { schemaFns, TInsertRelations, TSchemas } from "../../models/mod.ts";
 import { throwError } from "../../utils/mod.ts";
 import { Projection } from "../aggregation/type.ts";
 import { findOne } from "../find/findOne.ts";
 import { find } from "../find/find.ts";
 import { filterDocsByProjection } from "../utils/filterDocsByProjection.ts";
-
-export type TInsertRelations<T extends IRelationsFileds> = {
-  [mainKey in keyof T]?: {
-    _ids: ObjectId | ObjectId[];
-    relatedRelations?: {
-      [key in keyof T[mainKey]["relatedRelations"]]: boolean;
-    };
-  };
-};
 
 export const insertMany = async <
   TR extends IRelationsFileds,

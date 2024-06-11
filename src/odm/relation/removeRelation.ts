@@ -1,7 +1,11 @@
 import { Db, Document, Filter, ObjectId } from "../../npmDeps.ts";
-import { IRelationsFileds, schemaFns, TSchemas } from "../../models/mod.ts";
+import {
+  IRelationsFileds,
+  schemaFns,
+  TInsertRelations,
+  TSchemas,
+} from "../../models/mod.ts";
 import { Projection } from "../aggregation/type.ts";
-import { TInsertRelations } from "../insert/insertOne.ts";
 import { throwError } from "../../utils/throwError.ts";
 import { createProjection } from "../../models/createProjection.ts";
 import { filterDocByProjection } from "../utils/filterDocByProjection.ts";

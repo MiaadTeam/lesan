@@ -1,4 +1,4 @@
-import { Struct } from "../npmDeps.ts";
+import { ObjectId, Struct } from "../npmDeps.ts";
 
 /**
  * PureModel is interface of pure feature,
@@ -38,6 +38,15 @@ export interface TRelation {
 export interface IRelationsFileds {
   [key: string]: TRelation;
 }
+
+export type TInsertRelations<T extends IRelationsFileds> = {
+  [mainKey in keyof T]?: {
+    _ids: ObjectId | ObjectId[];
+    relatedRelations?: {
+      [key in keyof T[mainKey]["relatedRelations"]]: boolean;
+    };
+  };
+};
 
 /**
  * if schema has relation with other schema and in SQL that we keep foreign key.

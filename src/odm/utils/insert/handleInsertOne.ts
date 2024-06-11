@@ -1,5 +1,9 @@
-import { Db, IModel, IRelationsFileds } from "../../../mod.ts";
-import { TInsertRelations } from "../../insert/insertOne.ts";
+import {
+  Db,
+  IModel,
+  IRelationsFileds,
+  TInsertRelations,
+} from "../../../mod.ts";
 import { handleMultiRelation } from "./handleMultiRelation.ts";
 import { handleSingleRelation } from "./handleSingleRelation.ts";
 

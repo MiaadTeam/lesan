@@ -1,6 +1,11 @@
 import { Db, Document, UpdateFilter } from "../../npmDeps.ts";
-import { IModel, IRelationsFileds, ObjectId, WithId } from "../../mod.ts";
-import { TInsertRelations } from "../insert/insertOne.ts";
+import {
+  IModel,
+  IRelationsFileds,
+  ObjectId,
+  TInsertRelations,
+  WithId,
+} from "../../mod.ts";
 import { generateRemoveRelatedRelationFilter } from "./generateRemoveRelationRelationFilter.ts";
 
 export const processRemoveRelatedRelations = async <

@@ -1,9 +1,13 @@
 import { Db, Document, Filter } from "../../npmDeps.ts";
 import { createProjection } from "../../models/createProjection.ts";
-import { IRelationsFileds, schemaFns, TSchemas } from "../../models/mod.ts";
+import {
+  IRelationsFileds,
+  schemaFns,
+  TInsertRelations,
+  TSchemas,
+} from "../../models/mod.ts";
 import { throwError } from "../../utils/throwError.ts";
 import { Projection } from "../aggregation/type.ts";
-import { TInsertRelations } from "../insert/insertOne.ts";
 import { handleMultiRelation } from "../utils/insert/handleMultiRelation.ts";
 import { handleSingleRelation } from "../utils/insert/handleSingleRelation.ts";
 import { processRemoveRelatedRelations } from "../utils/processRemoveRelatedRelations.ts";

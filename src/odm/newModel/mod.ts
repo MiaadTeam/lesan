@@ -8,7 +8,12 @@ import {
   optional,
   UpdateFilter,
 } from "../../mod.ts";
-import { IPureFields, schemaFns, TSchemas } from "../../models/mod.ts";
+import {
+  IPureFields,
+  schemaFns,
+  TInsertRelations,
+  TSchemas,
+} from "../../models/mod.ts";
 import {
   BulkWriteOptions,
   CountDocumentsOptions,
@@ -27,7 +32,7 @@ import { deleteOne } from "../delete/deleteOne.ts";
 import { aggregation } from "../find/aggregation.ts";
 import { find } from "../find/find.ts";
 import { findOne } from "../find/findOne.ts";
-import { insertOne, TInsertRelations } from "../insert/insertOne.ts";
+import { insertOne } from "../insert/insertOne.ts";
 import { addRelation } from "../relation/addRelation.ts";
 import { insertMany } from "../insert/insertMany.ts";
 import { removeRelation } from "../relation/removeRelation.ts";
