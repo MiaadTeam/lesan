@@ -1,8 +1,7 @@
-import { IModel, IRelationsFileds } from "../../../mod.ts";
+import { IModel, IRelationsFileds, TInsertRelations } from "../../../mod.ts";
 import { Db, ObjectId } from "../../../npmDeps.ts";
 import { throwError } from "../../../utils/mod.ts";
 import { findOne } from "../../find/findOne.ts";
-import { TInsertRelations } from "../../insert/insertOne.ts";
 import { filterDocByProjection } from "../filterDocByProjection.ts";
 import { proccessRelatedRelation } from "./proccessRelatedRelation.ts";
 
