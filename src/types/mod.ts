@@ -123,6 +123,7 @@ export const lesanApi = (
 			headers: {
 				...getSetting().headers,
 				...additionalHeaders,
+		    connection: "keep-alive",
 			},
 			body: JSON.stringify(body),
 		});
