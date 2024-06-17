@@ -6,7 +6,7 @@
 
 Even though _**NoSQL**_ is very fast, its complexities are very troublesome for large-scale projects. On the other hand, _**GraphQL**_ shines in client-server connectivity but it has several weaknesses and is somewhat complex, adding another layer of complexity to the project. That’s why we created **LESAN**.
   
-[This video](https://youtu.be/FzMNIGanXSQ) is an introductory tutorial on **Lesan** framework in Farsi language.
+<a href="https://youtu.be/FzMNIGanXSQ" target="_blank">This video</a> is an introductory tutorial on **Lesan** framework in Farsi language.
 
 # Benchmarks
 
@@ -298,37 +298,6 @@ We handle all relationships between the data and `embed` everything. You can als
 
 # Many thanks to those who supported us
 
-<!-- <style>
-  .profiles {
-    display: flex;
-    gap: 3px;
-    padding: 1rem 5px;
-  }
-
-  .profile img{
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-  }
-
-  .profile--image {
-    width: 4rem;
-    border: 1px solid bisqu;
-  }
-</style> -->
-
-<!-- <div style="display: flex; gap: 3px; padding: 1rem 5px;">
-  <a  href="https://github.com/MCKH03">
-    <img style="width: 50px; height: 56px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/127620974?v=4" />
-  </a>
-  <a  href="https://github.com/MahdiRamezani8">
-    <img style="width: 50px; height: 56px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/110328874?v=4" />
-  </a>
-  <a  href="https://github.com/asafaeirad">
-    <img style="width: 50px; height: 56px; border-radius: 50%; width: 4rem; border: 1px solid bisqu;" src="https://avatars.githubusercontent.com/u/28571761?v=4" />
-  </a>
-</div> -->
-
 <table>
   <tbody>
     <tr>
@@ -338,6 +307,7 @@ We handle all relationships between the data and `embed` everything. You can als
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/alidavodii"><img src="https://avatars.githubusercontent.com/u/52744305?v=4?s=100" width="100px;" alt="ali davodi"/><br /><sub><b>ali davodi</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/soorenaganji"><img src="https://avatars.githubusercontent.com/u/109369184?v=4?s=100" width="100px;" alt="sorena ganji"/><br /><sub><b>sorena ganji</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://t.me/NodeMaster"><img src="https://github.com/MiaadTeam/lesan/assets/72462171/659d2c0a-6803-46a9-95a5-64f8b5f1affb" width="100px;" alt="Node Master"/><br /><sub><b>Node Master</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/asafaeirad"><img src="https://avatars.githubusercontent.com/u/28571761?v=4" width="100px;" alt="Alireza Safaierad"/><br /><sub><b>Alireza Safaierad</b></sub></a></td>
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/erfan-asadi"><img src="https://avatars.githubusercontent.com/u/50593999?v=4?s=100" width="100px;" alt="Erfan Asadi"/><br /><sub><b>Erfan Asadi</b></sub></a></td>
