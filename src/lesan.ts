@@ -18,6 +18,6 @@ export const lesan = () => {
     odm: { ...odm(schemasObj) },
     runServer: lesanServer(schemasObj, actsObj),
     contextFns,
-    generateSchemTypes: () => generateSchemTypes(schemasObj),
+    generateSchemTypes: () => generateSchemTypes(schemasObj, actsObj),
   };
 };
