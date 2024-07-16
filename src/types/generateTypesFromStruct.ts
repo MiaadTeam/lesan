@@ -8,6 +8,15 @@ export const generateTypesFromStruct = (
   },
 ) => {
   let returnStr = "";
+
+  const schemaStructValidate = schemaStruct.validate(undefined)[0];
+
+  if (schemaStructValidate === undefined || schemaStructValidate === null) {
+    if (keyname && !keyname.endsWith("?")) {
+      keyname = `${keyname}?`;
+    }
+  }
+
   if (schemaStruct.type === "object") {
     returnStr = returnStr + (keyname ? `${keyname}: {\n` : `{\n`);
     for (const key in schemaStruct.schema as Object) {
