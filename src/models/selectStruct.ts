@@ -35,7 +35,7 @@ export const selectStructFns = (schemasObj: TSchemas) => {
       };
     }
 
-    const mainRelations = (
+    const numDepthIterateRelations = (
       schema: keyof TSchemas,
       depth: number,
       pureObj: Record<string, unknown>,
@@ -45,30 +45,30 @@ export const selectStructFns = (schemasObj: TSchemas) => {
       for (const property in foundedSchema.mainRelations) {
         returnObj = {
           ...returnObj,
-          [property]: selectStruct(
+          [property]: optional(selectStruct(
             foundedSchema.mainRelations[property].schemaName,
             depth,
-          ),
+          )),
         };
       }
       for (const property in foundedSchema.relatedRelations) {
         returnObj = {
           ...returnObj,
-          [property]: selectStruct(
+          [property]: optional(selectStruct(
             foundedSchema.relatedRelations[property].schemaName,
             depth,
-          ),
+          )),
         };
       }
 
-      return optional(object(returnObj as ObjectSchema));
+      return object(returnObj as ObjectSchema);
     };
 
     const numberDepth = (depth: number, pureObj: Record<string, any>) => {
       depth--;
       return depth > -1
-        ? mainRelations(schema, depth, pureObj)
-        : optional(object(pureObj));
+        ? numDepthIterateRelations(schema, depth, pureObj)
+        : object(pureObj);
     };
 
     const objectDepth = (depth: any, pureObj: Record<string, any>) => {
@@ -79,24 +79,24 @@ export const selectStructFns = (schemasObj: TSchemas) => {
         checkRelation(depth, property) &&
           (pureObj = {
             ...pureObj,
-            [property]: selectStruct(
+            [property]: optional(selectStruct(
               foundedSchema.mainRelations[property].schemaName,
               depth[property],
-            ),
+            )),
           });
       }
       for (const property in foundedSchema.relatedRelations) {
         checkRelation(depth, property) &&
           (pureObj = {
             ...pureObj,
-            [property]: selectStruct(
+            [property]: optional(selectStruct(
               foundedSchema.relatedRelations[property].schemaName,
               depth[property],
-            ),
+            )),
           });
       }
 
-      return optional(object(pureObj));
+      return object(pureObj);
     };
 
     const completeObj = typeof depth === "number"
