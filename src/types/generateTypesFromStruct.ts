@@ -76,5 +76,10 @@ export const generateTypesFromStruct = (
       `${keyname}: boolean${postFix ? (postFix + ";") : ";"}\n`;
   }
 
+  if (schemaStruct.type === "record") {
+    returnStr = returnStr +
+      `${keyname}: Record<string, any>;\n`;
+  }
+
   return returnStr;
 };
