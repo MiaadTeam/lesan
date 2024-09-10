@@ -16,7 +16,7 @@ const checkFiles = async (req: Request, staticPath: string[]) => {
     return isInPath;
   };
   return checkPath()
-    ? await serveFile(req, `${Deno.cwd()}${url.pathname}`)
+    ? await serveFile(req, `${Deno.cwd()}${decodeURIComponent(url.pathname)}`)
     : throwError("can not serve this path");
 };
 
