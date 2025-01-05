@@ -63,41 +63,59 @@ export const newModel = <
 
   const schemas = schemaFns(schemasObj).getSchemas();
 
-  pureFields = pureFields._id ? pureFields : {
-    _id: optional(objectIdValidation),
-    ...pureFields,
-  };
-
-  const mainRelations: Record<string, IMainRelation> = {};
-  for (const relation in relations) {
-    mainRelations[relation] = {
+  const mainRelations = Object.keys(relations).reduce((acc, relation) => {
+    const mainRelation: IMainRelation = {
       schemaName: relations[relation].schemaName,
       type: relations[relation].type,
       optional: relations[relation].optional,
     };
-    relations[relation].sort &&
-      (mainRelations[relation].sort = relations[relation].sort);
+
+    if (relations[relation].sort) {
+      mainRelation.sort = relations[relation].sort;
+    }
 
     for (const relatedRelation in relations[relation].relatedRelations) {
       const iteratedRelatedRelation =
         relations[relation].relatedRelations[relatedRelation];
-      schemas[relations[relation].schemaName]
-        .relatedRelations[relatedRelation] = {
-          mainRelationName: relation,
-          mainRelationType: relations[relation].type,
-          schemaName: name,
-          type: iteratedRelatedRelation.type,
+
+      if (!schemas[relations[relation].schemaName]) {
+        schemas[relations[relation].schemaName] = {
+          pure: {},
+          relations: {},
+          mainRelations: {},
+          relatedRelations: {},
+          options: {},
         };
-      iteratedRelatedRelation.limit && (schemas[relations[relation].schemaName]
-        .relatedRelations[relatedRelation].limit =
-          iteratedRelatedRelation.limit);
-      iteratedRelatedRelation.sort && (schemas[relations[relation].schemaName]
-        .relatedRelations[relatedRelation].sort = iteratedRelatedRelation.sort);
+      }
+
+      const schema = schemas[relations[relation].schemaName];
+
+      schema.relatedRelations[relatedRelation] = {
+        mainRelationName: relation,
+        mainRelationType: relations[relation].type,
+        schemaName: name,
+        type: iteratedRelatedRelation.type,
+      };
+
+      if (iteratedRelatedRelation.limit) {
+        schema.relatedRelations[relatedRelation].limit =
+          iteratedRelatedRelation.limit;
+      }
+      if (iteratedRelatedRelation.sort) {
+        schema.relatedRelations[relatedRelation].sort =
+          iteratedRelatedRelation.sort;
+      }
     }
-  }
+
+    acc[relation] = mainRelation;
+    return acc;
+  }, {} as Record<string, IMainRelation>);
 
   schemas[name] = {
-    pure: pureFields,
+    pure: {
+      _id: optional(objectIdValidation),
+      ...pureFields,
+    },
     relations,
     mainRelations,
     relatedRelations: {},
