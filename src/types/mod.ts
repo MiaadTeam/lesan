@@ -107,7 +107,9 @@ export const lesanApi = (
 		TService extends keyof ReqType,
 		TModel extends keyof ReqType[TService],
 		TAct extends keyof ReqType[TService][TModel],
+    // @ts-ignore: Unreachable code error
 		TSet extends DeepPartial<ReqType[TService][TModel][TAct]["set"]>,
+    // @ts-ignore: Unreachable code error
 		TGet extends DeepPartial<ReqType[TService][TModel][TAct]["get"]>,
 	>(body: {
 		service?: TService;
