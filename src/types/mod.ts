@@ -9,7 +9,10 @@ export const generateSchemTypes = async (
 ) => {
   const schemas = schemaFns(schemasObj).getSchemas();
 
-  let str = "";
+  let str = `
+/* eslint-disable */
+
+  `;
 
   for (const schema in schemas) {
     str = str + `
