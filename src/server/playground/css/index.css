@@ -338,6 +338,7 @@ textarea {
 .select--sub-buttons {
   display: none;
 }
+
 .select--sub-buttons[data-show="true"] {
   display: flex;
   flex-direction: column;
@@ -488,7 +489,6 @@ textarea {
   cursor: pointer;
   background-color: rgba(70, 70, 70, 0.5);
   border: 1px solid bisque;
-  backdrop-filter: blur(10px);
   border-radius: 0 7px 7px 0;
   border-left: none;
   transition: all 0.4s;
@@ -507,7 +507,7 @@ textarea {
 .btn-modal > svg {
   position: absolute;
   right: 0.5rem;
-  transition: all 0.8s;
+  transition: all 0.4s;
 }
 
 .btn-modal > span {
@@ -969,12 +969,10 @@ textarea {
 }
 
 @keyframes success {
-  0% {
-    background-color: rgb(255, 255, 255);
-  }
-
-  50% {
-    background-color: green;
+  0%,
+  50%,
+  100% {
+    background-color: currentColor;
   }
 }
 
@@ -993,20 +991,10 @@ textarea {
 }
 
 @keyframes fail {
-  0% {
-    background-color: rgb(255, 255, 255);
-  }
-
-  50% {
-    background-color: red;
-  }
-
-  70% {
-    background-color: rgb(255, 255, 255);
-  }
-
+  0%,
+  50%,
   100% {
-    background-color: rgb(255, 255, 255);
+    background-color: currentColor;
   }
 }
 
@@ -1014,60 +1002,126 @@ textarea {
   .response-detail-buttons {
     right: 33px;
   }
+
   .fail {
     right: 10px;
   }
+
   .success {
     right: 10px;
   }
 }
 
+.empty-modal-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-modal-content h2 {
+  color: bisque;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.empty-modal-content p {
+  margin: 0.5rem 0;
+  color: #f1fa8c;
+}
+
+/* Simplified modal overlay without animations */
 .modal-overlay {
   z-index: 9999;
   width: 100vw;
   height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.79);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(1px);
+  /* Remove all expensive properties */
+  will-change: auto;
+  transform: none;
 }
 
+/* Simplified modal box without animations and filters */
+.modal-box,
 .modal-box-fullscreen {
   display: block;
-  background: rgb(80, 80, 80, 0.5);
-  width: 100%;
-  height: calc(100% - 3rem);
-  padding: 1rem;
-  border-radius: 0.8rem;
-  overflow: visible;
-  backdrop-filter: blur(10px);
-  border: 1px solid white;
-  box-sizing: border-box;
-  position: relative;
-}
-
-.modal-box {
-  display: block;
-  background: rgb(80, 80, 80, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   width: 80%;
   height: 80%;
   padding: 1rem;
-  border-radius: 0.8rem;
+  border-radius: 0.5rem;
   overflow: visible;
-  backdrop-filter: blur(10px);
+  /* Changed from hidden to visible for button visibility */
   border: 1px solid white;
   box-sizing: border-box;
   position: relative;
+  margin-top: 35px;
+  /* Increased margin to make room for buttons */
+  /* Remove all expensive properties */
+  will-change: auto;
+  transform: none;
 }
 
-.modal-content {
-  overflow-y: scroll;
+.modal-box-fullscreen {
   width: 100%;
+  height: calc(100% - 3rem);
+}
+
+/* Action modal - improved positioning */
+.action-modal {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: absolute;
+  top: -28.7px;
+  /* Move higher up */
+  right: 15px;
+  z-index: 10001;
+  /* Darker background for better visibility */
+  padding: 7px 15px;
+  /* Ensure visibility above other elements */
+  transform: translateZ(0);
+}
+
+/* Fix size and positioning of control buttons */
+.modal-close,
+.modal-fullscreen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(245, 35, 35, 0.5);
+  transition: opacity 200ms ease;
+  border: 1px solid gainsboro;
+  cursor: pointer;
+  color: #fff;
+  will-change: opacity;
+}
+
+/* Loading indicator */
+.modal-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100%;
+  color: white;
+  font-size: 1.2rem;
+  opacity: 1;
+  font-weight: bold;
 }
 
 .e2e {
@@ -1485,6 +1539,7 @@ textarea {
   display: flex;
   gap: 135px;
 }
+
 .schema-pointer {
   cursor: pointer;
 }
@@ -1503,6 +1558,7 @@ textarea {
 .proceed-child {
   display: none;
 }
+
 .open {
   display: block;
 }
@@ -1897,6 +1953,7 @@ textarea {
   padding: 5px;
   background-color: rgba(20, 20, 20, 0.1);
 }
+
 .container-re--header--icon {
   display: flex;
   position: absolute;
@@ -2085,15 +2142,6 @@ textarea {
   border-color: rgb(255, 255, 255) transparent transparent transparent;
 }
 
-.action-modal {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: absolute;
-  top: -1.35rem;
-  right: 1.5rem;
-}
-
 .modal-title {
   margin: 0 1rem;
   display: inline-block;
@@ -2122,12 +2170,11 @@ textarea {
   height: 20px;
   border-radius: 50%;
   background-color: rgba(245, 35, 35, 0.5);
-  transition: visibility 200ms ease;
+  transition: opacity 200ms ease;
   border: 1px solid gainsboro;
   cursor: pointer;
   color: #fff;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  will-change: opacity;
 }
 
 .modal-fullscreen {
@@ -2483,6 +2530,7 @@ textarea {
   background-color: gainsboro;
   color: #021307;
 }
+
 /* ------------------------ MultiSelect Component CSS ----------------------- */
 
 .multi-select__wrapper {
@@ -2669,3 +2717,49 @@ textarea {
 .multi-select__option > input {
   cursor: pointer;
 }
+
+.modal-content {
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+  /* Removed expensive properties */
+}
+
+/* Additional performance optimizations */
+
+/* Remove expensive backdrop-filter properties throughout the CSS */
+.input,
+.select--empty,
+.btn-modal,
+.btn-modal-document,
+.schema-help .tooltip-text,
+.section-add-capture__delete-button svg,
+.modal-title {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Optimize animations */
+@keyframes success {
+  0%,
+  50%,
+  100% {
+    background-color: currentColor;
+  }
+}
+
+@keyframes fail {
+  0%,
+  50%,
+  100% {
+    background-color: currentColor;
+  }
+}
+
+/* Optimize transitions - but preserve btn-modal hover effects */
+.modal-close,
+.modal-fullscreen {
+  transition: opacity 200ms ease;
+}
+
+/* Remove the transition: none from btn-modal elements */
