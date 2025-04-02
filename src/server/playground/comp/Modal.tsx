@@ -1,8 +1,7 @@
 /** @jsx h */
-import { h, useState, useRef } from "../reactDeps.ts";
+import { h, useState } from "../reactDeps.ts";
 import FullScreenExit from "./icon/Fullscreen-exit.tsx";
 import FullScreen from "./icon/Fullscreen.tsx";
-import Up2Icon from "./icon/Up2Icon.tsx";
 import DeleteIcon from "./icon/DeleteIcon.tsx";
 
 interface ModalType {
@@ -11,30 +10,15 @@ interface ModalType {
   title: string;
 }
 
+// Optimized Modal component with minimal functionality
 const Modal = (props: ModalType) => {
-  const [showBtn, setShowBtn] = useState("myBtn none");
-  const [toggleFullScreen, setToggleFullScreen] = useState<boolean>(false);
-
-  const divRef = useRef<HTMLDivElement>(null);
-
-  const scrollToTop = () => {
-    divRef.current!.scroll;
-    document.getElementById("modal")?.scroll({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const handleScroll = (event: any) => {
-    event.currentTarget.scrollTop > 20
-      ? setShowBtn("myBtn")
-      : setShowBtn("none");
-  };
+  // Use local state instead of signal to reduce complexity
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   return (
     <div className="modal-overlay" onClick={props.toggle}>
       <div
-        className={toggleFullScreen ? "modal-box-fullscreen" : "modal-box"}
+        className={isFullscreen ? "modal-box-fullscreen" : "modal-box"}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="action-modal">
@@ -43,31 +27,18 @@ const Modal = (props: ModalType) => {
           </span>
           <span
             className="modal-fullscreen"
-            onClick={() => setToggleFullScreen(!toggleFullScreen)}
+            onClick={() => setIsFullscreen(!isFullscreen)}
           >
-            {toggleFullScreen ? <FullScreenExit /> : <FullScreen />}
+            {isFullscreen ? <FullScreenExit /> : <FullScreen />}
           </span>
           <span className="modal-title">{props.title}</span>
         </div>
-        <div
-          className="modal-content"
-          id="modal"
-          ref={divRef}
-          onScroll={handleScroll}
-        >
+        <div className="modal-content" id="modal">
           {props.children}
-          <div className={showBtn}>
-            <button
-              className="myBtn-active tooltip"
-              onClick={() => scrollToTop()}
-            >
-              <Up2Icon />
-              <span className="tooltip-text">Go To Top</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
   );
 };
+
 export default Modal;

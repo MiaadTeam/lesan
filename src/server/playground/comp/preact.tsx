@@ -1,11 +1,9 @@
 /** @jsx h */
 import { Fragment, h, useEffect, useState } from "../reactDeps.ts";
+import { signal, batch } from "../reactDeps.ts";
 import { createNestedObjectsFromKeys } from "../utils/createNestedObjectsFromKeys.ts";
 import { generateFormData } from "../utils/generateFormData.ts";
-import { Act } from "./Act.tsx";
 import { MODAL_TYPES } from "./context/actionType.ts";
-import { E2E } from "./E2E.tsx";
-import { History } from "./History.tsx";
 import DocumentIcon from "./icon/DocumentIcon.tsx";
 import HistoryIcon from "./icon/HistoryIcon.tsx";
 import ReFetchIcon from "./icon/ReFetchIcon.tsx";
@@ -15,12 +13,15 @@ import TestIcon from "./icon/TestIcon.tsx";
 import { Main } from "./Main.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import Modal from "./Modal.tsx";
-import { Schema } from "./Schema.tsx";
-import { Setting } from "./Setting.tsx";
 import { useOutsideClick } from "./hooks/useOutsideClick.ts";
 
 const getSchemasAPI = ({ baseUrl }: { baseUrl: string }) =>
   fetch(`${baseUrl}playground/static/get/schemas`).then((res) => res.json());
+
+// Create signals for global state
+const showSignal = signal("");
+const mediaShowSignal = signal(false);
+const urlAddressSignal = signal("");
 
 export const Page = () => {
   const {
@@ -47,8 +48,8 @@ export const Page = () => {
     modal,
   } = useLesan();
 
-  const [show, setShow] = useState("");
-  const [mediaShow, setMediaShow] = useState(false);
+  const [modalContent, setModalContent] = useState<h.JSX.Element | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const parsedWindowUrl = () => {
     return window && window.location
@@ -56,9 +57,8 @@ export const Page = () => {
       : "http://localhost:1366/";
   };
 
-  const [urlAddress, setUrlAddress] = useState("");
   const handleClickOutside = () => {
-    setMediaShow(false);
+    mediaShowSignal.value = false;
   };
   const ref: any = useOutsideClick(handleClickOutside);
 
@@ -70,18 +70,24 @@ export const Page = () => {
   }, []);
 
   const configUrl = (address?: string) => {
-    address && setUrlAddress(address);
+    if (address) {
+      urlAddressSignal.value = address;
+    }
 
-    setService({ data: "", index: activeTab });
-    setSchema({ data: "", index: activeTab });
-    resetGetFields(activeTab);
-    resetPostFields(activeTab);
-    setFormData({ data: {}, index: activeTab });
+    batch(() => {
+      setService({ data: "", index: activeTab });
+      setSchema({ data: "", index: activeTab });
+      resetGetFields(activeTab);
+      resetPostFields(activeTab);
+      setFormData({ data: {}, index: activeTab });
+    });
 
-    getSchemasAPI({ baseUrl: address ? address : urlAddress }).then(
+    getSchemasAPI({ baseUrl: address ? address : urlAddressSignal.value }).then(
       ({ schemas, acts }) => {
-        setActsObj(acts);
-        setSchemasObj(schemas);
+        batch(() => {
+          setActsObj(acts);
+          setSchemasObj(schemas);
+        });
 
         let localTabsData = localStorage.getItem("localTabsData");
 
@@ -191,32 +197,98 @@ export const Page = () => {
   };
 
   const setFormFromHistory = (request: any) => {
-    setService({ data: request.body.service, index: activeTab });
-    setSchema({ data: request.body.model, index: activeTab });
-    setAct({ data: request.body.act, index: activeTab });
+    batch(() => {
+      setService({ data: request.body.service, index: activeTab });
+      setSchema({ data: request.body.model, index: activeTab });
+      setAct({ data: request.body.act, index: activeTab });
 
-    const actObj = (actsObj as any)[request.body.service][request.body.model][
-      request.body.act
-    ]["validator"]["schema"];
+      const actObj = (actsObj as any)[request.body.service][request.body.model][
+        request.body.act
+      ]["validator"]["schema"];
 
-    setGetFields({ data: actObj["get"]["schema"], index: activeTab });
-    setPostFields({ data: actObj["set"]["schema"], index: activeTab });
+      setGetFields({ data: actObj["get"]["schema"], index: activeTab });
+      setPostFields({ data: actObj["set"]["schema"], index: activeTab });
 
-    setResponse({ data: null, index: activeTab });
+      setResponse({ data: null, index: activeTab });
 
-    const historyFromData = generateFormData(request.body.details, {}, "");
+      const historyFromData = generateFormData(request.body.details, {}, "");
 
-    setFormData({ data: historyFromData, index: activeTab });
+      setFormData({ data: historyFromData, index: activeTab });
+    });
 
     toggleModal();
   };
 
-  return (
-    <div
-      className="cnt"
+  // Load modal content dynamically - with stable dependencies
+  useEffect(() => {
+    // If no modal, return early
+    if (!modal) {
+      setModalContent(null);
+      setIsLoading(false);
+      return;
+    }
 
-      //  onClick={() => setMediaShow(false)}
-    >
+    // Store current modal to compare in cleanup function
+    const currentModal = modal;
+
+    // Set loading state
+    setIsLoading(true);
+    let isMounted = true;
+
+    // Use setTimeout to prevent browser from hanging
+    const timeoutId = setTimeout(async () => {
+      try {
+        // Skip loading if component unmounted or modal changed
+        if (!isMounted || currentModal !== modal) return;
+
+        // Load content just once
+        let content: h.JSX.Element | null = null;
+
+        switch (currentModal) {
+          case MODAL_TYPES.HISTORY:
+            const { History } = await import("./History.tsx");
+            content = <History setFormFromHistory={setFormFromHistory} />;
+            break;
+          case MODAL_TYPES.SETTING:
+            const { Setting } = await import("./Setting.tsx");
+            content = <Setting configUrl={configUrl} />;
+            break;
+          case MODAL_TYPES.E2E_TEST:
+            const { E2E } = await import("./E2E.tsx");
+            content = <E2E baseUrl={urlAddressSignal.value} />;
+            break;
+          case MODAL_TYPES.SCHEMA:
+            const { Schema } = await import("./Schema.tsx");
+            content = <Schema />;
+            break;
+          case MODAL_TYPES.ACT:
+            const { Act } = await import("./Act.tsx");
+            content = <Act />;
+            break;
+        }
+
+        // Only update state if component is still mounted and modal hasn't changed
+        if (isMounted && currentModal === modal) {
+          setModalContent(content);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error loading modal content:", error);
+        if (isMounted && currentModal === modal) {
+          setModalContent(<div>Error loading content</div>);
+          setIsLoading(false);
+        }
+      }
+    }, 100);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [modal]); // Only depend on modal type
+
+  return (
+    <div className="cnt">
       <div className="tabs-container" style={{ display: "flex" }}>
         {tabsData.map((tab, index) => (
           <Fragment>
@@ -274,21 +346,24 @@ export const Page = () => {
           +
         </span>
       </div>
-      <Main urlAddress={urlAddress} />
+      <Main urlAddress={urlAddressSignal.value} />
 
       {/* under 768px heigh button */}
       <button
         ref={ref}
         className="media--main-btn-wrapper "
         onClick={() => {
-          setMediaShow(!mediaShow);
+          mediaShowSignal.value = !mediaShowSignal.value;
         }}
       >
         menu
       </button>
       {/*  */}
 
-      <div className="main-btn-wrapper" data-show={mediaShow === true}>
+      <div
+        className="main-btn-wrapper"
+        data-show={mediaShowSignal.value === true}
+      >
         <span className="btn btn-modal " onClick={() => configUrl()}>
           <span className="btn-modal-title">Refetch</span>
           <ReFetchIcon />
@@ -314,10 +389,13 @@ export const Page = () => {
           <span className="btn-modal-title">E2E Test</span>
           <TestIcon />
         </span>
-        <span className="  btn-modal-document" data-show={show === "document"}>
+        <span
+          className="  btn-modal-document"
+          data-show={showSignal.value === "document"}
+        >
           <span
             className="btn-modal-document--title"
-            data-show={show === "document"}
+            data-show={showSignal.value === "document"}
           >
             Document
           </span>
@@ -325,8 +403,8 @@ export const Page = () => {
         <span
           className="btn btn-modal btn-doc"
           onClick={() => setModal(MODAL_TYPES.SCHEMA)}
-          onMouseEnter={() => setShow("document")}
-          onMouseLeave={() => setShow("")}
+          onMouseEnter={() => (showSignal.value = "document")}
+          onMouseLeave={() => (showSignal.value = "")}
         >
           <span className="btn-modal-title">Schema</span>
           <SchemaIcon />
@@ -334,8 +412,8 @@ export const Page = () => {
         <span
           className="btn btn-modal btn-doc "
           onClick={() => setModal(MODAL_TYPES.ACT)}
-          onMouseEnter={() => setShow("document")}
-          onMouseLeave={() => setShow("")}
+          onMouseEnter={() => (showSignal.value = "document")}
+          onMouseLeave={() => (showSignal.value = "")}
         >
           <span className="btn-modal-title">Act</span>
           <DocumentIcon />
@@ -344,18 +422,10 @@ export const Page = () => {
 
       {modal !== null && (
         <Modal toggle={toggleModal} title={modal}>
-          {modal === MODAL_TYPES.HISTORY ? (
-            <History setFormFromHistory={setFormFromHistory} />
-          ) : modal === MODAL_TYPES.SETTING ? (
-            <Setting configUrl={configUrl} />
-          ) : modal === MODAL_TYPES.E2E_TEST ? (
-            <E2E baseUrl={urlAddress} />
-          ) : modal === MODAL_TYPES.SCHEMA ? (
-            <Schema />
-          ) : modal === MODAL_TYPES.ACT ? (
-            <Act />
+          {isLoading ? (
+            <div className="modal-loading">Loading...</div>
           ) : (
-            <Fragment></Fragment>
+            modalContent
           )}
         </Modal>
       )}

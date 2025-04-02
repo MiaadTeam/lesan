@@ -405,7 +405,6 @@ textarea {
   cursor: pointer;
   background-color: rgba(70, 70, 70, 0.5);
   border: 1px solid bisque;
-  backdrop-filter: blur(10px);
   border-radius: 0 7px 7px 0;
   border-left: none;
   transition: all 0.4s;
@@ -422,7 +421,7 @@ textarea {
 .btn-modal > svg {
   position: absolute;
   right: 0.5rem;
-  transition: all 0.8s;
+  transition: all 0.4s;
 }
 .btn-modal > span {
   opacity: 0;
@@ -797,11 +796,8 @@ textarea {
   animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }
 @keyframes success {
-  0% {
-    background-color: rgb(255, 255, 255);
-  }
-  50% {
-    background-color: green;
+  0%, 50%, 100% {
+    background-color: currentColor;
   }
 }
 .fail {
@@ -818,17 +814,8 @@ textarea {
   animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }
 @keyframes fail {
-  0% {
-    background-color: rgb(255, 255, 255);
-  }
-  50% {
-    background-color: red;
-  }
-  70% {
-    background-color: rgb(255, 255, 255);
-  }
-  100% {
-    background-color: rgb(255, 255, 255);
+  0%, 50%, 100% {
+    background-color: currentColor;
   }
 }
 @media (min-width: 760px) and (max-width: 1024px) {
@@ -842,49 +829,96 @@ textarea {
     right: 10px;
   }
 }
+.empty-modal-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 2rem;
+}
+.empty-modal-content h2 {
+  color: bisque;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+.empty-modal-content p {
+  margin: 0.5rem 0;
+  color: #f1fa8c;
+}
 .modal-overlay {
   z-index: 9999;
   width: 100vw;
   height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.79);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(1px);
+  will-change: auto;
+  transform: none;
 }
+.modal-box,
 .modal-box-fullscreen {
   display: block;
-  background: rgb(80, 80, 80, 0.5);
-  width: 100%;
-  height: calc(100% - 3rem);
-  padding: 1rem;
-  border-radius: 0.8rem;
-  overflow: visible;
-  backdrop-filter: blur(10px);
-  border: 1px solid white;
-  box-sizing: border-box;
-  position: relative;
-}
-.modal-box {
-  display: block;
-  background: rgb(80, 80, 80, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   width: 80%;
   height: 80%;
   padding: 1rem;
-  border-radius: 0.8rem;
+  border-radius: 0.5rem;
   overflow: visible;
-  backdrop-filter: blur(10px);
   border: 1px solid white;
   box-sizing: border-box;
   position: relative;
+  margin-top: 35px;
+  will-change: auto;
+  transform: none;
 }
-.modal-content {
-  overflow-y: scroll;
+.modal-box-fullscreen {
   width: 100%;
+  height: calc(100% - 3rem);
+}
+.action-modal {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: absolute;
+  top: -28.7px;
+  right: 15px;
+  z-index: 10001;
+  padding: 7px 15px;
+  transform: translateZ(0);
+}
+.modal-close,
+.modal-fullscreen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(245, 35, 35, 0.5);
+  transition: opacity 200ms ease;
+  border: 1px solid gainsboro;
+  cursor: pointer;
+  color: #fff;
+  will-change: opacity;
+}
+.modal-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100%;
+  color: white;
+  font-size: 1.2rem;
+  opacity: 1;
+  font-weight: bold;
 }
 .e2e {
   display: flex;
@@ -1741,14 +1775,6 @@ textarea {
   border-style: solid;
   border-color: rgb(255, 255, 255) transparent transparent transparent;
 }
-.action-modal {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: absolute;
-  top: -1.35rem;
-  right: 1.5rem;
-}
 .modal-title {
   margin: 0 1rem;
   display: inline-block;
@@ -1775,12 +1801,11 @@ textarea {
   height: 20px;
   border-radius: 50%;
   background-color: rgba(245, 35, 35, 0.5);
-  transition: visibility 200ms ease;
+  transition: opacity 200ms ease;
   border: 1px solid gainsboro;
   cursor: pointer;
   color: #fff;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  will-change: opacity;
 }
 .modal-fullscreen {
   background-color: rgba(66, 196, 66, 0.5);
@@ -2231,4 +2256,33 @@ textarea {
 }
 .multi-select__option > input {
   cursor: pointer;
+}
+.modal-content {
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+}
+.input,
+.select--empty,
+.btn-modal,
+.btn-modal-document,
+.schema-help .tooltip-text,
+.section-add-capture__delete-button svg,
+.modal-title {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+@keyframes success {
+  0%, 50%, 100% {
+    background-color: currentColor;
+  }
+}
+@keyframes fail {
+  0%, 50%, 100% {
+    background-color: currentColor;
+  }
+}
+.modal-close,
+.modal-fullscreen {
+  transition: opacity 200ms ease;
 }

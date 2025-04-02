@@ -1,1 +1,19 @@
-[{"id":"lp3z4f31nekfmgjdh6","bodyHeaders":"{\n  \"headers\": {\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"\"\n  },\n  \"body\": {\n    \"service\": \"main\",\n    \"model\": \"country\",\n    \"act\": \"addCountry\",\n    \"details\": {\n      \"get\": {\n        \"_id\": 1,\n        \"name\": 1,\n        \"population\": 1,\n        \"abb\": 1\n      },\n      \"set\": {\n        \"name\": \"{faker.lorem.word({ 'length': { 'min': 5, 'max': 7 }, 'strategy': 'fail' })}\",\n        \"population\": \"{faker.number.int({ 'min': 1000000, 'max': 10000000 })}\",\n        \"abb\": \"{faker.location.countryCode('alpha-3')}\"\n      }\n    }\n  }\n}","repeat":15,"captures":[{"key":"countryId","value":"[body][_id]"}]},{"id":"lp34327plwj1mwubjvc","bodyHeaders":"{\n  \"headers\": {\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"\"\n  },\n  \"body\": {\n    \"service\": \"main\",\n    \"model\": \"city\",\n    \"act\": \"addCity\",\n    \"details\": {\n      \"get\": {\n        \"_id\": 1,\n        \"name\": 1\n      },\n      \"set\": {\n        \"name\": \"{faker.lorem.word({ 'length': { 'min': 5, 'max': 7 }, 'strategy': 'fail' })}\",\n        \"population\": 15315,\n        \"abb\": \"123\",\n        \"country\": \"{countryId}\"\n      }\n    }\n  }\n}","repeat":1,"captures":[]}]
+[
+  {
+    "id": "lp3z4f31nekfmgjdh6",
+    "bodyHeaders": "{\n  \"headers\": {\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"\"\n  },\n  \"body\": {\n    \"service\": \"main\",\n    \"model\": \"country\",\n    \"act\": \"addCountry\",\n    \"details\": {\n      \"get\": {\n        \"_id\": 1,\n        \"name\": 1,\n        \"population\": 1,\n        \"abb\": 1\n      },\n      \"set\": {\n        \"name\": \"{faker.lorem.word({ 'length': { 'min': 5, 'max': 7 }, 'strategy': 'fail' })}\",\n        \"population\": \"{faker.number.int({ 'min': 1000000, 'max': 10000000 })}\",\n        \"abb\": \"{faker.location.countryCode('alpha-3')}\"\n      }\n    }\n  }\n}",
+    "repeat": 15,
+    "captures": [
+      {
+        "key": "countryId",
+        "value": "[body][_id]"
+      }
+    ]
+  },
+  {
+    "id": "lp34327plwj1mwubjvc",
+    "bodyHeaders": "{\n  \"headers\": {\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"\"\n  },\n  \"body\": {\n    \"service\": \"main\",\n    \"model\": \"city\",\n    \"act\": \"addCity\",\n    \"details\": {\n      \"get\": {\n        \"_id\": 1,\n        \"name\": 1\n      },\n      \"set\": {\n        \"name\": \"{faker.lorem.word({ 'length': { 'min': 5, 'max': 7 }, 'strategy': 'fail' })}\",\n        \"population\": 15315,\n        \"abb\": \"123\",\n        \"country\": \"{countryId}\"\n      }\n    }\n  }\n}",
+    "repeat": 1,
+    "captures": []
+  }
+]
