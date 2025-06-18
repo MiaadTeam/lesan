@@ -81,5 +81,17 @@ export const generateTypesFromStruct = (
       `${keyname}: Record<string, any>;\n`;
   }
 
+  if (schemaStruct.type === "tuple") {
+    returnStr = returnStr +
+      `${keyname}: any[];\n`;
+  }
+
+  if (schemaStruct.type === "literal") {
+    returnStr = returnStr +
+      `${keyname}: "${schemaStruct.schema}"${
+        postFix ? (postFix + ";") : ";"
+      }\n`;
+  }
+
   return returnStr;
 };
