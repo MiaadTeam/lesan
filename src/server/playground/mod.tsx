@@ -6,13 +6,25 @@ export const getCSSFile = async () => {
     const url = new URL("./css/index.css", import.meta.url);
     const data = await Deno.readTextFile(url);
     return new Response(data, {
-      headers: { "content-type": "text/css" },
+      headers: {
+        "content-type": "text/css",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Max-Age": "86400", // 24 hours
+      },
     });
   };
 
   const getConstCss = () => {
     return new Response(bundleCss, {
-      headers: { "content-type": "text/css" },
+      headers: {
+        "content-type": "text/css",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Max-Age": "86400", // 24 hours
+      },
     });
   };
 
@@ -30,7 +42,13 @@ export const getClientReact = async () => {
   const { code } = result;
 
   return new Response(code, {
-    headers: { "content-type": "application/javascript" },
+    headers: {
+      "content-type": "application/javascript",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Max-Age": "86400", // 24 hours
+    },
   });
 };
 
@@ -40,7 +58,13 @@ export const getJSFile = async () => {
     // const data = await Deno.readTextFile(url);
 
     return new Response(bundleTs, {
-      headers: { "content-type": "application/javascript" },
+      headers: {
+        "content-type": "application/javascript",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Max-Age": "86400", // 24 hours
+      },
     });
   };
 
@@ -49,9 +73,7 @@ export const getJSFile = async () => {
     : await getBundle();
 };
 
-export const runPlayground = (
-  url: URL,
-) => {
+export const runPlayground = (url: URL) => {
   const getSsrReact = () => {
     const html = `<!DOCTYPE html>
       <html lang="en">
@@ -68,7 +90,13 @@ export const runPlayground = (
       </html>`;
 
     return new Response(html, {
-      headers: { "content-type": "text/html; charset=utf-8" },
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Max-Age": "86400", // 24 hours
+      },
     });
   };
   return getSsrReact();

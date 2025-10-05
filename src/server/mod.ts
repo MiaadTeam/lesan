@@ -2,7 +2,7 @@ import { Services } from "../acts/mod.ts";
 import { TSchemas } from "../models/mod.ts";
 import { generateSchemTypes } from "../types/mod.ts";
 import { lesanFns } from "../utils/mod.ts";
-import { addCors, addCorsObj } from "./cors.ts";
+import { addCors } from "./cors.ts";
 import { serveStatic } from "./serveStatic.ts";
 
 function replacer(key: any, value: any) {
@@ -64,7 +64,7 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
           "Content-Type": "application/json",
         };
         headers = {
-          ...addCorsObj(cors, request.headers.get("origin")),
+          ...addCors(cors, request.headers.get("origin")),
           ...headers,
         };
 

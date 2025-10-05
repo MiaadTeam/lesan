@@ -1,7 +1,7 @@
 import { acts, Services } from "../acts/mod.ts";
 import { contextFns } from "../context.ts";
 import { assert, create, enums } from "../npmDeps.ts";
-import { addCorsObj } from "../server/cors.ts";
+import { addCors } from "../server/cors.ts";
 import { parsBody, TLesanBody } from "./mod.ts";
 
 const runPreHooks = async (preActs: Function[]) => {
@@ -192,7 +192,7 @@ export const lesanFns = (actsObj: Services) => {
       JSON.stringify({ body: RS, success: true }),
       {
         headers: {
-          ...addCorsObj(cors, req.headers.get("origin")),
+          ...addCors(cors, req.headers.get("origin")),
           "Content-Type": "application/json",
         },
       },
