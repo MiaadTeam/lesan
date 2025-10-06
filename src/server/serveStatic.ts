@@ -15,18 +15,43 @@ const checkFiles = async (req: Request, staticPath: string[]) => {
     const isInPath = staticPath.some((path) => url.pathname.startsWith(path));
     return isInPath;
   };
-  return checkPath()
-    ? await serveFile(req, `${Deno.cwd()}${decodeURIComponent(url.pathname)}`)
-    : throwError("can not serve this path");
+  if (checkPath()) {
+    // Get the original response from serveFile
+    const fileResponse = await serveFile(
+      req,
+      `${Deno.cwd()}${decodeURIComponent(url.pathname)}`,
+    );
+
+    // Create a new response with CORS headers
+    const headers = new Headers(fileResponse.headers);
+    headers.set("Access-Control-Allow-Origin", "*");
+    headers.set(
+      "Access-Control-Allow-Methods",
+      "GET, HEAD, PUT, POST, DELETE, OPTIONS",
+    );
+    headers.set("Access-Control-Allow-Headers", "*");
+    headers.set("Access-Control-Max-Age", "86400"); // 24 hours
+
+    return new Response(fileResponse.body, {
+      status: fileResponse.status,
+      statusText: fileResponse.statusText,
+      headers: headers,
+    });
+  } else {
+    return throwError("can not serve this path");
+  }
 };
 
 const getSchemas = (schemasObj: TSchemas, actsObj: Services) => {
-  return new Response(
-    JSON.stringify({ schemas: schemasObj, acts: actsObj }),
-    {
-      headers: { "content-type": "application/json" },
+  return new Response(JSON.stringify({ schemas: schemasObj, acts: actsObj }), {
+    headers: {
+      "content-type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Max-Age": "86400", // 24 hours
     },
-  );
+  });
 };
 const checkStaticPath = async (
   req: Request,
@@ -54,6 +79,20 @@ export const serveStatic = async (
   staticPath: string[],
 ) => {
   const url = new URL(req.url);
+
+  // Handle OPTIONS requests for CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Max-Age": "86400", // 24 hours
+      },
+    });
+  }
+
   return playground && url.pathname === "/playground"
     ? runPlayground(url)
     : await checkStaticPath(req, url, staticPath, schemasObj, actsObj);
