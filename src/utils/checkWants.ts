@@ -55,55 +55,93 @@ const decodeBody = async (req: Request): Promise<TLesanBody> => {
    * @example we recommend to use postman or other client lib fot handling boundary field and other fields
    */
   const decodeMultiPartBody = async () => {
-    // finds boundary of form data
-    // const boundary = contentType.match(/boundary=([^\s]+)/)?.[1];
+    // Extract boundary from content-type
+    const boundaryMatch = contentType.match(/boundary=([^;]+)/);
+    const boundary = boundaryMatch ? boundaryMatch[1] : null;
+
+    if (!boundary) {
+      console.warn("No boundary found in multipart/form-data request");
+    }
 
     const getFileFormData: () => Promise<TLesanBody> = async () => {
-      const fd = await req.formData();
-      // for (const f of fd.entries()) {
-      //   if (!(f[1] instanceof File)) {
-      //     continue;
-      //   }
-      //   const fileData = new Uint8Array(await f[1].arrayBuffer());
-      //   await Deno.writeFile("./files/" + f[1].name, fileData);
-      // }
-      const returnBody: (body: string) => TLesanBody = (body) => {
-        const parsedBody = JSON.parse(body) as TLesanBody;
-        parsedBody &&
-          parsedBody.details &&
-          parsedBody.details.set &&
-          (parsedBody.details.set = {
-            ...parsedBody.details.set,
-            formData: fd,
-          });
-        return parsedBody;
-      };
+      try {
+        const fd = await req.formData();
 
-      const body = fd.get("lesan-body") ? fd.get("lesan-body") as string : "{}";
+        const returnBody: (body: string) => TLesanBody = (body) => {
+          try {
+            const parsedBody = JSON.parse(body) as TLesanBody;
+            if (parsedBody && parsedBody.details && parsedBody.details.set) {
+              parsedBody.details.set = {
+                ...parsedBody.details.set,
+                formData: fd,
+              };
+            } else {
+              console.warn(
+                "Parsed body structure is not as expected:",
+                parsedBody,
+              );
+            }
+            return parsedBody;
+          } catch (e) {
+            console.error("Error parsing body JSON:", e);
+            return throwError("Invalid JSON in lesan-body field");
+          }
+        };
 
-      return body
-        ? returnBody(body)
-        : throwError("somthing wrong with your file");
+        const body = fd.get("lesan-body")
+          ? fd.get("lesan-body") as string
+          : "{}";
+
+        return body
+          ? returnBody(body)
+          : throwError("Something wrong with your file upload");
+      } catch (err) {
+        console.error("Error processing multipart/form-data:", err);
+        throw err;
+      }
     };
 
     return req.body
       ? await getFileFormData()
-      : throwError("Your body is incorrect");
+      : throwError("Your request body is incorrect or empty");
   };
 
   const contentType = req.headers.get("content-type") || "";
-  return contentType.includes("application/json")
-    ? await decodeJsonBody()
-    : contentType.includes("multipart/form-data")
-    ? await decodeMultiPartBody()
-    : throwError("content type is not correct");
+
+  try {
+    if (contentType.includes("application/json")) {
+      return await decodeJsonBody();
+    } else if (contentType.includes("multipart/form-data")) {
+      return await decodeMultiPartBody();
+    } else {
+      return throwError(
+        `Unsupported content type: ${contentType}. Expected application/json or multipart/form-data`,
+      );
+    }
+  } catch (error) {
+    console.error(`Error processing ${contentType} request:`, error);
+    throw error;
+  }
 };
 
 export const parsBody = async (req: Request, port: number) => {
-  const parsedBody = async () => await decodeBody(req);
-  const url = req.url.split(`${port}`)[1];
+  const parsedBody = async () => {
+    try {
+      return await decodeBody(req);
+    } catch (error) {
+      console.error("Error decoding body:", error);
+      throw error;
+    }
+  };
 
-  return req.method === "POST" && url === "/lesan"
-    ? await parsedBody()
-    : throwError("you most send a post request to /lesan url");
+  const url = new URL(req.url);
+  const path = url.pathname;
+
+  if (req.method === "POST" && path === "/lesan") {
+    return await parsedBody();
+  } else {
+    return throwError(
+      `Invalid request: Expected POST to /lesan, got ${req.method} to ${path}`,
+    );
+  }
 };

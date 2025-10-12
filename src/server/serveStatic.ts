@@ -2,6 +2,7 @@ import { serveFile } from "../deps.ts";
 import { Services } from "../mod.ts";
 import { TSchemas } from "../models/mod.ts";
 import { throwError } from "../utils/throwError.ts";
+import { addCors } from "./cors.ts";
 import {
   getClientReact,
   getCSSFile,
@@ -23,34 +24,30 @@ const checkFiles = async (req: Request, staticPath: string[]) => {
     );
 
     // Create a new response with CORS headers
-    const headers = new Headers(fileResponse.headers);
-    headers.set("Access-Control-Allow-Origin", "*");
-    headers.set(
-      "Access-Control-Allow-Methods",
-      "GET, HEAD, PUT, POST, DELETE, OPTIONS",
-    );
-    headers.set("Access-Control-Allow-Headers", "*");
-    headers.set("Access-Control-Max-Age", "86400"); // 24 hours
+    const origin = req.headers.get("origin");
 
     return new Response(fileResponse.body, {
       status: fileResponse.status,
       statusText: fileResponse.statusText,
-      headers: headers,
+      headers: {
+        ...fileResponse.headers,
+        ...addCors(
+          "*",
+          origin,
+          fileResponse.headers.get("Content-Type") || undefined,
+        ),
+      },
     });
   } else {
     return throwError("can not serve this path");
   }
 };
 
-const getSchemas = (schemasObj: TSchemas, actsObj: Services) => {
+const getSchemas = (schemasObj: TSchemas, actsObj: Services, req: Request) => {
+  const origin = req.headers.get("origin");
+  const corsHeaders = addCors("*", origin, "application/json");
   return new Response(JSON.stringify({ schemas: schemasObj, acts: actsObj }), {
-    headers: {
-      "content-type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "*",
-      "Access-Control-Max-Age": "86400", // 24 hours
-    },
+    headers: corsHeaders,
   });
 };
 const checkStaticPath = async (
@@ -67,7 +64,7 @@ const checkStaticPath = async (
     : url.pathname === `/playground/static/bundle.js`
     ? await getJSFile()
     : url.pathname === `/playground/static/get/schemas`
-    ? getSchemas(schemasObj, actsObj)
+    ? getSchemas(schemasObj, actsObj, req)
     : await checkFiles(req, staticPath);
 };
 
@@ -82,14 +79,12 @@ export const serveStatic = async (
 
   // Handle OPTIONS requests for CORS preflight
   if (req.method === "OPTIONS") {
+    const origin = req.headers.get("origin");
+    const contentType = req.headers.get("content-type") || "application/json";
+    const corsHeaders = addCors("*", origin, contentType);
     return new Response(null, {
       status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Max-Age": "86400", // 24 hours
-      },
+      headers: corsHeaders,
     });
   }
 

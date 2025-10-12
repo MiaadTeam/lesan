@@ -1,6 +1,7 @@
 import { Services } from "../acts/mod.ts";
 import { TSchemas } from "../models/mod.ts";
 import { generateSchemTypes } from "../types/mod.ts";
+import { HttpError } from "../utils/HttpError.ts";
 import { lesanFns } from "../utils/mod.ts";
 import { addCors } from "./cors.ts";
 import { serveStatic } from "./serveStatic.ts";
@@ -43,9 +44,15 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
     const handler = async (request: Request): Promise<Response> => {
       try {
         if (request.method === "OPTIONS") {
+          const contentType = request.headers.get("content-type") ||
+            "application/json";
           if (cors) {
             return new Response(undefined, {
-              headers: addCors(cors, request.headers.get("origin")),
+              headers: addCors(
+                cors,
+                request.headers.get("origin"),
+                contentType,
+              ),
             });
           }
         }
@@ -59,25 +66,25 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
             staticPath || [],
           )
           : await lesanFns(actsObj).serveLesan(request, port, cors);
-      } catch (e) {
-        let headers = {
-          "Content-Type": "application/json",
-        };
+      } catch (error) {
+        const contentType = request.headers.get("content-type") ||
+          "application/json";
+        let headers = {};
         headers = {
-          ...addCors(cors, request.headers.get("origin")),
           ...headers,
+          ...addCors(cors, request.headers.get("origin"), contentType),
         };
 
         return new Response(
           JSON.stringify({
             body: {
-              message: e.message ||
+              message: (error as HttpError).message ||
                 "We do not know anything about the issue!!! sorry",
             },
             success: false,
           }, replacer),
           {
-            status: e.status || 501,
+            status: (error as HttpError).status || 501,
             headers,
           },
         );
