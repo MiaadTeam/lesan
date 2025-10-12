@@ -187,14 +187,23 @@ export const lesanFns = (actsObj: Services) => {
     };
 
     const RS = await response();
+    const contentType = req.headers.get("content-type") || "application/json";
+    let headers = {
+      "Content-Type": contentType.includes("multipart/form-data")
+        ? "application/json"
+        : contentType,
+    };
+
+    const origin = req.headers.get("origin");
+    headers = {
+      ...headers,
+      ...addCors(cors, origin, contentType),
+    };
 
     return new Response(
       JSON.stringify({ body: RS, success: true }),
       {
-        headers: {
-          ...addCors(cors, req.headers.get("origin")),
-          "Content-Type": "application/json",
-        },
+        headers,
       },
     );
   };
