@@ -33,27 +33,12 @@ export const removeRelation = async <TR extends IRelationsFileds>({
     throwError("can not find this document");
   }
 
-  const foundedDocPureProjection = createProjection(
-    schemasObj,
-    collection,
-    "Pure",
-  );
-
-  const generatedDoc: Record<string, any> = {};
-  for (const pureKey in foundedDocPureProjection) {
-    generatedDoc[pureKey] = foundedDoc![pureKey];
-  }
-  const pureDocProjection = createProjection(
-    schemasObj,
-    collection,
-    "Pure",
-  );
-
   for (const rel in relations) {
     const pureRelProjection = createProjection(
       schemasObj,
       foundedSchema.relations[rel].schemaName,
       "Pure",
+      foundedSchema.relations[rel].excludes,
     );
     if (foundedSchema.relations[rel]) {
       if (foundedSchema.relations[rel].type === "single") {
@@ -74,14 +59,11 @@ export const removeRelation = async <TR extends IRelationsFileds>({
           rel,
           relations,
           foundedDoc,
-          foundedDocPureProjection,
+          schemasObj,
           foundedSchema,
           collection,
           prevRelationDoc: foundedDoc![rel],
-          removeDoc: filterDocByProjection(
-            foundedDoc!,
-            pureDocProjection,
-          ),
+          removeDocId: foundedDoc!._id,
           relDocForUpdate: foundedDoc![rel]._id,
         });
 
@@ -101,6 +83,7 @@ export const removeRelation = async <TR extends IRelationsFileds>({
           );
         }
 
+        //TODO Allan inja daram be ezaye har relation yekbar query mongo mizanam ta az relation doc asli ro pak konam bayad bbinam toye mongo query hast ke yek dafe in kar ro anjam bedam ehtamal besyar ziad hast (aggregation)
         const relationIds = relations[rel]?._ids as ObjectId[];
 
         for (const rr in relationIds) {
@@ -123,20 +106,111 @@ export const removeRelation = async <TR extends IRelationsFileds>({
             rel,
             relations,
             foundedDoc,
-            foundedDocPureProjection,
+            schemasObj,
             foundedSchema,
             collection,
             prevRelationDoc: foundedRelationDoc,
-            removeDoc: filterDocByProjection(
-              foundedDoc!,
-              pureDocProjection,
-            ),
+            removeDocId: foundedDoc!._id,
             relDocForUpdate: foundedRelationDoc._id,
           });
         }
-        await db.collection(collection).updateOne({ _id: foundedDoc!._id }, {
-          $pull: { [rel]: { _id: { $in: relations[rel]?._ids } } },
-        });
+
+        const reachLimit =
+          foundedDoc![rel].length === foundedSchema.relations[rel].limit
+            ? true
+            : false;
+
+        //WARN I'm in the dengrouse side becuase in most cases we do not need to have two many-to-many limited relation one side of many-to-many should be unlimited always (becuase we do not have seperate table to keep all reffrence)
+        if (reachLimit && foundedDoc) {
+          const selectedRelation = foundedSchema.relations[rel];
+
+          const fieldName = selectedRelation.sort!.field;
+          const operator = selectedRelation.sort?.order === "asc"
+            ? { $gte: foundedDoc[rel][foundedDoc[rel].length - 1][fieldName] }
+            : {
+              $lte: foundedDoc[rel][foundedDoc[rel].length - 1][fieldName],
+            };
+
+          const relatedRelationFieldName =
+            Object.keys(selectedRelation.relatedRelations)[0];
+
+          const findNextRelatedRelForAdd = await db.collection(
+            selectedRelation.schemaName,
+          )
+            .find({
+              [`${relatedRelationFieldName}._id`]: foundedDoc._id,
+              [fieldName]: operator,
+            }, {
+              projection: pureRelProjection,
+              sort: {
+                [fieldName]: selectedRelation.sort?.order === "asc" ? 1 : -1,
+              },
+              limit: relationIds.length + 1,
+            }).toArray();
+
+          const updatePipeline: Document = [];
+
+          if (findNextRelatedRelForAdd) {
+            updatePipeline.push(
+              {
+                $set: {
+                  [rel]: {
+                    $setUnion: [
+                      findNextRelatedRelForAdd,
+                      `$${rel}`,
+                    ],
+                  },
+                },
+              },
+              {
+                $set: {
+                  [rel]: {
+                    $filter: {
+                      input: `$${rel}`,
+                      as: `${rel}Item`,
+                      cond: {
+                        $ne: [
+                          `$$${rel}Item._id`,
+                          relationIds[relationIds.length - 1],
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $set: {
+                  [rel]: {
+                    $sortArray: {
+                      input: `$${rel}`,
+                      sortBy: {
+                        [selectedRelation.sort!.field]:
+                          selectedRelation.sort?.order === "asc" ? 1 : -1,
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $set: {
+                  [rel]: {
+                    $slice: [`$${rel}`, selectedRelation.limit],
+                  },
+                },
+              },
+            );
+          }
+
+          await db.collection(collection).updateOne(
+            { _id: foundedDoc!._id },
+            updatePipeline,
+          );
+        } else {
+          //TODO in ghesmat bayad dorost beshe chon inja ham allan momkene limit dashte bashim va agar be limit reside bashe bayad peyda kone documet badi ro va jaygozin kone bejaye faght $pull kardan khali
+          await db.collection(collection).updateOne({ _id: foundedDoc!._id }, {
+            $pull: { [rel]: { _id: { $in: relations[rel]?._ids } } },
+          });
+        }
       }
     }
   }
