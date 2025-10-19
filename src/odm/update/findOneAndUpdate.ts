@@ -37,6 +37,15 @@ export const proccessUpdateOrDeleteRelations = async (
   const updatePipeline = [];
   for (const relatedRel in relatedRelations) {
     const actualRelatedRel = relatedRelations[relatedRel];
+
+    // injaro farda ke omadam bayad check konam bbinam daram az che document va modeli excludes migiram yani injori nabashe ke exlude male relation bashe man az RelatedRel fieldharo kam konam
+    const pureDocProjectionWithExcludes = { ...pureDocProjection };
+    if (actualRelatedRel.excludes && actualRelatedRel.excludes.length > 0) {
+      actualRelatedRel.excludes.forEach((p) =>
+        delete pureDocProjectionWithExcludes[p]
+      );
+    }
+
     if (
       actualRelatedRel.type === "single" && foundedDoc[relatedRel] &&
       foundedDoc[relatedRel]._id
@@ -102,7 +111,7 @@ export const proccessUpdateOrDeleteRelations = async (
           };
           const findNextRelatedRelForAdd = await db.collection(collection)
             .find(findNextCommand, {
-              projection: pureDocProjection,
+              projection: pureDocProjectionWithExcludes,
               sort: {
                 [fieldName]: actualRelatedRel.sort?.order === "asc" ? 1 : -1,
               },
@@ -312,6 +321,14 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
     const actualRel = foundedSchema.relations[rel];
     const relatedRelations = actualRel.relatedRelations;
 
+    const pureUpdatedDocClonedInRelForLoop = { ...pureUpdatedDoc };
+
+    if (actualRel.excludes && actualRel.excludes.length > 0) {
+      actualRel.excludes.forEach((p) =>
+        delete pureUpdatedDocClonedInRelForLoop[p]
+      );
+    }
+
     if (actualRel.type === "single") {
       if (
         updatedDocValue && updatedDocValue[rel] &&
@@ -327,7 +344,7 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
           rel,
           relatedRelations,
           foundedDoc: foundedActualRelSingleDoc!,
-          pureUpdatedDoc,
+          pureUpdatedDoc: pureUpdatedDocClonedInRelForLoop,
           pureDocProjection,
           relationSchemaName: actualRel.schemaName,
         });
@@ -355,7 +372,7 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
               rel,
               relatedRelations,
               foundedDoc: eachActualRel,
-              pureUpdatedDoc,
+              pureUpdatedDoc: pureUpdatedDocClonedInRelForLoop,
               pureDocProjection,
               relationSchemaName: actualRel.schemaName,
             });
