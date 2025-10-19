@@ -55,6 +55,12 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
     const relationSchemName = foundedSchema.relations[rel].schemaName;
     const updateId: ObjectId = foundedSingleMainRelation!._id;
 
+    const updatedDoc = { ...pureGeneratedDoc };
+
+    if (relatedRelation.excludes && relatedRelation.excludes.length > 0) {
+      relatedRelation.excludes.forEach((p) => delete updatedDoc[p]);
+    }
+
     if (
       relations && relations[rel] && relations[rel]!.relatedRelations &&
       relations[rel]!.relatedRelations![relatedRel] === true
@@ -64,7 +70,7 @@ export const handleSingleRelation = async <TR extends IRelationsFileds>({
         relatedRelation,
         relatedRel,
         updateId,
-        updatedDoc: pureGeneratedDoc,
+        updatedDoc,
         collection: relationSchemName,
       });
     }
