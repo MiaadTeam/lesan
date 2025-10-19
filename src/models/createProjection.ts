@@ -24,10 +24,11 @@ export const createProjection = (
   schemasObj: TSchemas,
   schemaName: string,
   projectionType: TProjectionType,
+  excludes?: string[],
 ) => {
   switch (projectionType) {
     case "Pure":
-      return setFiledsToOne(getPureModel(schemasObj, schemaName));
+      return setFiledsToOne(getPureModel(schemasObj, schemaName, excludes));
     case "MainRelations":
       return setFiledsToOne(
         getFlattenPureFromRelations(schemasObj, schemaName, "MainRelations"),
@@ -38,12 +39,12 @@ export const createProjection = (
       );
     case "PureMainRelations":
       return setFiledsToOne({
-        ...getPureModel(schemasObj, schemaName),
+        ...getPureModel(schemasObj, schemaName, excludes),
         ...getFlattenPureFromRelations(schemasObj, schemaName, "MainRelations"),
       });
     case "PureRelatedRelations":
       return setFiledsToOne({
-        ...getPureModel(schemasObj, schemaName),
+        ...getPureModel(schemasObj, schemaName, excludes),
         ...getFlattenPureFromRelations(
           schemasObj,
           schemaName,
@@ -52,7 +53,7 @@ export const createProjection = (
       });
     case "PureMainRelationsRelatedRelations":
       return setFiledsToOne({
-        ...getPureModel(schemasObj, schemaName),
+        ...getPureModel(schemasObj, schemaName, excludes),
         ...getFlattenPureFromRelations(schemasObj, schemaName, "All"),
       });
     case "MainRelationsRelatedRelations":

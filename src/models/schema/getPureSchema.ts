@@ -10,7 +10,11 @@ import { TSchemas } from "./mod.ts";
  *       "age": number(),
  *     },
  */
-export const getPureSchema = (schemas: TSchemas, schemaName: string) => {
+export const getPureSchema = (
+  schemas: TSchemas,
+  schemaName: string,
+  excludes?: string[],
+) => {
   const schema = schemas[schemaName];
 
   if (!schema) {
@@ -19,8 +23,14 @@ export const getPureSchema = (schemas: TSchemas, schemaName: string) => {
 
   const pure = schema.pure;
 
+  // Remove fields that are explicitly removed from the option
   if (schema.options && schema.options.excludes) {
     schema.options.excludes.forEach((p) => delete pure[p]);
+  }
+
+  // Delete fields that are omitted in the relationship definition
+  if (excludes && excludes.length > 0) {
+    excludes.forEach((p) => delete pure[p]);
   }
 
   return pure;
