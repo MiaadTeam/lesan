@@ -16,6 +16,7 @@ export type RelationSortOrderType = "asc" | "desc";
 export type TRelatedRelation = {
   type: RelationDataType;
   limit?: null | number;
+  excludes?: string[];
   sort?: {
     field: string;
     order: RelationSortOrderType;
@@ -26,6 +27,10 @@ export interface TRelation {
   schemaName: string;
   type: RelationDataType;
   optional: boolean;
+  excludes?: string[];
+
+  //WARN It's very dengrouse becuase in most cases we do not need to have two many-to-many limited relation one side of many-to-many should be unlimited always (becuase we do not have seperate table to keep all reffrence)
+  limit?: null | number;
   sort?: {
     field: string;
     order: RelationSortOrderType;
@@ -58,6 +63,7 @@ export interface IMainRelation {
    * name of schema that this schema has relation with
    */
   schemaName: string;
+
   /**
    * type of relation if equal to one: this schema record one object from other schema else
    * this schema record array of object from other schema
@@ -65,6 +71,12 @@ export interface IMainRelation {
   type: RelationDataType;
 
   optional: boolean;
+
+  /**
+   * Fields we want to delete in this relation
+   */
+  excludes?: string[];
+
   /**
    * sort : {field , order} - field of sort , and order of sort
    */
@@ -85,23 +97,33 @@ export interface IRelatedRelation {
    * name of schema that this schema has relation with
    */
   schemaName: string;
+
   /**
    * name of the main relation related to this relation
    */
   mainRelationName: string;
+
   /**
    * type of the main relation related to this relation
    */
   mainRelationType: RelationDataType;
+
   /**
    * type of relation if equal to one: this schema record one object from other schema else
    * this schema record array of object from other schema
    */
   type: RelationDataType;
+
   /**
    * number of value that we want to keep
    */
   limit?: null | number;
+
+  /**
+   * Fields we want to delete in this relation
+   */
+  excludes?: string[];
+
   /**
    * sort : {field , order} - field of sort , and order of sort
    */
