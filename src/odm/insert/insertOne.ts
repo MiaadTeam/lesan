@@ -64,6 +64,7 @@ export const insertOne = async <
       schemasObj,
       foundedSchema.relations[rel].schemaName,
       "Pure",
+      foundedSchema.relations[rel].excludes,
     );
 
     if (foundedSchema.relations[rel].optional) {
