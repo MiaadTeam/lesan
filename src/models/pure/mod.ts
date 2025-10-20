@@ -13,7 +13,8 @@ export const pureFns = (schemasObj: TSchemas) => {
   return {
     addPureModel: (name: string, pureModel: IPureFields) =>
       addPureModel(schemasObj, name, pureModel),
-    getPureModel: (name: string) => getPureModel(schemasObj, name),
+    getPureModel: (name: string, excludes?: string[]) =>
+      getPureModel(schemasObj, name, excludes),
     getPureModelByNameAndKey: (name: string, key: string) =>
       getPureModelByNameAndKey(schemasObj, name, key),
   };

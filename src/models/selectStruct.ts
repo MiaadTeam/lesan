@@ -1,3 +1,4 @@
+// deno-lint-ignore no-import-prefix
 import { ObjectSchema } from "https://deno.land/x/lestruct@v0.0.2/src/utils.ts";
 import { enums, object, optional } from "../npmDeps.ts";
 import { pureFns, schemaFns, TSchemas } from "./mod.ts";
@@ -24,8 +25,10 @@ export const selectStructFns = (schemasObj: TSchemas) => {
   const selectStruct = <T>(
     schema: keyof TSchemas,
     depth: number | T = 2,
-  ): any => {
-    const pureSchema = pureFns(schemasObj).getPureModel(schema);
+    excludes?: string[],
+  ) => {
+    const pureSchema = pureFns(schemasObj).getPureModel(schema, excludes);
+
     let returnObj = {};
     for (const property in pureSchema) {
       // console.log(`${property}: ${object[property]}`);
@@ -48,6 +51,7 @@ export const selectStructFns = (schemasObj: TSchemas) => {
           [property]: optional(selectStruct(
             foundedSchema.mainRelations[property].schemaName,
             depth,
+            foundedSchema.mainRelations[property].excludes,
           )),
         };
       }
@@ -57,6 +61,7 @@ export const selectStructFns = (schemasObj: TSchemas) => {
           [property]: optional(selectStruct(
             foundedSchema.relatedRelations[property].schemaName,
             depth,
+            foundedSchema.relatedRelations[property].excludes,
           )),
         };
       }
@@ -82,6 +87,7 @@ export const selectStructFns = (schemasObj: TSchemas) => {
             [property]: optional(selectStruct(
               foundedSchema.mainRelations[property].schemaName,
               depth[property],
+              foundedSchema.mainRelations[property].excludes,
             )),
           });
       }
@@ -92,6 +98,7 @@ export const selectStructFns = (schemasObj: TSchemas) => {
             [property]: optional(selectStruct(
               foundedSchema.relatedRelations[property].schemaName,
               depth[property],
+              foundedSchema.relatedRelations[property].excludes,
             )),
           });
       }

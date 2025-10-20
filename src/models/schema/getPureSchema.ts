@@ -21,17 +21,19 @@ export const getPureSchema = (
     throw new Error(`Schema ${schemaName} not found`);
   }
 
-  const pure = schema.pure;
+  // Create a deep copy of the pure object to avoid mutations
+  const pure = { ...schema.pure };
 
-  // Remove fields that are explicitly removed from the option
-  if (schema.options && schema.options.excludes) {
-    schema.options.excludes.forEach((p) => delete pure[p]);
-  }
+  // Collect all fields to exclude
+  const fieldsToExclude = [
+    ...(schema.options?.excludes || []),
+    ...(excludes || []),
+  ];
 
-  // Delete fields that are omitted in the relationship definition
-  if (excludes && excludes.length > 0) {
-    excludes.forEach((p) => delete pure[p]);
-  }
+  // Remove excluded fields from the copied object
+  fieldsToExclude.forEach((field) => {
+    if (pure[field]) delete pure[field];
+  });
 
   return pure;
 };

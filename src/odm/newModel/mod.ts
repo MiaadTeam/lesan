@@ -74,6 +74,14 @@ export const newModel = <
       mainRelation.sort = relations[relation].sort;
     }
 
+    if (relations[relation].excludes) {
+      mainRelation.excludes = relations[relation].excludes;
+    }
+
+    if (relations[relation].limit) {
+      mainRelation.limit = relations[relation].limit;
+    }
+
     for (const relatedRelation in relations[relation].relatedRelations) {
       const iteratedRelatedRelation =
         relations[relation].relatedRelations[relatedRelation];
@@ -104,6 +112,10 @@ export const newModel = <
       if (iteratedRelatedRelation.sort) {
         schema.relatedRelations[relatedRelation].sort =
           iteratedRelatedRelation.sort;
+      }
+      if (iteratedRelatedRelation.excludes) {
+        schema.relatedRelations[relatedRelation].excludes =
+          iteratedRelatedRelation.excludes;
       }
     }
 
