@@ -16,21 +16,37 @@ export const getPureFromMainRelations = (
         ? schema.mainRelations[property].optional === true
           ? optional(
             object(
-              getPureSchema(schemas, schema.mainRelations[property].schemaName),
+              getPureSchema(
+                schemas,
+                schema.mainRelations[property].schemaName,
+                schema.mainRelations[property].excludes,
+              ),
             ),
           )
           : object(
-            getPureSchema(schemas, schema.mainRelations[property].schemaName),
+            getPureSchema(
+              schemas,
+              schema.mainRelations[property].schemaName,
+              schema.mainRelations[property].excludes,
+            ),
           )
         : schema.mainRelations[property].optional === true
         ? optional(array(
           object(
-            getPureSchema(schemas, schema.mainRelations[property].schemaName),
+            getPureSchema(
+              schemas,
+              schema.mainRelations[property].schemaName,
+              schema.mainRelations[property].excludes,
+            ),
           ),
         ))
         : array(
           object(
-            getPureSchema(schemas, schema.mainRelations[property].schemaName),
+            getPureSchema(
+              schemas,
+              schema.mainRelations[property].schemaName,
+              schema.mainRelations[property].excludes,
+            ),
           ),
         ),
     };

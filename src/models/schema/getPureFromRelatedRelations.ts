@@ -1,7 +1,6 @@
-import { getPureSchema } from "https://deno.land/x/lesan@v0.0.98/src/models/mod.ts";
 import { array, object } from "../../npmDeps.ts";
 import { getSchema } from "./getSchema.ts";
-import { TSchemas } from "./mod.ts";
+import { getPureSchema, TSchemas } from "./mod.ts";
 
 /**
  * extract pure feature of outrelation of schema
@@ -34,7 +33,11 @@ export const getPureFromRelatedRelations = (
       ...pureSchemas,
       [property]: array(
         object(
-          getPureSchema(schemas, schema.relatedRelations[property].schemaName),
+          getPureSchema(
+            schemas,
+            schema.relatedRelations[property].schemaName,
+            schema.relatedRelations[property].excludes,
+          ),
         ),
       ),
     };
