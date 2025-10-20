@@ -77,6 +77,12 @@ export interface IMainRelation {
    */
   excludes?: string[];
 
+  //WARN It's very dengrouse becuase in most cases we do not need to have two many-to-many limited relation one side of many-to-many should be unlimited always (becuase we do not have seperate table to keep all reffrence)
+  /**
+   * number of value that we want to keep
+   */
+  limit?: null | number;
+
   /**
    * sort : {field , order} - field of sort , and order of sort
    */
