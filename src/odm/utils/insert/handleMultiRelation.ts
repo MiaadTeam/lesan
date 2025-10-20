@@ -64,6 +64,12 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
       foundedSchema.relations[rel].relatedRelations[relatedRel];
     const relationSchemName = foundedSchema.relations[rel].schemaName;
 
+    const updatedDoc = { ...pureOfGeneratedDoc };
+
+    if (relatedRelation.excludes && relatedRelation.excludes.length > 0) {
+      relatedRelation.excludes.forEach((p) => delete updatedDoc[p]);
+    }
+
     if (
       relations && relations[rel] && relations[rel]!.relatedRelations &&
       relations[rel]!.relatedRelations![relatedRel] === true
@@ -71,7 +77,7 @@ export const handleMultiRelation = async <TR extends IRelationsFileds>({
       const updateFilter = generateUpdateFilter({
         relatedRelation,
         relatedRel,
-        updatedDoc: pureOfGeneratedDoc,
+        updatedDoc,
       });
 
       const updatedRel = await db.collection(relationSchemName).updateMany(

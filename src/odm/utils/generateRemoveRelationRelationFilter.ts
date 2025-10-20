@@ -1,5 +1,5 @@
 import { TRelatedRelation } from "../../mod.ts";
-import { Db, Document, UpdateFilter } from "../../npmDeps.ts";
+import { Db, Document, ObjectId, UpdateFilter } from "../../npmDeps.ts";
 import { throwError } from "../../utils/throwError.ts";
 
 export const generateRemoveRelatedRelationFilter = async (
@@ -7,7 +7,7 @@ export const generateRemoveRelatedRelationFilter = async (
     db,
     relatedRelation,
     relatedRel,
-    removeDoc,
+    removeDocId,
     relatedRelSchemaName,
     mainSchemaName,
     prevRelationDoc,
@@ -17,7 +17,7 @@ export const generateRemoveRelatedRelationFilter = async (
     db: Db;
     relatedRelation: TRelatedRelation;
     relatedRel: string;
-    removeDoc: Document;
+    removeDocId: ObjectId;
     relatedRelSchemaName: string;
     mainSchemaName: string;
     mainSchemaRelationName: string;
@@ -49,35 +49,6 @@ export const generateRemoveRelatedRelationFilter = async (
       const reachedLimit = relatedRelDoc.length === relatedRelation.limit
         ? true
         : false;
-
-      // const indexOfFoundedRelatedRel = relatedRelDoc.findIndex((
-      //   rr: any,
-      // ) => rr._id.equals(removeDoc._id));
-
-      // if (indexOfFoundedRelatedRel > -1) {
-      //   updateFilter.push(
-      //     {
-      //       $set: {
-      //         [relatedRel]: {
-      //           $filter: {
-      //             input: `$${relatedRel}`,
-      //             as: `${relatedRel}Item`,
-      //             cond: {
-      //               $ne: [
-      //                 `$$${relatedRel}Item._id`,
-      //                 removeDoc._id,
-      //               ],
-      //             },
-      //           },
-      //         },
-      //       },
-      //     },
-      //     // {
-      //     //   $set: {
-      //     //     [relatedRel]: newRelatedRelArr,
-      //     //   },
-      //     // },
-      //   );
 
       if (reachedLimit) {
         const fieldName = relatedRelation.sort!.field;
@@ -118,7 +89,7 @@ export const generateRemoveRelatedRelationFilter = async (
                     cond: {
                       $ne: [
                         `$$${relatedRel}Item._id`,
-                        removeDoc._id,
+                        removeDocId,
                       ],
                     },
                   },
@@ -158,7 +129,7 @@ export const generateRemoveRelatedRelationFilter = async (
                   cond: {
                     $ne: [
                       `$$${relatedRel}Item._id`,
-                      removeDoc._id,
+                      removeDocId,
                     ],
                   },
                 },

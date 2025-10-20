@@ -12,6 +12,7 @@ import { handleMultiRelation } from "../utils/insert/handleMultiRelation.ts";
 import { handleSingleRelation } from "../utils/insert/handleSingleRelation.ts";
 import { processRemoveRelatedRelations } from "../utils/processRemoveRelatedRelations.ts";
 import { filterDocByProjection } from "../utils/filterDocByProjection.ts";
+import { generateRelationUpdatePipeline } from "../utils/generateRelationUpdatePipeline.ts";
 
 export const addRelation = async <TR extends IRelationsFileds>({
   db,
@@ -43,7 +44,7 @@ export const addRelation = async <TR extends IRelationsFileds>({
     "Pure",
   );
 
-  const generatedDoc: Record<string, any> = {};
+  const generatedDoc: Document = {};
   for (const pureKey in foundedDocPureProjection) {
     generatedDoc[pureKey] = foundedDoc![pureKey];
   }
@@ -58,6 +59,7 @@ export const addRelation = async <TR extends IRelationsFileds>({
       schemasObj,
       foundedSchema.relations[rel].schemaName,
       "Pure",
+      foundedSchema.relations[rel].excludes,
     );
     if (foundedSchema.relations[rel]) {
       if (foundedSchema.relations[rel].type === "single") {
@@ -109,9 +111,24 @@ export const addRelation = async <TR extends IRelationsFileds>({
           pureDocProjection,
           generatedDoc,
         });
-        await db.collection(collection).updateOne({ _id: foundedDoc!._id }, {
-          $addToSet: { [rel]: { $each: generatedDoc[rel] } },
-        });
+
+        if (foundedSchema.relations[rel].limit) {
+          const generateUpdatePipeline = generateRelationUpdatePipeline(
+            rel,
+            generatedDoc[rel],
+            foundedSchema.relations[rel].sort,
+            foundedSchema.relations[rel].limit,
+          );
+
+          await db.collection(collection).updateOne(
+            { _id: foundedDoc!._id },
+            generateUpdatePipeline,
+          );
+        } else {
+          await db.collection(collection).updateOne({ _id: foundedDoc!._id }, {
+            $addToSet: { [rel]: { $each: generatedDoc[rel] } },
+          });
+        }
       }
     }
   }

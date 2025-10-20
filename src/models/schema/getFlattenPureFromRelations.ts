@@ -16,7 +16,11 @@ export const getFlattenPureFromRelations = (
       pureSchemas = {
         ...pureSchemas,
         [property]: object(
-          getPureSchema(schemas, schema.mainRelations[property].schemaName),
+          getPureSchema(
+            schemas,
+            schema.mainRelations[property].schemaName,
+            schema.mainRelations[property].excludes,
+          ),
         ),
       };
     }
@@ -26,7 +30,11 @@ export const getFlattenPureFromRelations = (
       pureSchemas = {
         ...pureSchemas,
         [property]: object(
-          getPureSchema(schemas, schema.relatedRelations[property].schemaName),
+          getPureSchema(
+            schemas,
+            schema.relatedRelations[property].schemaName,
+            schema.relatedRelations[property].excludes,
+          ),
         ),
       };
     }

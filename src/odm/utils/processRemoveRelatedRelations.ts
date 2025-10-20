@@ -7,6 +7,8 @@ import {
   WithId,
 } from "../../mod.ts";
 import { generateRemoveRelatedRelationFilter } from "./generateRemoveRelationRelationFilter.ts";
+import { createProjection } from "../../models/createProjection.ts";
+import { TSchemas } from "../../models/mod.ts";
 
 export const processRemoveRelatedRelations = async <
   TR extends IRelationsFileds,
@@ -17,21 +19,21 @@ export const processRemoveRelatedRelations = async <
     foundedSchema,
     rel,
     collection,
-    foundedDocPureProjection,
     prevRelationDoc,
-    removeDoc,
+    removeDocId,
     relDocForUpdate,
+    schemasObj,
   }: {
     db: Db;
     relations: TInsertRelations<TR>;
     foundedSchema: IModel;
     rel: string;
     collection: string;
-    foundedDocPureProjection: Record<string, any>;
     foundedDoc: WithId<Document> | null;
     prevRelationDoc: Record<string, any>;
-    removeDoc: Record<string, any>;
+    removeDocId: ObjectId;
     relDocForUpdate: ObjectId;
+    schemasObj: TSchemas;
   },
 ) => {
   const updatePipeline: UpdateFilter<Document>[] = [];
@@ -40,21 +42,28 @@ export const processRemoveRelatedRelations = async <
     const relatedRelation =
       foundedSchema.relations[rel].relatedRelations[relatedRel];
 
+    const pureRelatedRelProjection = createProjection(
+      schemasObj,
+      collection,
+      "Pure",
+      relatedRelation.excludes,
+    );
+
     if (
       relations[rel]?.relatedRelations &&
-      relations[rel]?.relatedRelations![relatedRel]
+      relations[rel]?.relatedRelations[relatedRel]
     ) {
       const updateFilterForRemoveRelatedRelation =
         await generateRemoveRelatedRelationFilter({
           db,
           relatedRelation,
-          removeDoc,
+          removeDocId,
           relatedRel,
           mainSchemaName: collection,
           mainSchemaRelationName: rel,
           relatedRelSchemaName: foundedSchema.relations[rel].schemaName,
           prevRelationDoc,
-          pureMainProjection: foundedDocPureProjection,
+          pureMainProjection: pureRelatedRelProjection,
         });
       if (updateFilterForRemoveRelatedRelation.length > 0) {
         updatePipeline.push(...updateFilterForRemoveRelatedRelation);

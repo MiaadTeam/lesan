@@ -14,3 +14,4 @@ pages/book
 /deno.lock
 /settings.json
 deno.lock
+dump.rdb
