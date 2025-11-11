@@ -1,3 +1,10 @@
+/**
+ * File: src/odm/aggregation/example.ts
+ *
+ * This file contains example usage of the generateProjection function
+ * and sample projection objects for testing purposes.
+ */
+
 import { generateProjection } from "./generateProjection.ts";
 import { Projection, ProjectionPip } from "./type.ts";
 
