@@ -21,16 +21,13 @@ import { Projection } from "../aggregation/type.ts";
  * Returns:
  * - Boolean: true if nested objects exist, false otherwise
  */
-export const checkNotLastProjecion = (
+export const checkNotLastProjection = (
   projection: Projection,
 ) => {
-  let notLast = false;
-
-  // Check if any value in the projection is an object
   for (const prop in projection) {
-    typeof projection[prop] === "object" &&
-      (notLast = true);
+    if (typeof projection[prop] === "object") {
+      return true;
+    }
   }
-
-  return notLast ? true : false;
+  return false;
 };
