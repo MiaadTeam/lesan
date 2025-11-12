@@ -1,3 +1,10 @@
+/**
+ * File: src/models/types.ts
+ *
+ * This file defines TypeScript interfaces and types used throughout the Lesan framework
+ * for schema definitions, relations, and model structures.
+ */
+
 import { ObjectId, Struct } from "../npmDeps.ts";
 
 /**
