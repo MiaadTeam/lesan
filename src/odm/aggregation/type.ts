@@ -17,9 +17,11 @@ export type Projection = { [key: string]: number | Projection };
  */
 export interface Lookup {
   from: string; // The collection to join with
-  localField: string; // The field from the input documents
-  foreignField: string; // The field from the documents of the "from" collection
+  localField?: string; // The field from the input documents (for localField/foreignField format)
+  foreignField?: string; // The field from the documents of the "from" collection (for localField/foreignField format)
   as: string; // The name for the new array field to add to the input documents
+  let?: { [key: string]: string }; // Variables to define in the pipeline (for pipeline format)
+  pipeline?: ProjectionPip; // The aggregation pipeline to run on the joined collection (for pipeline format)
 }
 
 /**
@@ -29,6 +31,48 @@ export interface Lookup {
 export interface Unwind {
   path: string; // The field path to unwind
   preserveNullAndEmptyArrays: true; // Whether to preserve null and empty arrays
+}
+
+/**
+ * Interface for MongoDB $match stage
+ */
+export interface Match {
+  $match: { [key: string]: any };
+}
+
+/**
+ * Interface for MongoDB $addFields stage
+ */
+export interface AddFields {
+  $addFields: { [key: string]: any };
+}
+
+/**
+ * Interface for MongoDB $sort stage
+ */
+export interface Sort {
+  $sort: { [key: string]: 1 | -1 };
+}
+
+/**
+ * Interface for MongoDB $group stage
+ */
+export interface Group {
+  $group: { [key: string]: any };
+}
+
+/**
+ * Interface for MongoDB $limit stage
+ */
+export interface Limit {
+  $limit: number;
+}
+
+/**
+ * Interface for MongoDB $skip stage
+ */
+export interface Skip {
+  $skip: number;
 }
 
 /**
@@ -53,7 +97,52 @@ export type ProjectionObj = {
 };
 
 /**
+ * Type representing a MongoDB $match pipeline stage.
+ */
+export type MatchObj = Match;
+
+/**
+ * Type representing a MongoDB $addFields pipeline stage.
+ */
+export type AddFieldsObj = AddFields;
+
+/**
+ * Type representing a MongoDB $sort pipeline stage.
+ */
+export type SortObj = Sort;
+
+/**
+ * Type representing a MongoDB $group pipeline stage.
+ */
+export type GroupObj = Group;
+
+/**
+ * Type representing a MongoDB $limit pipeline stage.
+ */
+export type LimitObj = Limit;
+
+/**
+ * Type representing a MongoDB $skip pipeline stage.
+ */
+export type SkipObj = Skip;
+
+/**
+ * Type representing an array of MongoDB aggregation pipeline stages
+ * that can include various aggregation operations.
+ */
+export type PipelineStage =
+  | LookupObj
+  | UnwindObj
+  | ProjectionObj
+  | MatchObj
+  | AddFieldsObj
+  | SortObj
+  | GroupObj
+  | LimitObj
+  | SkipObj;
+
+/**
  * Type representing an array of MongoDB aggregation pipeline stages
  * that can include lookups, unwinds, and projections.
  */
-export type ProjectionPip = (LookupObj | UnwindObj | ProjectionObj)[];
+export type ProjectionPip = PipelineStage[];
