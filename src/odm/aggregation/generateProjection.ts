@@ -235,5 +235,18 @@ export const generateProjection = (
     "$project": { ...projection },
   });
 
+  // /*
+  //  * @LOG @DEBUG @INFO
+  //  * This log written by ::==> {{ `` }}
+  //  *
+  //  * Please remove your log after debugging
+  //  */
+  // // console.log with no truncate
+  // Deno.stdout.write(
+  //   new TextEncoder().encode(
+  //     `returnPip: => ${JSON.stringify(returnPip, null, 2)}\n `,
+  //   ),
+  // );
+
   return returnPip;
 };
