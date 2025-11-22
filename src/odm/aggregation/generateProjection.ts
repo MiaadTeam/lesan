@@ -138,7 +138,7 @@ export const generateProjection = (
       as: string;
       localField?: string;
       foreignField?: string;
-      let?: Record<string, string>;
+      let?: Record<string, any>;
       pipeline?: ProjectionPip;
     } = {
       from,
@@ -150,7 +150,14 @@ export const generateProjection = (
     if (hasNested) {
       // For nested, use a sub-pipeline with $match to filter by IDs
       const varName = relationType === "single" ? "id" : "ids";
-      lookup.let = { [varName]: `$${localField}._id` };
+      lookup.let = {
+        [varName]: {
+          $ifNull: [
+            `$${localField}._id`,
+            relationType === "single" ? null : [],
+          ],
+        },
+      };
       subPipeline.push({
         $match: {
           $expr: {
@@ -227,6 +234,19 @@ export const generateProjection = (
   returnPip.push({
     "$project": { ...projection },
   });
+
+  // /*
+  //  * @LOG @DEBUG @INFO
+  //  * This log written by ::==> {{ `` }}
+  //  *
+  //  * Please remove your log after debugging
+  //  */
+  // // console.log with no truncate
+  // Deno.stdout.write(
+  //   new TextEncoder().encode(
+  //     `returnPip: => ${JSON.stringify(returnPip, null, 2)}\n `,
+  //   ),
+  // );
 
   return returnPip;
 };
