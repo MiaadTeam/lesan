@@ -138,7 +138,7 @@ export const generateProjection = (
       as: string;
       localField?: string;
       foreignField?: string;
-      let?: Record<string, string>;
+      let?: Record<string, any>;
       pipeline?: ProjectionPip;
     } = {
       from,
