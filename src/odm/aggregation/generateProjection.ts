@@ -150,7 +150,14 @@ export const generateProjection = (
     if (hasNested) {
       // For nested, use a sub-pipeline with $match to filter by IDs
       const varName = relationType === "single" ? "id" : "ids";
-      lookup.let = { [varName]: `$${localField}._id` };
+      lookup.let = {
+        [varName]: {
+          $ifNull: [
+            `$${localField}._id`,
+            relationType === "single" ? null : [],
+          ],
+        },
+      };
       subPipeline.push({
         $match: {
           $expr: {
