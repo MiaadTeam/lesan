@@ -1,6 +1,5 @@
 import { assign, object } from "../../npmDeps.ts";
 import { createEmbedded } from "./createEmbedded.ts";
-import { getSchema } from "./getSchema.ts";
 import { getPureSchema, TSchemas } from "./mod.ts";
 
 /**
