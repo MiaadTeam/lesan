@@ -3,6 +3,13 @@
 */**/build
 node_modules/
 dist/
+declarations/
+coverage/
+logs/
+*.log
+*.tmp
+*.bak
+*.swp
 
 .play
 
