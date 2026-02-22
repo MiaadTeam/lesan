@@ -1,8 +1,9 @@
-import { assertEquals } from "https://deno.land/std@0.211.0/assert/mod.ts";
+import { test } from "../../../../../tests/utils/test-runner.ts";
+import { assertEquals } from "../../../../../tests/utils/assert.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { getPureModelByNameAndKey } from "../getPureModelByNameAndKey.ts";
 
-Deno.test({
+test({
   name: "getPureModelByNameAndKey Should Return Pure With Name And key",
   fn() {
     const getSchemaPureModelByName = getPureModelByNameAndKey(

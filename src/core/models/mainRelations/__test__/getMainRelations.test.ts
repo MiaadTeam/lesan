@@ -1,10 +1,11 @@
+import { test } from "../../../../../tests/utils/test-runner.ts";
 import { getMainRelations } from "../getMainRelations.ts";
 import { TSchemas } from "../../mod.ts";
 import { number, string } from "../../../../npmDeps.ts";
 import {
   assertEquals,
   assertThrows,
-} from "https://deno.land/std@0.211.0/assert/mod.ts";
+} from "../../../../../tests/utils/assert.ts";
 
 export const schemaMockData: TSchemas = {
   user: {
@@ -149,7 +150,7 @@ export const schemaMockData: TSchemas = {
   },
 };
 
-Deno.test({
+test({
   name: "getMainRelations should return mainRelation from schemaMockData",
   fn() {
     const getSchemaMainRelations = getMainRelations(schemaMockData, "user");
@@ -157,7 +158,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getMainRelations should throw err when we want access to notUser",
   fn() {
     const getNotUserMainRelations = () =>
