@@ -600,6 +600,13 @@
     "https://deno.land/std@0.210.0/assert/unimplemented.ts": "4e3e504792c87c485dbc5f4020489d8806ef697741403af2008dfa7b5a4711e8",
     "https://deno.land/std@0.210.0/assert/unreachable.ts": "1af8c99421cc5fb7332454b2b9eca074a4e394895a180bc837750dedcca75338",
     "https://deno.land/std@0.210.0/fmt/colors.ts": "2685c524bef9b16b3059a417daf6860c754eb755e19e812762ef5dff62f24481",
+    "https://deno.land/std@0.211.0/assert/_constants.ts": "a271e8ef5a573f1df8e822a6eb9d09df064ad66a4390f21b3e31f820a38e0975",
+    "https://deno.land/std@0.211.0/assert/_diff.ts": "6a2d68f2c42d73a1e31818a4195f40598d672c7f02ac75c7f1b1e6789852c2bc",
+    "https://deno.land/std@0.211.0/assert/_format.ts": "0ba808961bf678437fb486b56405b6fefad2cf87b5809667c781ddee8c32aff4",
+    "https://deno.land/std@0.211.0/assert/assert_equals.ts": "b3b33ae8a85ae22a0754c61a7486d4ae870e8938830a94f5cacecba3a9b0442a",
+    "https://deno.land/std@0.211.0/assert/assertion_error.ts": "9f689a101ee586c4ce92f52fa7ddd362e86434ffdf1f848e45987dc7689976b8",
+    "https://deno.land/std@0.211.0/assert/equal.ts": "fae5e8a52a11d3ac694bbe1a53e13a7969e3f60791262312e91a3e741ae519e2",
+    "https://deno.land/std@0.211.0/fmt/colors.ts": "be082d6a6bbb2980ae7b2bf8c23c6bb2811ba90a06a9bcb861344a71784c5a99",
     "https://deno.land/std@0.224.0/assert/_constants.ts": "a271e8ef5a573f1df8e822a6eb9d09df064ad66a4390f21b3e31f820a38e0975",
     "https://deno.land/std@0.224.0/assert/assert.ts": "09d30564c09de846855b7b071e62b5974b001bb72a4b797958fe0660e7849834",
     "https://deno.land/std@0.224.0/assert/assert_almost_equals.ts": "9e416114322012c9a21fa68e187637ce2d7df25bcbdbfd957cd639e65d3cf293",
@@ -1050,6 +1057,10 @@
       "dependencies": [
         "npm:@types/node@^25.3.0",
         "npm:esbuild@~0.20.2",
+        "npm:mongodb-memory-server@^11.0.1",
+        "npm:mongodb@^6.3.0",
+        "npm:superstruct@^2.0.2",
+        "npm:tsup@^8.5.1",
         "npm:tsx@^4.21.0",
         "npm:typescript@^5.9.3"
       ]

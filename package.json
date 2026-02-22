@@ -32,11 +32,13 @@
   },
   "scripts": {
     "build": "tsup",
-    "test:node": "tsx --test tests/adapters/node/*.test.ts",
-    "test:node:fs": "tsx --test tests/adapters/node/fs.test.ts",
-    "test:node:env": "tsx --test tests/adapters/node/env.test.ts",
-    "test:node:http": "tsx --test tests/adapters/node/http.test.ts",
-    "test:node:bundler": "tsx --test tests/adapters/node/bundler.test.ts"
+    "test": "npm run test:node && npm run test:bun && npm run test:deno",
+    "test:node": "tsx --test tests/adapters/node/*.test.ts src/core/**/*.test.ts",
+    "test:bun": "bun test tests/adapters/bun/*.test.ts src/core/**/*.test.ts",
+    "test:deno": "deno test -A tests/adapters/deno/*.test.ts src/core/**/*.test.ts",
+    "bench": "npm run bench:http && npm run bench:odm",
+    "bench:http": "tsx tests/benchmarks/run-http-benchmarks.ts",
+    "bench:odm": "tsx tests/benchmarks/run-odm-benchmarks.ts"
   },
   "repository": {
     "type": "git",
@@ -61,6 +63,7 @@
   "devDependencies": {
     "@types/node": "^25.3.0",
     "esbuild": "^0.20.2",
+    "mongodb-memory-server": "^11.0.1",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
