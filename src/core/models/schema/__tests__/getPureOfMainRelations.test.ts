@@ -1,8 +1,9 @@
-import { assertInstanceOf } from "https://deno.land/std@0.211.0/assert/mod.ts";
+import { test } from "../../../../../tests/utils/test-runner.ts";
+import { assertInstanceOf } from "../../../../../tests/utils/assert.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { getPureOfMainRelations } from "../mod.ts";
 
-Deno.test({
+test({
   name: "getPureOfMainRelations should return pureSchemas and pureInrel",
   fn() {
     const getOnePureOfMainRelations = getPureOfMainRelations(

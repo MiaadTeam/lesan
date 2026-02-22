@@ -1,11 +1,12 @@
+import { test } from "../../../../../tests/utils/test-runner.ts";
 import {
   assertEquals,
   assertThrows,
-} from "https://deno.land/std@0.211.0/assert/mod.ts";
+} from "../../../../../tests/utils/assert.ts";
 import { schemaMockData } from "../../mainRelations/__test__/getMainRelations.test.ts";
 import { getPureSchema } from "../getPureSchema.ts";
 
-Deno.test({
+test({
   name: "getPureSchema should return schema.pure from schemaMockData",
   fn() {
     assertEquals(
@@ -15,7 +16,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getPureSchema should throw err when schema does not exist",
   fn() {
     const getNotSchema = () => getPureSchema(schemaMockData, "notCountry");
