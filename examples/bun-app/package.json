@@ -1,0 +1,18 @@
+{
+  "name": "lesan-bun-example",
+  "version": "1.0.0",
+  "description": "A simple Lesan example running on Bun",
+  "main": "src/main.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/main.ts",
+    "dev": "bun run --watch src/main.ts"
+  },
+  "dependencies": {
+    "lesan": "file:../..",
+    "mongodb": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

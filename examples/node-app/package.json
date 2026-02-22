@@ -1,0 +1,19 @@
+{
+  "name": "lesan-node-example",
+  "version": "1.0.0",
+  "description": "A simple Lesan example running on Node.js",
+  "main": "src/main.ts",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "dev": "tsx watch src/main.ts"
+  },
+  "dependencies": {
+    "lesan": "file:../..",
+    "mongodb": "^6.3.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
