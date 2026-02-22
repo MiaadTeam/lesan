@@ -13,6 +13,85 @@ export function assertExists(actual: any, msg?: string) {
   assertNode.notEqual(actual, undefined, msg);
 }
 
+export function assertInstanceOf(
+  actual: any,
+  expectedType: any,
+  msg?: string,
+) {
+  if (!(actual instanceof expectedType)) {
+    throw new assertNode.AssertionError({
+      message: msg ||
+        `Expected object to be an instance of ${
+          expectedType?.name || expectedType
+        }`,
+      actual,
+      expected: expectedType,
+    });
+  }
+}
+
+export function assertThrows(
+  fn: () => any,
+  errorClassOrMsg?: any,
+  msgIncludes?: string,
+  msg?: string,
+): any {
+  let errorClass: any = undefined;
+  let expectedMsgIncludes: string | undefined = undefined;
+  let customMsg: string | undefined = undefined;
+
+  if (typeof errorClassOrMsg === "string") {
+    customMsg = errorClassOrMsg;
+  } else if (errorClassOrMsg !== undefined) {
+    errorClass = errorClassOrMsg;
+    expectedMsgIncludes = msgIncludes;
+    customMsg = msg;
+  }
+
+  let caughtError: any;
+  let didThrow = false;
+
+  try {
+    fn();
+  } catch (e) {
+    caughtError = e;
+    didThrow = true;
+  }
+
+  if (!didThrow) {
+    throw new assertNode.AssertionError({
+      message: customMsg || "Expected function to throw",
+    });
+  }
+
+  if (errorClass) {
+    if (!(caughtError instanceof errorClass)) {
+      throw new assertNode.AssertionError({
+        message: customMsg ||
+          `Expected error to be instance of ${errorClass.name}, but got ${caughtError?.constructor?.name}`,
+        actual: caughtError,
+        expected: errorClass,
+      });
+    }
+  }
+
+  if (expectedMsgIncludes !== undefined) {
+    const errorMessage = caughtError instanceof Error
+      ? caughtError.message
+      : String(caughtError);
+    if (!errorMessage.includes(expectedMsgIncludes)) {
+      throw new assertNode.AssertionError({
+        message: customMsg ||
+          `Expected error message to include "${expectedMsgIncludes}", but got "${errorMessage}"`,
+        actual: errorMessage,
+        expected: expectedMsgIncludes,
+      });
+    }
+  }
+
+  return caughtError;
+}
+
 export async function assertRejects(
   fn: () => Promise<any>,
   errorClassOrMsg?: any,
