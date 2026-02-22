@@ -40,10 +40,12 @@ export const proccessUpdateOrDeleteRelations = async (
 
     // injaro farda ke omadam bayad check konam bbinam daram az che document va modeli excludes migiram yani injori nabashe ke exlude male relation bashe man az RelatedRel fieldharo kam konam
     const pureDocProjectionWithExcludes = { ...pureDocProjection };
+    const pureUpdatedDocForThisRel = { ...pureUpdatedDoc };
     if (actualRelatedRel.excludes && actualRelatedRel.excludes.length > 0) {
-      actualRelatedRel.excludes.forEach((p) =>
-        delete pureDocProjectionWithExcludes[p]
-      );
+      actualRelatedRel.excludes.forEach((p) => {
+        delete pureDocProjectionWithExcludes[p];
+        delete pureUpdatedDocForThisRel[p];
+      });
     }
 
     if (
@@ -57,7 +59,9 @@ export const proccessUpdateOrDeleteRelations = async (
       ) {
         isDelete
           ? updatePipeline.push({ $set: { [relatedRel]: {} } })
-          : updatePipeline.push({ $set: { [relatedRel]: pureUpdatedDoc } });
+          : updatePipeline.push({
+            $set: { [relatedRel]: pureUpdatedDocForThisRel },
+          });
       }
     } else {
       const relatedRelDocs = foundedDoc![relatedRel];
@@ -121,8 +125,8 @@ export const proccessUpdateOrDeleteRelations = async (
           const concatArrays = isDelete
             ? findNextRelatedRelForAdd ? findNextRelatedRelForAdd : []
             : findNextRelatedRelForAdd
-            ? [...findNextRelatedRelForAdd, pureUpdatedDoc]
-            : [pureUpdatedDoc];
+            ? [...findNextRelatedRelForAdd, pureUpdatedDocForThisRel]
+            : [pureUpdatedDocForThisRel];
 
           if (concatArrays.length > 0) {
             updatePipeline.push(
@@ -191,7 +195,7 @@ export const proccessUpdateOrDeleteRelations = async (
                 $set: {
                   [relatedRel]: {
                     $reduce: {
-                      input: [pureUpdatedDoc],
+                      input: [pureUpdatedDocForThisRel],
                       initialValue: `$${relatedRel}`,
                       in: {
                         $concatArrays: [
@@ -397,10 +401,18 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
       if (foundRelatedSchema.relations[relation].schemaName === collection) {
         // TODO shayad chand bar mainRelation dade bashe ba in schema : pas bayad ye update aggregation benevisam
         const actualRelatedRel = foundRelatedSchema.relations[relation];
+
+        const pureUpdatedDocForThisRel = { ...pureUpdatedDoc };
+        if (actualRelatedRel.excludes && actualRelatedRel.excludes.length > 0) {
+          actualRelatedRel.excludes.forEach((p) =>
+            delete pureUpdatedDocForThisRel[p]
+          );
+        }
+
         if (actualRelatedRel.type === "single") {
           await db.collection(schema).updateMany({
             [`${relation}._id`]: pureUpdatedDoc._id,
-          }, { $set: { [relation]: pureUpdatedDoc } });
+          }, { $set: { [relation]: pureUpdatedDocForThisRel } });
         } else {
           const updateMultiPipeline: UpdateFilter<Document>[] = [{
             $set: {
@@ -421,7 +433,7 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
             $set: {
               [relation]: {
                 $concatArrays: [
-                  [pureUpdatedDoc],
+                  [pureUpdatedDocForThisRel],
                   `$${relation}`,
                 ],
               },

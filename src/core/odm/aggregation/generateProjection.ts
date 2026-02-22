@@ -42,7 +42,7 @@
 import { IMainRelation, IRelatedRelation } from "../../../mod.ts";
 import { RelationDataType, TSchemas } from "../../models/mod.ts";
 import { getRelation } from "../../models/relation/getRelation.ts";
-import { checkNotLastProjection } from "../mod.ts";
+import { checkNotLastProjection } from "../utils/checkNotLastProjection.ts";
 import { Projection, ProjectionPip } from "./type.ts";
 
 /**
@@ -234,19 +234,6 @@ export const generateProjection = (
   returnPip.push({
     "$project": { ...projection },
   });
-
-  // /*
-  //  * @LOG @DEBUG @INFO
-  //  * This log written by ::==> {{ `` }}
-  //  *
-  //  * Please remove your log after debugging
-  //  */
-  // // console.log with no truncate
-  // Deno.stdout.write(
-  //   new TextEncoder().encode(
-  //     `returnPip: => ${JSON.stringify(returnPip, null, 2)}\n `,
-  //   ),
-  // );
 
   return returnPip;
 };
