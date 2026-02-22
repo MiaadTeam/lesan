@@ -1,10 +1,11 @@
-import { Services } from "../acts/mod.ts";
-import { TSchemas } from "../models/mod.ts";
-import { generateSchemTypes } from "../types/mod.ts";
-import { HttpError } from "../utils/HttpError.ts";
-import { lesanFns } from "../utils/mod.ts";
+import { Services } from "../core/acts/mod.ts";
+import { TSchemas } from "../core/models/mod.ts";
+import { generateSchemTypes } from "../core/types/mod.ts";
+import { HttpError } from "../core/utils/HttpError.ts";
+import { lesanFns } from "../core/utils/mod.ts";
 import { addCors } from "./cors.ts";
 import { serveStatic } from "./serveStatic.ts";
+import { http } from "../platform/adapters/index.ts";
 
 function replacer(key: any, value: any) {
   if (typeof value === "string") {
@@ -101,7 +102,7 @@ ${
           : ""
       }\n`,
     );
-    Deno.serve({ port }, handler);
+    await http.serve({ port }, handler);
   };
   return runServer;
 };

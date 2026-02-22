@@ -2,7 +2,7 @@
 //
 
 import { LesanContenxt } from "./types.ts";
-import { TLesanBody } from "./utils/checkWants.ts";
+import { TLesanBody } from "./core/utils/checkWants.ts";
 
 /**
  *  variable of context

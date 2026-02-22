@@ -1,8 +1,8 @@
 .nvimlog
 */**/dump.rdb
 */**/build
-
-funql
+node_modules/
+dist/
 
 .play
 
@@ -15,3 +15,7 @@ pages/book
 /settings.json
 deno.lock
 dump.rdb
+
+# Test temporary files
+tests/temp/
+coverage/

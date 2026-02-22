@@ -1,0 +1,72 @@
+{
+  "name": "new-cross-platform-lesan",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">   <img src=\"./pages/src/img/besmelah.jpg\" alt=\"بسم الله الرحمن الرحیم\"> </div>",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "deno": "./mod.ts",
+      "bun": "./dist/index.js",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "mod.ts"
+  ],
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test:node": "tsx --test tests/adapters/node/*.test.ts",
+    "test:node:fs": "tsx --test tests/adapters/node/fs.test.ts",
+    "test:node:env": "tsx --test tests/adapters/node/env.test.ts",
+    "test:node:http": "tsx --test tests/adapters/node/http.test.ts",
+    "test:node:bundler": "tsx --test tests/adapters/node/bundler.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hemedani/lesan-1.git"
+  },
+  "keywords": [
+    "lesan",
+    "framework",
+    "cross-platform",
+    "deno",
+    "bun",
+    "node",
+    "api"
+  ],
+  "author": "Hemedani",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/hemedani/lesan-1/issues"
+  },
+  "homepage": "https://github.com/hemedani/lesan-1#readme",
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "esbuild": "^0.20.2",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "mongodb": "^6.3.0",
+    "superstruct": "^2.0.2"
+  }
+}

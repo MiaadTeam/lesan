@@ -1,42 +1,45 @@
-import * as esbuild from "https://deno.land/x/esbuild@v0.19.4/mod.js";
+import { bundler, fs } from "../../platform/adapters/index.ts";
 
-const jsBundleResult = await esbuild
-  .build({
-    entryPoints: ["./hydrate.tsx"],
-    outfile: "./dist/bundle-es.js",
+await fs.ensureDir("./dist");
+
+const jsBundleResult = await bundler.bundle("./hydrate.tsx", {
+  compilerOptions: {
     jsxFactory: "h",
-    jsxFragment: "Fragment",
-    jsxImportSource: "preact",
-    bundle: true,
-    minify: true,
-    format: "esm",
-    sourcemap: true,
-    external: ["preact"],
-    drop: ["console"],
-  });
-
-const cssBunldeResult = await esbuild.build({
-  entryPoints: ["./css/index.css"],
+    jsxFragmentFactory: "Fragment",
+  },
   bundle: true,
-  outfile: "./dist/bundle-css.css",
+  minify: true,
+  format: "esm",
+  sourcemap: true,
+  external: ["preact"],
 });
 
-const cssUrl = new URL("./dist/bundle-css.css", import.meta.url);
-const cssContet = await Deno.readTextFile(cssUrl);
+await fs.writeTextFile("./dist/bundle-es.js", jsBundleResult.code);
 
-const tsAddress = new URL(
-  "./dist/bundle-es.js",
-  import.meta.url,
-);
-const tsContent = await Deno.readTextFile(tsAddress);
+let cssContent = "";
+try {
+  const cssBundleResult = await bundler.bundle("./css/index.css", {
+    bundle: true,
+  });
+  cssContent = cssBundleResult.code;
+} catch (e) {
+  // Fallback to reading the file directly if the bundler doesn't support CSS
+  const cssUrl = new URL("./css/index.css", import.meta.url);
+  cssContent = await fs.readTextFile(cssUrl.pathname);
+}
+
+await fs.writeTextFile("./dist/bundle-css.css", cssContent);
 
 const bundleTsContent = `
-    export const bundleTs = ${JSON.stringify(tsContent)};
+    export const bundleTs = ${JSON.stringify(jsBundleResult.code)};
 
-    export const bundleCss = \`${cssContet}\`;
+    export const bundleCss = \`${cssContent}\`;
     `;
 
-await Deno.writeTextFile("./dist/bundleContent.ts", bundleTsContent);
+await fs.writeTextFile("./dist/bundleContent.ts", bundleTsContent);
 
-console.log("everything done compleltly", { jsBundleResult, cssBunldeResult });
-esbuild.stop();
+console.log("everything done completely", { jsBundleResult });
+
+if (bundler.shutdown) {
+  await bundler.shutdown();
+}

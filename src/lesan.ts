@@ -1,9 +1,9 @@
-import { acts, Services } from "./acts/mod.ts";
+import { acts, Services } from "./core/acts/mod.ts";
 import { contextFns } from "./context.ts";
-import { schemas, TSchemas } from "./models/mod.ts";
-import { odm } from "./odm/mod.ts";
+import { schemas, TSchemas } from "./core/models/mod.ts";
+import { odm } from "./core/odm/mod.ts";
 import { lesanServer } from "./server/mod.ts";
-import { generateSchemTypes } from "./types/mod.ts";
+import { generateSchemTypes } from "./core/types/mod.ts";
 
 export const lesan = () => {
   const schemasObj: TSchemas = {};

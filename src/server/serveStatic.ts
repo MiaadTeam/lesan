@@ -1,7 +1,6 @@
-import { serveFile } from "../deps.ts";
 import { Services } from "../mod.ts";
-import { TSchemas } from "../models/mod.ts";
-import { throwError } from "../utils/throwError.ts";
+import { TSchemas } from "../core/models/mod.ts";
+import { throwError } from "../core/utils/throwError.ts";
 import { addCors } from "./cors.ts";
 import {
   getClientReact,
@@ -9,6 +8,7 @@ import {
   getJSFile,
   runPlayground,
 } from "./playground/mod.tsx";
+import { fs, http } from "../platform/adapters/index.ts";
 
 const checkFiles = async (req: Request, staticPath: string[]) => {
   const url = new URL(req.url);
@@ -18,9 +18,9 @@ const checkFiles = async (req: Request, staticPath: string[]) => {
   };
   if (checkPath()) {
     // Get the original response from serveFile
-    const fileResponse = await serveFile(
+    const fileResponse = await http.serveFile(
       req,
-      `${Deno.cwd()}${decodeURIComponent(url.pathname)}`,
+      `${fs.getCwd()}${decodeURIComponent(url.pathname)}`,
     );
 
     // Create a new response with CORS headers

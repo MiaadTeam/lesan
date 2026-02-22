@@ -1,0 +1,15 @@
+{
+  "name": "Lesan Test Fixture",
+  "version": "1.0.0",
+  "description": "Sample JSON file for testing file system operations",
+  "features": [
+    "cross-platform",
+    "type-safe",
+    "runtime-agnostic"
+  ],
+  "config": {
+    "enabled": true,
+    "port": 3000,
+    "timeout": 5000
+  }
+}

@@ -1,10 +1,10 @@
-import { bundle } from "../../deps.ts";
 import { bundleCss, bundleTs } from "./dist/bundleContent.ts";
+import { bundler, env, fs } from "../../platform/adapters/index.ts";
 
 export const getCSSFile = async () => {
   const getFileCss = async () => {
     const url = new URL("./css/index.css", import.meta.url);
-    const data = await Deno.readTextFile(url);
+    const data = await fs.readTextFile(url.pathname);
     return new Response(data, {
       headers: {
         "content-type": "text/css",
@@ -28,15 +28,15 @@ export const getCSSFile = async () => {
     });
   };
 
-  return Deno.env.get("PLAYENV") === "development"
+  return env.get("PLAYENV") === "development"
     ? await getFileCss()
     : getConstCss();
 };
 
 export const getClientReact = async () => {
   const url = new URL("./hydrate.tsx", import.meta.url);
-  const result = await bundle(url, {
-    type: "classic",
+  const result = await bundler.bundle(url, {
+    format: "classic",
     compilerOptions: { sourceMap: false },
   });
   const { code } = result;
@@ -55,7 +55,7 @@ export const getClientReact = async () => {
 export const getJSFile = async () => {
   const getBundle = async () => {
     // const url = new URL("./dist/bundle-es.js", import.meta.url);
-    // const data = await Deno.readTextFile(url);
+    // const data = await fs.readTextFile(url.pathname);
 
     return new Response(bundleTs, {
       headers: {
@@ -68,7 +68,7 @@ export const getJSFile = async () => {
     });
   };
 
-  return Deno.env.get("PLAYENV") === "development"
+  return env.get("PLAYENV") === "development"
     ? await getClientReact()
     : await getBundle();
 };
