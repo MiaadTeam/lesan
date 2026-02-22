@@ -1,5 +1,5 @@
 import { test } from "../../../../tests/utils/test-runner.ts";
-import { assertEquals } from "https://deno.land/std@0.211.0/assert/assert_equals.ts";
+import assert from "node:assert";
 import { parsBody } from "../mod.ts";
 
 test("parsBody function test", async () => {
@@ -21,12 +21,12 @@ test("parsBody function test", async () => {
 
   const result = await parsBody(req, port);
 
-  assertEquals(result.service, "main");
-  assertEquals(result.model, "user");
-  assertEquals(result.act, "create");
-  assertEquals(result.details.set.name, "John Doe");
-  assertEquals(result.details.set.age, 30);
-  assertEquals(result.details.get.id, true);
-  assertEquals(result.details.get.name, true);
-  assertEquals(result.details.get.age, true);
+  assert.strictEqual(result.service, "main");
+  assert.strictEqual(result.model, "user");
+  assert.strictEqual(result.act, "create");
+  assert.strictEqual(result.details.set.name, "John Doe");
+  assert.strictEqual(result.details.set.age, 30);
+  assert.strictEqual(result.details.get.id, true);
+  assert.strictEqual(result.details.get.name, true);
+  assert.strictEqual(result.details.get.age, true);
 });
