@@ -5,7 +5,9 @@
 # Why **Lesan**?
 
 Even though _**NoSQL**_ is very fast, its complexities are very troublesome for large-scale projects. On the other hand, _**GraphQL**_ shines in client-server connectivity but it has several weaknesses and is somewhat complex, adding another layer of complexity to the project. That’s why we created **LESAN**.
-  
+
+🚀 **Now Cross-Platform!** Lesan natively supports **Node.js**, **Bun**, and **Deno** with zero configuration. Write your code once and run it anywhere!
+
 <a href="https://youtu.be/FzMNIGanXSQ" target="_blank">This video</a> is an introductory tutorial on **Lesan** framework in Farsi language.
 
 # Benchmarks
@@ -25,7 +27,9 @@ We use this formula to calculate the difference : (B - A) ÷ A \* 100
 
 **Maybe we created the most performant framework in the world!** [see more detailed benchmark](https://github.com/MiaadTeam/benchmark)
 
-# Documantation
+_Note: With our new cross-platform architecture, Lesan achieves over 10,000 requests per second on Bun and Deno! Check out our [Cross-Platform Benchmarks](./docs/benchmarks.md)._
+
+# Documentation
 
 - [Introduction](https://miaadteam.github.io/lesan/introduction.html)
 - [Installation](https://miaadteam.github.io/lesan/installation.html)
@@ -36,11 +40,34 @@ We use this formula to calculate the difference : (B - A) ÷ A \* 100
 - [API Reference](https://miaadteam.github.io/lesan/api/lesan_fn.html)
 - [Types](https://miaadteam.github.io/lesan/api/types/types.html)
 
+# Installation
+
+Lesan is designed to work seamlessly across all major JavaScript runtimes.
+
+### Node.js
+
+```bash
+npm install lesan mongodb
+```
+
+### Bun
+
+```bash
+bun add lesan mongodb
+```
+
+### Deno
+
+```typescript
+import { lesan } from "npm:lesan";
+import { MongoClient } from "npm:mongodb";
+```
+
 # A little trip
 
 ### Look at the code below:
 
-Create a file called `mod.ts` and paste the code below into it:
+Create a file called `main.ts` (or `main.js`) and paste the code below into it:
 
 ```typescript
 import {
@@ -48,19 +75,18 @@ import {
   Document,
   Filter,
   lesan,
-  MongoClient,
   number,
   object,
   ObjectId,
   optional,
   size,
   string,
-} from "https://deno.land/x/lesan@vx.x.x/mod.ts"; // Please replace `x.x.x` with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+} from "lesan"; // Use "npm:lesan" for Deno
+import { MongoClient } from "mongodb"; // Use "npm:mongodb" for Deno
 
 const coreApp = lesan();
 
 const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
-
 const db = client.db("civil");
 
 coreApp.odm.setDb(db);
@@ -73,11 +99,7 @@ const countryPure = {
   abb: string(),
 };
 const countryRelations = {};
-const countries = coreApp.odm.newModel(
-  "country",
-  countryPure,
-  countryRelations
-);
+const countries = coreApp.odm.newModel("country", countryPure, countryRelations);
 
 // ------------------ User Model ------------------
 const userPure = {
@@ -103,7 +125,6 @@ const users = coreApp.odm.newModel("user", userPure, {
 });
 
 // ================== FUNCTIONS SECTION ==================
-// ------------------ Country Founctions ------------------
 // ------------------ Add Country ------------------
 const addCountryValidator = () => {
   return object({
@@ -152,11 +173,7 @@ const getCountries: ActFn = async (body) => {
   limit = limit || 50;
   const skip = limit * (page - 1);
 
-  return await countries
-    .find({ projection: get, filters: {} })
-    .skip(skip)
-    .limit(limit)
-    .toArray();
+  return await countries.find({ projection: get, filters: {} }).skip(skip).limit(limit).toArray();
 };
 
 coreApp.acts.setAct({
@@ -166,7 +183,6 @@ coreApp.acts.setAct({
   fn: getCountries,
 });
 
-// ------------------ User Founctions ------------------
 // --------------------- Add User ----------------------
 const addUserValidator = () => {
   return object({
@@ -224,11 +240,7 @@ const getUsers: ActFn = async (body) => {
   const filters: Filter<Document> = {};
   countryId && (filters["country._id"] = new ObjectId(countryId));
 
-  return await users
-    .find({ projection: get, filters })
-    .skip(skip)
-    .limit(limit)
-    .toArray();
+  return await users.find({ projection: get, filters }).skip(skip).limit(limit).toArray();
 };
 
 coreApp.acts.setAct({
@@ -238,19 +250,33 @@ coreApp.acts.setAct({
   fn: getUsers,
 });
 
-// ================== RUM SECTION ==================
+// ================== RUN SECTION ==================
 coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
 ```
 
-> Please replace `x.x.x` in the import link with the latest version in [releases](https://github.com/MiaadTeam/lesan/releases)
+### Run the server
 
-Now run this command in the terminal:
+Depending on your runtime, run the following command in your terminal:
+
+**Node.js** (requires `tsx` or similar for TypeScript):
 
 ```bash
-deno run -A mod.ts
+npx tsx main.ts
 ```
 
-You should see this messsage:
+**Bun**:
+
+```bash
+bun run main.ts
+```
+
+**Deno**:
+
+```bash
+deno run -A main.ts
+```
+
+You should see this message:
 
 ```bash
 HTTP webserver running.
@@ -263,7 +289,7 @@ Listening on http://localhost:1366/
 Now you can visit the playground at `http://localhost:1366/playground` and send requests to the server for `addCountry`, `addUser`, and `getUsers`.
 <img width="1672" alt="Screen Shot 1402-04-26 at 20 47 05" src="https://github.com/MiaadTeam/lesan/assets/6236123/7edb3be1-6180-4f3e-b00c-161aa2c3c8cd">
 
-alternativly you can send post request to `http://localhost:1366/lesan` with `postman` include the following in JSON format inside the body in order to retrieve the desired data:
+Alternatively, you can send a POST request to `http://localhost:1366/lesan` with `postman` including the following in JSON format inside the body in order to retrieve the desired data:
 
 ```JSON
 {
