@@ -1,7 +1,6 @@
 // Deno HTTP Server Adapter
 // Wraps Deno's native HTTP server APIs to implement HttpServerAdapter interface
 
-import { serveFile } from "https://deno.land/std@0.224.0/http/file_server.ts";
 import type {
   HttpServerAdapter,
   RequestHandler,
@@ -153,6 +152,9 @@ export const denoHttpAdapter: HttpServerAdapter = {
       }
 
       // Use Deno's serveFile helper
+      const { serveFile } = await import(
+        "https://deno.land/std@0.224.0/http/file_server.ts"
+      );
       const response = await serveFile(request, filePath);
 
       // Override content type if specified

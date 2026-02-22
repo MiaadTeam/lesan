@@ -6,7 +6,6 @@
  * @module adapters/deno/bundler
  */
 
-import { bundle, transpile } from "https://deno.land/x/emit@0.38.2/mod.ts";
 import type {
   BundleOptions,
   BundlerAdapter,
@@ -58,6 +57,7 @@ export class DenoBundlerAdapter implements BundlerAdapter {
       }
 
       // Use deno_emit for bundling
+      const { bundle } = await import("https://deno.land/x/emit@0.38.2/mod.ts");
       const result = await bundle(entryUrl, {
         compilerOptions: this.buildCompilerOptions(options),
         importMap: options?.importMap
@@ -113,6 +113,7 @@ export class DenoBundlerAdapter implements BundlerAdapter {
       const tempUrl = `data:application/typescript;base64,${btoa(code)}`;
 
       // Use deno_emit bundle function
+      const { bundle } = await import("https://deno.land/x/emit@0.38.2/mod.ts");
       const result = await bundle(new URL(tempUrl), {
         compilerOptions: this.buildCompilerOptions(options),
         importMap: options?.importMap
@@ -174,6 +175,9 @@ export class DenoBundlerAdapter implements BundlerAdapter {
   async transpile(code: string, options?: BundleOptions): Promise<string> {
     try {
       // Use deno_emit transpile function with a proper URL
+      const { transpile } = await import(
+        "https://deno.land/x/emit@0.38.2/mod.ts"
+      );
       const url = new URL("file:///main.ts");
       const result = await transpile(url, {
         load: (specifier: string) => {

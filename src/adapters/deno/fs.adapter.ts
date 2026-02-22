@@ -1,7 +1,6 @@
 // Deno File System Adapter
 // Wraps Deno's native file system APIs to implement FileSystemAdapter interface
 
-import { ensureDir } from "https://deno.land/std@0.224.0/fs/mod.ts";
 import type {
   FileInfo,
   FileSystemAdapter,
@@ -47,7 +46,7 @@ export const denoFsAdapter: FileSystemAdapter = {
       // Ensure parent directory exists
       const dir = path.substring(0, path.lastIndexOf("/"));
       if (dir) {
-        await ensureDir(dir);
+        await Deno.mkdir(dir, { recursive: true });
       }
       await Deno.writeTextFile(path, content);
     } catch (error) {
@@ -84,7 +83,7 @@ export const denoFsAdapter: FileSystemAdapter = {
       // Ensure parent directory exists
       const dir = path.substring(0, path.lastIndexOf("/"));
       if (dir) {
-        await ensureDir(dir);
+        await Deno.mkdir(dir, { recursive: true });
       }
       await Deno.writeFile(path, data);
     } catch (error) {
@@ -102,7 +101,7 @@ export const denoFsAdapter: FileSystemAdapter = {
    */
   async ensureDir(path: string): Promise<void> {
     try {
-      await ensureDir(path);
+      await Deno.mkdir(path, { recursive: true });
     } catch (error) {
       throw new FileSystemError(
         `Failed to ensure directory: ${path}`,
