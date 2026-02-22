@@ -92,16 +92,12 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
       }
     };
 
-    console.log(
-      `HTTP webserver running.
-please send a post request to http://localhost:${port}/lesan
-${
-        playground
-          ? "you can visit playground on http://localhost:" + port +
-            "/playground"
-          : ""
-      }\n`,
-    );
+    console.log(`\n🚀 Lesan server is running successfully!`);
+    console.log(`📡 API Endpoint: http://localhost:${port}/lesan`);
+    if (playground) {
+      console.log(`🎮 Playground:   http://localhost:${port}/playground`);
+    }
+    console.log("");
     await http.serve({ port }, handler);
   };
   return runServer;

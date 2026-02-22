@@ -31,5 +31,6 @@ export default defineConfig({
   external: [
     "mongodb",
     "superstruct",
+    "esbuild",
   ],
 });
