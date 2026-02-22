@@ -118,8 +118,12 @@ const decodeBody = async (req: Request): Promise<TLesanBody> => {
         `Unsupported content type: ${contentType}. Expected application/json or multipart/form-data`,
       );
     }
-  } catch (error) {
-    console.error(`Error processing ${contentType} request:`, error);
+  } catch (error: any) {
+    if (
+      error?.name !== "BadResource" && !error?.message?.includes("BadResource")
+    ) {
+      console.error(`Error processing ${contentType} request:`, error);
+    }
     throw error;
   }
 };
@@ -128,8 +132,13 @@ export const parsBody = async (req: Request, port: number) => {
   const parsedBody = async () => {
     try {
       return await decodeBody(req);
-    } catch (error) {
-      console.error("Error decoding body:", error);
+    } catch (error: any) {
+      if (
+        error?.name !== "BadResource" &&
+        !error?.message?.includes("BadResource")
+      ) {
+        console.error("Error decoding body:", error);
+      }
       throw error;
     }
   };
