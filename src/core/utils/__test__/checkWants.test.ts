@@ -1,7 +1,8 @@
+import { test } from "../../../../tests/utils/test-runner.ts";
 import { assertEquals } from "https://deno.land/std@0.211.0/assert/assert_equals.ts";
 import { parsBody } from "../mod.ts";
 
-Deno.test("parsBody function test", async () => {
+test("parsBody function test", async () => {
   const req = new Request("http://localhost:8000/lesan", {
     method: "POST",
     headers: { "content-type": "application/json" },
