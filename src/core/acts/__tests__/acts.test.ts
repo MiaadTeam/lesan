@@ -1,9 +1,10 @@
+import { test } from "../../../../tests/utils/test-runner.ts";
 // import {
 //   assertInstanceOf,
 //   assertThrows,
 // } from "https://deno.land/std/assert/mod.ts";
 
-// Deno.test({
+// test({
 //   name: "should return getUser from mockActs",
 //   fn() {
 //     const getOneAct = getAct(mockActs, "main", "user", "getUser");

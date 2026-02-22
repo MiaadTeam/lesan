@@ -1,12 +1,13 @@
+import { test } from "../../../../tests/utils/test-runner.ts";
 import { object, string } from "../../../npmDeps.ts";
 import { mockActs } from "./actMockData.ts";
 import { setService } from "../setService.ts";
 import {
   assertEquals,
   assertExists,
-} from "https://deno.land/std@0.211.0/assert/mod.ts";
+} from "../../../../tests/utils/assert.ts";
 
-Deno.test({
+test({
   name: "setService creates service within mockActs",
   fn() {
     setService(mockActs, "anbar", {
@@ -21,7 +22,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "setService creates service within mockActs",
   fn() {
     setService(mockActs, "anbar", "testing");

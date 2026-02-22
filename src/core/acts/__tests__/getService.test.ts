@@ -1,11 +1,12 @@
+import { test } from "../../../../tests/utils/test-runner.ts";
 import {
   assertInstanceOf,
   assertThrows,
-} from "https://deno.land/std@0.211.0/assert/mod.ts";
+} from "../../../../tests/utils/assert.ts";
 import { getService } from "../mod.ts";
 import { mockActs } from "./actMockData.ts";
 
-Deno.test({
+test({
   name: "getService should return getUser from mockActs",
   fn() {
     const getOneService = getService(mockActs, "main");
@@ -13,7 +14,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getService should throw error when we pass notServiceName",
   fn() {
     const getNotService = () => getService(mockActs, "notMain");

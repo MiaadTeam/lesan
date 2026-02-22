@@ -1,14 +1,15 @@
+import { test } from "../../../../tests/utils/test-runner.ts";
 import { Services } from "../mod.ts";
 import { object, string } from "../../../npmDeps.ts";
 import { setAct } from "../mod.ts";
 import { mockActs } from "./actMockData.ts";
-import { assertExists } from "https://deno.land/std@0.211.0/assert/mod.ts";
+import { assertExists } from "../../../../tests/utils/assert.ts";
 
 export const mockActsWithoutSchema: Services = {
   main: {},
 };
 
-Deno.test({
+test({
   name: "setAct should work with mockActs",
   fn() {
     setAct(mockActs, {
@@ -21,7 +22,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "setAct should work with mockActsWithoutSchema",
   fn() {
     setAct(mockActsWithoutSchema, {

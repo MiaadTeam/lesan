@@ -1,11 +1,12 @@
+import { test } from "../../../../tests/utils/test-runner.ts";
 import {
   assertEquals,
   assertThrows,
-} from "https://deno.land/std@0.211.0/assert/mod.ts";
+} from "../../../../tests/utils/assert.ts";
 import { getActKeys } from "../mod.ts";
 import { mockActs } from "./actMockData.ts";
 
-Deno.test({
+test({
   name: "getActKeys with serviceName='main' should return keys object",
   fn() {
     const getMainKeys = getActKeys(mockActs, "main");
@@ -13,7 +14,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getActKeys should return keys object",
   fn() {
     const getStoreHouseKeys = getActKeys(mockActs, "storeHouse");
@@ -21,7 +22,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getActKeys should return keys object",
   fn() {
     const getEcommerceKey = () => getActKeys(mockActs, "ecommerce");
@@ -29,7 +30,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getActKeys should throw error when we pass notServiceName",
   fn() {
     const getOneKey = () => getActKeys(mockActs, "notMain");

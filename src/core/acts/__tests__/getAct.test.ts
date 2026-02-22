@@ -1,12 +1,13 @@
+import { test } from "../../../../tests/utils/test-runner.ts";
 import {
   assertEquals,
   assertThrows,
-} from "https://deno.land/std@0.211.0/assert/mod.ts";
+} from "../../../../tests/utils/assert.ts";
 import { getAct } from "../mod.ts";
 
 import { mockActs, testGetUserAct } from "./actMockData.ts";
 
-Deno.test({
+test({
   name: "getAct should return getUser from mockActs",
   fn() {
     const getOneAct = getAct(mockActs, "main", "user", "getUser");
@@ -14,7 +15,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getAct should throw error when we pass notServices",
   fn() {
     const getNotMethod = () => getAct(mockActs, "main", "user", "notMethod");
@@ -22,7 +23,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getAct should throw error when we want notMethod from mockActs",
   fn() {
     const getNotMethod = () => getAct(mockActs, "main", "user", "notMethod");
@@ -30,7 +31,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getAct should throw error when we pass notSchema",
   fn() {
     const getNotSchema = () => getAct(mockActs, "main", "notuser", "getUser");
@@ -38,7 +39,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getAct should throw error when we pass notService",
   fn() {
     const getNotSchema = () => getAct(mockActs, "notmain", "user", "getUser");

@@ -1,11 +1,12 @@
+import { test } from "../../../../tests/utils/test-runner.ts";
 import { mockActs } from "./actMockData.ts";
 import { getMainAct } from "../getMainAct.ts";
 import {
   assertInstanceOf,
   assertThrows,
-} from "https://deno.land/std@0.211.0/assert/mod.ts";
+} from "../../../../tests/utils/assert.ts";
 
-Deno.test({
+test({
   name: "getMainAct should return getUser from mockActs",
   fn() {
     const getOneMainAct = getMainAct(mockActs, "user", "getUser");
@@ -13,7 +14,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getMainAct should throw error when we pass notSchema",
   fn() {
     const getNotSchema = () => getMainAct(mockActs, "notUser", "getUser");
@@ -21,7 +22,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+test({
   name: "getMainAct should throw error when we pass notActName",
   fn() {
     const getNotSchema = () => getMainAct(mockActs, "user", "notGetUser");
