@@ -1,5 +1,5 @@
 {
-  "name": "new-cross-platform-lesan",
+  "name": "lesan",
   "version": "1.0.0",
   "description": "<div align=\"center\">   <img src=\"./pages/src/img/besmelah.jpg\" alt=\"بسم الله الرحمن الرحیم\"> </div>",
   "main": "./dist/index.cjs",
@@ -42,7 +42,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hemedani/lesan-1.git"
+    "url": "git+https://github.com/MiaadTeam/lesan.git"
   },
   "keywords": [
     "lesan",
@@ -53,13 +53,13 @@
     "node",
     "api"
   ],
-  "author": "Hemedani",
+  "author": "MiaadTeam",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/hemedani/lesan-1/issues"
+    "url": "https://github.com/MiaadTeam/lesan/issues"
   },
-  "homepage": "https://github.com/hemedani/lesan-1#readme",
+  "homepage": "https://github.com/MiaadTeam/lesan#readme",
   "devDependencies": {
     "@types/node": "^25.3.0",
     "esbuild": "^0.20.2",
