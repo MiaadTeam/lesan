@@ -1,10 +1,11 @@
-import { Services } from "../acts/mod.ts";
-import { TSchemas } from "../models/mod.ts";
-import { generateSchemTypes } from "../types/mod.ts";
-import { HttpError } from "../utils/HttpError.ts";
-import { lesanFns } from "../utils/mod.ts";
+import { Services } from "../core/acts/mod.ts";
+import { TSchemas } from "../core/models/mod.ts";
+import { generateSchemTypes } from "../core/types/mod.ts";
+import { HttpError } from "../core/utils/HttpError.ts";
+import { lesanFns } from "../core/utils/mod.ts";
 import { addCors } from "./cors.ts";
 import { serveStatic } from "./serveStatic.ts";
+import { http } from "../platform/adapters/index.ts";
 
 function replacer(key: any, value: any) {
   if (typeof value === "string") {
@@ -91,17 +92,13 @@ export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
       }
     };
 
-    console.log(
-      `HTTP webserver running.
-please send a post request to http://localhost:${port}/lesan
-${
-        playground
-          ? "you can visit playground on http://localhost:" + port +
-            "/playground"
-          : ""
-      }\n`,
-    );
-    Deno.serve({ port }, handler);
+    console.log(`\n🚀 Lesan server is running successfully!`);
+    console.log(`📡 API Endpoint: http://localhost:${port}/lesan`);
+    if (playground) {
+      console.log(`🎮 Playground:   http://localhost:${port}/playground`);
+    }
+    console.log("");
+    await http.serve({ port }, handler);
   };
   return runServer;
 };

@@ -1,0 +1,71 @@
+{
+  "Node.js": {
+    "Hello World (Sync)": {
+      "requestsPerSecond": 2991.19,
+      "latencyMs": 32.92,
+      "totalRequests": 32899,
+      "errors": 0,
+      "timeouts": 0
+    },
+    "Async Task (10ms delay)": {
+      "requestsPerSecond": 3287.91,
+      "latencyMs": 29.91,
+      "totalRequests": 36162,
+      "errors": 0,
+      "timeouts": 0
+    },
+    "Echo Payload": {
+      "requestsPerSecond": 3240.64,
+      "latencyMs": 30.35,
+      "totalRequests": 35641,
+      "errors": 0,
+      "timeouts": 0
+    }
+  },
+  "Bun": {
+    "Hello World (Sync)": {
+      "requestsPerSecond": 10698.55,
+      "latencyMs": 8.88,
+      "totalRequests": 117670,
+      "errors": 0,
+      "timeouts": 0
+    },
+    "Async Task (10ms delay)": {
+      "requestsPerSecond": 10562.55,
+      "latencyMs": 9,
+      "totalRequests": 116188,
+      "errors": 0,
+      "timeouts": 0
+    },
+    "Echo Payload": {
+      "requestsPerSecond": 10713.82,
+      "latencyMs": 8.87,
+      "totalRequests": 117847,
+      "errors": 0,
+      "timeouts": 0
+    }
+  },
+  "Deno": {
+    "Hello World (Sync)": {
+      "requestsPerSecond": 8316,
+      "latencyMs": 11.53,
+      "totalRequests": 83151,
+      "errors": 0,
+      "timeouts": 0
+    },
+    "Async Task (10ms delay)": {
+      "requestsPerSecond": 10147.46,
+      "latencyMs": 9.39,
+      "totalRequests": 111625,
+      "errors": 0,
+      "timeouts": 0
+    },
+    "Echo Payload": {
+      "requestsPerSecond": 10294.4,
+      "latencyMs": 9.24,
+      "totalRequests": 102945,
+      "errors": 0,
+      "timeouts": 0
+    }
+  }
+}

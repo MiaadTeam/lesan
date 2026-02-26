@@ -1,0 +1,12 @@
+{
+  "tasks": {
+    "start": "deno run -A src/main.ts",
+    "dev": "deno run -A --watch src/main.ts"
+  },
+  "imports": {
+    "lesan": "../../src/mod.ts",
+    "mongodb": "npm:mongodb@^6.3.0",
+    "esbuild": "npm:esbuild@^0.20.2",
+    "superstruct": "npm:superstruct@^2.0.2"
+  }
+}

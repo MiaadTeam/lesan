@@ -1,4 +1,8 @@
 {
+  "name": "@miaad/lesan",
+  "version": "1.0.0",
+  "license": "ISC",
+  "exports": "./mod.ts",
   "tasks": {
     "dev": "deno run -A --watch mod.ts"
   }

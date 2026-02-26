@@ -1,13 +1,13 @@
-import { bundle, ensureDir } from "../../deps.ts";
+import { bundler, fs } from "../../platform/adapters/index.ts";
 
 const getClientReact = async () => {
-  const result = await bundle("./hydrate.tsx", {
+  const result = await bundler.bundle("./hydrate.tsx", {
     compilerOptions: { sourceMap: false },
   });
   const { code } = result;
 
-  await ensureDir("./dist");
-  await Deno.writeTextFile("./dist/bundle.js", code);
+  await fs.ensureDir("./dist");
+  await fs.writeTextFile("./dist/bundle.js", code);
 };
 
 await getClientReact();
