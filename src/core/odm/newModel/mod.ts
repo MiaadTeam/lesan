@@ -129,6 +129,8 @@ export const newModel = <
     return acc;
   }, {} as Record<string, IMainRelation>);
 
+  const existingRelatedRelations = schemas[name]?.relatedRelations ?? {};
+
   schemas[name] = {
     pure: {
       _id: optional(objectIdValidation),
@@ -136,8 +138,8 @@ export const newModel = <
     },
     relations,
     mainRelations,
-    relatedRelations: {},
-    options: (options as { excludes?: (string | number)[] }),
+    relatedRelations: existingRelatedRelations,
+    options: options as { excludes?: (string | number)[] },
   };
 
   if (options && options.createIndex) {
