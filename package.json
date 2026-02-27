@@ -1,6 +1,6 @@
 {
   "name": "lesan",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "<div align=\"center\">   <img src=\"./pages/src/img/besmelah.jpg\" alt=\"بسم الله الرحمن الرحیم\"> </div>",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

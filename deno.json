@@ -1,6 +1,6 @@
 {
-  "name": "@miaad/lesan",
-  "version": "1.0.0",
+  "name": "@syd/lesan",
+  "version": "0.2.0",
   "license": "ISC",
   "exports": "./mod.ts",
   "tasks": {
