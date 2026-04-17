@@ -26,3 +26,4 @@ dump.rdb
 # Test temporary files
 tests/temp/
 coverage/
+developmentDocs

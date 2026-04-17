@@ -1,0 +1,31 @@
+# Version control and IDEs
+.github/
+.helix/
+.vscode/
+.zed/
+.gitignore
+
+# Documentation and examples
+developmentDocs/
+docs/
+examples/
+pages/
+QWEN.md
+RELEASE.md
+chart.svg
+
+# Testing
+tests/
+test-node-compat.ts
+
+# Configuration and tooling
+.travis.yml
+deno.json
+deno.lock
+tsconfig.json
+tsup.config.ts
+
+# Source directories that aren't needed in the final NPM package
+# (assuming build outputs to dist/ and that's what's needed for Node)
+templates/
+declarations/
