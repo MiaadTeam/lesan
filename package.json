@@ -1,5 +1,5 @@
 {
-  "name": "lesan",
+  "name": "@hemedani/lesan",
   "version": "0.2.0",
   "description": "<div align=\"center\">   <img src=\"./pages/src/img/besmelah.jpg\" alt=\"بسم الله الرحمن الرحیم\"> </div>",
   "main": "./dist/index.cjs",
