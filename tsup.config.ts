@@ -27,6 +27,9 @@ export default defineConfig({
   // Don't minify the library code (consumers will minify their own apps)
   minify: false,
 
+  // Enable shims for Node.js variables like import.meta.url
+  shims: true,
+
   // External dependencies that shouldn't be bundled
   external: [
     "mongodb",
