@@ -17,7 +17,25 @@ export type TSchemas = Record<string, IModel>;
  * @param {@link ISchema} schemasObjs - input is all record of schemas
  * @returns - return objects of all functions that define in this function
  */
-export const schemaFns = (schemas: TSchemas) => {
+export const schemaFns = (schemas: TSchemas): {
+  getSchemas: () => ReturnType<typeof getSchemas>;
+  getSchemasKeys: () => ReturnType<typeof getSchemasKeys>;
+  getSchema: (schemaName: string) => ReturnType<typeof getSchema>;
+  getPureSchema: (schemaName: string) => ReturnType<typeof getPureSchema>;
+  getPureOfMainRelations: (
+    schemaName: string,
+    relationName: string,
+  ) => ReturnType<typeof getPureOfMainRelations>;
+  getPureFromMainRelations: (
+    schemaName: string,
+  ) => ReturnType<typeof getPureFromMainRelations>;
+  getPureFromRelatedRelations: (
+    schemaName: string,
+  ) => ReturnType<typeof getPureFromRelatedRelations>;
+
+  createStruct: (schemaName: string) => ReturnType<typeof createStruct>;
+  createEmbedded: (schemaName: string) => ReturnType<typeof createEmbedded>;
+} => {
   return {
     getSchemas: () => getSchemas(schemas),
     getPureOfMainRelations: (schemaName: keyof TSchemas) =>

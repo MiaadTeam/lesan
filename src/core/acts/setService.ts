@@ -8,7 +8,7 @@ import { Acts, Services } from "./types.ts";
 export const setService = (
   acts: Services,
   serviceName: keyof typeof acts,
-  service: Acts | string
-) => {
+  service: Acts | string,
+): Acts | string => {
   return (acts[serviceName] = service);
 };

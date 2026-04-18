@@ -5,7 +5,7 @@ import { pureFns, schemaFns, TSchemas } from "./mod.ts";
 
 export type Iterate = Record<string, number | any>;
 
-export const selectStructFns = (schemasObj: TSchemas) => {
+export const selectStructFns = (schemasObj: TSchemas): Record<string, any> => {
   const fieldType = optional(enums([0, 1]));
 
   const decreaseIterate = (depth: Iterate) => {

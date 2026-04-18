@@ -8,11 +8,16 @@ import { getRelation } from "./getRelation.ts";
  * @param {@link ISchema} schemasObjs - input is all record of schemas
  * @returns - return objects of all functions that define in this function
  */
-export const relationFns = (schemasObjs: TSchemas) => {
+export const relationFns = (schemasObjs: TSchemas): {
+  getRelation: (
+    schemaName: string,
+    relationType?: RelationType,
+  ) => ReturnType<typeof import("./getRelation.ts").getRelation>;
+} => {
   return {
     getRelation: (
       name: string,
-      relationType: RelationType,
+      relationType: RelationType = "relations",
     ) => getRelation(schemasObjs, name, relationType),
   };
 };

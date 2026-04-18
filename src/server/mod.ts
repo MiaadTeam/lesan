@@ -22,7 +22,16 @@ function replacer(key: any, value: any) {
  * @param typeGeneration -
  */
 
-export const lesanServer = (schemasObj: TSchemas, actsObj: Services) => {
+export const lesanServer = (
+  schemasObj: TSchemas,
+  actsObj: Services,
+): (options?: {
+  port: number;
+  playground: boolean;
+  typeGeneration: boolean;
+  staticPath?: string[];
+  cors?: "*" | string[];
+}) => Promise<void> => {
   const runServer = async ({
     port,
     playground,

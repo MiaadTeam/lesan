@@ -7,7 +7,13 @@ import { getRelatedRelations } from "./getRelatedRelations.ts";
  * @function
  * @returns - return objects of all functions that define in this function
  */
-export const relatedRelationFns = (schemasObj: TSchemas) => {
+export const relatedRelationFns = (schemasObj: TSchemas): {
+  getRelatedRelations: (
+    schemaName: string,
+  ) => ReturnType<
+    typeof import("./getRelatedRelations.ts").getRelatedRelations
+  >;
+} => {
   return {
     getRelatedRelations: (schemaName: string) =>
       getRelatedRelations(schemasObj, schemaName),

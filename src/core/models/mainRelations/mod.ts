@@ -7,7 +7,11 @@ import { getMainRelations } from "./getMainRelations.ts";
  * @function
  * @returns - return objects of all functions that define in this function
  */
-export const mainRelationsFns = (schemasObj: TSchemas) => {
+export const mainRelationsFns = (schemasObj: TSchemas): {
+  getMainRelations: (
+    schemaName: string,
+  ) => ReturnType<typeof import("./getMainRelations.ts").getMainRelations>;
+} => {
   return {
     getMainRelations: (schemaName: string) =>
       getMainRelations(schemasObj, schemaName),

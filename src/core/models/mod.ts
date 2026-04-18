@@ -11,7 +11,21 @@ export * from "./types.ts";
 // const generatedSchema = schemaFns().getSchemas();
 // export type SchemasKey = keyof typeof generatedSchema;
 
-export const schemas = (schemas: TSchemas) => {
+export const schemas = (
+  schemas: TSchemas,
+):
+  & ReturnType<typeof schemaFns>
+  & ReturnType<typeof mainRelationsFns>
+  & ReturnType<typeof relatedRelationFns>
+  & ReturnType<typeof pureFns>
+  & ReturnType<typeof relationFns>
+  & ReturnType<typeof selectStructFns>
+  & {
+    createProjection: (
+      schemaName: string,
+      projectionType: TProjectionType,
+    ) => ReturnType<typeof createProjection>;
+  } => {
   return {
     ...schemaFns(schemas),
     ...mainRelationsFns(schemas),

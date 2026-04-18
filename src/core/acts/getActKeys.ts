@@ -10,7 +10,7 @@ import { Acts, Services } from "./types.ts";
 export const getActKeys = (
   acts: Services,
   serviceName: keyof typeof acts,
-) =>
+): string[] =>
   (serviceName && acts[serviceName] &&
       (typeof acts[serviceName] !== "string"))
     ? Object.keys(acts[serviceName] as Acts)

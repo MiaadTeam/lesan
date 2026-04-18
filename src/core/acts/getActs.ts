@@ -1,4 +1,4 @@
-import { Services } from "./types.ts";
+import { Act, Services } from "./types.ts";
 
 /**
  * get actions of schema of main service
@@ -8,7 +8,7 @@ import { Services } from "./types.ts";
 export const getActs = (
   acts: Services,
   schema: string,
-) => {
+): Record<string, Act> => {
   if (!acts.main[schema]) {
     throw new Error(`Invalid schema: ${schema}`);
   }

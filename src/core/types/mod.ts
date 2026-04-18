@@ -7,7 +7,7 @@ import { fs } from "../../platform/adapters/index.ts";
 export const generateSchemTypes = async (
   schemasObj: TSchemas,
   actsObj: Services,
-) => {
+): Promise<void> => {
   const schemas = schemaFns(schemasObj).getSchemas();
 
   let str = `

@@ -17,7 +17,7 @@ export const odm = (schemasObj: TSchemas): {
     pureFields: PF,
     relations: TR,
     options?: OptionType<PF>,
-  ) => any;
+  ) => ReturnType<typeof newModel<PF, TR>>;
 } => {
   let mongoDb: Db;
 
