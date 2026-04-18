@@ -1,6 +1,6 @@
 {
   "name": "@hemedani/lesan",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "<div align=\"center\">   <img src=\"./pages/src/img/besmelah.jpg\" alt=\"بسم الله الرحمن الرحیم\"> </div>",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -54,7 +54,7 @@
     "api"
   ],
   "author": "MiaadTeam",
-  "license": "ISC",
+  "license": "AGPL-3.0",
   "type": "module",
   "bugs": {
     "url": "https://github.com/MiaadTeam/lesan/issues"
