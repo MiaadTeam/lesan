@@ -10,4 +10,7 @@ import { testBundlerAdapter } from "../../platform/bundler.contract.test.ts";
 import { bunBundlerAdapter } from "../../../src/adapters/bun/bundler.adapter.ts";
 
 // Run the shared contract tests against the Bun adapter
-testBundlerAdapter(bunBundlerAdapter, { runtime: "Bun" });
+// @ts-ignore
+if (typeof Bun !== "undefined") {
+  testBundlerAdapter(bunBundlerAdapter, { runtime: "Bun" });
+}

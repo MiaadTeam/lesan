@@ -146,7 +146,10 @@ export interface IRelatedRelation {
   };
 }
 
-export type RelationType = "mainRelations" | "relatedRelations" | "relations";
+export type RelationType =
+  | "mainRelations"
+  | "relatedRelations"
+  | "relations";
 
 /**
  * this model includes :pure feature , inrelation feature and outrelation feacture

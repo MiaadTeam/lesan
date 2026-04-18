@@ -10,4 +10,7 @@ import { testEnvironmentAdapter } from "../../platform/env.contract.test.ts";
 import { bunEnvAdapter } from "../../../src/adapters/bun/env.adapter.ts";
 
 // Run the shared contract tests against the Bun adapter
-testEnvironmentAdapter(bunEnvAdapter, { runtime: "Bun" });
+// @ts-ignore
+if (typeof Bun !== "undefined") {
+  testEnvironmentAdapter(bunEnvAdapter, { runtime: "Bun" });
+}

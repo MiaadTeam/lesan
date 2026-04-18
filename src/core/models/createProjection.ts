@@ -25,10 +25,12 @@ export const createProjection = (
   schemaName: string,
   projectionType: TProjectionType,
   excludes?: string[],
-) => {
+): Record<string, 1> => {
   switch (projectionType) {
     case "Pure":
-      return setFiledsToOne(getPureModel(schemasObj, schemaName, excludes));
+      return setFiledsToOne(
+        getPureModel(schemasObj, schemaName, excludes),
+      );
     case "MainRelations":
       return setFiledsToOne(
         getFlattenPureFromRelations(schemasObj, schemaName, "MainRelations"),

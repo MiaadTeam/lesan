@@ -1,4 +1,4 @@
-import { Services } from "./types.ts";
+import { Act, Services } from "./types.ts";
 
 /**
  *  get specific Dynamic Action of main service with schemaName and actName
@@ -21,7 +21,7 @@ export const getMainAct = (
   acts: Services,
   schema: string,
   actName: string,
-) => {
+): Act => {
   if (!acts.main[schema]) {
     throw new Error(`Invalid schema: ${schema}`);
   }

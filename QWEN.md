@@ -1,8 +1,10 @@
-# Lesan Framework - Project Context
+# Lesan Framework - AI Agent Context & Documentation
+
+> **Note to AI Agents:** This document serves as the primary context file for understanding the Lesan framework. It contains the architecture, design philosophy, API structure, and implementation patterns for Lesan. When assisting with Lesan-based projects, always refer to the patterns and rules defined in this document, especially regarding the Cross-Platform Architecture, Validation Patterns, explicit JSR type requirements, and ODM relationship management.
 
 ## Overview
 
-Lesan is a high-performance TypeScript framework built on Deno that aims to provide an alternative to GraphQL and traditional REST APIs for NoSQL databases, specifically MongoDB. The framework addresses the complexity issues of NoSQL while maintaining performance and ease of use. According to the project's benchmarks, Lesan significantly outperforms other frameworks like Prisma, Mongoose, and Express.
+Lesan is a high-performance cross-platform TypeScript framework built for Node.js, Bun, and Deno that aims to provide an alternative to GraphQL and traditional REST APIs for NoSQL databases, specifically MongoDB. The framework addresses the complexity issues of NoSQL while maintaining performance and ease of use. According to the project's benchmarks, Lesan significantly outperforms other frameworks like Prisma, Mongoose, and Express.
 
 ## Project Structure
 
@@ -44,12 +46,12 @@ hemLesan/
 
 ## Technology Stack
 
-- **Runtime**: Deno
+- **Runtime**: Node.js, Bun, and Deno (Cross-platform)
 - **Language**: TypeScript
 - **Database**: MongoDB (via official MongoDB driver)
 - **Dependencies**:
   - `superstruct@2.0.2` for data validation
-  - `mongodb@6.3.0` for database operations
+  - `mongodb@7.1.1` for database operations
 
 ## Core Concepts
 
@@ -63,6 +65,7 @@ hemLesan/
 
 - Server-side functions mapped to API endpoints
 - Validation through type-safe structures
+- Pre-execution hooks (`preValidation`, `preAct`) for intercepting requests before validation or execution
 - Service-based architecture for microservices
 
 ### ODM (Object Document Mapper)
@@ -83,23 +86,27 @@ hemLesan/
 3. **Type Safety**: Built-in type validation using superstruct
 4. **Flexible Queries**: Control over data selection depth via `get` projections
 5. **Microservice Ready**: Built-in support for multi-service architectures
+6. **Client Type Generation**: Automatic generation of end-to-end TypeScript types for the frontend via the `typeGeneration` flag on server startup.
 
 ## Building and Running
 
 ### Prerequisites
 
-- Deno runtime installed
+- Node.js, Bun, or Deno runtime installed
 
 ### Running the Project
 
-```bash
-# Run the main example
-deno run -A mod.ts
+Depending on your runtime, you can run the project using:
 
-# Development with file watching
-deno task dev
-# or
-deno run -A --watch mod.ts
+```bash
+# Node.js (using tsx)
+npx tsx src/mod.ts
+
+# Bun
+bun run src/mod.ts
+
+# Deno
+deno run -A mod.ts
 ```
 
 ### Example Usage
@@ -107,7 +114,7 @@ deno run -A --watch mod.ts
 The framework provides a simple API for defining models and actions:
 
 ```typescript
-import { lesan, MongoClient, string, number, object } from "https://deno.land/x/lesan@vx.x.x/mod.ts";
+import { lesan, MongoClient, string, number, object } from "@hemedani/lesan";
 
 const coreApp = lesan();
 
@@ -142,7 +149,8 @@ coreApp.acts.setAct({
   fn: addCountry,
 });
 
-coreApp.runServer({ port: 1366, playground: true });
+// Run the server with type generation enabled for end-to-end type safety
+coreApp.runServer({ port: 1366, playground: true, typeGeneration: true });
 ```
 
 ## API Usage
@@ -172,8 +180,8 @@ The framework exposes a `/lesan` endpoint where clients can send POST requests w
 
 ## Development Conventions
 
-- Uses Deno's module system with URL imports
-- Follows TypeScript best practices with strict typing
+- Supports cross-platform module resolution (npm, JSR)
+- Follows TypeScript best practices with strict typing. **AI Agents:** Always use explicit return types and avoid `any` to comply with JSR's "slow types" publishing requirements.
 - Leverages MongoDB's ObjectId for document identification
 - Emphasizes performance and simplicity over complexity
 - Supports relationship-based data modeling with automatic embedding
@@ -195,14 +203,26 @@ According to the project's benchmarks:
 - Lesan returns data 4435% faster than mongoose-express-rest
 - And significantly faster than other alternatives
 
-## Key Files
+## Key Files & Configuration
 
-- `deno.json` - Deno project configuration with development tasks
-- `mod.ts` - Main entry point export
-- `src/lesan.ts` - Core framework factory function
-- `src/deps.ts` - Deno standard library imports
-- `src/npmDeps.ts` - Third-party npm dependencies
-- `src/types.ts` - Core type definitions
+- `deno.json` - Deno & JSR configuration, defining publishing rules, types, and tasks.
+- `package.json` - Node.js and Bun configuration, managing npm dependencies and scripts.
+- `tsup.config.ts` - Bundler config to transpile TS into ESM and CJS formats for Node.js compatibility (with Node shims enabled).
+- `mod.ts` - Main entry point export for Deno/JSR.
+- `src/lesan.ts` - Core framework factory function.
+- `src/npmDeps.ts` - Centralized third-party npm dependencies (`mongodb`, `superstruct`).
+- `src/platform/adapters/` - Contains runtime-specific adapters (Node, Deno, Bun) for FS, HTTP, Bundler, and Env operations.
+
+## Cross-Platform Architecture
+
+Lesan natively supports three major JavaScript runtimes: **Node.js**, **Bun**, and **Deno**.
+To achieve this, the framework uses a platform-agnostic core and injects runtime-specific adapters:
+
+1. **Adapters**: Abstracted implementations for HTTP Server (`serve`, `serveFile`), File System (`fs`), Environment Variables (`env`), and internal Bundler (`bundle`) logic.
+2. **Platform Detection**: At runtime, Lesan dynamically detects the executing environment (Node, Bun, or Deno) and utilizes the corresponding adapter interface.
+3. **Distribution**:
+   - **NPM** (`@hemedani/lesan`): Built via `tsup` into a `dist/` folder providing `.js` (ESM), `.cjs` (CommonJS), and `.d.ts` types. Designed for Node and Bun.
+   - **JSR** (`@hemedani/lesan`): Published directly as TypeScript source code for Deno and modern tooling, enforcing strict type exports and explicit return types without a build step.
 
 ## Lesan Framework Complete Documentation
 
@@ -219,6 +239,8 @@ Lesan is a web server and ODM (Object Document Model) framework designed to impl
 4. **Advanced Relationship Management**: Provides a new definition for creating relationships between data, allowing full control over their details.
 
 5. **Movable Data Structure**: Enables the data structure to move along with server-side functions for easier microservice management.
+
+6. **End-to-End Type Generation**: Running the server with `typeGeneration: true` creates a `declarations/selectInp.ts` file holding full client-side type definitions and a `lesanApi` fetch wrapper. This provides seamless frontend integration with full autocomplete and type safety.
 
 ### Microservices Architecture
 
@@ -252,11 +274,11 @@ Lesan is a web server and ODM (Object Document Model) framework designed to impl
 - **schemas**: Contains schema functions (getSchemas, getPureOfMainRelations, getSchema, etc.)
 - **acts**: Action functions (setAct, getServiceKeys, getActs, etc.)
 - **odm**: Object Document Model functions (setDb, getCollection, newModel, etc.)
-- **contextFns**: Context management functions (getContextModel, setContext, addContext, etc.)
+- **contextFns**: Context management functions (`getContextModel`, `setContext`, `addContext`, etc.). Used for passing state (like authenticated user data, headers, or tokens) globally across the lifecycle of a request (from `preValidation` to `fn`).
 
 #### Key Functions:
 
-- **setAct**: Used to register actions that define the API endpoints
+- **setAct**: Used to register actions that define the API endpoints. Accepts `validator`, `fn`, and optional lifecycle hooks like `preValidation` (runs before the validator) and `preAct` (runs after validation, before `fn`).
 - **newModel**: Creates a new data model with associated CRUD operations
 - **addRelation** / **removeRelation**: Functions for managing relationships between data
 - **find** / **findOne**: Functions for querying data with flexible projection

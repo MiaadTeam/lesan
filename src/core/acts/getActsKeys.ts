@@ -9,8 +9,8 @@ import { Acts, Services } from "./types.ts";
 export const getActsKeys = (
   acts: Services,
   service: keyof typeof acts,
-  schema: string
-) => {
+  schema: string,
+): string[] => {
   if (!acts[service]) {
     throw new Error(`Invalid service name: ${service} `);
   }

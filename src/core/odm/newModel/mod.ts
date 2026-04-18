@@ -62,7 +62,55 @@ export const newModel = <
   pureFields: PF,
   relations: TR,
   options?: OptionType<PF>,
-) => {
+): {
+  find: (args: IFindModelInputs) => ReturnType<typeof find>;
+  findOne: (args: IFindModelInputs) => ReturnType<typeof findOne>;
+  insertOne: (args: {
+    doc: OptionalUnlessRequiredId<{ [key in keyof PF]?: Infer<PF[key]> }>;
+    relations?: TInsertRelations<TR>;
+    options?: InsertOneOptions;
+    projection?: Projection;
+  }) => ReturnType<typeof insertOne>;
+  insertMany: (args: {
+    docs: OptionalUnlessRequiredId<{ [key in keyof PF]?: Infer<PF[key]> }>[];
+    relations?: TInsertRelations<TR>;
+    options?: BulkWriteOptions;
+    projection?: Projection;
+  }) => ReturnType<typeof insertMany>;
+  addRelation: (args: {
+    relations: TInsertRelations<TR>;
+    projection?: Projection;
+    filters: Filter<Document>;
+    replace?: boolean;
+  }) => ReturnType<typeof addRelation>;
+  removeRelation: (args: {
+    relations: TInsertRelations<TR>;
+    projection?: Projection;
+    filters: Filter<Document>;
+  }) => ReturnType<typeof removeRelation>;
+  findOneAndUpdate: (args: {
+    filter: Filter<{ [key in keyof PF]?: Infer<PF[key]> }>;
+    update: UpdateFilter<{ [key in keyof PF]?: Infer<PF[key]> }>;
+    options?: FindOneAndUpdateOptions & {
+      includeResultMetadata: true;
+    };
+    projection: Document;
+  }) => ReturnType<typeof findOneAndUpdate>;
+  deleteOne: (args: {
+    filter: Filter<{ [key in keyof PF]?: Infer<PF[key]> }>;
+    options?: DeleteOptions;
+    hardCascade?: boolean;
+  }) => ReturnType<typeof deleteOne>;
+  aggregation: (args: {
+    pipeline: Document[];
+    options?: AggregateOptions | undefined;
+    projection?: Projection;
+  }) => ReturnType<typeof aggregation>;
+  countDocument: (args: {
+    filter?: Document | undefined;
+    options?: CountDocumentsOptions | undefined;
+  }) => Promise<number>;
+} => {
   type InferPureFieldsType = {
     [key in keyof PF]?: Infer<PF[key]>;
   };

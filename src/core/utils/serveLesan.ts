@@ -41,7 +41,7 @@ export const lesanFns = (actsObj: Services) => {
       const createdDetails = await create(body.details, act.validator);
       body = {
         ...body,
-        details: createdDetails,
+        details: createdDetails as any,
       };
     } else {
       assert(body.details, act.validator);

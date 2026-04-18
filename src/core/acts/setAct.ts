@@ -1,4 +1,4 @@
-import { ActInp, Services } from "./types.ts";
+import { Act, ActInp, Services } from "./types.ts";
 
 /**
  * set Actions to main service
@@ -21,8 +21,8 @@ export const setAct = (
     fn,
     preAct,
     validationRunType,
-  }: ActInp
-) => {
+  }: ActInp,
+): Act => {
   if (!acts.main[schema]) {
     acts.main[schema] = {};
   }

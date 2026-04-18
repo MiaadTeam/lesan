@@ -1,4 +1,4 @@
-import { Acts, Services } from "./types.ts";
+import { Act, Acts, Services } from "./types.ts";
 
 /**
  * get specific action of schema of specific service
@@ -12,7 +12,7 @@ export function getAct(
   service: keyof typeof acts,
   schema: string,
   actName: string,
-) {
+): Act {
   if (!acts[service] && typeof acts[service] === "string") {
     throw new Error(
       `Invalid service name: ${service} `,
