@@ -1,9 +1,15 @@
 {
-  "name": "@syd/lesan",
-  "version": "0.2.0",
-  "license": "ISC",
+  "name": "@hemedani/lesan",
+  "version": "0.2.2",
   "exports": "./mod.ts",
-  "tasks": {
-    "dev": "deno run -A --watch mod.ts"
+  "license": "AGPL-3.0",
+  "description": "New way to create web server and NoSQL data model",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MiaadTeam/lesan.git"
+  },
+  "publish": {
+    "include": ["src", "mod.ts", "README.md", "LICENSE"],
+    "exclude": ["tests", "examples", "docs", "node_modules"]
   }
 }
