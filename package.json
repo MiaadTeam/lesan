@@ -1,6 +1,6 @@
 {
   "name": "@hemedani/lesan",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "<div align=\"center\">   <img src=\"./pages/src/img/besmelah.jpg\" alt=\"بسم الله الرحمن الرحیم\"> </div>",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -62,14 +62,14 @@
   "homepage": "https://github.com/MiaadTeam/lesan#readme",
   "devDependencies": {
     "@types/node": "^25.3.0",
-    "esbuild": "^0.20.2",
     "mongodb-memory-server": "^11.0.1",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "mongodb": "^6.3.0",
+    "esbuild": "^0.20.2",
+    "mongodb": "^7.1.1",
     "superstruct": "^2.0.2"
   }
 }
