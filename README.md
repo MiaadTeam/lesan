@@ -13,7 +13,7 @@ Even though _**NoSQL**_ is very fast, its complexities are very troublesome for 
 ## ✨ What makes Lesan special?
 
 - 🎯 **Client-Driven Projections:** Similar to GraphQL, clients dictate exactly the shape and depth of the data they receive, including nested relations, but without the CPU cost of parsing a complex query language.
-- 🤝 **Effortless Relationships:** Define `single` or `multiple` relationships between NoSQL collections. Lesan's powerful ODM automatically handles the tedious embedding, syncing, and cascading updates/deletes behind the scenes.
+- 🤝 **One-Directional Magic, Bi-Directional Power:** Relationships in Lesan are an absolute game-changer. You define a relationship from _one direction_ (the model that needs it most), and Lesan automatically handles the immensely complex **bi-directional embedding**, syncing, array limits, sorting, and cascading updates/deletes behind the scenes. Goodbye to complex JOINs and manual NoSQL array updates!
 - 🛡️ **End-to-End Type Safety:** Run your server with the `typeGeneration: true` flag, and Lesan will auto-generate perfect client-side TypeScript definitions and a custom fetch wrapper. This guarantees flawless frontend integration and autocomplete.
 - ⚡ **Insane Performance:** Stripped of unnecessary middleware bloat and built directly on the official MongoDB driver, Lesan's direct-to-database routing crushes traditional REST/ORM and GraphQL server speeds.
 - 🧩 **Built for Microservices:** The action-based architecture inherently supports breaking large monolithic systems down into isolated microservices effortlessly.
@@ -326,7 +326,12 @@ Alternatively, you can send a POST request to `http://localhost:1366/lesan` with
 
 ![Screen Shot 1402-04-25 at 18 24 16](https://github.com/MiaadTeam/lesan/assets/6236123/7e9c7c93-cf08-4120-9c44-df93475c108f)
 
-We handle all relationships between the data and `embed` everything. You can also control the level of penetration into the `action get` depth. On the `client-side`, you can describe what you want and get back exactly what you described.
+### The Magic of Lesan Relationships ✨
+
+In Lesan, **relationships are One-Directional in definition, but fully embedded bi-directionally.**
+When you link a User to a Country, Lesan seamlessly embeds the country details inside the user, _and_ automatically embeds the user details inside the country's `users` array (even keeping the top 50 users sorted automatically!).
+
+We handle all the heavy lifting of keeping this embedded data perfectly in sync across your entire database for blazing-fast reads. You can also control the exact level of penetration into the relationship depth. On the `client-side`, you simply describe what you want and get back exactly what you described—with zero backend refactoring!
 
 # Contributors
 

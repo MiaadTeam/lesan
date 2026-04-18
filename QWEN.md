@@ -339,10 +339,26 @@ Lesan is a web server and ODM (Object Document Model) framework designed to impl
 
 ### Relationship Management
 
+**Crucial Concept: One-Directional Definition with Bi-Directional Embedding**
+The most important thing in Lesan is relations. Actually, the relations in Lesan are One-Directional in definition but fully embedded bi-directionally. When you define a relation from one model to another, Lesan automatically embeds the pure fields of both models inside each other. You define the relationship from the model that is requesting the relation (the more important side for the specific side effects), and Lesan handles all the complexity of updating, inserting, and deleting across the database automatically.
+
+#### Why Lesan Relationships?
+
+Compared to traditional databases:
+
+- **SQL**: Only provides a connection (foreign key). Requires complex JOINs, lacks depth, and relationships are independent.
+- **NoSQL (Mongoose)**: Manual embedding requires writing custom code to handle updates, deletions, and array limits. Keeping embedded data in sync is extremely difficult.
+- **Lesan**:
+  - Relationships fully contain each other's pure properties (embedded data) for extremely fast reads.
+  - If a relationship changes (e.g., a city's population updates), Lesan automatically notifies and applies changes to all related documents across the database.
+  - Automatic management of array limits and sorting (e.g., keeping only the top 50 most populous cities in a country).
+  - Prevents the deletion of dependent documents, or can recursively delete them based on configuration.
+  - You only deal with the pure fields; relationship management is fully automatic.
+
 #### Types of Relationships:
 
-- **relation**: Defines relationships from the parent document to other documents
-- **relatedRelations**: Defines the reverse relationships that get created on the target model
+- **relation**: Defines relationships from the requesting document to other documents.
+- **relatedRelations**: Defines the reverse relationships (side effects) that automatically get created and managed on the target model. You can define multiple `relatedRelations` for different purposes (e.g., `cities` sorted by `_id`, and `mostPopulousCities` sorted by `population`).
 
 #### Relationship Types:
 
