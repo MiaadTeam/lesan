@@ -6,7 +6,12 @@
  */
 
 import { TSchemas } from "../../models/mod.ts";
-import { AggregateOptions, Db, Document } from "../../../npmDeps.ts";
+import {
+  AggregateOptions,
+  AggregationCursor,
+  Db,
+  Document,
+} from "../../../npmDeps.ts";
 import { throwError } from "../../utils/mod.ts";
 import { generateProjection } from "../aggregation/mod.ts";
 import { Projection } from "../aggregation/type.ts";
@@ -43,7 +48,7 @@ export const aggregation = (
     options?: AggregateOptions;
     projection?: Projection;
   },
-) => {
+): AggregationCursor<Document> => {
   // Generate projection pipeline stages if a projection is provided
   const genProjection = projection
     ? generateProjection(projection, schemasObj, collection)

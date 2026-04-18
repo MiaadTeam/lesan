@@ -1,3 +1,4 @@
+import { IModel } from "../types.ts";
 import { IPureFields, schemaFns, TSchemas } from "../mod.ts";
 
 /**
@@ -14,8 +15,8 @@ import { IPureFields, schemaFns, TSchemas } from "../mod.ts";
 export const addPureModel = (
   schemasObj: TSchemas,
   name: string,
-  pureModel: IPureFields
-) => {
+  pureModel: IPureFields,
+): IModel => {
   const schemas = schemaFns(schemasObj).getSchemas();
   return (schemas[name] = {
     pure: pureModel,

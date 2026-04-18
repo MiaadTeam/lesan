@@ -25,7 +25,7 @@ export const removeRelation = async <TR extends IRelationsFileds>({
   filters: Filter<Document>;
   relations: TInsertRelations<TR>;
   projection?: Projection;
-}) => {
+}): Promise<Document | { _id: ObjectId } | null> => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);
   const foundedDoc = await db.collection(collection).findOne(filters);
 

@@ -31,7 +31,7 @@ export const insertOne = async <
   relations?: TInsertRelations<TR>;
   options?: InsertOneOptions;
   projection?: Projection;
-}) => {
+}): Promise<Document | { _id: ObjectId } | null> => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);
 
   const populatedMainRelations = [];

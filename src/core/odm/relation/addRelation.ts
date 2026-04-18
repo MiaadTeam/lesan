@@ -1,4 +1,4 @@
-import { Db, Document, Filter } from "../../../npmDeps.ts";
+import { Db, Document, Filter, ObjectId } from "../../../npmDeps.ts";
 import { createProjection } from "../../models/createProjection.ts";
 import {
   IRelationsFileds,
@@ -233,7 +233,7 @@ export const addRelation = async <TR extends IRelationsFileds>({
   relations: TInsertRelations<TR>;
   projection?: Projection;
   replace?: boolean;
-}) => {
+}): Promise<Document | { _id: ObjectId } | null> => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);
   const foundedDoc = await db.collection(collection).findOne(filters);
 

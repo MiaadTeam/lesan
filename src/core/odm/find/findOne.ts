@@ -1,3 +1,4 @@
+import { Document } from "../../../npmDeps.ts";
 import { IFindInput } from "./find.ts";
 
 export const findOne = ({
@@ -6,6 +7,6 @@ export const findOne = ({
   filters,
   projection,
   options,
-}: IFindInput) => {
+}: IFindInput): Promise<Document | null> => {
   return db.collection(collection).findOne(filters, { ...options, projection });
 };

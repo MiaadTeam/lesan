@@ -1,5 +1,10 @@
 import { schemaFns, TSchemas } from "../mod.ts";
-import { RelationType } from "../types.ts";
+import {
+  IMainRelation,
+  IRelatedRelation,
+  RelationType,
+  TRelation,
+} from "../types.ts";
 
 /**
  * get inerRelatrion or outerRealtion of one schema
@@ -10,7 +15,10 @@ export const getRelation = (
   schemasObjs: TSchemas,
   name: string,
   relationType: RelationType,
-) => {
+):
+  | Record<string, TRelation>
+  | Record<string, IMainRelation>
+  | Record<string, IRelatedRelation> => {
   const schemas = schemaFns(schemasObjs).getSchemas();
   return schemas[name][relationType];
 };

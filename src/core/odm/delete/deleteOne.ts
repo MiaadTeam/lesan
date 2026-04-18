@@ -82,7 +82,7 @@ export const deleteOne = async <PureFields extends Document = Document>({
   filter: Filter<PureFields>;
   options?: DeleteOptions;
   hardCascade?: boolean;
-}) => {
+}): Promise<boolean> => {
   const foundedDoc = await db.collection(collection).findOne(
     filter as Filter<Document>,
   );

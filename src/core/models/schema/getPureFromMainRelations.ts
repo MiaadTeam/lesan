@@ -1,13 +1,14 @@
 import { array, object, optional } from "../../../npmDeps.ts";
 import { getSchema } from "./getSchema.ts";
 import { getPureSchema, TSchemas } from "./mod.ts";
+import { IPureFields } from "../types.ts";
 
 export const getPureFromMainRelations = (
   schemas: TSchemas,
   schemaName: string,
-) => {
+): IPureFields => {
   const schema = getSchema(schemas, schemaName);
-  let pureSchemas = {};
+  let pureSchemas: IPureFields = {};
   for (const property in schema.mainRelations) {
     // console.log(`${property}: ${object[property]}`);
     pureSchemas = {

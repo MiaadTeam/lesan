@@ -1,3 +1,4 @@
+import { IPureFields } from "../types.ts";
 import { TSchemas } from "./mod.ts";
 
 /**
@@ -14,7 +15,7 @@ export const getPureSchema = (
   schemas: TSchemas,
   schemaName: string,
   excludes?: string[],
-) => {
+): IPureFields => {
   const schema = schemas[schemaName];
 
   if (!schema) {

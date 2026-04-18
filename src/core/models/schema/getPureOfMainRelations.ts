@@ -1,3 +1,4 @@
+import { IPureFields } from "../types.ts";
 import { getPureFromMainRelations } from "./getPureFromMainRelations.ts";
 import { getPureSchema } from "./getPureSchema.ts";
 import { TSchemas } from "./mod.ts";
@@ -20,7 +21,7 @@ import { TSchemas } from "./mod.ts";
 export const getPureOfMainRelations = (
   schemas: TSchemas,
   schemaName: string,
-) => {
+): IPureFields => {
   const pureSchema = getPureSchema(schemas, schemaName);
   const pureInrel = getPureFromMainRelations(schemas, schemaName);
 

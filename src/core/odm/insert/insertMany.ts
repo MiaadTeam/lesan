@@ -34,7 +34,7 @@ export const insertMany = async <
   relations?: TInsertRelations<TR>;
   options?: BulkWriteOptions;
   projection?: Projection;
-}) => {
+}): Promise<Document[]> => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);
 
   const populatedMainRelations = [];
@@ -163,7 +163,7 @@ export const insertMany = async <
           }
         } else {
           const findWithIds = {
-            _id: { "$in": (relations[rel]!._ids as ObjectId[]) },
+            _id: { "$in": relations[rel]!._ids as ObjectId[] },
           };
 
           const foundedMultiMainRelation = await find({
@@ -373,7 +373,7 @@ export const insertMany = async <
           }
         } else {
           const findWithIds = {
-            _id: { "$in": (relations[rel]!._ids as ObjectId[]) },
+            _id: { "$in": relations[rel]!._ids as ObjectId[] },
           };
 
           const foundedMultiMainRelation = await find({
