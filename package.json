@@ -54,7 +54,7 @@
     "api"
   ],
   "author": "MiaadTeam",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "bugs": {
     "url": "https://github.com/MiaadTeam/lesan/issues"
