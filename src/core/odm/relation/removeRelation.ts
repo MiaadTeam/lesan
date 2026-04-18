@@ -208,7 +208,7 @@ export const removeRelation = async <TR extends IRelationsFileds>({
         } else {
           //TODO in ghesmat bayad dorost beshe chon inja ham allan momkene limit dashte bashim va agar be limit reside bashe bayad peyda kone documet badi ro va jaygozin kone bejaye faght $pull kardan khali
           await db.collection(collection).updateOne({ _id: foundedDoc!._id }, {
-            $pull: { [rel]: { _id: { $in: relations[rel]?._ids } } },
+            $pull: { [rel]: { _id: { $in: relations[rel]?._ids } } } as any,
           });
         }
       }

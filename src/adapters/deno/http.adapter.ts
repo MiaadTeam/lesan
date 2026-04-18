@@ -153,7 +153,7 @@ export const denoHttpAdapter: HttpServerAdapter = {
 
       // Use Deno's serveFile helper
       const { serveFile } = await import(
-        "https://deno.land/std@0.224.0/http/file_server.ts"
+        "jsr:@std/http@1/file-server"
       );
       const response = await serveFile(request, filePath);
 

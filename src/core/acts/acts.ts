@@ -69,7 +69,32 @@ import { ActInp, Acts, Services } from "./types.ts";
  * @param {Services} acts - is type of Services for get ServiceKeys in function
  * @returns - return objects of all functions that define in this function
  */
-export const acts = (acts: Services) => {
+export const acts = (acts: Services): {
+  setAct: (actInp: ActInp) => ReturnType<typeof setAct>;
+  getServiceKeys: () => ReturnType<typeof getServiceKeys>;
+  getActs: (schema: string) => ReturnType<typeof getActs>;
+  getActsKeys: (
+    service: keyof typeof acts,
+    schema: string,
+  ) => ReturnType<typeof getActsKeys>;
+  getActKeys: (schema: string) => ReturnType<typeof getActKeys>;
+  getAct: (
+    service: keyof typeof acts,
+    schema: string,
+    actName: string,
+  ) => ReturnType<typeof getAct>;
+  getAtcsWithServices: () => ReturnType<typeof getAtcsWithServices>;
+  getMainActs: () => ReturnType<typeof getMainActs>;
+  getMainAct: (
+    schema: string,
+    actName: string,
+  ) => ReturnType<typeof getMainAct>;
+  setService: (
+    serviceName: keyof typeof acts,
+    service: Acts | string,
+  ) => ReturnType<typeof setService>;
+  getService: (service: keyof typeof acts) => ReturnType<typeof getService>;
+} => {
   return {
     setAct: (actInp: ActInp) => setAct(acts, actInp),
     getServiceKeys: () => getServiceKeys(acts),

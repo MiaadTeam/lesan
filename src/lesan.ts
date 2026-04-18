@@ -5,7 +5,14 @@ import { odm } from "./core/odm/mod.ts";
 import { lesanServer } from "./server/mod.ts";
 import { generateSchemTypes } from "./core/types/mod.ts";
 
-export const lesan = () => {
+export const lesan = (): {
+  schemas: ReturnType<typeof schemas>;
+  acts: ReturnType<typeof acts>;
+  odm: ReturnType<typeof odm>;
+  runServer: ReturnType<typeof lesanServer>;
+  contextFns: typeof contextFns;
+  generateSchemTypes: () => ReturnType<typeof generateSchemTypes>;
+} => {
   const schemasObj: TSchemas = {};
 
   const actsObj: Services = {
