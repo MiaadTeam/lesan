@@ -10,6 +10,15 @@
   },
   "publish": {
     "include": ["src", "mod.ts", "README.md", "LICENSE"],
-    "exclude": ["tests", "examples", "docs", "node_modules"]
+    "exclude": [
+      "tests",
+      "examples",
+      "docs",
+      "node_modules",
+      "!src/server/playground/dist/bundleContent.ts"
+    ]
+  },
+  "compilerOptions": {
+    "lib": ["deno.ns", "dom", "esnext"]
   }
 }

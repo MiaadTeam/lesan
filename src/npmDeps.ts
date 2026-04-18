@@ -68,7 +68,6 @@ export {
   BSONRegExp,
   BSONSymbol,
   BSONType,
-  CancellationToken,
   ChangeStream,
   ClientEncryption,
   ClientSession,

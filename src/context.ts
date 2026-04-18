@@ -17,47 +17,49 @@ let context: LesanContenxt = {
 /**
  * @returns The contextObj
  */
-const getContextModel = () => context;
+const getContextModel = (): LesanContenxt => context;
 
 /**
  * @returns The contextObj
  */
 const setContext = (
   obj: Record<string, any>,
-) => (context = { ...getContextModel(), ...obj });
+): LesanContenxt => (context = { ...getContextModel(), ...obj });
 /**
  * asigne all of value that we want to carry
  *  @param con - objects of key , value
  * @returns nothing
  */
-const addContexts = (con: LesanContenxt) => context = con;
+const addContexts = (con: LesanContenxt): LesanContenxt => context = con;
 
 /**
  * add values to previous values that we want to carry
  *  @param con - objects of key , value
  * @returns nothing
  */
-const addContext = (con: LesanContenxt) => context = { ...context, con };
+const addContext = (con: LesanContenxt): LesanContenxt =>
+  context = { ...context, con };
 /**
  * add Request to Context because the requeste may be required in later functions
  *  @param con - request of user
  * @returns nothing
  */
-const addReqToContext = (con: Request) => context["Request"] = con;
+const addReqToContext = (con: Request): Request => context["Request"] = con;
 
 /**
  * add Request Header to Context because the requeste may be required in later functions
  *  @param con - Headers of user
  * @returns nothing
  */
-const addHeaderToContext = (con: Headers) => context["Headers"] = con;
+const addHeaderToContext = (con: Headers): Headers => context["Headers"] = con;
 
 /**
  * add Request Header to Context because the requeste may be required in later functions
  *  @param con - Headers of user
  * @returns nothing
  */
-const addBodyToContext = (body: TLesanBody) => context["body"] = body;
+const addBodyToContext = (body: TLesanBody): TLesanBody =>
+  context["body"] = body;
 
 /**
  * this function is create for define all things in local scope
