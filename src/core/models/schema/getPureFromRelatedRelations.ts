@@ -1,6 +1,7 @@
 import { array, object } from "../../../npmDeps.ts";
 import { getSchema } from "./getSchema.ts";
 import { getPureSchema, TSchemas } from "./mod.ts";
+import { IPureFields } from "../types.ts";
 
 /**
  * extract pure feature of outrelation of schema
@@ -24,9 +25,9 @@ import { getPureSchema, TSchemas } from "./mod.ts";
 export const getPureFromRelatedRelations = (
   schemas: TSchemas,
   schemaName: keyof TSchemas,
-) => {
-  const schema = getSchema(schemas, schemaName);
-  let pureSchemas = {};
+): IPureFields => {
+  const schema = getSchema(schemas, schemaName as string);
+  let pureSchemas: IPureFields = {};
   for (const property in schema.relatedRelations) {
     // console.log(`${property}: ${object[property]}`);
     pureSchemas = {

@@ -1,6 +1,6 @@
 import { throwError } from "../../utils/throwError.ts";
 import { getPureSchema } from "../mod.ts";
-import { schemaFns, TSchemas } from "../mod.ts";
+import { IPureFields, schemaFns, TSchemas } from "../mod.ts";
 
 /**
  * get pure features of one schema
@@ -10,7 +10,7 @@ export const getPureModel = (
   schemasObj: TSchemas,
   name: string,
   excludes?: string[],
-) => {
+): IPureFields => {
   const schemas = schemaFns(schemasObj).getSchemas();
   return schemas[name]
     ? getPureSchema(schemas, name, excludes)

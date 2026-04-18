@@ -1,3 +1,4 @@
+import { IPureFields } from "../types.ts";
 import { getPureFromMainRelations } from "./getPureFromMainRelations.ts";
 import { getPureFromRelatedRelations } from "./getPureFromRelatedRelations.ts";
 import { TSchemas } from "./mod.ts";
@@ -19,7 +20,10 @@ import { TSchemas } from "./mod.ts";
  *       }),
  * }
  */
-export const createEmbedded = (schemas: TSchemas, schemaName: string) => {
+export const createEmbedded = (
+  schemas: TSchemas,
+  schemaName: string,
+): IPureFields => {
   return {
     ...getPureFromMainRelations(schemas, schemaName),
     ...getPureFromRelatedRelations(schemas, schemaName),

@@ -5,7 +5,13 @@
  * with optional projection support.
  */
 
-import { Db, Document, Filter, FindOptions } from "../../../npmDeps.ts";
+import {
+  Db,
+  Document,
+  Filter,
+  FindCursor,
+  FindOptions,
+} from "../../../npmDeps.ts";
 import { Projection } from "../aggregation/type.ts";
 
 /**
@@ -38,6 +44,6 @@ export const find = ({
   filters,
   projection,
   options,
-}: IFindInput) => {
+}: IFindInput): FindCursor<Document> => {
   return db.collection(collection).find(filters, { ...options, projection });
 };

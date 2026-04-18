@@ -1,4 +1,4 @@
-import { assign, object } from "../../../npmDeps.ts";
+import { assign, object, Struct } from "../../../npmDeps.ts";
 import { createEmbedded } from "./createEmbedded.ts";
 import { getPureSchema, TSchemas } from "./mod.ts";
 
@@ -27,7 +27,10 @@ import { getPureSchema, TSchemas } from "./mod.ts";
  *       }),
  *    ),
  */
-export const createStruct = (schemas: TSchemas, schemaName: string) => {
+export const createStruct = (
+  schemas: TSchemas,
+  schemaName: string,
+): Struct<Record<string, unknown>, Record<string, unknown>> => {
   return assign(
     object(getPureSchema(schemas, schemaName)),
     object(createEmbedded(schemas, schemaName)),

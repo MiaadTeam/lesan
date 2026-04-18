@@ -291,7 +291,7 @@ export const findOneAndUpdate = async <PureFields extends Document = Document>(
     };
     projection: Document;
   },
-) => {
+): Promise<Document | null> => {
   const foundedSchema = schemaFns(schemasObj).getSchema(collection);
 
   const pureDocProjection = createProjection(

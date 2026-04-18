@@ -1,3 +1,4 @@
+import { IRelatedRelation } from "../types.ts";
 import { schemaFns, TSchemas } from "../mod.ts";
 
 /**
@@ -7,7 +8,7 @@ import { schemaFns, TSchemas } from "../mod.ts";
 export const getRelatedRelations = (
   schemasObj: TSchemas,
   schemaName: string,
-) => {
+): Record<string, IRelatedRelation> => {
   const schemas = schemaFns(schemasObj).getSchemas();
   return schemas[schemaName].relatedRelations;
 };

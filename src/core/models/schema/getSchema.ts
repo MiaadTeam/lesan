@@ -1,3 +1,4 @@
+import { IModel } from "../types.ts";
 import { TSchemas } from "./mod.ts";
 
 /**
@@ -57,7 +58,7 @@ import { TSchemas } from "./mod.ts";
  * - mainRelation type must be [this type](https://miaadteam.github.io/lesan/api/types/schema/model/TRelation.html)
  */
 
-export const getSchema = (schemas: TSchemas, schemaName: string) => {
+export const getSchema = (schemas: TSchemas, schemaName: string): IModel => {
   const schema = schemas[schemaName];
 
   if (!schema) {

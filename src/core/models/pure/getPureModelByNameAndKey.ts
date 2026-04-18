@@ -1,3 +1,4 @@
+import { Struct } from "../../../npmDeps.ts";
 import { schemaFns, TSchemas } from "../mod.ts";
 
 /**
@@ -9,7 +10,7 @@ export const getPureModelByNameAndKey = (
   schemasObj: TSchemas,
   name: string,
   key: string,
-) => {
+): Struct<unknown, unknown> => {
   const schemas = schemaFns(schemasObj).getSchemas();
   const pureModel = schemas[name].pure[key];
   return pureModel;
