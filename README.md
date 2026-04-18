@@ -4,11 +4,21 @@
 
 # Why **Lesan**?
 
+**Lesan** is a blazing-fast, cross-platform web framework and Object Document Mapper (ODM) designed to give you the exact data-fetching flexibility of GraphQL, without its heavy processing overhead, while maintaining the simplicity of REST.
+
 Even though _**NoSQL**_ is very fast, its complexities are very troublesome for large-scale projects. On the other hand, _**GraphQL**_ shines in client-server connectivity but it has several weaknesses and is somewhat complex, adding another layer of complexity to the project. That’s why we created **LESAN**.
 
 🚀 **Now Cross-Platform!** Lesan natively supports **Node.js**, **Bun**, and **Deno** with zero configuration. Write your code once and run it anywhere!
 
-<a href="https://youtu.be/FzMNIGanXSQ" target="_blank">This video</a> is an introductory tutorial on **Lesan** framework in Farsi language.
+## ✨ What makes Lesan special?
+
+- 🎯 **Client-Driven Projections:** Similar to GraphQL, clients dictate exactly the shape and depth of the data they receive, including nested relations, but without the CPU cost of parsing a complex query language.
+- 🤝 **Effortless Relationships:** Define `single` or `multiple` relationships between NoSQL collections. Lesan's powerful ODM automatically handles the tedious embedding, syncing, and cascading updates/deletes behind the scenes.
+- 🛡️ **End-to-End Type Safety:** Run your server with the `typeGeneration: true` flag, and Lesan will auto-generate perfect client-side TypeScript definitions and a custom fetch wrapper. This guarantees flawless frontend integration and autocomplete.
+- ⚡ **Insane Performance:** Stripped of unnecessary middleware bloat and built directly on the official MongoDB driver, Lesan's direct-to-database routing crushes traditional REST/ORM and GraphQL server speeds.
+- 🧩 **Built for Microservices:** The action-based architecture inherently supports breaking large monolithic systems down into isolated microservices effortlessly.
+
+<a href="https://youtu.be/FzMNIGanXSQ" target="_blank">This video</a> is an introductory tutorial on the **Lesan** framework in the Farsi language.
 
 # Benchmarks
 
@@ -39,6 +49,8 @@ _Note: With our new cross-platform architecture, Lesan achieves over 10,000 requ
 - [Structures](https://miaadteam.github.io/lesan/Schemas.html)
 - [API Reference](https://miaadteam.github.io/lesan/api/lesan_fn.html)
 - [Types](https://miaadteam.github.io/lesan/api/types/types.html)
+- [Cross-Platform Migration Guide](./docs/migration-guide.md)
+- [Examples (Node.js, Bun, Deno)](./examples)
 
 # Installation
 
@@ -47,19 +59,19 @@ Lesan is designed to work seamlessly across all major JavaScript runtimes.
 ### Node.js
 
 ```bash
-npm install lesan mongodb
+npm install @hemedani/lesan mongodb
 ```
 
 ### Bun
 
 ```bash
-bun add lesan mongodb
+bun add @hemedani/lesan mongodb
 ```
 
 ### Deno
 
 ```typescript
-import { lesan } from "npm:lesan";
+import { lesan } from "jsr:@hemedani/lesan";
 import { MongoClient } from "npm:mongodb";
 ```
 
@@ -81,7 +93,7 @@ import {
   optional,
   size,
   string,
-} from "lesan"; // Use "npm:lesan" for Deno
+} from "@hemedani/lesan"; // Use "jsr:@hemedani/lesan" for Deno
 import { MongoClient } from "mongodb"; // Use "npm:mongodb" for Deno
 
 const coreApp = lesan();
