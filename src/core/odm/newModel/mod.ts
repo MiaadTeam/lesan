@@ -117,6 +117,62 @@ export const newModel = <
 
   const schemas = schemaFns(schemasObj).getSchemas();
 
+  const rebuildAllRelatedRelations = () => {
+    for (const schemaName in schemas) {
+      if (!schemas[schemaName]) continue;
+      schemas[schemaName].relatedRelations = {};
+    }
+
+    for (const sourceSchemaName in schemas) {
+      const sourceSchema = schemas[sourceSchemaName];
+      if (!sourceSchema || !sourceSchema.relations) continue;
+
+      for (const mainRelationName in sourceSchema.relations) {
+        const mainRelation = sourceSchema.relations[mainRelationName];
+        if (!mainRelation) continue;
+
+        const targetSchemaName = mainRelation.schemaName;
+
+        if (!schemas[targetSchemaName]) {
+          schemas[targetSchemaName] = {
+            pure: {},
+            relations: {},
+            mainRelations: {},
+            relatedRelations: {},
+            options: {},
+          };
+        }
+
+        for (const relatedRelationName in mainRelation.relatedRelations) {
+          const iteratedRelatedRelation =
+            mainRelation.relatedRelations[relatedRelationName];
+
+          schemas[targetSchemaName].relatedRelations[relatedRelationName] = {
+            mainRelationName,
+            mainRelationType: mainRelation.type,
+            schemaName: sourceSchemaName,
+            type: iteratedRelatedRelation.type,
+          };
+
+          if (iteratedRelatedRelation.limit) {
+            schemas[targetSchemaName].relatedRelations[relatedRelationName]
+              .limit = iteratedRelatedRelation.limit;
+          }
+
+          if (iteratedRelatedRelation.sort) {
+            schemas[targetSchemaName].relatedRelations[relatedRelationName]
+              .sort = iteratedRelatedRelation.sort;
+          }
+
+          if (iteratedRelatedRelation.excludes) {
+            schemas[targetSchemaName].relatedRelations[relatedRelationName]
+              .excludes = iteratedRelatedRelation.excludes;
+          }
+        }
+      }
+    }
+  };
+
   const mainRelations = Object.keys(relations).reduce((acc, relation) => {
     const mainRelation: IMainRelation = {
       schemaName: relations[relation].schemaName,
@@ -136,48 +192,21 @@ export const newModel = <
       mainRelation.limit = relations[relation].limit;
     }
 
-    for (const relatedRelation in relations[relation].relatedRelations) {
-      const iteratedRelatedRelation =
-        relations[relation].relatedRelations[relatedRelation];
+    const targetSchemaName = relations[relation].schemaName;
 
-      if (!schemas[relations[relation].schemaName]) {
-        schemas[relations[relation].schemaName] = {
-          pure: {},
-          relations: {},
-          mainRelations: {},
-          relatedRelations: {},
-          options: {},
-        };
-      }
-
-      const schema = schemas[relations[relation].schemaName];
-
-      schema.relatedRelations[relatedRelation] = {
-        mainRelationName: relation,
-        mainRelationType: relations[relation].type,
-        schemaName: name,
-        type: iteratedRelatedRelation.type,
+    if (!schemas[targetSchemaName]) {
+      schemas[targetSchemaName] = {
+        pure: {},
+        relations: {},
+        mainRelations: {},
+        relatedRelations: {},
+        options: {},
       };
-
-      if (iteratedRelatedRelation.limit) {
-        schema.relatedRelations[relatedRelation].limit =
-          iteratedRelatedRelation.limit;
-      }
-      if (iteratedRelatedRelation.sort) {
-        schema.relatedRelations[relatedRelation].sort =
-          iteratedRelatedRelation.sort;
-      }
-      if (iteratedRelatedRelation.excludes) {
-        schema.relatedRelations[relatedRelation].excludes =
-          iteratedRelatedRelation.excludes;
-      }
     }
 
     acc[relation] = mainRelation;
     return acc;
   }, {} as Record<string, IMainRelation>);
-
-  const existingRelatedRelations = schemas[name]?.relatedRelations ?? {};
 
   schemas[name] = {
     pure: {
@@ -186,9 +215,11 @@ export const newModel = <
     },
     relations,
     mainRelations,
-    relatedRelations: existingRelatedRelations,
+    relatedRelations: {},
     options: options as { excludes?: (string | number)[] },
   };
+
+  rebuildAllRelatedRelations();
 
   if (options && options.createIndex) {
     db.collection(name).createIndex(
