@@ -1,6 +1,6 @@
 {
   "name": "@hemedani/lesan",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "exports": "./mod.ts",
   "license": "AGPL-3.0-or-later",
   "description": "New way to create web server and NoSQL data model",
