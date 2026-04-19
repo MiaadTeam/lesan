@@ -1,6 +1,6 @@
 {
   "name": "@hemedani/lesan",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "<div align=\"center\">   <img src=\"./pages/src/img/besmelah.jpg\" alt=\"بسم الله الرحمن الرحیم\"> </div>",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
