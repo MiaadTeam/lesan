@@ -1,0 +1,290 @@
+---
+sidebar_position: 7
+---
+
+# Utilities & Helpers
+
+Lesan ships a set of small utilities and helper functions that you use while building models, actions, and request validators — error handling, validation helpers, schema introspection, and projection generation.
+
+## Error Handling
+
+### `throwError(msg)` — Throw a Plain Error
+
+`throwError` is the framework's convenience for throwing an error from inside a model or action. Error messages in Lesan are lowercase and terse.
+
+```typescript
+import { throwError } from "@hemedani/lesan";
+
+const getUser = async (body) => {
+  const { _id } = body.details.set;
+  if (!_id) {
+    throwError("_id is required");
+  }
+  // ...
+};
+```
+
+When an action throws, Lesan's server catches the error and returns a `success: false` response with the message:
+
+```json
+{
+  "body": {
+    "message": "_id is required"
+  },
+  "success": false
+}
+```
+
+### `HttpError` — Control the HTTP Status Code
+
+`HttpError` extends the native `Error` with an HTTP `status`. Throw it from an action to control the status code returned to the client.
+
+```typescript
+import { HttpError } from "@hemedani/lesan";
+
+const addUser = async (body) => {
+  if (!body.details.set.email) {
+    throw new HttpError(400, "email is required");
+  }
+  // ...
+};
+```
+
+The server uses `(error as HttpError).status || 501` for the response status, so:
+
+- An `HttpError` with a `status` returns that status.
+- Any other thrown `Error` returns **501** by default.
+
+> **Tip:** You don't need to wrap logic in try/catch in your actions. Lesan's server pipeline catches everything, maps it to a JSON error response, and applies CORS headers for you.
+
+---
+
+## Validation Helpers
+
+### Superstruct Validators
+
+All [Superstruct](https://docs.superstructjs.org/) validators are re-exported from `@hemedani/lesan` and compose to build model fields and act validators:
+
+```typescript
+import {
+  string, number, boolean, date,
+  array, object, optional, defaulted,
+  enums, coerce, pattern, union, literal,
+  assert, create, is, Infer,
+} from "@hemedani/lesan";
+
+// Composing validators
+const mobile = pattern(
+  string(),
+  /(\+98|0|98|0098)?([ ]|-|[()]){0,2}9[0-9]([ ]|-|[()]){0,2}(?:[0-9]([ ]|-|[()]){0,2}){8}/,
+);
+
+const gender = coerce(
+  enums(["Male", "Female"]),
+  string(),
+  (value) => value as "Male" | "Female",
+);
+
+const userPure = {
+  first_name: string(),
+  email: pattern(string(), /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/),
+  birth_date: optional(coerce(date(), string(), (value) => new Date(value))),
+  isActive: defaulted(boolean(), true),
+  features: defaulted(array(object({ feature: string() })), []),
+  gender,
+};
+```
+
+The full set of exported validators includes: `any`, `array`, `bigint`, `boolean`, `coerce`, `date`, `defaulted`, `define`, `enums`, `func`, `instance`, `integer`, `intersection`, `lazy`, `literal`, `map`, `max`, `min`, `never`, `nonempty`, `nullable`, `number`, `object`, `omit`, `optional`, `partial`, `pattern`, `pick`, `record`, `refine`, `regexp`, `set`, `size`, `string`, `struct`, `trimmed`, `tuple`, `type`, `union`, `unknown`, plus runtime functions `assert`, `create`, `is`, `mask`, `validate`.
+
+### `objectIdValidation` — ObjectId or 24-char String
+
+Lesan exports a ready-made validator that accepts either an `ObjectId` instance or a 24-character hex string. Use it for `_id` inputs:
+
+```typescript
+import { object, objectIdValidation } from "@hemedani/lesan";
+
+const getUserValidator = object({
+  set: object({
+    _id: objectIdValidation,
+  }),
+  get: object(),
+});
+```
+
+It is equivalent to:
+
+```typescript
+union([
+  instance(ObjectId),
+  size(string(), 24),
+]);
+```
+
+### `assert` vs `create`
+
+Lesan runs your validator in one of two modes per act (set via `validationRunType` on the act):
+
+- **`assert` mode (default):** validates and throws on invalid input. The input is not modified.
+- **`create` mode:** coerces values and fills `defaulted` values (e.g. sets `isActive: true` when omitted).
+
+```typescript
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addUser",
+  validationRunType: "create", // coerce + defaults
+  validator: addUserValidator,
+  fn: addUserFn,
+});
+```
+
+See [Server API → Validation](./server#validation-modes) for details.
+
+---
+
+## Schema Introspection Helpers
+
+All helpers below are available on `coreApp.schemas` and read from the in-memory schema registry (populated by `odm.newModel`).
+
+| Helper | Description |
+|--------|-------------|
+| `getSchemas()` | The full schema registry `Record<string, IModel>` |
+| `getSchemasKeys()` | Array of all registered schema names |
+| `getSchema(name)` | The `IModel` for one schema (pure + relations) |
+| `getPureSchema(name)` | Pure fields of a schema |
+| `getPureModel(name, excludes?)` | Pure fields as Superstruct structs, with optional excludes |
+| `getMainRelations(name)` | Relations where this schema stores the snapshot |
+| `getRelatedRelations(name)` | Relations where other schemas store snapshots of this one |
+| `getRelation(name, type?)` | All relations, or only `mainRelations` / `relatedRelations` |
+
+```typescript
+const allSchemas = coreApp.schemas.getSchemas();
+const userSchema = coreApp.schemas.getSchema("user");
+const userPure = coreApp.schemas.getPureSchema("user");
+const mainRels = coreApp.schemas.getMainRelations("user");
+const relatedRels = coreApp.schemas.getRelatedRelations("user");
+```
+
+`getSchemasKeys()` is used internally by the server to validate the `model` key of incoming requests.
+
+---
+
+## Projection & Struct Helpers
+
+### `createStruct(name)` — Full Superstruct Validator
+
+Builds a Superstruct struct for a schema combining pure fields and embedded relation snapshots. Useful when validating a whole document.
+
+```typescript
+const userStruct = coreApp.schemas.createStruct("user");
+// Validates pure fields + embedded relations
+```
+
+### `createEmbedded(name)` — Embedded Relation Fields Only
+
+Returns the pure fields of all related schemas (for nesting inside another struct).
+
+```typescript
+const embedded = coreApp.schemas.createEmbedded("user");
+```
+
+### `selectStruct(name, depth, excludes?)` — Client Projection Validator
+
+Generates a validator that accepts any valid projection for the schema up to the given depth. `depth` can be a **number** (uniform depth) or an **object** (per-relation depth).
+
+```typescript
+// Uniform depth: validators for projections up to 2 levels deep
+const validator = object({
+  set: object({ _id: objectIdValidation }),
+  get: coreApp.schemas.selectStruct("city", 2),
+});
+
+// Per-relation depth
+const deepValidator = object({
+  get: coreApp.schemas.selectStruct("city", {
+    province: 2,
+    users: 1,
+  }),
+});
+```
+
+Each projected field validates as `optional(enums([0, 1]))` (or a nested object for relations), so clients may include or omit fields freely. This is the recommended way to type `details.get` in act validators. See [Queries & Projections → Select Struct](./queries#select-struct-for-validation).
+
+### `createProjection(name, type, excludes?)` — MongoDB Projection Generator
+
+Generates a MongoDB projection object (`{ field: 1, ... }`) from the schema registry. `excludes` are optional.
+
+```typescript
+const projection = coreApp.schemas.createProjection("city", "PureMainRelations");
+// Returns: { name: 1, population: 1, province: { name: 1, ... } }
+```
+
+Available projection types:
+
+| Type | Description |
+|------|-------------|
+| `Pure` | Only pure (scalar) fields |
+| `MainRelations` | Only main relation embedded fields |
+| `RelatedRelations` | Only related relation embedded fields |
+| `PureMainRelations` | Pure + main relations |
+| `PureRelatedRelations` | Pure + related relations |
+| `MainRelationsRelatedRelations` | All relation fields (no pure) |
+| `PureMainRelationsRelatedRelations` | Everything |
+
+---
+
+## Request Body Types
+
+These TypeScript types describe the client → server request shape and are exported from `@hemedani/lesan`:
+
+### `Details`
+
+```typescript
+interface Details {
+  set: Record<string, any>; // What the client wants to write / pass to the act
+  get: Record<string, any>; // What the client wants returned (projection)
+}
+```
+
+### `TLesanBody`
+
+```typescript
+interface TLesanBody {
+  service?: string; // "main" | "blog" | "ecommerce"
+  model: string;    // Schema name the client wants
+  act: string;      // Name of the action to run
+  details: Details;
+}
+```
+
+### `LesanContenxt`
+
+The request context carried through the pipeline:
+
+```typescript
+interface LesanContenxt {
+  [key: string]: any;
+  Headers: Headers;
+  body: TLesanBody | null;
+}
+```
+
+Your actions can read and extend it via `coreApp.contextFns.getContextModel()` — see [Server API → Context](./server#context-system-contextfns). The Satek-style pattern is to extend it with your authenticated user:
+
+```typescript
+interface MyContext extends LesanContenxt {
+  user: { _id: ObjectId; name: string; roles: Role[] };
+}
+```
+
+---
+
+## Internal Pipeline Utilities
+
+These are used internally by the server and are not typically called directly, but understanding them helps when debugging:
+
+- **`parsBody(req, port)`** — decodes the JSON or `multipart/form-data` request body. For multipart, uploaded files land in `details.set.formData` and the JSON payload is read from the `lesan-body` field.
+- **`serveLesan(req, port, cors)`** — the request pipeline entry point: parses the body, validates `service` → `model` → `act`, runs `preValidation` / validation / `preAct` / `fn`, and returns the `{ body, success: true }` response.
+- **`getNumericPosition(arr, num, fieldName, type)`** — binary-search insert position in a sorted array (currently unused by the framework; do not rely on it).
+
+These live under `src/core/utils/` in the framework source.

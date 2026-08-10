@@ -1,0 +1,198 @@
+---
+sidebar_position: 8
+---
+
+# deleteOne
+
+Deletion has the same problems as update — removing a document may require touching many others. This tutorial covers deleting a simple document (a user) and deleting one with dependents (a country), plus the `hardCascade` option.
+
+## Delete a user
+
+```ts
+const deleteUserValidator = () => {
+  return object({
+    set: object({
+      _id: string(),
+    }),
+    get: object({
+      success: optional(enums([0, 1])),
+    }),
+  });
+};
+
+const deleteUser: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  return await users.deleteOne({
+    filter: { _id: new ObjectId(_id) },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "deleteUser",
+  validator: deleteUserValidator(),
+  fn: deleteUser,
+});
+```
+
+The user model's relations (from the previous tutorials):
+
+```ts
+{
+  livedCities: {
+    optional: false,
+    schemaName: "city",
+    type: "multiple",
+    sort: { field: "_id", order: "desc" },
+    relatedRelations: {
+      users: {
+        type: "multiple",
+        limit: 50,
+        sort: { field: "_id", order: "desc" },
+      },
+    },
+  },
+
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single",
+    relatedRelations: {
+      users: {
+        type: "multiple",
+        limit: 50,
+        sort: { field: "_id", order: "desc" },
+      },
+    },
+  },
+}
+```
+
+There are **no relatedRelations pointing at `user`** — nothing embeds a user. That's why deleting a user is simple. But we still have to check its `mainRelations`: the user is embedded in the `users` list of the cities it lived in, and in the `users` list of its country. Lesan removes those embeddings, and if a list needs refilling (it has a `limit` and a slot opened up), it adds the next qualifying user automatically.
+
+The full example is [`examples/document/09-1-deleteOne.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/09-1-deleteOne.ts).
+
+The user schema, with all its relations:
+
+![User schema relations](https://github.com/MiaadTeam/lesan/assets/6236123/233343a0-b384-4651-91e6-fef86eed7ff2)
+
+Before deleting the user:
+
+![User before deleteUser in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/681173da-9fc0-4c81-930a-12c63ded6228)
+
+While deleting:
+
+![User while deleteUser runs](https://github.com/MiaadTeam/lesan/assets/6236123/a6d2e8bd-7340-4e0d-97c8-78bf9ecd7b0e)
+
+After deleting:
+
+![User after deleteUser](https://github.com/MiaadTeam/lesan/assets/6236123/a997cc73-3d63-4bc9-b2d1-e8ee0d4c7e9f)
+
+## Delete a country
+
+Now the hard case. The `country` model defines **no** relations of its own — but both `city` and `user` create relations *with* it:
+
+![Country schema with cities and users relations](https://github.com/MiaadTeam/lesan/assets/6236123/13bfac05-a2ec-43f6-84b6-af5d45fcb244)
+
+```ts
+const countryRelations = {};
+
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: { field: "_id", order: "desc" as RelationSortOrderType },
+      },
+      citiesByPopulation: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: { field: "population", order: "desc" as RelationSortOrderType },
+      },
+      capital: { type: "single" as RelationDataType },
+    },
+  },
+};
+
+const userRelations = {
+  livedCities: {
+    optional: false,
+    schemaName: "city",
+    type: "multiple",
+    sort: { field: "_id", order: "desc" },
+    relatedRelations: {
+      users: { type: "multiple", limit: 50, sort: { field: "_id", order: "desc" } },
+    },
+  },
+
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single",
+    relatedRelations: {
+      users: { type: "multiple", limit: 50, sort: { field: "_id", order: "desc" } },
+    },
+  },
+};
+```
+
+If we delete a country that still has cities or users referencing it, the data created based on that country becomes meaningless. Lesan refuses — with a `relatedRelations` error listing every dependent document:
+
+```json
+{
+  "body": {
+    "message": "please clear below relations status before deletion: [ ... dependent docs ... ]"
+  },
+  "success": false
+}
+```
+
+We have two ways forward:
+
+1. **Delete all dependent documents** one by one.
+2. Set `hardCascade: true` on `deleteOne`:
+
+```ts
+const deleteCountry: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  return await countries.deleteOne({
+    filter: { _id: new ObjectId(_id) },
+    hardCascade: true,
+  });
+};
+```
+
+`hardCascade: true` deletes the country **and** every dependent document, and the dependents of those dependents, recursively — so cities and users referencing the country are deleted too. The full example is [`examples/document/09-2-deleteOne.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/09-2-deleteOne.ts).
+
+Before deleting the country:
+
+![Country before deleteCountry in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/19cd739a-b5ae-43e3-8991-d190b4b0f500)
+
+While deleting:
+
+![Country while deleteCountry runs](https://github.com/MiaadTeam/lesan/assets/6236123/93080e4d-847a-4968-a587-bb02a36ff360)
+
+After deleting — the country and its dependent cities and users are gone:
+
+![Country after deleteCountry](https://github.com/MiaadTeam/lesan/assets/6236123/f12495a1-11ec-4cc3-9ec3-0924c014cbdd)
+
+:::caution
+`hardCascade` deletes recursively and is irreversible. Use it only when you're sure the dependent documents should be removed with the parent.
+:::
+
+## Next steps
+
+- [insertMany](/docs/tutorials/insert-many) — inserting many documents while keeping all relations embedded correctly
+- [Relations in Depth](/docs/advanced/relations-in-depth) — `limit`, `sort`, `excludes`, and cascading deletes

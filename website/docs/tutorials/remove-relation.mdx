@@ -1,0 +1,188 @@
+---
+sidebar_position: 4
+---
+
+# The `removeRelation` Function
+
+`removeRelation` is the inverse of `addRelation` — it **undoes** links between documents, cleaning up both sides. This tutorial covers removing a many-to-many link, then removing an *optional* single relation.
+
+## Remove a many-to-many relation
+
+Removing cities from a user's `livedCities` list:
+
+```ts
+const removeLivedCitiesValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      livedCities: array(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+
+const removeLivedCities: ActFn = async (body) => {
+  const { livedCities, _id } = body.details.set;
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
+
+  return await users.removeRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "removeLivedCities",
+  validator: removeLivedCitiesValidator(),
+  fn: removeLivedCities,
+});
+```
+
+`removeRelation` takes the same object as `addRelation`, minus the `replace` key:
+
+- **`filters`** — a MongoDB `findOne` filter that selects the single document.
+- **`relations`** — the relation input, with `_ids` and `relatedRelations`.
+- **`projection`** — shapes the written data.
+
+The act receives the user id and an array of city ids. The cities are removed from the user's `livedCities`, and the user is removed from each city's `users` list. (For the internal steps, see [the steps to add a country to a user](./add-relation#what-happens-under-the-hood) — here there is no document to add, only removal and refilling of limited lists.)
+
+## Remove an optional single relation
+
+For a `single` relation there's a catch:
+
+- If `optional` is `false`, you **cannot** use `removeRelation` — there is no "empty" state. Use [`addRelation`](./add-relation) with `replace: true` instead.
+- If `optional` is `true`, you *can* remove the relation entirely, along with its related relations.
+
+Let's give the user an optional `mostLovedCity`:
+
+```ts
+const users = coreApp.odm.newModel("user", userPure, {
+  livedCities: {
+    optional: false,
+    schemaName: "city",
+    type: "multiple",
+    sort: { field: "_id", order: "desc" },
+    relatedRelations: {
+      users: {
+        type: "multiple",
+        limit: 5,
+        sort: { field: "_id", order: "desc" },
+      },
+    },
+  },
+
+  mostLovedCity: {
+    optional: true,
+    schemaName: "city",
+    type: "single",
+    relatedRelations: {
+      lovedByUser: {
+        type: "multiple",
+        limit: 5,
+        sort: { field: "_id", order: "desc" },
+      },
+    },
+  },
+
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single",
+    relatedRelations: {
+      users: {
+        type: "multiple",
+        limit: 5,
+        sort: { field: "_id", order: "desc" },
+      },
+    },
+  },
+});
+```
+
+On the city side, `lovedByUser` keeps the last five users who chose it. First, set the relation (note `replace: true`, since it's a single relation):
+
+```ts
+const addMostLovedCity: ActFn = async (body) => {
+  const { lovedCity, _id } = body.details.set;
+
+  return await users.addRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      mostLovedCity: {
+        _ids: new ObjectId(lovedCity),
+        relatedRelations: {
+          lovedByUser: true,
+        },
+      },
+    },
+    replace: true,
+  });
+};
+```
+
+Then remove it:
+
+```ts
+const removeMostLovedCity: ActFn = async (body) => {
+  const { lovedCity, _id } = body.details.set;
+
+  return await users.removeRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      mostLovedCity: {
+        _ids: new ObjectId(lovedCity),
+        relatedRelations: {
+          lovedByUser: true,
+        },
+      },
+    },
+  });
+};
+```
+
+The user's `mostLovedCity` field is cleared (if it matches the given id), and the user is removed from that city's `lovedByUser` list.
+
+## Run the code
+
+The complete runnable examples are [`examples/document/05-2-remove-relation-fn-1.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/05-2-remove-relation-fn-1.ts) (many-to-many) and [`examples/document/05-2-remove-relation-fn-2.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/05-2-remove-relation-fn-2.ts) (optional single) in the Lesan repository. Run them and explore `main → user → removeLivedCities` / `removeMostLovedCity` in the playground.
+
+Before running `removeLivedCities`:
+
+![removeLivedCities act in the playground, before running](https://github.com/MiaadTeam/lesan/assets/6236123/0dbbb5a7-c1be-4ed2-921b-49dd2766881c)
+
+While running:
+
+![removeLivedCities act in the playground, executing](https://github.com/MiaadTeam/lesan/assets/6236123/600ada91-88f0-443a-b926-7d423a0e9c48)
+
+After running — the city is removed from `livedCities`:
+
+![removeLivedCities act in the playground, after running](https://github.com/MiaadTeam/lesan/assets/6236123/8c482402-00b8-4a76-8c2a-7381d6abec0b)
+
+For `addMostLovedCity`, setting an optional single relation:
+
+![addMostLovedCity act in the playground, before running](https://github.com/MiaadTeam/lesan/assets/6236123/ea1f021e-f9d6-4f01-ac4f-6c6cc692928b)
+
+![addMostLovedCity act in the playground, executing](https://github.com/MiaadTeam/lesan/assets/6236123/68807ada-9944-4148-bb92-56dca9d88285)
+
+![addMostLovedCity act in the playground, after running](https://github.com/MiaadTeam/lesan/assets/6236123/699553c6-2655-44ab-8aff-bd4e544b91e6)
+
+And finally `removeMostLovedCity` erases the optional single relation:
+
+![removeMostLovedCity act in the playground, executing](https://github.com/MiaadTeam/lesan/assets/6236123/9ceb95e3-fe3a-4941-89de-65f277691d9b)
+
+![removeMostLovedCity act in the playground, after running](https://github.com/MiaadTeam/lesan/assets/6236123/4c202679-f10f-4c42-b120-cbd4c44f81b6)
+
+## Next steps
+
+- [Find and findOne](/docs/tutorials/find-and-find-one) — reading documents and their embedded relations back out

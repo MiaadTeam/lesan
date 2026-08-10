@@ -1,0 +1,138 @@
+---
+sidebar_position: 3
+---
+
+# Case Study: Paper — A Shared Library Across the Stack
+
+**Paper** is a scientific publishing platform — journals, articles, authors, publications, and blog posts. What makes it worth studying is its **layout, not its size**: it is a small monorepo where all Lesan models and utilities live in a shared `lib/` package (`@paper/lib`) imported by both the Deno backend (`@paper/back`) and the Next.js frontend (`@paper/web`).
+
+```text
+paper/
+├── lib/    # @paper/lib  — shared Lesan models, utils, interfaces (no runtime server code)
+├── back/   # @paper/back — the Lesan server (imports models from @paper/lib)
+└── web/    # @paper/web  — Next.js frontend (imports types from @paper/lib)
+```
+
+## What Makes It Interesting
+
+- **Models defined once, imported everywhere.** `lib/models/*.ts` define pure fields and relations; the backend calls the factory functions, and the frontend can import the same structs for client-side validation.
+- **`coreApp` imported into the models.** The lib models pull `coreApp` from `@paper/back` and call `newModel` at import time — a circular-import arrangement that works because `lesan()` only needs to exist before the factories are *invoked* in `back/mod.ts`.
+- **Redis** — a shared `myRedis` connection at bootstrap, exactly like NEJAT and Satek.
+- **Bounded numbers via `size()`** — `publicationYear: size(number(), 1250, 1500)` shows superstruct range validators on pure fields.
+
+## Models & Relations
+
+| Model | Purpose | Notable relations |
+|-------|---------|-------------------|
+| `user` | registrar/editor accounts | — |
+| `article` | the core document | `registrar` (required), `avatar`/`doc` (File), `publication`, `authors`, `tags`, `keywords`, `categories` |
+| `publication` | journal/book a paper belongs to | `articles` |
+| `author` | people listed on papers | `articles` |
+| `keyword` / `tag` | taxonomy | `articles` |
+| `file` | uploads | — |
+| `blog` / `category` | site content | — |
+
+The `article` relations show the classic "who did what" pattern — the acting user is recorded as a required relation:
+
+```ts
+export const articleRelations = {
+  registrar: {
+    schemaName: "user",
+    optional: false,
+    type: "single",
+    relatedRelations: {
+      registerArticles: { type: "multiple", limit: 50, sort: { field: "_id", order: "desc" } },
+    },
+  },
+  avatar: { schemaName: "file", type: "single", optional: true, relatedRelations: {} },
+  doc:    { schemaName: "file", type: "single", optional: true, relatedRelations: {} },
+  publication: {
+    schemaName: "publication",
+    optional: true,
+    type: "single",
+    relatedRelations: { articles: { type: "multiple", limit: 50, sort: { field: "_id", order: "desc" } } },
+  },
+  authors: { schemaName: "author", type: "multiple", relatedRelations: { articles: true } },
+  tags:     { schemaName: "tag",     type: "multiple", relatedRelations: { articles: true } },
+  keywords: { schemaName: "keyword", type: "multiple", relatedRelations: { articles: true } },
+};
+```
+
+## Acts
+
+Per-model `add` / `get` / `gets` / `count` / `update` / `remove` + `update<Model>Relations` for relation management. The `getArticles` act supports full-text search plus advanced filters on metadata (`articleType`, `publicationYear`, `ISBN`, `DOI`, `issue`, `volume`) and relation dot-notation (`authorIds`, `tagIds`, `publication`).
+
+## The shared-library pattern in practice
+
+The model factory lives in `lib`, and the backend invokes it:
+
+```ts
+// back/mod.ts
+import { articles, authors, blogs, categories, keywords, publications, tags, users } from "@paper/lib";
+
+export const coreApp = lesan();
+// ... setDb ...
+
+export const article = articles();   // calling the factory registers "article" with coreApp
+export const publication = publications();
+// ...
+```
+
+Inside `lib/models/article.ts`, the factory imports the shared `coreApp`:
+
+```ts
+// lib/models/article.ts
+import { coreApp } from "@paper/back";
+import { createUpdateAt } from "../utils/mod.ts";
+
+export const articleTypeArray = ["journalArticle", "book"];
+export const articleTypeEnums = enums(articleTypeArray);
+
+export const articlePureFields = {
+  articleType: articleTypeEnums,
+  publicationYear: size(number(), 1250, 1500),
+  title: string(),
+  abstract: string(),
+  ISBN: optional(string()),
+  DOI: optional(string()),
+  // ...
+  ...createUpdateAt,
+};
+
+export const articles = () =>
+  coreApp.odm.newModel("article", articlePureFields, articleRelations);
+```
+
+The add act pulls the acting user straight out of the context and wires it as the `registrar` relation, alongside the client-supplied relation ids:
+
+```ts
+export const addArticleFn: ActFn = async (body) => {
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+  const { set, get } = body.details;
+  const { publication, doc, avatar, tags, keywords, authors, ...rest } = set;
+
+  const relations: TInsertRelations<typeof articleRelations> = {
+    registrar: { _ids: user._id, relatedRelations: { registerArticles: true } },
+    publication: { _ids: new ObjectId(publication as string), relatedRelations: { articles: true } },
+    authors: { _ids: authors.map((id: string) => new ObjectId(id)), relatedRelations: { articles: true } },
+    tags:    { _ids: tags.map((id: string) => new ObjectId(id)),    relatedRelations: { articles: true } },
+  };
+
+  doc && (relations.doc = { _ids: new ObjectId(doc as string) });
+  avatar && (relations.avatar = { _ids: new ObjectId(avatar as string) });
+  keywords && (relations.keywords = {
+    _ids: keywords.map((id: string) => new ObjectId(id)),
+    relatedRelations: { articles: true },
+  });
+
+  return await article.insertOne({ doc: rest, relations, projection: get });
+};
+```
+
+:::info Takeaway
+Paper shows the **sharing layer**: define models and validators once in a package that both server and client depend on. The Lesan code itself needs nothing special — the same `newModel` factories and `setAct` acts — but the monorepo boundary makes the type safety cross the network boundary too.
+:::
+
+:::tip Related reading
+For the same `preAct` auth hooks Paper uses (`setTokens` → `setUser` → `grantAccess`), see the [Satek complex example](/docs/guides/complex-example) and [Request Lifecycle](/docs/advanced/request-lifecycle).
+:::

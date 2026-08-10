@@ -1,0 +1,505 @@
+---
+sidebar_position: 4
+---
+
+# Queries & Projections
+
+Lesan's query system combines the power of MongoDB with **client-driven projections** — the client decides exactly what data to fetch, reducing over-fetching and under-fetching without the complexity of GraphQL.
+
+## Client-Driven Projections
+
+Unlike traditional REST APIs where the server decides the response shape, Lesan lets the client specify exactly which fields and relations to return.
+
+### The `get` Object
+
+Every Lesan request includes a `details.get` object that defines the desired output shape:
+
+```typescript
+{
+  service: "main",
+  model: "city",
+  act: "getCity",
+  details: {
+    set: { _id: "507f1f77bcf86cd799439011" },
+    get: {
+      name: 1,
+      population: 1,
+      province: {
+        name: 1,
+        country: {
+          name: 1
+        }
+      }
+    }
+  }
+}
+```
+
+This request says: *"Give me the city's name and population, plus its province's name, plus that province's country's name."*
+
+### Projection Syntax
+
+Projections follow MongoDB's projection syntax:
+
+| Value | Meaning |
+|-------|---------|
+| `1` | Include this field |
+| `0` | Exclude this field |
+| Nested object | Include nested relation fields |
+
+```typescript
+// Include only name and population
+{ name: 1, population: 1 }
+
+// Include name and province relation (with province's name)
+{ name: 1, province: { name: 1 } }
+
+// Exclude password field
+{ password: 0 }
+```
+
+### How Projections Work
+
+When you provide a `projection` to a model method, Lesan:
+
+1. **Parses the projection** against your schema
+2. **Generates an aggregation pipeline** with `$lookup` stages for relations
+3. **Executes the pipeline** on MongoDB
+4. **Returns shaped data** exactly matching the projection
+
+```
+Client Request: { name: 1, province: { name: 1 } }
+                ↓
+Lesan generates: [ { $match: {...} },
+                  { $lookup: { from: "province", ... } },
+                  { $unwind: "$province" },
+                  { $project: { name: 1, "province.name": 1 } } ]
+                ↓
+MongoDB returns: { name: "Tehran", province: { name: "Tehran Province" } }
+```
+
+---
+
+## Query Operations
+
+### Basic Find with Projection
+
+```typescript
+const cities = coreApp.odm.newModel("city", cityPure, cityRelations);
+
+// In your action:
+const getCity: ActFn = async (body) => {
+  return await cities.findOne({
+    filters: { _id: new ObjectId(body.details.set._id) },
+    projection: body.details.get,  // Client decides what to fetch!
+  });
+};
+```
+
+### Deep Nesting
+
+Projections can traverse multiple levels of relations:
+
+```typescript
+// City → Province → Country → Continent
+const getCityDeep: ActFn = async (body) => {
+  return await cities.findOne({
+    filters: { _id: new ObjectId(body.details.set._id) },
+    projection: {
+      name: 1,
+      province: {
+        name: 1,
+        country: {
+          name: 1,
+          continent: {
+            name: 1
+          }
+        }
+      }
+    },
+  });
+};
+```
+
+### Array Relations
+
+For `multiple` type relations, projections automatically handle arrays:
+
+```typescript
+// Get province with its cities (array)
+const getProvince: ActFn = async (body) => {
+  return await provinces.findOne({
+    filters: { _id: new ObjectId(body.details.set._id) },
+    projection: {
+      name: 1,
+      cities: {        // This is a multiple relation
+        name: 1,
+        population: 1
+      }
+    },
+  });
+};
+```
+
+:::tip Deeper examples
+For copyable advanced patterns — per-relation `selectStruct` depths, dynamic projections, and deep nesting — see [Client-Driven Projections](/docs/advanced/client-projections), [Aggregation Pipelines](/docs/advanced/aggregation), [Filtering](/docs/advanced/filtering), and [Pagination](/docs/advanced/pagination).
+:::
+
+---
+
+## Aggregation Pipeline
+
+Lesan's `aggregation` method combines raw MongoDB pipelines with automatic projection generation.
+
+### Basic Aggregation
+
+```typescript
+const results = await cities.aggregation({
+  pipeline: [
+    { $match: { population: { $gt: 1000000 } } },
+    { $sort: { population: -1 } },
+    { $limit: 10 },
+  ],
+}).toArray();
+```
+
+### Aggregation with Projection
+
+```typescript
+const results = await cities.aggregation({
+  pipeline: [
+    { $match: { population: { $gt: 1000000 } } },
+  ],
+  projection: {
+    name: 1,
+    population: 1,
+    province: {
+      name: 1,
+    },
+  },
+}).toArray();
+```
+
+When `projection` is provided, Lesan appends the generated pipeline stages to your custom pipeline.
+
+### Generated Pipeline Stages
+
+Lesan generates the following stages based on your projection:
+
+| Stage | Purpose |
+|-------|---------|
+| `$lookup` | Join related collections |
+| `$unwind` | Flatten single-type relation arrays |
+| `$project` | Shape the final output |
+| `$addFields` | Compute derived fields |
+| `$sort` | Sort relation arrays |
+| `$slice` | Limit relation array size |
+
+---
+
+## Filtering
+
+Lesan uses standard MongoDB filters with full operator support.
+
+### Comparison Operators
+
+```typescript
+await cities.find({
+  filters: {
+    population: { $gt: 1000000 },     // Greater than
+    name: { $ne: "Unknown" },          // Not equal
+    code: { $in: ["TEH", "KAR"] },     // In array
+  },
+});
+```
+
+### Logical Operators
+
+```typescript
+await cities.find({
+  filters: {
+    $and: [
+      { population: { $gt: 1000000 } },
+      { isCapital: true },
+    ],
+    $or: [
+      { name: { $regex: "^T" } },
+      { name: { $regex: "^K" } },
+    ],
+  },
+});
+```
+
+### Relation Filtering
+
+Filter on embedded relation fields using dot notation:
+
+```typescript
+await cities.find({
+  filters: {
+    "province.name": "Tehran Province",
+    "province.country.name": "Iran",
+  },
+});
+```
+
+---
+
+## Sorting and Pagination
+
+### Sorting
+
+```typescript
+await cities.find({
+  filters: {},
+  options: {
+    sort: { population: -1 },  // Descending by population
+    limit: 20,
+  },
+});
+```
+
+### Pagination
+
+```typescript
+const page = 2;
+const pageSize = 20;
+
+await cities.find({
+  filters: {},
+  options: {
+    sort: { _id: -1 },
+    skip: (page - 1) * pageSize,
+    limit: pageSize,
+  },
+});
+```
+
+### Cursor-Based Pagination
+
+For better performance with large datasets:
+
+```typescript
+const lastId = "..."; // Last seen _id from previous page
+
+await cities.find({
+  filters: {
+    _id: { $lt: new ObjectId(lastId) },
+  },
+  options: {
+    sort: { _id: -1 },
+    limit: 20,
+  },
+});
+```
+
+---
+
+## Select Struct for Validation
+
+Lesan provides `selectStruct` for creating validators that match your schema's shape at specific depths.
+
+```typescript
+// Create a validator that accepts projections up to depth 2
+const validator = object({
+  set: object({ _id: objectIdValidation }),
+  get: coreApp.schemas.selectStruct("city", 2),
+});
+```
+
+The `selectStruct` generates a Superstruct validator that accepts any valid projection for the schema up to the specified depth.
+
+---
+
+## Advanced Query Patterns
+
+### Conditional Projections
+
+Build projections dynamically based on client input:
+
+```typescript
+const getUser: ActFn = async (body) => {
+  const { _id, includeProfile, includeOrders } = body.details.set;
+
+  const projection: any = {
+    name: 1,
+    email: 1,
+  };
+
+  if (includeProfile) {
+    projection.profile = { bio: 1, avatar: 1 };
+  }
+
+  if (includeOrders) {
+    projection.orders = { total: 1, status: 1, items: { name: 1, price: 1 } };
+  }
+
+  return await users.findOne({
+    filters: { _id: new ObjectId(_id) },
+    projection,
+  });
+};
+```
+
+### Count with Filters
+
+```typescript
+const getStats: ActFn = async (body) => {
+  const filter = body.details.set.filter || {};
+
+  const [total, items] = await Promise.all([
+    cities.countDocument({ filter }),
+    cities.find({ filters: filter, options: { limit: 10 } }).toArray(),
+  ]);
+
+  return { total, items };
+};
+```
+
+### Aggregation with Grouping
+
+```typescript
+const getStats: ActFn = async (body) => {
+  return await cities.aggregation({
+    pipeline: [
+      { $match: { "province.name": body.details.set.provinceName } },
+      {
+        $group: {
+          _id: "$province.name",
+          totalPopulation: { $sum: "$population" },
+          cityCount: { $sum: 1 },
+          avgPopulation: { $avg: "$population" },
+        },
+      },
+    ],
+  }).toArray();
+};
+```
+
+---
+
+## Performance Considerations
+
+### Indexing
+
+Create indexes for fields you frequently filter or sort by:
+
+```typescript
+const cities = coreApp.odm.newModel("city", cityPure, cityRelations, {
+  createIndex: {
+    indexSpec: { population: -1 },
+    options: {},
+  },
+});
+```
+
+### Projection Limits
+
+- Use `limit` on `multiple` relations in schema definitions to prevent huge arrays
+- Use `excludes` to omit large fields (like base64 images) from automatic projections
+- Use `FindOptions.limit` to cap query results
+
+### Embedded vs. Referenced
+
+Lesan uses **denormalization** (embedded documents) rather than foreign keys. This means:
+
+- **Reads are extremely fast** — no joins needed for single-document lookups
+- **Writes are managed** — relation updates handle both sides automatically
+- **Storage is traded for speed** — related data is stored in multiple places
+
+---
+
+## Complete Query Example
+
+```typescript
+// Client sends this request:
+const requestBody = {
+  service: "main",
+  model: "city",
+  act: "searchCities",
+  details: {
+    set: {
+      minPopulation: 1000000,
+      provinceName: "Tehran Province",
+    },
+    get: {
+      name: 1,
+      population: 1,
+      province: {
+        name: 1,
+        country: {
+          name: 1,
+          flag: 1,
+        },
+      },
+    },
+  },
+};
+
+// Server action:
+const searchCities: ActFn = async (body) => {
+  const { minPopulation, provinceName } = body.details.set;
+
+  return await cities.find({
+    filters: {
+      population: { $gte: minPopulation },
+      "province.name": provinceName,
+    },
+    projection: body.details.get,
+    options: {
+      sort: { population: -1 },
+      limit: 20,
+    },
+  }).toArray();
+};
+
+// Result:
+[
+  {
+    name: "Tehran",
+    population: 9000000,
+    province: {
+      name: "Tehran Province",
+      country: {
+        name: "Iran",
+        flag: "🇮🇷"
+      }
+    }
+  },
+  // ...
+]
+```
+
+---
+
+## API Reference Table
+
+### Query Methods
+
+| Method | Description |
+|--------|-------------|
+| `model.find({ filters, projection, options })` | Query with cursor |
+| `model.findOne({ filters, projection, options })` | Single document |
+| `model.aggregation({ pipeline, projection, options })` | Aggregation pipeline |
+| `model.countDocument({ filter, options })` | Count documents |
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `filters` | MongoDB filter object |
+| `projection` | Client-driven shape definition |
+| `options.limit` | Max documents to return |
+| `options.skip` | Documents to skip |
+| `options.sort` | Sort specification |
+
+### Projection Types
+
+```typescript
+type Projection = { [key: string]: number | Projection };
+
+// Examples:
+{ name: 1 }
+{ name: 1, province: { name: 1 } }
+{ password: 0 }
+```

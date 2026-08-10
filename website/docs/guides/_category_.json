@@ -1,0 +1,8 @@
+{
+  "label": "Example Projects",
+  "position": 8,
+  "link": {
+    "type": "generated-index",
+    "description": "Real-world Lesan projects that combine everything — many models, rich relations, auth, feature flags, text search, and role-scoped aggregation pipelines."
+  }
+}

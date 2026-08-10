@@ -1,0 +1,99 @@
+.animatedSection {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.fadeInUp {
+  transform: translateY(20px);
+}
+
+.fadeIn {
+  transform: none;
+}
+
+.fadeInLeft {
+  transform: translateX(-20px);
+}
+
+.fadeInRight {
+  transform: translateX(20px);
+}
+
+.visible {
+  animation: fadeInUp 0.6s var(--ease-out) forwards;
+}
+
+.visible.fadeInUp {
+  animation-name: fadeInUp;
+}
+
+.visible.fadeIn {
+  animation-name: fadeIn;
+}
+
+.visible.fadeInLeft {
+  animation-name: fadeInLeft;
+}
+
+.visible.fadeInRight {
+  animation-name: fadeInRight;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Stagger container */
+.staggerContainer {
+  display: contents;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animatedSection {
+    opacity: 1;
+    transform: none;
+  }
+  
+  .visible {
+    animation: none;
+  }
+}

@@ -1,0 +1,130 @@
+.section {
+  position: relative;
+  padding: var(--space-9) var(--space-6);
+}
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.label {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--accent-purple);
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: var(--text-h1);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  line-height: var(--leading-tight);
+}
+
+.description {
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.codeSide {
+  overflow: hidden;
+}
+
+.infoSide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.feature {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.featureIcon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--border-radius-md);
+  color: var(--accent-emerald);
+  flex-shrink: 0;
+}
+
+.featureText h4 {
+  font-size: var(--text-h4);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2);
+}
+
+.featureText p {
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+.tags {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+  
+  .codeSide {
+    order: 2;
+  }
+  
+  .infoSide {
+    order: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .section {
+    padding: var(--space-7) var(--space-4);
+  }
+  
+  .title {
+    font-size: var(--text-h2);
+  }
+}

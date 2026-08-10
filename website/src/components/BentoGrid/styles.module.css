@@ -1,0 +1,34 @@
+.bentoGrid {
+  display: grid;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.bentoItem {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Tablet: 2 columns */
+@media (max-width: 1024px) {
+  .bentoGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .bentoItem {
+    grid-column: span 1 !important;
+  }
+}
+
+/* Mobile: 1 column */
+@media (max-width: 640px) {
+  .bentoGrid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .bentoItem {
+    grid-column: span 1 !important;
+    grid-row: span 1 !important;
+  }
+}

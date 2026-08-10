@@ -1,0 +1,53 @@
+---
+sidebar_position: 3
+---
+
+# Receiving Data: The Challenge
+
+One of the biggest challenges we faced when implementing data retrieval in Lesan was a seemingly simple customer request: *fetch a schema's dependencies with more than two levels of penetration in depth* — a country with its provinces, and each province with its cities.
+
+Before explaining Lesan's method, let's review the previous methods and the problems they create.
+
+## The Two Classic Problems
+
+Many of the current structures for interacting with server-side applications require **multiple requests** to be sent to the server to receive a set of related information. And because the information sent often doesn't match what the customer actually needs, much of it goes unused — wasting resources and bandwidth. These two failures have names:
+
+### Under-fetching
+
+The received information is **less than what is needed**, so the client must send another request to the server. This decreases the number of requests the server can answer per unit of time and increases its processing load.
+
+### Over-fetching
+
+The customer needs only a specific part of the information, but the server sends **the whole schema** regardless. This wastes bandwidth and increases data exchange time.
+
+Facebook introduced **GraphQL** to solve these problems to some extent. The idea is very creative and practical — but it also comes with its own problems and challenges.
+
+## The Problems with GraphQL
+
+GraphQL is a language for describing data models and how to request them. In addition to implementing the usual server program, you also need a dedicated GraphQL implementation. This violates one of the fundamental principles of programming — *"Don't repeat yourself"* (DRY) — and forces developers to learn GraphQL's descriptive language, `GQL`:
+
+```graphql
+# This Book type has two fields: title and author
+type Book {
+  title: String # returns a String
+  author: Author # returns an Author
+}
+
+type Mutation {
+  addBook(title: String, author: String): Book
+}
+```
+
+After the data model is described in GraphQL, every request sent to the server must be **parsed and analyzed** as descriptive text, which adds processing overhead.
+
+GraphQL manages sending data along with their relationships, but the **depth** and type of relationships requested are not easily manageable, which causes non-optimal requests to be sent to the server.
+
+GraphQL is a **general-purpose** descriptive language and is not optimized for any specific database. It has no view of the implementation in other structures, so no specific optimizations are made on it.
+
+Sending a request in GraphQL is not in common, popular formats such as **JSON**, which makes sending requests with many current tools complex. It also introduces new concepts like `query` and `mutation` instead of using the web's common standards — which has both advantages and disadvantages.
+
+## The Way Forward
+
+Lesan was designed to keep what GraphQL got right — client-driven data retrieval with no under- or over-fetching — while removing the language, the parsing overhead, and the database-agnosticism. Read about the solution in the next section:
+
+- [Lesan's Solution: Communicating Between Server & Client](/docs/concepts/server-client-communication)

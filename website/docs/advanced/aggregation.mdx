@@ -1,0 +1,104 @@
+---
+sidebar_position: 4
+---
+
+# Aggregation Pipelines with Client Projections
+
+Lesan's `aggregation` method lets you run a **raw MongoDB pipeline** and then *appends* the projection stages needed to satisfy the client's `get`. You write the hard logic (`$match`, `$sort`, `$group`, `$skip`/`$limit`); Lesan writes the `$lookup`, `$unwind`, and `$project`.
+
+## The Method
+
+```ts
+const cursor = cities.aggregation({
+  pipeline: [ /* your raw stages */ ],
+  projection: get, // optional client-driven shape
+  options: {},     // optional AggregateOptions
+});
+const result = await cursor.toArray();
+```
+
+The `projection` is appended to your pipeline as generated stages, so embedded relations resolve automatically.
+
+## Basic Aggregation
+
+```ts
+const getCitiesAggregation: ActFn = async (body) => {
+  const { set: { page, take, countryId }, get } = body.details;
+
+  const pipeline: any[] = [];
+
+  pipeline.push({ $skip: (page - 1) * take });
+  pipeline.push({ $limit: take });
+
+  if (countryId) {
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
+  }
+
+  return await cities.aggregation({ pipeline, projection: get }).toArray();
+};
+```
+
+Note the `$match` on `"country._id"` — because relations are embedded snapshots, dot-notation filters work directly on the stored field without any join.
+
+## Aggregating Across the Whole Collection
+
+Grouping, counting, and averaging over all documents:
+
+```ts
+const getStats: ActFn = async (body) => {
+  return await cities.aggregation({
+    pipeline: [
+      {
+        $group: {
+          _id: "$country.name",
+          totalPopulation: { $sum: "$population" },
+          cityCount: { $sum: 1 },
+          avgPopulation: { $avg: "$population" },
+        },
+      },
+      { $sort: { totalPopulation: -1 } },
+    ],
+  }).toArray();
+};
+```
+
+## A Single Document via Aggregation
+
+```ts
+const getUserAggregation: ActFn = async (body) => {
+  const { set: { userId }, get } = body.details;
+  const pipeline = [{ $match: { _id: new ObjectId(userId) } }];
+
+  return await users.aggregation({ pipeline, projection: get }).toArray();
+};
+```
+
+## How Projection Stages Are Generated
+
+For **shallow** projections (fields only, no nested relations), Lesan appends a single `$project`. When a client penetrates a relation, `generateProjection` adds:
+
+| Stage | Purpose |
+|-------|---------|
+| `$lookup` | Join the related collection (`from` = the related schema's collection) |
+| `$unwind` | Flatten `single` relations (`preserveNullAndEmptyArrays: true`); `multiple` arrays stay arrays |
+| `$project` | Shape the final output |
+
+Because the first level of every relation is already embedded in the document, no `$lookup` is needed until the client goes **deeper than one level** — that's the key to the [fifteen-to-hundreds-of-times-faster reads](/docs/concepts/server-client-communication).
+
+## Validator with `selectStruct`
+
+Use `selectStruct` so the client can only request valid projections:
+
+```ts
+const validator = () =>
+  object({
+    set: object({ page: number(), take: number(), countryId: optional(objectIdValidation) }),
+    get: coreApp.schemas.selectStruct("city", 3),
+  });
+```
+
+## Performance Notes
+
+- Prefer `$match` early in the pipeline to reduce rows before `$skip`/`$limit`.
+- Create indexes on fields you `$match` or `$sort` (see `createIndex` in [Model Options](/docs/api/models#model-options)).
+- The `options` argument is passed straight to MongoDB's `aggregate`, so `allowDiskUse`, `maxTimeMS`, `collation`, etc. all work.

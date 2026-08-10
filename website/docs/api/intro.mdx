@@ -1,0 +1,114 @@
+---
+sidebar_position: 1
+---
+
+# API Overview
+
+Welcome to the **Lesan API Reference**. This section provides comprehensive documentation for every public API, module, and type in the Lesan framework.
+
+## What is Lesan?
+
+Lesan is a **blazing-fast**, cross-platform web framework + ODM that works on **Node.js, Bun, and Deno**. It gives you GraphQL-like flexibility with unmatched performance, featuring:
+
+- **Client-driven projections** — fetch only the data you need
+- **Automatic bi-directional relationships** — define relations once, get both sides for free
+- **End-to-end TypeScript safety** — types generated from your schemas
+- **Extreme performance** — much faster than traditional ORMs or GraphQL
+- **Full MongoDB compatibility** — with a modern, type-safe developer experience
+
+## API Structure
+
+The Lesan API is organized into the following core modules:
+
+| Module | Description | Documentation |
+|--------|-------------|---------------|
+| **Core** | Main entry point, server, context, and acts | [Server API](./server) |
+| **Models & ODM** | Schema definitions, relations, and database operations | [Models & ODM](./models) |
+| **Queries & Projections** | Find, aggregate, and client-driven projections | [Queries & Projections](./queries) |
+| **Type System** | Generated types, inference, and utilities | [Type System](./types) |
+| **Cross-Platform** | Node.js, Bun, and Deno compatibility | [Cross-Platform](./platforms) |
+
+## Quick Start
+
+```typescript
+import { lesan, MongoClient, string, number, object, ObjectId } from "@hemedani/lesan";
+
+// 1. Initialize Lesan
+const coreApp = lesan();
+
+// 2. Connect to MongoDB
+const client = await new MongoClient("mongodb://localhost:27017/").connect();
+const db = client.db("myapp");
+coreApp.odm.setDb(db);
+
+// 3. Define a schema
+const country = coreApp.odm.newModel("country", {
+  name: string(),
+  population: number(),
+}, {});
+
+// 4. Define an action
+const addCountry = async (body) => {
+  return await country.insertOne({
+    doc: body.details.set,
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "addCountry",
+  validator: object({ set: object({ name: string(), population: number() }), get: object() }),
+  fn: addCountry,
+});
+
+// 5. Start the server
+await coreApp.runServer({ port: 8000, playground: true, typeGeneration: true });
+```
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Lesan Core                            │
+├─────────────┬─────────────┬─────────────┬───────────────────┤
+│   Server    │    Acts     │   Schemas   │       ODM         │
+│  (HTTP)     │  (Actions)  │  (Models)   │   (MongoDB)       │
+├─────────────┴─────────────┴─────────────┴───────────────────┤
+│              Platform Adapters (Node/Bun/Deno)               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Server (`runServer`)
+Handles HTTP requests, serves static files, provides the GraphQL-like playground, and routes actions to their handlers.
+
+### Acts (`acts`)
+The action system where you define API endpoints. Each action has a validator (for input validation) and a function (for business logic).
+
+### Schemas (`schemas`)
+Defines your data models with pure fields (scalar values) and relations (links to other models).
+
+### ODM (`odm`)
+The Object Document Mapper that provides MongoDB operations like `find`, `insertOne`, `addRelation`, and aggregation with automatic projection support.
+
+### Context (`contextFns`)
+A request-scoped container that carries values (like authenticated user, headers, request body) through your action functions.
+
+## Type Safety
+
+Lesan generates TypeScript types automatically from your schemas and actions. When you enable `typeGeneration: true`, Lesan creates:
+
+- Schema types (e.g., `countrySchema`, `provinceSchema`)
+- Input types for relations (e.g., `countryInp`)
+- Request types for all your actions (e.g., `ReqType`)
+- A type-safe client (`lesanApi`) for calling your API
+
+See the [Type System documentation](./types) for details.
+
+## Next Steps
+
+- **[Server API](./server)** — Learn how to configure and run the Lesan server
+- **[Models & ODM](./models)** — Define schemas, relations, and perform database operations
+- **[Queries & Projections](./queries)** — Master client-driven projections and aggregation
+- **[Type System](./types)** — Understand generated types and TypeScript utilities
+- **[Cross-Platform](./platforms)** — Run Lesan on Node.js, Bun, or Deno

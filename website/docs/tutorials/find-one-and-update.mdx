@@ -1,0 +1,193 @@
+---
+sidebar_position: 7
+---
+
+# findOneAndUpdate
+
+Updating is the most challenging part of **Lesan**. Updating *one* document may require updating *thousands* — or even *millions* — of other documents. The good news: Lesan does it automatically. This tutorial walks through the two scenarios (updating a user, updating a country), then explains the three solutions Lesan proposes for the worst case.
+
+## Best case: update a user
+
+```ts
+const updateUserValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      name: optional(string()),
+      age: optional(number()),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+
+const updateUser: ActFn = async (body) => {
+  const { name, age, _id } = body.details.set;
+  const setObj: { name?: string; age?: number } = {};
+  name && (setObj.name = name);
+  age && (setObj.age = age);
+
+  return await users.findOneAndUpdate({
+    filter: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    update: { $set: setObj },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "updateUser",
+  validator: updateUserValidator(),
+  fn: updateUser,
+});
+```
+
+Remember the user model: each user lives in cities, and each city stores the last `50 users` in its `users` list. So when a user is updated, Lesan must `find` every city that user lives in and `update` the embedded `users` list in each one.
+
+If a related list is sorted by a `field` that the update changes, it gets more interesting: the user may drop out of the list entirely, and another qualifying user takes their place. Lesan handles that refill automatically. For the full mechanics see [What Is the Relationship Really?](/docs/concepts/what-is-the-relationship).
+
+`findOneAndUpdate` accepts:
+
+- **`filter`** — the MongoDB filter selecting the document to update.
+- **`update`** — the MongoDB update document (e.g. `{ $set: {...} }`).
+- **`projection`** — shapes the returned document.
+- **`options`** *(optional)* — MongoDB `FindOneAndUpdateOptions`.
+
+The full example is [`examples/document/08-1-findOneAndUpdate.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/08-1-findOneAndUpdate.ts).
+
+Before updating the user:
+
+![User document before updateUser in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/90f80569-4e19-4274-ba26-2d5c517698b5)
+
+While updating:
+
+![User document while updateUser runs](https://github.com/MiaadTeam/lesan/assets/6236123/dc9a32f6-db31-46fa-8f55-9ffc9e3aaabc)
+
+After updating — the user's name and age changed, and the embedded lists were kept in sync:
+
+![User document after updateUser in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/1d6408ba-327f-4987-bebd-dd345618cdf0)
+
+## Worse case: update a country
+
+```ts
+const updateCountryValidator = () => {
+  return object({
+    set: object({
+      _id: objectIdValidation,
+      name: optional(string()),
+      abb: optional(string()),
+      population: optional(number()),
+    }),
+    get: coreApp.schemas.selectStruct("country", 1),
+  });
+};
+
+const updateCountry: ActFn = async (body) => {
+  const { name, abb, population, _id } = body.details.set;
+  const setObj: { name?: string; abb?: string; population?: number } = {};
+  name && (setObj.name = name);
+  abb && (setObj.abb = abb);
+  population && (setObj.population = population);
+
+  return await countries.findOneAndUpdate({
+    filter: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    update: { $set: setObj },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "updateCountry",
+  validator: updateCountryValidator(),
+  fn: updateCountry,
+});
+```
+
+In a real scenario, updating a country means updating a **very large** number of documents: every `user` and every `city` that embeds this country. The full example is [`examples/document/08-2-findOneAndUpdate.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/08-2-findOneAndUpdate.ts).
+
+Before updating the country:
+
+![Country document before updateCountry in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/69bdeb8c-8c30-4af8-bfc4-eca2b04c8ff3)
+
+While updating:
+
+![Country document while updateCountry runs](https://github.com/MiaadTeam/lesan/assets/6236123/ff6fdfb8-d074-45c7-836a-1deb81f15172)
+
+After updating — every city and user that embeds the country was updated too:
+
+![Country document after updateCountry in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/e749a816-31cd-47da-815f-491cbbecd931)
+
+## Lesan's solutions to the update challenge
+
+As you've seen, updating one `country` can cascade into millions of documents. Lesan proposes three approaches:
+
+### QQ — the query queue
+
+`QQ` stands for *query queue*: a queue of commands to send to the database. Use it to **chunk** millions of updates. Take the first few hundred thousand documents that should be updated, perform the update immediately, then store the id of the last updated document together with the remaining commands in `QQ`. Run the next chunk whenever hardware resources are free.
+
+### In-memory database
+
+Because Lesan keeps *detailed* relation information, it can know — when sending data to the client — that some of it changed in `QQ`. By saving those changes in an in-memory database, the response can be corrected **in RAM** and sent to the client without touching the data on disk at all.
+
+### Make a new relation
+
+Perhaps the most elegant solution: turn frequently-changing fields into a **new relation**.
+
+Back to our example: a country's `name` and `abb` rarely change, but `population` might be updated every second — which would force every city and user to update every second. Impossible at scale.
+
+Instead, move `population` into its own schema and relate it to `country` (and `city`):
+
+```ts
+const populationPure = {
+  population: number(),
+  type: enums(["City", "Country"]),
+};
+
+const populationRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      populations: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+  city: {
+    optional: false,
+    schemaName: "city",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      populations: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const populations = coreApp.odm.newModel(
+  "population",
+  populationPure,
+  populationRelations
+);
+```
+
+Now remove `population` from the `pure` fields of `city` and `country` — but you can still filter and sort `country`/`city` based on the population relation, since the related snapshots are embedded. Even better, each country keeps a list of its **last 50 population records**, so you can ask questions like "which countries added more than 100 people in the last minute" without a complex query.
+
+And the crucial payoff: a population change now updates **two documents** instead of millions. Each population change creates one new `population` record and stores it only in its country's (or city's) `populations` list. No more cascading updates.
+
+## Next steps
+
+- [deleteOne](/docs/tutorials/delete-one) — deletion has the same challenges as update, solved the same way
+- [Queries & Projections](/docs/api/queries) — the full API reference

@@ -1,0 +1,120 @@
+---
+sidebar_position: 5
+---
+
+# Filtering with MongoDB Operators
+
+Lesan's `filters` (and `filter`) options accept **raw MongoDB filters**. Everything you can put in a MongoDB `find` works here — comparison operators, logical operators, regex, `$text`, and more. Plus, because relations are embedded snapshots, you can filter on related data with dot-notation without any join.
+
+## Comparison Operators
+
+```ts
+await cities.find({
+  filters: {
+    population: { $gt: 1000000 },   // greater than
+    name: { $ne: "Unknown" },        // not equal
+    code: { $in: ["TEH", "KAR"] },   // in array
+    age: { $gte: 18, $lte: 65 },     // range
+  },
+}).toArray();
+```
+
+## Logical Operators
+
+```ts
+await cities.find({
+  filters: {
+    $and: [
+      { population: { $gt: 1000000 } },
+      { isCapital: true },
+    ],
+    $or: [
+      { name: { $regex: "^T" } },
+      { name: { $regex: "^K" } },
+    ],
+  },
+}).toArray();
+```
+
+## Filtering on Relations (dot notation)
+
+Relations are embedded as snapshots inside the document, so you filter on them as if they were ordinary nested fields:
+
+```ts
+// All cities in a country by name:
+await cities.find({
+  filters: { "country.name": "Iran" },
+}).toArray();
+
+// Deeper chains work too:
+await cities.find({
+  filters: { "country.region.name": "Middle East" },
+}).toArray();
+```
+
+No `$lookup`, no second query, no joins — the data is already there.
+
+## Filtering by Relation ID
+
+```ts
+await cities.find({
+  filters: { "country._id": new ObjectId(countryId) },
+}).toArray();
+```
+
+This is the same pattern used in aggregation `$match` stages.
+
+## Using Filters Inside an Act
+
+Never trust the client to send raw MongoDB operators. Expose clean parameters in your validator and build the filter server-side:
+
+```ts
+import { ActFn, number, object, optional, string } from "@hemedani/lesan";
+
+const searchCitiesValidator = () =>
+  object({
+    set: object({
+      minPopulation: optional(number()),
+      provinceName: optional(string()),
+      text: optional(string()),
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+
+const searchCities: ActFn = async (body) => {
+  const { minPopulation, provinceName, text } = body.details.set;
+
+  const filters: Record<string, unknown> = {};
+  if (minPopulation) filters.population = { $gte: minPopulation };
+  if (provinceName) filters["province.name"] = provinceName;
+  if (text) filters.name = { $regex: text, $options: "i" };
+
+  return await cities.find({ filters, projection: body.details.get }).toArray();
+};
+```
+
+## Filtering by Relation Content in Aggregation
+
+The same dot-notation works inside `$match`:
+
+```ts
+const pipeline = [
+  { $match: { "country._id": new ObjectId(countryId) } },
+  { $sort: { population: -1 } },
+];
+```
+
+## Indexes Matter
+
+Every filter becomes a MongoDB query. Add indexes for the fields you filter or sort on most:
+
+```ts
+const cities = coreApp.odm.newModel("city", cityPure, cityRelations, {
+  createIndex: {
+    indexSpec: { "country._id": 1, population: -1 },
+    options: {},
+  },
+});
+```
+
+See [Model Options](/docs/api/models#model-options) for the full `createIndex` signature.

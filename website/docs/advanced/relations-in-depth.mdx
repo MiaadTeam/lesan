@@ -1,0 +1,169 @@
+---
+sidebar_position: 2
+---
+
+# Relations in Depth
+
+This page collects the advanced relationship options — `limit`, `sort`, `excludes`, multiple `relatedRelations`, and cascading deletes with `hardCascade`. For the conceptual background, see [What Is the Relationship Really?](/docs/concepts/what-is-the-relationship).
+
+## The Model Setup
+
+All examples below use the country/city/user models:
+
+```ts
+import {
+  lesan,
+  MongoClient,
+  number,
+  object,
+  objectIdValidation,
+  RelationDataType,
+  RelationSortOrderType,
+  string,
+} from "@hemedani/lesan";
+
+const coreApp = lesan();
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
+coreApp.odm.setDb(client.db("dbName"));
+
+const countryCityPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+// Country declares NO relations — city and user request the relationship.
+const countries = coreApp.odm.newModel("country", countryCityPure, {});
+
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: { field: "_id", order: "desc" as RelationSortOrderType },
+      },
+      citiesByPopulation: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: { field: "population", order: "desc" as RelationSortOrderType },
+      },
+      capital: { type: "single" as RelationDataType },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
+```
+
+## Multiple Related Relations to the Same Schema
+
+A single main relation can produce **several reverse relations** on the target schema. In the example above, `city → country` adds three fields to the `country` schema: `cities` (last 50, newest first), `citiesByPopulation` (top 50 by population), and `capital` (a single city).
+
+Each `relatedRelations` entry is independent — its own `limit`, `sort`, and `excludes`.
+
+## `limit` and `sort`
+
+- `limit` caps how many embedded snapshots are stored. When the array is full, Lesan keeps it sorted and drops the overflow (see the [write pipeline](/docs/api/queries#generated-pipeline-stages)).
+- `sort` defines the order in which the embedded array is kept, so the *right* documents survive the limit. `citiesByPopulation` sorted on `population desc` always stores the 50 most populous cities.
+
+Both are optional:
+
+```ts
+relatedRelations: {
+  cities: {
+    type: "multiple" as RelationDataType,
+    // no limit: store every related city
+  },
+}
+```
+
+:::warning Many-to-many arrays
+When two schemas relate to each other in both directions, one side should stay unlimited (`limit: null` or omitted) — otherwise documents can be silently dropped from the limited side.
+:::
+
+## `excludes`
+
+Strips fields from the embedded snapshot. Useful for heavy or sensitive fields (base64 images, hashed passwords, internal tokens). `excludes` can be set on the main relation, on a `relatedRelations` entry, or at the model level:
+
+```ts
+const userRelations = {
+  profile: {
+    optional: true,
+    schemaName: "profile",
+    type: "single" as RelationDataType,
+    excludes: ["avatar", "ssn"], // these never get embedded
+    relatedRelations: {
+      users: { type: "multiple" as RelationDataType },
+    },
+  },
+};
+
+// Model-level excludes (applies to every pure projection of the model):
+const users = coreApp.odm.newModel("user", userPure, userRelations, {
+  excludes: ["password"],
+});
+```
+
+## Adding and Removing Relations
+
+Relations are managed explicitly with `addRelation` / `removeRelation`. A single request updates **both sides**:
+
+```ts
+const addUserCountry: ActFn = async (body) => {
+  const { country, _id } = body.details.set;
+  return await users.addRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: { users: true },
+      },
+    },
+    replace: true, // for single relations, replace the existing one
+  });
+};
+```
+
+And removing a relation from one side cleans the snapshot on the other:
+
+```ts
+const removeLivedCities: ActFn = async (body) => {
+  const { livedCities, _id } = body.details.set;
+  const obIds = livedCities.map((id: string) => new ObjectId(id));
+  return await users.removeRelation({
+    filters: { _id: new ObjectId(_id) },
+    projection: body.details.get,
+    relations: {
+      livedCities: {
+        _ids: obIds,
+        relatedRelations: { users: true },
+      },
+    },
+  });
+};
+```
+
+## Deleting and `hardCascade`
+
+By default, deleting a document that other documents depend on is **blocked** — Lesan throws an error telling you which relations still reference it:
+
+```ts
+await countries.deleteOne({ filter: { _id: new ObjectId(countryId) } });
+// throws: "please clear below relations status before deletion: city,user"
+```
+
+This forces you to handle the dependency explicitly. When you *do* want to delete everything that references a document, pass `hardCascade: true` — Lesan recursively deletes all dependent documents (and their dependents, and so on):
+
+```ts
+await countries.deleteOne({
+  filter: { _id: new ObjectId(countryId) },
+  hardCascade: true, // wipes the country, its cities, and their users
+});
+```
+
+For real-world cascading patterns with many models — including relation-level `excludes`, `limit`/`sort`, and guarded `hardCascade` deletes — see the [Satek complex example](/docs/guides/complex-example).

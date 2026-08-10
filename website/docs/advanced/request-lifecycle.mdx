@@ -1,0 +1,113 @@
+---
+sidebar_position: 3
+---
+
+# Request Lifecycle & Hooks
+
+Every request to a Lesan server flows through a strict, small pipeline. Understanding it lets you hook in auth, validation, logging, and side-effects at exactly the right moment.
+
+## The Pipeline
+
+When a client posts to `POST /lesan`, the server runs:
+
+1. **`preValidation[]`** — hooks run before validation (e.g. extract the user from a token).
+2. **Validation** — the `validator` superstruct runs. With `validationRunType: "create"` the details are *created* (defaults filled in); with the default `"assert"` they are *asserted*.
+3. **`preAct[]`** — hooks run after validation, before the action (`fn`).
+4. **`fn`** — the action body runs and its return value becomes the response.
+
+The response is always wrapped: `{ body: <result>, success: true }`, or `{ body: { message }, success: false }` on error.
+
+## Registering an Act with Hooks
+
+```ts
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addUser",
+  validator: addUserValidator(),
+  fn: addUser,
+  preValidation: [setUser, checkLevel],  // run BEFORE validation
+  preAct: [justAdmin],                   // run AFTER validation, BEFORE fn
+  validationRunType: "create",           // "assert" is the default
+});
+```
+
+## Writing a Hook
+
+Hooks are plain async functions. They share state through the request context via `contextFns`:
+
+```ts
+import { contextFns } from "@hemedani/lesan";
+
+// Reads a token from the request headers and stores the user in context.
+const setUser = async () => {
+  const headers = contextFns.getReq();
+  const token = headers.get("authorization");
+  const user = await users.findOne({
+    filters: { token },
+  });
+  contextFns.addContext({ user });
+};
+```
+
+Later hooks and the `fn` itself read it back:
+
+```ts
+const justAdmin = async () => {
+  const { user } = contextFns.getContextModel().con;
+  if (user?.role !== "admin") throwError("you are not authorized");
+};
+```
+
+```ts
+const addUser: ActFn = async (body) => {
+  const { user } = contextFns.getContextModel().con;
+  // ... use user, then insert
+  return await users.insertOne({
+    doc: { ...body.details.set, createdBy: user?._id },
+    projection: body.details.get,
+  });
+};
+```
+
+:::caution Shared mutable context
+`contextFns` is a module-level mutable object — it is set per-request before the pipeline runs and read inside hooks/`fn`. In a single-process server this is safe (requests run sequentially per process), but it is **not** isolated across processes. Keep all per-request data on it and clear it at the start of each request if you manage requests yourself.
+:::
+
+## `validationRunType`: `assert` vs `create`
+
+```ts
+// assert (default): details must already match the validator exactly
+coreApp.acts.setAct({ schema: "user", actName: "addUser", validator, fn, validationRunType: "assert" });
+
+// create: missing optional fields are filled from defaults before fn runs
+coreApp.acts.setAct({ schema: "user", actName: "addUser", validator, fn, validationRunType: "create" });
+```
+
+Use `create` when your `set` validator has `optional`/defaulted fields and you want the sanitized value in `fn`. Use `assert` when the client must supply a complete, exact payload.
+
+## Practical Patterns
+
+### Authorization gate before touching the DB
+
+```ts
+preValidation: [setUser],
+fn: (body) => users.findOne({ filters: { _id: body.details.set._id } }),
+```
+
+### Validation as a gate, hook as a side-effect
+
+```ts
+preAct: [notifyAdmins], // fires after input is validated, before the mutation
+```
+
+### Logging every request
+
+```ts
+const logRequest = async () => {
+  const body = contextFns.getContextModel().body!;
+  console.log(`[${body.service}/${body.model}/${body.act}]`, body.details);
+};
+// add logRequest to preValidation of every act you want tracked
+```
+
+For a full end-to-end example including custom context, role checks, and feature flags, see the [Satek complex example](/docs/guides/complex-example) — a 30-model procurement system built on these hooks.

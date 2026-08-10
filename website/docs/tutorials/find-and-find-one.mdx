@@ -1,0 +1,188 @@
+---
+sidebar_position: 5
+---
+
+# Find and findOne
+
+When you want to penetrate **one step** into the depth of relationships, `find` and `findOne` are the best choices. In a traditional Mongo setup you'd need an aggregation with a `$lookup` for a left join — but since Lesan **embeds** all relations, a plain `find`/`findOne` already returns one level of relations: the document *and* its directly-related children.
+
+## `findOne` — find a single document
+
+Add a `getUser` act:
+
+```ts
+const getUserValidator = () => {
+  return object({
+    set: object({
+      userId: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+
+const getUser: ActFn = async (body) => {
+  const {
+    set: { userId },
+    get,
+  } = body.details;
+
+  return await users.findOne({
+    filters: { _id: new ObjectId(userId) },
+    projection: get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "getUser",
+  validator: getUserValidator(),
+  fn: getUser,
+});
+```
+
+`findOne` accepts three inputs:
+
+- **`filters`** — the MongoDB [findOne](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/) query.
+- **`projection`** — the MongoDB [projection](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/#std-label-findOne-projection) operation.
+- **`options`** *(optional)* — the MongoDB [findOptions](https://mongodb.github.io/node-mongodb-native/6.3/interfaces/FindOptions.html).
+
+### Per-relation depth in `selectStruct`
+
+Finding a city or country is identical — the only difference is the second argument of `selectStruct`. Instead of a single number, pass an **object** whose keys are relation names and whose values specify how deep this act may penetrate *that specific* relation:
+
+```ts
+const getCountryValidator = () => {
+  return object({
+    set: object({
+      countryId: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("country", {
+      citiesByPopulation: 1,
+      users: 1,
+      capital: 1,
+    }),
+  });
+};
+
+const getCountry: ActFn = async (body) => {
+  const {
+    set: { countryId },
+    get,
+  } = body.details;
+
+  return await countries.findOne({
+    filters: { _id: new ObjectId(countryId) },
+    projection: get,
+  });
+};
+
+const getCityValidator = () => {
+  return object({
+    set: object({
+      cityId: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("city", { country: 1, lovedByUser: 1 }),
+  });
+};
+
+const getCity: ActFn = async (body) => {
+  const {
+    set: { cityId },
+    get,
+  } = body.details;
+
+  return await cities.findOne({
+    filters: { _id: new ObjectId(cityId) },
+    projection: get,
+  });
+};
+```
+
+The full example is [`examples/document/06-1-find-one.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/06-1-find-one.ts).
+
+Executing `main → user → getUser`:
+
+![getUser act in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/d010bd29-18a1-4c85-881a-8c4c5745a883)
+
+Executing `main → city → getCity`:
+
+![getCity act in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/ce2caf5c-db59-4cc1-bc9d-673296490e2f)
+
+Executing `main → country → getCountry`:
+
+![getCountry act in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/78959737-363c-4505-90a8-b4841b7ad548)
+
+## `find` — find many documents
+
+Add a `getUsers` act for paginated lists:
+
+```ts
+const getUsersValidator = () => {
+  return object({
+    set: object({
+      page: number(),
+      limit: number(),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+
+const getUsers: ActFn = async (body) => {
+  let {
+    set: { page, limit },
+    get,
+  } = body.details;
+
+  page = page || 1;
+  limit = limit || 50;
+  const skip = limit * (page - 1);
+
+  return await users
+    .find({ projection: get, filters: {} })
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "getUsers",
+  validator: getUsersValidator(),
+  fn: getUsers,
+});
+```
+
+`find` accepts the same three inputs as `findOne`, and returns a MongoDB cursor — so you can chain `.skip()`, `.limit()`, `.sort()`, and end with `.toArray()`.
+
+Just like with `findOne`, per-relation depth is set through the `selectStruct` second argument:
+
+```ts
+get: coreApp.schemas.selectStruct("country", {
+  citiesByPopulation: 1,
+  users: 1,
+  capital: 1,
+}),
+```
+
+The full example is [`examples/document/06-2-find-methods.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/06-2-find-methods.ts).
+
+Executing `main → user → getUsers`:
+
+![getUsers act in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/c89d1bcf-645b-4164-8fca-76fd1a121d95)
+
+Executing `main → city → getCities`:
+
+![getCities act in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/39bd23ab-d1cc-4630-8850-31940ebe604e)
+
+Executing `main → country → getCountries`:
+
+![getCountries act in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/816dc514-6056-4e23-b67b-c0b2482f8ff7)
+
+## When do you need aggregation?
+
+`find`/`findOne` give you **one** embedded level. If the client asks for `country → cities → users` (two steps), the projection can no longer be satisfied from the embedded snapshot alone — Lesan has to `$lookup` into other collections. That's when you switch to [`aggregation`](/docs/tutorials/aggregation), which is one step behind the request and resolves the rest automatically.
+
+## Next steps
+
+- [Aggregation](/docs/tutorials/aggregation) — penetrating more than one step into relations
+- [Queries & Projections](/docs/api/queries) — the full API reference for projections

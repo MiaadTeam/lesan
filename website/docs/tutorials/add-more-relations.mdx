@@ -1,0 +1,257 @@
+---
+sidebar_position: 1
+---
+
+# Add More Relations
+
+In [Getting Started](/docs/getting-started) we created two models — `country` and `city` — with a single one-to-many relation. Now let's grow that relation: store the 50 most populous cities of each country, pick a `capital`, and add a brand-new `user` model with a **many-to-many** relation.
+
+:::info
+This tutorial continues the example built in [Getting Started](/docs/getting-started). The complete runnable code for this step is [`examples/document/04-add-more-relation-1.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/04-add-more-relation-1.ts) and [`04-add-more-relation-2.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/04-add-more-relation-2.ts) in the Lesan repository.
+:::
+
+## A second relatedRelation on the same side
+
+A relation can have **any number of `relatedRelations`**. So far the country side keeps `cities` (50, newest first). Let's also keep the 50 **most populous** cities, sorted by the `population` field:
+
+```ts
+citiesByPopulation: {
+  type: "multiple" as RelationDataType,
+  limit: 50,
+  sort: {
+    field: "population",
+    order: "desc" as RelationSortOrderType,
+  },
+},
+```
+
+Now the full `cityRelations` object becomes:
+
+```ts
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      citiesByPopulation: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "population",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+```
+
+Every time we insert a city, we now tell Lesan to also update the `citiesByPopulation` list on the country side:
+
+```ts
+const addCity: ActFn = async (body) => {
+  const { country, name, population, abb } = body.details.set;
+
+  return await cities.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+          citiesByPopulation: true,
+        },
+      },
+    },
+  });
+};
+```
+
+We just add one line:
+
+```ts
+citiesByPopulation: true,
+```
+
+## A single relatedRelation, set selectively
+
+Next, let a country have a `capital`. This is a `single` related relation — only *one* city is stored. Add it to `relatedRelations`:
+
+```ts
+capital: {
+  type: "single" as RelationDataType,
+},
+```
+
+Because a capital is a per-city decision, the client sends a boolean. We add `isCapital` to the validator and pass it to the insert:
+
+```ts
+const addCityValidator = () => {
+  return object({
+    set: object({
+      ...countryCityPure,
+      country: objectIdValidation,
+      isCapital: boolean(),
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+
+const addCity: ActFn = async (body) => {
+  const { country, name, population, abb, isCapital } = body.details.set;
+
+  return await cities.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+          citiesByPopulation: true,
+          capital: isCapital,
+        },
+      },
+    },
+  });
+};
+```
+
+Now a single city insert updates **three** different fields on the country document: the `cities` list, the `citiesByPopulation` list, and — if `isCapital` is `true` — the `capital` field. All embedded, all automatic. In the playground, the `addCity` act now asks for `isCapital`:
+
+![addCity act with the isCapital input in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/279636c5-b7cf-498e-831d-a59853e7156d)
+
+If you set it to `true`, the city becomes the new capital of its country. Meanwhile, the `citiesByPopulation` field keeps the 50 most populous cities:
+
+![Country document with citiesByPopulation in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/743ae12b-e967-49d6-a8df-ffce2ed82e09)
+
+## A many-to-many relation with a new model
+
+Let's add a `user` model. A user has lived in many cities (many-to-many) and belongs to one country (many-to-one):
+
+```ts
+const userPure = {
+  name: string(),
+  age: number(),
+};
+
+const users = coreApp.odm.newModel("user", userPure, {
+  livedCities: {
+    optional: false,
+    schemaName: "city",
+    type: "multiple",
+    sort: {
+      field: "_id",
+      order: "desc",
+    },
+    relatedRelations: {
+      users: {
+        type: "multiple",
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc",
+        },
+      },
+    },
+  },
+
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single",
+    relatedRelations: {
+      users: {
+        type: "multiple",
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc",
+        },
+      },
+    },
+  },
+});
+```
+
+- `livedCities` is `type: "multiple"` on the user side, and its related relation `users` is also `multiple` on the city side — so user↔city is **many-to-many**.
+- `country` is `single` on the user side, and `users` is `multiple` on the country side — so country↔user is **one-to-many**.
+
+The insert act receives a country id and an **array of city ids**:
+
+```ts
+const addUserValidator = () => {
+  return object({
+    set: object({
+      ...userPure,
+      country: objectIdValidation,
+      livedCities: array(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+
+const addUser: ActFn = async (body) => {
+  const { country, livedCities, name, age } = body.details.set;
+  const obIdLivedCities = livedCities.map((lc: string) => new ObjectId(lc));
+
+  return await users.insertOne({
+    doc: { name, age },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          users: true,
+        },
+      },
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addUser",
+  validator: addUserValidator(),
+  fn: addUser,
+});
+```
+
+:::note
+You need to import the `array` validator from `@hemedani/lesan`.
+:::
+
+Two things worth noting:
+
+- In the validator, `livedCities` is an `array(objectIdValidation)` — the client sends ids as strings. In the act we map them to `ObjectId` with `.map((lc) => new ObjectId(lc))`.
+- The `_ids` key of a `multiple` relation receives an **array of ObjectIds**; for a `single` relation it receives one `ObjectId`.
+
+In the playground, enter `livedCities` as `["65466c407123faa9c1f3c180", "65466c2c7123faa9c1f3c17e"]` — the playground parses it into an array for you.
+
+![addUser act with livedCities as an array of ids in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/4717c9a0-808f-47ad-8e95-2b16f6419305)
+
+## What you have now
+
+You can already see the pattern that makes Lesan fast: relations are **embedded**. The country document stores `cities`, `citiesByPopulation`, and `capital`; the user document stores `livedCities` and `country`; the city document stores `users` and `country`. Every insert keeps all of those snapshots in sync for you.
+
+## Next steps
+
+- [Managing Relations](/docs/tutorials/managing-relations) — updating the relations of *existing* documents with `addRelation` and `removeRelation`
+- [The `addRelation` function](/docs/tutorials/add-relation) — many-to-many and one-to-many updates, with the `replace` flag
+- [The `removeRelation` function](/docs/tutorials/remove-relation) — removing links (and optional single relations) at runtime

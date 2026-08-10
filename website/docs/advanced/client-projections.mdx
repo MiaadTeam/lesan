@@ -1,0 +1,136 @@
+---
+sidebar_position: 1
+---
+
+# Client-Driven Projections
+
+Lesan's signature feature: the **client** decides the shape of the response. Every act returns whatever the client asked for in `details.get`, and Lesan builds the correct MongoDB query — including `$lookup`, `$unwind`, and `$project` stages for nested relations — automatically.
+
+This page goes deeper than the [Queries & Projections](/docs/api/queries) reference with real, copyable patterns.
+
+## The `get` Object
+
+A projection is a nested object where each key maps to a field or relation:
+
+```json
+{
+  "service": "main",
+  "model": "country",
+  "act": "getCountry",
+  "details": {
+    "set": { "countryId": "507f1f77bcf86cd799439011" },
+    "get": {
+      "name": 1,
+      "citiesByPopulation": {
+        "name": 1,
+        "population": 1
+      },
+      "capital": {
+        "name": 1,
+        "abb": 1
+      }
+    }
+  }
+}
+```
+
+`1` includes a field; a nested object penetrates a relation; `0` excludes a field.
+
+## Validating the `get` Shape with `selectStruct`
+
+Because `get` is a free-form object, you validate it with `coreApp.schemas.selectStruct(schema, depth)`. The generated validator accepts any projection of that schema up to the given depth.
+
+### Uniform depth (a number)
+
+Applies the same depth to every relation:
+
+```ts
+import { ActFn, number, object, ObjectId, objectIdValidation } from "@hemedani/lesan";
+
+const getCountryValidator = () =>
+  object({
+    set: object({ countryId: objectIdValidation }),
+    get: coreApp.schemas.selectStruct("country", 1),
+  });
+
+const getCountry: ActFn = async (body) => {
+  const { set: { countryId }, get } = body.details;
+  return await countries.findOne({
+    filters: { _id: new ObjectId(countryId) },
+    projection: get, // client decides the response shape
+  });
+};
+```
+
+### Per-relation depth (an object)
+
+Different relations at different depths. Here `users` is fully expanded but `cities` stays shallow:
+
+```ts
+const getCountryValidator = () =>
+  object({
+    set: object({ countryId: objectIdValidation }),
+    get: coreApp.schemas.selectStruct("country", {
+      citiesByPopulation: 1, // just the embedded array, no further relation
+      users: {
+        country: 1, // users, then each user's country again
+      },
+      capital: 1,
+    }),
+  });
+```
+
+You can even define per-relation *nested* objects to control depth through a chain of relations (see the [microservice example](/docs/advanced/microservices) for `selectStruct("state", { country: { states: { country: 1 } } })`).
+
+## Passing `get` to ODM Methods
+
+Every read method accepts `projection`. The client's `details.get` is passed through unchanged:
+
+```ts
+const getCity: ActFn = async (body) => {
+  const { set: { cityId }, get } = body.details;
+  return await cities.findOne({
+    filters: { _id: new ObjectId(cityId) },
+    projection: get,
+  });
+};
+```
+
+Writes accept it too, so a freshly inserted/updated document returns exactly the shape the client wants:
+
+```ts
+const addCity: ActFn = async (body) => {
+  const { country, name, population, abb, isCapital } = body.details.set;
+  return await cities.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+          citiesByPopulation: true,
+          capital: isCapital,
+        },
+      },
+    },
+  });
+};
+```
+
+## Building Projections Dynamically
+
+Projections are plain objects, so you can compose them from client flags:
+
+```ts
+const getUsers: ActFn = async (body) => {
+  const { includeCountry } = body.details.set;
+  const projection: Record<string, any> = { name: 1, age: 1 };
+  if (includeCountry) projection.country = { name: 1, abb: 1 };
+  return await users.find({ filters: {}, projection }).toArray();
+};
+```
+
+## How the Projection Becomes a Query
+
+For relations that are **embedded** (the default — see [Server-Client Communication](/docs/concepts/server-client-communication)), no join is needed for shallow projections: the relation's snapshot is already inside the document. Only when a client penetrates **beyond one level** does Lesan build `$lookup`/`$unwind`/`$project` stages to fetch the deeper docs — see [Deep Projection in Aggregation](/docs/advanced/aggregation).

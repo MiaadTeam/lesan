@@ -1,0 +1,119 @@
+---
+sidebar_position: 6
+---
+
+# Pagination
+
+Lesan's `find` returns a MongoDB cursor, and its `aggregation` accepts raw pipeline stages — so you have full control over how you paginate. There's no built-in pagination API; you compose it from the primitives.
+
+## Offset Pagination (page-based)
+
+The classic approach: `skip` the documents before the current page, `limit` to the page size. Because `find` returns a cursor, you chain `.skip()` and `.limit()` directly:
+
+```ts
+const getCountries: ActFn = async (body) => {
+  let { set: { page, limit }, get } = body.details;
+
+  page = page || 1;
+  limit = limit || 50;
+  const skip = limit * (page - 1);
+
+  return await countries
+    .find({ projection: get, filters: {} })
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+};
+```
+
+A matching validator:
+
+```ts
+const getCountriesValidator = () =>
+  object({
+    set: object({ page: number(), limit: number() }),
+    get: coreApp.schemas.selectStruct("country", {
+      citiesByPopulation: 1,
+      users: 1,
+      capital: 1,
+    }),
+  });
+```
+
+### With a sort
+
+Always pair offset pagination with a stable sort, or pages will shift when documents change:
+
+```ts
+await users
+  .find({ projection: get, filters: {} })
+  .sort({ createdAt: -1 })
+  .skip(skip)
+  .limit(limit)
+  .toArray();
+```
+
+### Returning total count
+
+```ts
+const [items, total] = await Promise.all([
+  users.find({ filters }).skip(skip).limit(limit).toArray(),
+  users.countDocument({ filter: filters }),
+]);
+return { items, total, page, limit };
+```
+
+## Offset Pagination Inside Aggregation
+
+When you need pipeline logic (filters, grouping), use `$skip` and `$limit` stages:
+
+```ts
+const getCitiesAggregation: ActFn = async (body) => {
+  const { set: { page, take, countryId }, get } = body.details;
+  const pipeline: any[] = [];
+
+  pipeline.push({ $skip: (page - 1) * take });
+  pipeline.push({ $limit: take });
+
+  if (countryId) {
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
+  }
+
+  return await cities.aggregation({ pipeline, projection: get }).toArray();
+};
+```
+
+## Cursor-Based Pagination (keyset)
+
+For large datasets, cursor pagination is more efficient and stable: instead of skipping from the start, you filter on a monotonic key relative to the last item seen. The `_id` (a MongoDB `ObjectId`) is the natural cursor.
+
+```ts
+const getMessages: ActFn = async (body) => {
+  const { lastId, limit = 20 } = body.details.set;
+
+  const filters: Record<string, unknown> = {};
+  if (lastId) filters._id = { $lt: new ObjectId(lastId) }; // previous page's last _id
+
+  return await messages
+    .find({ filters, projection: body.details.get })
+    .sort({ _id: -1 })
+    .limit(limit)
+    .toArray();
+};
+```
+
+The client sends the `_id` of the last item from the previous page as `lastId`; the server returns the next `limit` items *after* it. No skipping, no page drift, and the cost is the same regardless of page depth.
+
+### When to use which
+
+| | Offset (`skip`/`limit`) | Cursor (`_id`-keyset) |
+|---|---|---|
+| UX | Jump to any page | Forward-only ("load more") |
+| Stability | Pages shift if data changes | Always stable |
+| Deep pages | Slow (skips everything) | Constant-time |
+| Total count | Easy | Needs a separate count |
+
+## Notes
+
+- `find` also accepts `options?: FindOptions`, so you can pass `sort`, `limit`, and `skip` there too: `find({ filters, options: { sort: { _id: -1 }, limit: 20 } })`.
+- Combine pagination with [filtering](/docs/advanced/filtering) freely — the two compose.

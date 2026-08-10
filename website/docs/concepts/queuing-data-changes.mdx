@@ -1,0 +1,39 @@
+---
+sidebar_position: 6
+---
+
+# Queuing Data Changes
+
+On the [previous page](/docs/concepts/server-client-communication) we said that with repeated data updates, we have created a process to send data to smaller parts for updates in different time periods. This page explains that process — the **Query Queue (QQ)** — and an alternative worth knowing about: in-memory databases.
+
+## Query Queue (QQ)
+
+In the news-agency example, we can divide document updates into several sections based on different criteria. For example, we can update *newer* news (e.g., the past 2 months) immediately and put *older* news in a **queue** for updating.
+
+For this purpose, we created an entity language called **Query Queue** or **QQ** — an object of all the commands that are to be sent to the database for data changes.
+
+The existence of this object allows us to **manage updates**:
+
+### 1. Divide massive updates into smaller parts
+
+If there are millions of updates to be made, we divide them into smaller parts. Depending on the amount of server hardware resources involved, we send a small part for updating to the database. Then we check the server's hardware resources again — and if the server is not involved in heavy processing, we send another part for updating.
+
+### 2. Reduce the number of requests by comparing changes
+
+In this classification, in addition to dividing the number of requests, we can also reduce them by **comparing changes**. For example, an author changed their name from `Ali` to `Ali Akbar` once, and a few hours later changed their interests from `reading` to `reading and sports`. Now we have **two** commands for data modification that can be sent to the database together — so we can **merge** these requests and then send them.
+
+### 3. Verify consistency of repeated data
+
+If we consider this classification as a compartment for *storing* data-modification commands, we can also use it to verify the **consistency** of repeated data. And if, for any reason, any part of the data encounters problems, we can use this compartment to **find** and **correct** those problems.
+
+### 4. Apply intelligence to the queue
+
+We can also use **artificial intelligence** to manage changes in this queue — a topic that will be explained in the relevant section.
+
+## In-Memory Databases
+
+:::info
+This document is coming soon.
+:::
+
+When a relationship causes very large updates, another option is to keep the hot data in an in-memory database, so that reads never touch the disk and the frequently-changing relationship graph stays small and fast. More details will be added here.

@@ -1,0 +1,15 @@
+---
+sidebar_position: 2
+---
+
+# Managing Relations
+
+So far we've created three models — `country`, `city`, and `user` — with different relationships between them. Can we update these relationships after the documents already exist?
+
+Yes — but only through `addRelation` and `removeRelation`. Never by hand-editing the embedded relation fields with `update` or `updateMany`. Lesan keeps both sides of every relation in sync, and that only works when **Lesan** manages the change. Let it handle the bookkeeping, and your data always stays correct.
+
+- [The `addRelation` function](./add-relation) — adding new links to existing documents
+- [The `removeRelation` function](./remove-relation) — removing links from existing documents
+- What is a relation *really*? See [What Is the Relationship Really?](/docs/concepts/what-is-the-relationship)
+
+Continue with [The `addRelation` function](./add-relation).

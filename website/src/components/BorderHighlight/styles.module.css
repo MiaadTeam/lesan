@@ -1,0 +1,40 @@
+.borderHighlight {
+  position: relative;
+  border-radius: var(--border-radius-lg);
+}
+
+.borderHighlight::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--border-radius-lg) + 1px);
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--border-color),
+    transparent
+  );
+  background-size: 200% 100%;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.borderHighlight:hover::before {
+  opacity: 1;
+  animation: border-travel var(--animation-speed) linear infinite;
+}
+
+@keyframes border-travel {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
