@@ -1,7 +1,7 @@
 {
   "name": "@hemedani/lesan",
   "version": "0.2.3",
-  "description": "<div align=\"center\">   <img src=\"./pages/src/img/besmelah.jpg\" alt=\"بسم الله الرحمن الرحیم\"> </div>",
+  "description": "A blazing-fast, cross-platform (Node.js, Bun, Deno) web framework and ODM for MongoDB with GraphQL-like client-driven data retrieval.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -26,7 +26,6 @@
     "mod.ts"
   ],
   "directories": {
-    "doc": "docs",
     "example": "examples",
     "test": "tests"
   },

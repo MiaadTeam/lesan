@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./pages/src/img/besmelah.jpg" alt="بسم الله الرحمن الرحیم">
+  <img src="./website/static/img/besmelah.jpg" alt="بسم الله الرحمن الرحیم">
 </div>
 
 # Why **Lesan**?
@@ -37,19 +37,14 @@ We use this formula to calculate the difference : (B - A) ÷ A \* 100
 
 **Maybe we created the most performant framework in the world!** [see more detailed benchmark](https://github.com/MiaadTeam/benchmark)
 
-_Note: With our new cross-platform architecture, Lesan achieves over 10,000 requests per second on Bun and Deno! Check out our [Cross-Platform Benchmarks](./docs/benchmarks.md)._
+_Note: With our new cross-platform architecture, Lesan achieves over 10,000 requests per second on Bun and Deno! Check out our [Cross-Platform Benchmarks](https://miaadteam.github.io/lesan/docs/benchmarks)._
 
 # Documentation
 
-- [Introduction](https://miaadteam.github.io/lesan/introduction.html)
-- [Installation](https://miaadteam.github.io/lesan/installation.html)
-- [Getting start](https://miaadteam.github.io/lesan/getting_start.html)
-- [Advanced Guide](https://miaadteam.github.io/lesan/an_advanced_project.html)
-- [Lesan Philosophy](https://miaadteam.github.io/lesan/Receiving_Data.html)
-- [Structures](https://miaadteam.github.io/lesan/Schemas.html)
-- [API Reference](https://miaadteam.github.io/lesan/api/lesan_fn.html)
-- [Types](https://miaadteam.github.io/lesan/api/types/types.html)
-- [Cross-Platform Migration Guide](./docs/migration-guide.md)
+- [Introduction](https://miaadteam.github.io/lesan/docs/intro)
+- [Getting Started](https://miaadteam.github.io/lesan/docs/getting-started)
+- [Migration Guide](https://miaadteam.github.io/lesan/docs/migration)
+- [API Reference](https://miaadteam.github.io/lesan/docs/api/intro)
 - [Examples (Node.js, Bun, Deno)](./examples)
 
 # Installation
