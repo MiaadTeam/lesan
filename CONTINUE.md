@@ -573,35 +573,18 @@ Key strengths:
 
 ---
 
-### ✅ Step 13: Write the Complex Example Documentation (Satek Project) (COMPLETED)
+### ✅ Step 13: Write the Real-World Guides (COMPLETED — superseded)
 
-**What was accomplished:**
-- ✅ Studied `/Users/syd/work/sitak/lesanSatek/back` (30-model procurement/warehouse system): `mod.ts` entry (`lesan()` → MongoClient → `odm.setDb` → one model per file → `functionsSetup()` → `runServer`), `models/*.ts` (pure + relations with `relatedRelations`, `excludes`, `limit`, `sort`, `createIndex`, model-level `excludes: ["password"]`), `src/<schema>/<act>/{mod,fn,val}.ts` layout, `utils/` (`MyContext extends LesanContenxt`, `grantAccess`, `setTokens`/`setUser` preAct hooks, `activeRoleMixin`, `pagination`, `createUpdateAt`, `throwError`), multi-role `activeRoleId` auth, feature flags (per-user + per-unit), text indexes (`$text` + `$meta: "textScore"` relevance sort), `$lookup` cross-collection checks, guarded `hardCascade` deletes, `addRelation({ replace: true })`.
-- ✅ Created `website/docs/guides/_category_.json` (label "Example Projects", `position: 7`, generated-index) — reserved in Step 12.
-- ✅ Created `website/docs/guides/complex-example.mdx` (sidebar_position 1) covering: domain overview, project layout, the model layer (`newModel` with `createIndex`/`excludes`, shared `createUpdateAt`/`excludes.ts` spreads, the 13-relation `purchasingRequest` hub), the action layer (`mod.ts`/`.val.ts`/`.fn.ts` trio, `validationRunType: "create"`, shared `activeRoleMixin`+`pagination`), authentication & context (`setTokens` → `setUser` → `grantAccess` chain, `hasFeature`, role-scoped `$match`), aggregation & search (text relevance ranking, `$lookup` size checks, offset pagination, matching count act), and relations in practice (`addRelation` with `replace`, guarded `hardCascade` deletes).
-- ✅ All code excerpts adapted to `@hemedani/lesan` imports and verified against real framework source (`src/core/odm/newModel/mod.ts` confirms `createIndex` + model-level `excludes`; `src/context.ts` confirms `contextFns` API).
-- ✅ Linked from `website/docs/intro.mdx` "Next Steps" and replaced the two "keep an eye on the upcoming real-world example projects in `docs/guides/`" placeholders in `advanced/request-lifecycle.mdx` + `advanced/relations-in-depth.mdx` with real links.
-- ✅ Production build verified (`npm run build` in `website/`, `onBrokenLinks: 'throw'`).
+> **Note:** The original Satek complex-example + case-study pages (Steps 13–14 below) were **deleted** in this session and replaced by a broader, self-contained docs set built around the `examples/advanced-tutorial/` procurement app. The reference-project study that informed them is preserved below for context.
 
----
+**What was studied (context, retained):**
+- `/Users/syd/work/sitak/lesanSatek/back` (30-model procurement/warehouse system) and four case-study projects (NEJAT / Paper / Naghshe / Ziwound) — patterns that informed the tutorial series: `preAct` hooks, `MyContext extends LesanContenxt`, `relatedRelations`/`excludes`/`createIndex`, multi-role auth, text indexes, aggregation, guarded `hardCascade`, `$geoNear`, rate limiting, generated clients.
 
-### ✅ Step 14: Write Smaller Example Case Studies (LAST DOCUMENTATION STEP) (COMPLETED)
-
-**What was accomplished:**
-- ✅ Studied the four reference projects and identified each one's distinct Lesan pattern:
-  - **NEJAT** (`/Users/syd/work/madani/nejat/lesan/back`) — road-accident analytics: ~40 models, GeoJSON spatial data via a shared superstruct `geoJSONStruct`, deep embedded `vehicle_dtos`/`pedestrian_dtos`, Jalali-calendar date handling, Redis, ~25 client-driven `charts/` analytics acts (`accidentSeverityAnalytics` runs three parallel `countDocument` calls)
-  - **Paper** (`/Users/syd/work/momeni/paper`) — scientific publishing platform in a monorepo: shared `lib/` package (`@paper/lib`) holds all models + utils, models import `coreApp` from `@paper/back`, bounded fields via `size(number(), 1250, 1500)`, `registrar` relation auto-wired from context user
-  - **Naghshe** (`/Users/syd/work/momeni/naghshe/back`) — tourism/heritage platform (db `yademan`): spatial search in `place/gets` (`$geoNear` as first stage + `$geoIntersects` polygon/area), Solar-Hijri "antiquity" filter, and `utils/actionGenerator.ts` that scaffolds typed `"use server"` Next.js API functions from the generated `ReqType` declarations
-  - **Ziwound** (`/Users/syd/work/katiraei/ziwound/back`) — war-crimes reporting platform (db `gozaresh`): `RateLimiter` sliding-window class + `createRateLimitMiddleware` composed into `preAct` (100 req/min), non-CRUD acts (`statistics`, `exportCSV`, `exportPDF`), dot-notation relation `$in` filtering on `"hostileCountries._id"` etc., text indexes
-- ✅ Created four case-study pages under `website/docs/guides/`, one per project (sidebar_position 2–5), each with: project goal, distinctive-pattern callout, models/relations table, acts list, and a faithful code excerpt adapted to `@hemedani/lesan` imports:
-  - `case-study-nejat.mdx` — `geoJSONStruct` + `accidentSeverityAnalytics` (3× `countDocument`)
-  - `case-study-paper.mdx` — `articleRelations` + `addArticleFn` (registrar from context, `TInsertRelations`)
-  - `case-study-naghshe.mdx` — `$geoNear`/`$geoIntersects` pipeline + generated `"use server"` client fn
-  - `case-study-ziwound.mdx` — `RateLimiter`/middleware wired into `preAct` + `statistics`/`exportCSV`
-- ✅ Linked them from `website/docs/intro.mdx` "Next Steps" and from the Step 13 complex-example closing tip.
-- ✅ Production build verified (`npm run build` in `website/`, `onBrokenLinks: 'throw'`); all five `build/docs/guides/` pages confirmed present.
-
-**Documentation is now complete.** Remaining work is Phase 6 (polish & interactivity) and Phase 7 (deploy & maintain) — see TODO.md.
+**What replaced them (see Step 18 record below):**
+- `website/docs/guides/cross-platform-examples.mdx` — runtime-agnostic imports (`@hemedani/lesan` / `jsr:@hemedani/lesan`)
+- `website/docs/guides/procurement-workflow.mdx` — guide page with "Step-by-step tutorial" callout
+- The full `website/docs/tutorials/procurement-workflow/` series (Step 18)
+- Production build verified (`npm run build` in `website/`, `onBrokenLinks: 'throw'`)
 
 ---
 
@@ -658,18 +641,60 @@ Key strengths:
 
 ---
 
-### Step 17: Next Phase 6 Polish Item (NEXT)
+### ✅ Step 17: Add Keyboard Navigation (Phase 6 Polish) (COMPLETED)
 
-**Goal:** Continue Phase 6 (Polish & Interactivity) with the remaining items, one per session:
-
-1. **Keyboard navigation** — add/enhance `/docs` keyboard affordances: document/table-of-contents skip links, visible focus states on nav/search/results, `⌘K`-style focus shortcut for the search bar (the plugin supports `searchBarShortcut`), and `keydown` traversal in the search dropdown.
-2. **Optimize images and assets** — the landing page and docs use `img/logo.svg`, `img/favicon.ico`, and a social-card reference (`img/lesan-social-card.jpg` in `themeConfig.image`). Verify these exist, add `loading="lazy"`/`decoding="async"` where static images are rendered, and prune any unused/unreferenced assets in `website/static` to slim the bundle.
-3. **Loading skeletons** — low priority for a fully static site (no data fetching); likely documented as not applicable, or a lightweight CSS `shimmer` polish for any async-loaded content.
-4. **Phase 7 (deploy)** — after Phase 6: GitHub Pages workflow + `docusaurus deploy` config (the site config already has `organizationName: 'MiaadTeam'`, `projectName: 'lesan'`, `baseUrl: '/lesan/'`).
-
-**Files to create/modify (Step 17):**
-- `website/docusaurus.config.ts` (search shortcut option, if chosen)
-- `website/src/css/custom.css` (focus/keyboard styles)
-- `website/src/theme/` (only if swizzling the search bar for a ⌘K hint)
+**What was accomplished:**
+- ✅ Enabled the **⌘K / Ctrl+K search shortcut** on the local-search plugin in `website/docusaurus.config.ts`: added `searchBarShortcut: true` + `searchBarShortcutHint: true` to the `@easyops-cn/docusaurus-search-local` plugin options (default keymap `mod+k`, confirmed by the plugin's `validateOptions.js` + `generate.js`).
+- ✅ The plugin ships its own `keydown` handler (focused input stays; Escape clears; shortcut focuses the navbar search) — no swizzling needed.
+- ✅ Themed the new kbd affordances in `src/css/custom.css`: `[class*="searchHint"]` (the ⌘K badge in the input) and `[class*="searchHintContainer"]` match the Linear Look palette (`var(--bg-tertiary)` fill, `var(--border-subtle)` border, mono font); the existing `[class*="searchShortcut"]` rule (results-dropdown hint) already covered.
+- ✅ Focus-visible states for buttons/links/inputs already exist in `custom.css` (`button:focus-visible, a:focus-visible, ...` with cyan outline) — verified, no changes needed.
+- ✅ Verified:
+  - `npm run build` passes (`onBrokenLinks: 'throw'`)
+  - `grep "mod+k" build/assets/js/main.*.js` → present (shortcut compiled into the bundle)
 
 ---
+
+### ✅ Step 18: Write the Procurement Workflow Tutorial Series + Optimize Assets (COMPLETED)
+
+**What was accomplished (tutorial series):**
+- ✅ Built a complete **84-page Procurement Workflow tutorial series** at `website/docs/tutorials/procurement-workflow/`, generated from the runnable app in `examples/advanced-tutorial/` (15 models / 63 actions, documented in `overview`):
+  - `overview` + `project-layout` (the numeric prefixes `00-`/`01-` are stripped by Docusaurus → slugs `/docs/tutorials/procurement-workflow/overview` + `/project-layout`)
+  - `models/` — 15 pages with **verbatim model source** (pure fields, relations + back-references, excludes/indexes, factory)
+  - `auth/` (11 pages), `catalog/` (22), `inventory/` (7), `workflow/` (20), `finance/` (7) — each act page follows a template: validator → registration (`mod.ts`) → implementation → in-workflow links → curl → errors & fixes; code verbatim from `examples/advanced-tutorial/`
+- ✅ **Fixed Docusaurus slug + link quirks** across the series: `00-overview` → `overview` + `01-project-layout` → `project-layout` (86 references updated), `inventory/00-overview` → `/docs/category/inventory` (2 pages), `finance/award` → `finance/award-tender` (3 pages), overview table anchors → `/docs/category/*` links.
+- ✅ **Guides updated:** `website/docs/guides/procurement-workflow.mdx` now carries a "Step-by-step tutorial" callout linking the series; `guides/cross-platform-examples.mdx` documents runtime-agnostic imports (npm/Bun `@hemedani/lesan`, Deno `jsr:@hemedani/lesan`).
+- ✅ **Removed** the stale `guides/complex-example.mdx` + `guides/case-study-*.mdx` (superseded by the self-contained tutorial app; `guides/_category_.json` + `tutorials/_category_.json` updated).
+- ✅ **Fixed the site-wide titled-admonition breakage:** `future: { v4: true }` renders `:::note Title` as literal `:::` text (while untitled `:::note` works). Converted all **91 titled admonitions** in the tutorial series + `guides/procurement-workflow.mdx` + `guides/cross-platform-examples.mdx` to untitled `:::` + `**Title**` first line; also fixed the **6 pre-existing broken pages** (`advanced/relations-in-depth`, `advanced/request-lifecycle`, `api/models`, `api/queries`, `api/server`, `concepts/what-is-the-relationship`).
+
+**What was accomplished (asset optimization):**
+- ✅ **Fixed broken social-card reference:** `themeConfig.image: 'img/lesan-social-card.jpg'` pointed at a missing file → renamed `static/img/docusaurus-social-card.jpg` → `lesan-social-card.jpg` (it's a 1200×675 JPEG; config now resolves).
+- ✅ **Pruned unused template assets:** deleted `static/img/undraw_docusaurus_{mountain,tree,react}.svg` + `docusaurus.png` (only referenced by the unused `HomepageFeatures` template component) and deleted `src/components/HomepageFeatures/` entirely.
+- ✅ `static/img/` now contains only referenced files: `besmelah.jpg` (hero), `favicon.ico`, `logo.svg`, `lesan-social-card.jpg`. Hero `besmelah.jpg` stays eager (above-the-fold) — no lazy-loading changes needed.
+
+**Verified:** `npm run build` exit 0 (zero broken links/anchors, `onBrokenLinks: 'throw'`), **zero** `<p>:::` literal admonitions across the whole built site.
+
+---
+
+### ✅ Step 19: Loading Skeletons (Phase 6 Polish) (COMPLETED)
+
+**What was accomplished:**
+- ✅ **Documented as N/A** — the site is fully static (no async data fetching on page load; search index loads client-side but the plugin shows its own `LoadingRing`).
+- ✅ Confirmed the `shimmer` keyframes + `.animate-shimmer` class already exist in `src/css/custom.css` (added in Step 2) for any future async content.
+
+---
+
+### ✅ Step 20: Phase 7 — GitHub Pages Deploy Workflow (COMPLETED)
+
+**What was accomplished:**
+- ✅ Created `.github/workflows/website-deploy.yml`: on push to `main` touching `website/**` (or `workflow_dispatch`) → checkout → setup-node 20 (npm cache via `website/package-lock.json`) → `npm ci` + `npm run build` in `website/` → `actions/configure-pages@v5` → `actions/upload-pages-artifact@v3` (path `website/build`) → `actions/deploy-pages@v4` (environment `github-pages`, `id-token: write` + `pages: write` permissions, concurrency group `pages`).
+- ✅ Site config already deployment-ready: `organizationName: 'MiaadTeam'`, `projectName: 'lesan'`, `url: 'https://miaadteam.github.io'`, `baseUrl: '/lesan/'`, `trailingSlash` default.
+- ✅ Existing `ci.yml` (test matrix) + `publish.yml` (npm/JSR tags) unchanged.
+
+**Remaining (GitHub-side, requires user's repo settings):**
+1. Repo → Settings → Pages → Source: **GitHub Actions** (not a branch).
+2. Push to `main` with `website/` changes → workflow builds + deploys to `https://miaadteam.github.io/lesan/`.
+3. Optional: custom domain via `static/CNAME` + DNS.
+
+---
+
+**Documentation + Phase 6 + Phase 7 prep are now complete.** The only outstanding work is GitHub-side: enable Pages (source: GitHub Actions) and confirm the first deploy.

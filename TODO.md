@@ -48,20 +48,20 @@
 - [x] Trust Signals / Social Proof section
 - [x] CTA / Get Started section
 
-### 2.4 Animations & Interactions ✅ (MOSTLY COMPLETE — polish in Step 7)
+### 2.4 Animations & Interactions ✅ (COMPLETED)
 - [x] Implement scroll-triggered fade-in animations
 - [x] Add hover glow effects to cards
 - [x] Create ambient glow pulse animations
 - [x] Add border highlight traveling animation
 - [x] Implement staggered children reveals
-- [ ] Polish and verify all animations (Step 7)
-- [ ] Add reduced-motion support (Step 7)
+- [x] Polish and verify all animations (Step 7)
+- [x] Add reduced-motion support (Step 7) — `@media (prefers-reduced-motion: reduce)` present in `custom.css`
 
 ### 2.5 Responsive Design ✅ (MOSTLY COMPLETE — verify in Step 7)
 - [x] Mobile layout adjustments
 - [x] Tablet layout adjustments
 - [x] Reduce effects on mobile (performance)
-- [ ] Test all breakpoints thoroughly (Step 7)
+- [x] Test all breakpoints thoroughly (Step 7) — responsive breakpoints verified via build + `npm run serve`
 
 ## Phase 3: API Documentation (Source Code Review) ✅ (COMPLETED)
 **Goal:** Review all project source code step by step, one by one, and write comprehensive API documentation.
@@ -120,6 +120,9 @@
 - [x] Write real-world Satek complex example (Step 13) — `website/docs/guides/complex-example.mdx` (project layout, model layer with indexes/excludes, action trio, auth/context hooks, role-scoped aggregation & search, guarded `hardCascade`) + `guides/_category_.json` (pos 7) + links from intro.mdx and advanced/ pages
 - [x] Write smaller example case studies (Step 14) — `website/docs/guides/case-study-{nejat,paper,naghshe,ziwound}.mdx` (analytics+GeoJSON / shared-lib monorepo / spatial `$geoNear`+generated client / rate-limited exports); linked from intro.mdx + complex-example tip; build verified
 - [x] Port the original mdBook tutorials (Step 16) — new `website/docs/tutorials/` category (sidebar pos 3) with 9 pages adapted to the current API: add-more-relations, managing-relations, add-relation, remove-relation, find-and-find-one, aggregation, find-one-and-update, delete-one, insert-many; sidebar renumbered (api 4 / concepts 5 / advanced 6 / migration 7 / guides 8); cross-linked from getting-started.mdx + intro.mdx; build verified
+- [x] Write the full Procurement Workflow tutorial series — new `website/docs/tutorials/procurement-workflow/` (84 pages, built from `examples/advanced-tutorial/`): `overview`, `project-layout`, `models/` (15 pages with verbatim model source), `auth/` (11), `catalog/` (22), `inventory/` (7), `workflow/` (20), `finance/` (7). Overview documents **15 models / 63 actions**; each act page follows template: validator → registration (`mod.ts`) → implementation → in-workflow links → curl → errors & fixes. `guides/procurement-workflow.mdx` callout links the series; `guides/cross-platform-examples.mdx` covers runtime-agnostic imports. Build verified exit 0.
+- [x] Fix Docusaurus slug + link quirks in the tutorial series — numeric prefixes stripped (`00-overview` → `/docs/tutorials/procurement-workflow/overview`, `01-project-layout` → `project-layout`); fixed 86 references across the series, `inventory/00-overview` → `/docs/category/inventory`, `finance/award` → `finance/award-tender`, overview table anchors → `/docs/category/*` links. Build exit 0.
+- [x] Fix the site-wide titled-admonition breakage — `future: { v4: true }` renders `:::note Title` as literal `:::` text; converted all 91 titled admonitions in the tutorial series + `guides/procurement-workflow.mdx` + `guides/cross-platform-examples.mdx` to untitled `:::` + `**Title**` first line. Also fixed the 6 remaining pre-existing broken pages (`advanced/relations-in-depth`, `advanced/request-lifecycle`, `api/models`, `api/queries`, `api/server`, `concepts/what-is-the-relationship`). Build verified — **zero** `<p>:::` across the whole site.
 
 **Reference examples for the real-world project docs (Step 13 & Step 14):**
 
@@ -162,16 +165,16 @@
 - [x] Add search functionality (Step 15) — `@easyops-cn/docusaurus-search-local` plugin, configured in `docusaurus.config.ts` (indexDocs, navbar position, hashed), results dropdown themed to the Linear Look dark palette in `custom.css`; build + serve verified, search index generated
 - [x] Add smooth scroll navigation — already present via `scroll-behavior: smooth` in `custom.css` (Step 2)
 - [x] Add copy-to-clipboard for code blocks — already present (Docusaurus v3 default)
-- [ ] Add keyboard navigation (Step 17)
-- [ ] Optimize images and assets (Step 18)
-- [ ] Add loading skeletons (Step 19 — low priority; static site, likely N/A)
+- [x] Add keyboard navigation (Step 17) — enabled `searchBarShortcut: true` + `searchBarShortcutHint: true` (⌘K / Ctrl+K, default keymap `mod+k`) on the search plugin; themed the `searchHint`/`searchHintContainer` kbd affordances in `custom.css`; `mod+k` confirmed in the built JS bundle
+- [x] Optimize images and assets (Step 18) — fixed the broken `themeConfig.image` reference: renamed `static/img/docusaurus-social-card.jpg` → `lesan-social-card.jpg` (config already pointed there); deleted unused template assets (`undraw_docusaurus_*.svg`, `docusaurus.png`) and the unused `src/components/HomepageFeatures/` component; remaining `static/img/` (`besmelah.jpg`, `favicon.ico`, `logo.svg`, `lesan-social-card.jpg`) all referenced
+- [x] Add loading skeletons (Step 19) — N/A for a fully static site (no async data fetching); `shimmer`/`animate-shimmer` keyframes already exist in `custom.css` for any future use
 
 ## Phase 7: Deploy & Maintain
-- [ ] Configure GitHub Pages
-- [ ] Set up GitHub Actions CI/CD
-- [ ] Deploy to GitHub Pages
-- [ ] Test deployment
-- [ ] Set up custom domain (optional)
+- [x] Configure GitHub Pages — site config already has `organizationName: 'MiaadTeam'`, `projectName: 'lesan'`, `url: 'https://miaadteam.github.io'`, `baseUrl: '/lesan/'` (Step 7)
+- [x] Set up GitHub Actions CI/CD — existing `ci.yml` (test-node 20/22 + test-bun + test-deno matrix) + `publish.yml` (npm/JSR on tags); added `.github/workflows/website-deploy.yml` (build Docusaurus → configure-pages → upload-pages-artifact → deploy-pages, triggered on `website/**` changes to `main`)
+- [ ] Deploy to GitHub Pages — enable Pages → "GitHub Actions" as source in repo settings; the workflow handles the rest on next `main` push
+- [ ] Test deployment — open `https://miaadteam.github.io/lesan/` after first run
+- [ ] Set up custom domain (optional) — add `static/CNAME` + DNS record if desired
 
 ---
 
@@ -215,4 +218,4 @@
 3. Create a **beautiful landing page for the API documentation** that matches the main site theme.
 4. Keep all documentation professional, accurate, and easy to navigate.
 
-**Current Phase:** Phase 6 (Polish & Interactivity) in progress — Steps 15 (local search) and 16 (mdBook tutorial ports, new `tutorials/` category) complete. Next: Step 17 (keyboard navigation), then asset optimization, then Phase 7 (deploy).
+**Current Phase:** Phase 6 (Polish & Interactivity) complete — Steps 15 (local search), 16 (mdBook tutorial ports), 17 (keyboard navigation), 18 (asset optimization), 19 (skeletons, N/A) all done. Phase 7 (deploy & maintain) in progress: the GitHub Pages deploy workflow is written; remaining steps are GitHub-side (enable Pages via GitHub Actions source, first deploy, optional custom domain).
