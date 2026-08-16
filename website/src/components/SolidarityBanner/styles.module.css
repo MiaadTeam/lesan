@@ -1,0 +1,30 @@
+.banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 24px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.08), rgba(34, 211, 238, 0.05) 60%, transparent);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.04em;
+  color: var(--ifm-color-content);
+}
+
+.text {
+  margin: 0;
+  max-width: 720px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: var(--font-normal);
+  color: var(--ifm-color-content-secondary);
+}

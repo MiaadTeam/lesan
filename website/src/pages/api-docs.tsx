@@ -113,7 +113,7 @@ export default function ApiDocs(): JSX.Element {
           <section className={styles.hero}>
             <AnimatedSection animation="fadeInUp" delay={0}>
               <div className={styles.eyebrow}>
-                <Tag label="v2.0" variant="cyan" />
+                <Tag label="v0.2.3" variant="cyan" />
               </div>
             </AnimatedSection>
 
@@ -257,7 +257,7 @@ export default function ApiDocs(): JSX.Element {
                     <h3 className={styles.infoTitle}>Latest Updates</h3>
                     <div className={styles.changelog}>
                       <div className={styles.changelogItem}>
-                        <span className={styles.versionBadge}>v2.0</span>
+                        <span className={styles.versionBadge}>v0.2.3</span>
                         <span className={styles.changelogText}>
                           New query engine, improved type inference, Deno Deploy
                           support.

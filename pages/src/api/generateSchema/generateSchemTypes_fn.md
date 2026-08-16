@@ -1,1 +1,0 @@
-# generateSchemTypes functions

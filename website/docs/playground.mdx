@@ -1,0 +1,76 @@
+---
+sidebar_position: 3
+---
+
+# The Playground
+
+When you enable `playground: true` in `runServer`, Lesan serves an interactive explorer at `/playground` — a visual client that introspects your schemas and acts and lets you send real requests against your running server without writing any code.
+
+```ts
+coreApp.runServer({ port: 1366, playground: true });
+```
+
+Then open `http://localhost:1366/playground` in your browser.
+
+## The Layout
+
+The playground is split into three parts.
+
+### 1. Tabs
+
+At the top of the page are tabs that allow you to work on different things at the same time without losing information. You can create as many tabs as you need with the add button, and close them at any time. Refreshing the page does not lose your tabs — they are fully restored.
+
+### 2. The Sidebar
+
+On the left side is the sidebar with three select boxes used to select the **service**, **schema**, and **act**, in that order. Schema and act selection stays inactive until a service is selected.
+
+After you pick a service, schema, and act, a second column appears with two sections:
+
+- **Set fields** — the values the act needs from you (the `set` object).
+- **Get fields** — the fields you want back in the response (the `get` projection). Each field is a toggle: `1` to include it, `0` to exclude it.
+
+When both are filled in, press the **Send** button and the response appears in the response section at the bottom.
+
+At the top of the response section you have three buttons: **copy request**, **copy response**, and **run E2E test** (which sends the current request into the E2E modal described below). The request status shows as true with a green light or false with a red light, and the top-right of the body shows how long the request took.
+
+### 3. The Buttons
+
+Below the main view are six buttons.
+
+#### Refetch
+
+Press it to renew all data once — useful after a schema or act has changed on the server.
+
+#### Settings
+
+Opens a settings modal with two parts:
+
+- **Fetch Config** — set a URL and press **Apply** to point the playground at a different Lesan server (handy for microservices).
+- **Set Headers** — add any number of key/value headers, then press **Apply** (useful for authorization tokens).
+
+#### History
+
+Opens a history modal listing all past requests and responses. Each entry shows the model and act, the date of the request, and the response time; use the **Show** button to expand the full request/response detail, **Use** to replay a request, or the delete/dustbin buttons to clear individual entries or everything.
+
+#### E2E Test
+
+The playground includes a built-in **end-to-end testing tool** that sequences multiple requests and runs them in order, with faker support for dynamic values.
+
+- With the **Add** button you create a new test sequence. Each sequence lets you write the request **body and headers**, set a **repeat count**, and add **captured variables** (a name plus a value — for example, capturing an `_id` returned by one request to reuse in the next).
+- Above each sequence are buttons to **duplicate** it, **move** it up or down, and **delete** it.
+- With **Import** you can reuse previously exported tests, and **Export** saves the current tests as a file.
+- Press **Run E2E Test** to execute all sequences. The results view shows a summary (total requests, times, success/fail counts, best/worst sequences), the captured-variable values, and per-sequence descriptions with full request/response detail and pagination.
+- You can inspect any request by clicking its sequence number — including the raw request body and the response body with its success status and duration.
+
+#### Schema
+
+Opens a modal listing every schema in the project. Each schema shows its **pure** fields, its **main relations** (with embedded field lists), and its **related relations** (with their sort/limit configuration). Hovering the question icon next to a relation explains it.
+
+#### Act
+
+Like the Schema modal, but for **acts**: acts are grouped by service and then by schema. Opening an act shows its `set` fields and its `get` fields, so you can see exactly what a request needs and what it can return before sending it.
+
+## Related
+
+- The [Procurement Workflow tutorial](/docs/tutorials/procurement-workflow/overview) uses the playground for every act — each page includes a ready-to-send request body.
+- [Testing Relations](/docs/concepts/testing-relations) walks through the playground's E2E modal with the repository's own test files.
