@@ -1080,6 +1080,16 @@ blockquote p {
   color: var(--text-secondary);
   border-radius: var(--border-radius-sm);
 }
+[class*="searchHint"] {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-mono);
+}
+[class*="searchHintContainer"] {
+  color: var(--text-muted);
+}
 [class*="searchContextInput"],
 [class*="searchQueryInput"] {
   background: var(--bg-tertiary);

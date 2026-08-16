@@ -66,6 +66,8 @@ const config: Config = {
         language: ['en'],
         highlightSearchTermsOnTargetPage: true,
         searchResultContextMaxLength: 120,
+        searchBarShortcut: true,
+        searchBarShortcutHint: true,
       },
     ],
   ],
