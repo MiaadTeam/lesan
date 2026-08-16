@@ -1,51 +1,59 @@
 <div align="center">
-  <img src="./website/static/img/besmelah.jpg" alt="بسم الله الرحمن الرحیم">
+  <p>
+    <strong>🇮🇷 Iran · 🇵🇸 Palestine · Hezbollah 🇱🇧</strong><br/>
+    <em>We support the axis of resistance — Iran, Palestine, Hezbollah in Lebanon, and all those<br/>
+    who stand against the decades of suffering and crimes inflicted on the people of our region.</em>
+  </p>
 </div>
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/MiaadTeam/lesan/main/website/static/img/besmelah.jpg" alt="بسم الله الرحمن الرحیم">
+  <br/><br/>
+  <img src="https://raw.githubusercontent.com/MiaadTeam/lesan/main/website/static/img/logo.svg" width="96" height="96" alt="Lesan logo">
+  <h1>The New Way to Build Web Servers</h1>
+  <p>
+    <strong>GraphQL-like flexibility with unmatched performance.</strong><br/>
+    Client-driven projections, automatic relationships, end-to-end TypeScript safety.
+  </p>
+  <p>
+    <a href="https://www.npmjs.com/package/@hemedani/lesan">
+      <img src="https://img.shields.io/npm/v/@hemedani/lesan" alt="npm version">
+    </a>
+    <a href="https://jsr.io/@hemedani/lesan">
+      <img src="https://img.shields.io/jsr/v/@hemedani/lesan" alt="JSR version">
+    </a>
+    <a href="./LICENSE">
+      <img src="https://img.shields.io/github/license/MiaadTeam/lesan" alt="License: AGPL-3.0">
+    </a>
+    <img src="https://img.shields.io/badge/runtime-Node.js%20·%20Bun%20·%20Deno-22D3EE" alt="Node.js, Bun, Deno">
+    <img src="https://img.shields.io/badge/language-TypeScript-A855F7" alt="TypeScript">
+  </p>
+  <p>
+    <a href="https://miaadteam.github.io/lesan/docs/intro">Documentation</a> ·
+    <a href="https://miaadteam.github.io/lesan/docs/getting-started">Getting Started</a> ·
+    <a href="https://miaadteam.github.io/lesan/docs/benchmarks">Benchmarks</a> ·
+    <a href="./examples">Examples</a>
+  </p>
+</div>
+
+---
 
 # Why **Lesan**?
 
-**Lesan** is a blazing-fast, cross-platform web framework and Object Document Mapper (ODM) designed to give you the exact data-fetching flexibility of GraphQL, without its heavy processing overhead, while maintaining the simplicity of REST.
+**Lesan** is a blazing-fast, cross-platform web framework and Object Document Mapper (ODM) designed to give you the exact data-fetching flexibility of GraphQL — without its heavy processing overhead — while maintaining the simplicity of REST.
 
-Even though _**NoSQL**_ is very fast, its complexities are very troublesome for large-scale projects. On the other hand, _**GraphQL**_ shines in client-server connectivity but it has several weaknesses and is somewhat complex, adding another layer of complexity to the project. That’s why we created **LESAN**.
+Even though **NoSQL** is very fast, its complexities become troublesome in large-scale projects. On the other hand, **GraphQL** shines in client-server connectivity but adds another layer of complexity and CPU cost. That's why we created **Lesan**: the flexibility of GraphQL, the simplicity of REST, and the raw speed of direct MongoDB queries.
 
-🚀 **Now Cross-Platform!** Lesan natively supports **Node.js**, **Bun**, and **Deno** with zero configuration. Write your code once and run it anywhere!
+🚀 **Now Cross-Platform!** Write your code once and run it natively on **Node.js**, **Bun**, and **Deno** — zero configuration required.
 
 ## ✨ What makes Lesan special?
 
-- 🎯 **Client-Driven Projections:** Similar to GraphQL, clients dictate exactly the shape and depth of the data they receive, including nested relations, but without the CPU cost of parsing a complex query language.
-- 🤝 **One-Directional Magic, Bi-Directional Power:** Relationships in Lesan are an absolute game-changer. You define a relationship from _one direction_ (the model that needs it most), and Lesan automatically handles the immensely complex **bi-directional embedding**, syncing, array limits, sorting, and cascading updates/deletes behind the scenes. Goodbye to complex JOINs and manual NoSQL array updates!
-- 🛡️ **End-to-End Type Safety:** Run your server with the `typeGeneration: true` flag, and Lesan will auto-generate perfect client-side TypeScript definitions and a custom fetch wrapper. This guarantees flawless frontend integration and autocomplete.
-- ⚡ **Insane Performance:** Stripped of unnecessary middleware bloat and built directly on the official MongoDB driver, Lesan's direct-to-database routing crushes traditional REST/ORM and GraphQL server speeds.
-- 🧩 **Built for Microservices:** The action-based architecture inherently supports breaking large monolithic systems down into isolated microservices effortlessly.
-
-<a href="https://youtu.be/FzMNIGanXSQ" target="_blank">This video</a> is an introductory tutorial on the **Lesan** framework in the Farsi language.
-
-# Benchmarks
-
-<div align="center">
-  <img src="chart.svg" width="800" height="180" alt="benchmark-animation">
-</div>
-
-We use this formula to calculate the difference : (B - A) ÷ A \* 100  
- As you see on the chart:
-
-- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.
-- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1417%` faster than the `prisma-express-graphql`. Which uses `postgres` as a database.
-- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `4435%` faster than the `mongoose-express-rest` (Note that we did not sort in this query)
-- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `72289%` faster than the `mongo-express-rest` (Note that we did not sort in this query)
-- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `298971%` faster than the `mongoose-express-rest` (used sortby)
-
-**Maybe we created the most performant framework in the world!** [see more detailed benchmark](https://github.com/MiaadTeam/benchmark)
-
-_Note: With our new cross-platform architecture, Lesan achieves over 10,000 requests per second on Bun and Deno! Check out our [Cross-Platform Benchmarks](https://miaadteam.github.io/lesan/docs/benchmarks)._
-
-# Documentation
-
-- [Introduction](https://miaadteam.github.io/lesan/docs/intro)
-- [Getting Started](https://miaadteam.github.io/lesan/docs/getting-started)
-- [Migration Guide](https://miaadteam.github.io/lesan/docs/migration)
-- [API Reference](https://miaadteam.github.io/lesan/docs/api/intro)
-- [Examples (Node.js, Bun, Deno)](./examples)
+- 🎯 **Client-Driven Projections** — Clients dictate exactly the shape and depth of the data they receive, including nested relations, without the CPU cost of parsing a complex query language.
+- 🤝 **One-Directional Magic, Bi-Directional Power** — Define a relationship from *one direction*, and Lesan automatically handles the complex bi-directional embedding, syncing, array limits, sorting, and cascading updates/deletes behind the scenes. Goodbye to complex JOINs and manual NoSQL array updates.
+- 🛡️ **End-to-End Type Safety** — Run your server with `typeGeneration: true`, and Lesan auto-generates perfect client-side TypeScript definitions and a custom fetch wrapper for flawless frontend integration and autocomplete.
+- ⚡ **Insane Performance** — Stripped of middleware bloat and built directly on the official MongoDB driver, Lesan's direct-to-database routing crushes traditional REST/ORM and GraphQL server speeds.
+- 🧩 **Built for Microservices** — The action-based architecture inherently supports breaking large monolithic systems down into isolated microservices.
+- 🍃 **MongoDB Native** — Full compatibility with MongoDB's powerful query language.
 
 # Installation
 
@@ -229,7 +237,7 @@ const getUsersValidator = () => {
   return object({
     set: object({
       page: number(),
-      take: number(),
+      limit: number(),
       countryId: optional(size(string(), 24)),
     }),
     get: coreApp.schemas.selectStruct("user", { country: 1 }),
@@ -326,7 +334,36 @@ Alternatively, you can send a POST request to `http://localhost:1366/lesan` with
 In Lesan, **relationships are One-Directional in definition, but fully embedded bi-directionally.**
 When you link a User to a Country, Lesan seamlessly embeds the country details inside the user, _and_ automatically embeds the user details inside the country's `users` array (even keeping the top 50 users sorted automatically!).
 
-We handle all the heavy lifting of keeping this embedded data perfectly in sync across your entire database for blazing-fast reads. You can also control the exact level of penetration into the relationship depth. On the `client-side`, you simply describe what you want and get back exactly what you described—with zero backend refactoring!
+We handle all the heavy lifting of keeping this embedded data perfectly in sync across your entire database for blazing-fast reads. You can also control the exact level of penetration into the relationship depth. On the `client-side`, you simply describe what you want and get back exactly what you described — with zero backend refactoring!
+
+# Benchmarks
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/MiaadTeam/lesan/main/chart.svg" width="800" height="180" alt="benchmark-animation">
+</div>
+
+We use this formula to calculate the difference: (B - A) ÷ A × 100
+As you see on the chart:
+
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1168%` faster than the `prisma-express-rest`. Which uses `postgres` as a database.
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `1417%` faster than the `prisma-express-graphql`. Which uses `postgres` as a database.
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `4435%` faster than the `mongoose-express-rest` (Note that we did not sort in this query)
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `72289%` faster than the `mongo-express-rest` (Note that we did not sort in this query)
+- [Lesan](https://github.com/MiaadTeam/lesan) return data to client `298971%` faster than the `mongoose-express-rest` (used sortby)
+
+**Maybe we created the most performant framework in the world!** [see more detailed benchmark](https://github.com/MiaadTeam/benchmark)
+
+_Note: With our new cross-platform architecture, Lesan achieves over 10,000 requests per second on Bun and Deno! Check out our [Cross-Platform Benchmarks](https://miaadteam.github.io/lesan/docs/benchmarks)._
+
+# Documentation
+
+- [Introduction](https://miaadteam.github.io/lesan/docs/intro)
+- [Getting Started](https://miaadteam.github.io/lesan/docs/getting-started)
+- [Migration Guide](https://miaadteam.github.io/lesan/docs/migration)
+- [API Reference](https://miaadteam.github.io/lesan/docs/api/intro)
+- [Examples (Node.js, Bun, Deno)](./examples)
+
+<a href="https://youtu.be/FzMNIGanXSQ" target="_blank">This video</a> is an introductory tutorial on the **Lesan** framework in the Farsi language.
 
 # Contributors
 
@@ -351,3 +388,9 @@ We handle all the heavy lifting of keeping this embedded data perfectly in sync 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/erfan-asadi"><img src="https://avatars.githubusercontent.com/u/50593999?v=4?s=100" width="100px;" alt="Erfan Asadi"/><br /><sub><b>Erfan Asadi</b></sub></a></td>
     </tr>
 </table>
+
+---
+
+<p align="center">
+  <sub>Licensed under the <a href="./LICENSE">AGPL-3.0-or-later</a> license. Built with ❤️ by the Lesan team.</sub>
+</p>
