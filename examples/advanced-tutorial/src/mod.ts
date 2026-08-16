@@ -1,0 +1,33 @@
+import { userSetup } from "./user/mod.ts";
+import { fileSetup } from "./file/mod.ts";
+import { tagSetup } from "./tag/mod.ts";
+import { organizationSetup } from "./organization/mod.ts";
+import { unitSetup } from "./unit/mod.ts";
+import { productSetup } from "./product/mod.ts";
+import { storeSetup } from "./store/mod.ts";
+import { inventorySetup } from "./inventory/mod.ts";
+import { stockMovementSetup } from "./stockMovement/mod.ts";
+import { processSetup } from "./process/mod.ts";
+import { processStepSetup } from "./processStep/mod.ts";
+import { purchaseOrderSetup } from "./purchaseOrder/mod.ts";
+import { stepApprovalSetup } from "./stepApproval/mod.ts";
+import { budgetLineSetup } from "./budgetLine/mod.ts";
+import { tenderSetup } from "./tender/mod.ts";
+
+export const functionsSetup = () => {
+  userSetup();
+  fileSetup();
+  tagSetup();
+  organizationSetup();
+  unitSetup();
+  productSetup();
+  storeSetup();
+  inventorySetup();
+  stockMovementSetup();
+  processSetup();
+  processStepSetup();
+  purchaseOrderSetup();
+  stepApprovalSetup();
+  budgetLineSetup();
+  tenderSetup();
+};

@@ -1,0 +1,16 @@
+{
+  "tasks": {
+    "start": "deno run -A mod.ts",
+    "dev": "deno run -A --watch mod.ts",
+    "seed": "deno run -A http/_fixtures/seed.ts",
+    "test": "hurl --test --variable baseUrl=http://localhost:1380 --variable token=dummy http/e2e.hurl"
+  },
+  "imports": {
+    "lesan": "../../src/mod.ts",
+    "mongodb": "npm:mongodb@^6.3.0",
+    "esbuild": "npm:esbuild@^0.20.2",
+    "superstruct": "npm:superstruct@^2.0.2",
+    "@model": "./models/mod.ts",
+    "@lib": "./utils/mod.ts"
+  }
+}
