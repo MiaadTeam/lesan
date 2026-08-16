@@ -1,6 +1,6 @@
 {
   "label": "Advanced Guides",
-  "position": 6,
+  "position": 7,
   "link": {
     "type": "generated-index",
     "description": "Focused, copyable examples of Lesan's power features — deep projections, relations, request lifecycle, aggregation, filtering, pagination, and microservices."
