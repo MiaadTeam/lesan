@@ -1,0 +1,134 @@
+---
+sidebar_position: 13
+---
+
+# StepApproval
+
+`stepApproval` records **one unit's decision on one step of one purchase order**. It's created automatically when an order reaches a step (for every assignee unit), and `submitDecision` processes a unit's vote, evaluates the step via `evaluateStepStatus()`, and auto-advances the order — or marks it rejected/completed.
+
+```ts
+// models/stepApproval.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  coerce, date, defaulted, enums, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { processStep_excludes, purchaseOrder_excludes, unit_excludes, user_excludes } from "./excludes.ts";
+
+export const approval_status_array = ["pending", "approved", "rejected"];
+export const approval_status_emums = enums(approval_status_array);
+
+export const stepApproval_pure = {
+  status: defaulted(
+    coerce(approval_status_emums, string(), (value) => value as typeof approval_status_array[number]),
+    "pending",
+  ),
+  comment: optional(string()),
+  decidedAt: optional(coerce(date(), string(), (value) => new Date(value))),
+  ...createUpdateAt,
+};
+
+export const stepApproval_relations = {
+  purchaseOrder: {
+    schemaName: "purchaseOrder",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: purchaseOrder_excludes,
+    relatedRelations: {
+      stepApprovals: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  processStep: {
+    schemaName: "processStep",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: processStep_excludes,
+    relatedRelations: {
+      approvals: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  unit: {
+    schemaName: "unit",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: unit_excludes,
+    relatedRelations: {
+      stepApprovals: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  decidedBy: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {
+      stepDecisions: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|------|
+| `status` | `coerce(enums([pending, approved, rejected]), "pending")` | the unit's vote |
+| `comment` | `optional(string())` | free-text reason |
+| `decidedAt` | `optional(coerce(date()))` | set when a vote lands |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `purchaseOrder` | `purchaseOrder` | single (**required**) | `purchaseOrder.stepApprovals` |
+| `processStep` | `processStep` | single (**required**) | `processStep.approvals` |
+| `unit` | `unit` | single (**required**) | `unit.stepApprovals` |
+| `decidedBy` | `user` | single (optional) | `user.stepDecisions` |
+
+These three required relations make each row uniquely answerable: *"for order X, step Y, unit Z — what is the decision?"* The relation engine keeps the matching back-references (an order lists its approvals, a step lists its approvals) in sync automatically.
+
+## Factory
+
+```ts
+export const stepApprovals = () =>
+  coreApp.odm.newModel("stepApproval", stepApproval_pure, stepApproval_relations);
+```
+
+## How it connects to the workflow
+
+1. `po-submit` finds the active process, then for **step 0's assignee units** creates one `stepApproval` per unit with `status: "pending"`.
+2. `submitDecision` votes for a unit; if the step's AND/OR expression now resolves **approved**, the order advances (`currentStep++`) and the *next* step's approvals are created; if it resolves **rejected**, the order becomes `Rejected`.
+3. When the last step resolves, the order becomes `Approved` (awaiting `finalize`).
+
+See [submit-decision](/docs/tutorials/procurement-workflow/workflow/submit-decision), [step-evaluator](/docs/tutorials/procurement-workflow/workflow/step-evaluator), and [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "stepApproval",
+    "act": "getStepApprovals",
+    "details": {
+      "set": { "query": { "purchaseOrder._id": "<po_id>" }, "page": 1 },
+      "get": { "status": true, "comment": true, "unit": { "name": true }, "processStep": { "name": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `stepApproval not found` | act given an unknown `_id` | pass a real `_id` |
+| `this stepApproval is already decided` | voting twice on the same row | only pending rows accept a vote |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

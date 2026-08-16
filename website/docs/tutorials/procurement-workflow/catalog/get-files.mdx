@@ -1,0 +1,132 @@
+---
+sidebar_position: 3
+---
+
+# getFiles
+
+Lists **file documents**, newest first, with an optional filter on the uploader. Every authenticated role can list files — it's how the UI renders an uploader's library or a global attachment index.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getFilesFn } from "./getFiles.fn.ts";
+import { getFilesValidator } from "./getFiles.val.ts";
+
+export const getFilesSetup = () =>
+  coreApp.acts.setAct({
+    schema: "file",
+    actName: "getFiles",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getFilesValidator(),
+    fn: getFilesFn,
+  });
+```
+
+## The validator (`getFiles.val.ts`)
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getFilesValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      uploaderId: optional(string()),
+    }),
+    get: selectStruct("file", 2),
+  });
+};
+```
+
+- `uploaderId` is **optional** — omit it to list every file, or pass a user id to see only that user's uploads. It's typed as a plain string (not `objectIdValidation`) because it's used to build a query, not to store.
+- `get` is depth 2, so the response can include the `uploader` snapshot.
+
+## The implementation (`getFiles.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId, type Document } from "lesan";
+import { file } from "../../../mod.ts";
+
+export const getFilesFn: ActFn = async (body) => {
+  const {
+    set: { uploaderId },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  uploaderId && (filters["uploader._id"] = new ObjectId(uploaderId as string));
+
+  return await file
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { createdAt: -1 } },
+      ],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+1. A `filters` document is built only if `uploaderId` was sent.
+2. The filter targets `uploader._id` — a **dotted path** into the embedded relation snapshot. That's the whole trick of Lesan relations: the uploader is stored *inside* the file doc, so a plain `$match` on `uploader._id` finds it, no `$lookup` needed.
+3. `$sort: { createdAt: -1 }` puts the newest uploads first.
+4. `.aggregation(...)` returns a cursor; `.toArray()` materializes it. The client's `get` projection is applied to every result.
+
+## In the workflow
+
+This is the browse/list view. Its `uploaderId` filter pairs naturally with the [user model](/docs/tutorials/procurement-workflow/models/user)'s `files` back-reference, and it feeds the detail page [getFile](/docs/tutorials/procurement-workflow/catalog/get-file).
+
+- [file model](/docs/tutorials/procurement-workflow/models/file)
+- Sibling acts: [uploadFile](/docs/tutorials/procurement-workflow/catalog/upload-file), [getFile](/docs/tutorials/procurement-workflow/catalog/get-file), [removeFile](/docs/tutorials/procurement-workflow/catalog/remove-file)
+
+## Run it
+
+```bash
+# Every file
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "file",
+    "act": "getFiles",
+    "details": {
+      "set": { "activeRoleId": "ghost-role" },
+      "get": { "_id": 1, "name": 1, "mimeType": 1, "uploader": { "_id": 1 } }
+    }
+  }'
+
+# Only one uploader's files
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "file",
+    "act": "getFiles",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "uploaderId": "<userId>" },
+      "get": { "_id": 1, "name": 1, "createdAt": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId` from the user's `roles`. |
+| `You cant do this` | Active role not in the allowed list. | Use an allowed role or the ghost. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected a string" | `uploaderId` wasn't a string. | Send the id as a string (e.g. `"<userId>"`). |
+
+**Empty array ≠ error.** An unknown `uploaderId` simply returns `[]` — the `$match` matches nothing. Only the exact uploader `_id` matches, so a typo in the id silently yields zero rows.

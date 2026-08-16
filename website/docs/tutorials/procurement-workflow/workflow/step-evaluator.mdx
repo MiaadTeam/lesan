@@ -1,0 +1,173 @@
+---
+sidebar_position: 19
+---
+
+# evaluateStepStatus
+
+`evaluateStepStatus` is the pure function that decides whether an approval **step** is `approved`, `rejected`, or still `pending`, given all the units' votes and the step's AND/OR configuration. It's not an act — it's a shared utility in `utils/stepEvaluator.ts` used by [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision) after every vote. If you understand this one function, you understand the whole decision engine of the app.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` is the tutorial's alias for `utils/`.
+:::
+
+## The function
+
+```ts
+type StepApprovalInfo = {
+  unitId: string;
+  status: "pending" | "approved" | "rejected";
+};
+
+type AssigneeGroupInfo = {
+  operator: "AND" | "OR";
+  unitIds: string[];
+};
+
+export function evaluateStepStatus(
+  approvals: StepApprovalInfo[],
+  groupsOperator: "AND" | "OR",
+  assigneeGroups: AssigneeGroupInfo[],
+): "pending" | "approved" | "rejected" {
+  const groupResults: ("pending" | "approved" | "rejected")[] = [];
+
+  for (const group of assigneeGroups) {
+    let hasApproved = false;
+    let hasRejected = false;
+    let hasPending = false;
+
+    for (const unitId of group.unitIds) {
+      const approval = approvals.find((a) => a.unitId === unitId);
+      if (!approval) {
+        hasPending = true;
+      } else if (approval.status === "approved") {
+        hasApproved = true;
+      } else if (approval.status === "rejected") {
+        hasRejected = true;
+      }
+    }
+
+    if (group.operator === "AND") {
+      if (hasRejected) {
+        groupResults.push("rejected");
+      } else if (hasPending) {
+        groupResults.push("pending");
+      } else if (hasApproved) {
+        groupResults.push("approved");
+      } else {
+        groupResults.push("pending");
+      }
+    } else {
+      if (hasApproved) {
+        groupResults.push("approved");
+      } else if (hasPending) {
+        groupResults.push("pending");
+      } else {
+        groupResults.push("rejected");
+      }
+    }
+  }
+
+  if (groupsOperator === "AND") {
+    if (groupResults.some((r) => r === "rejected")) return "rejected";
+    if (groupResults.every((r) => r === "approved")) return "approved";
+    return "pending";
+  } else {
+    if (groupResults.some((r) => r === "approved")) return "approved";
+    if (groupResults.every((r) => r === "rejected")) return "rejected";
+    return "pending";
+  }
+}
+```
+
+## The two-level logic
+
+There are **two layers** of AND/OR, and each is evaluated separately:
+
+1. **Inside a group** (`group.operator`) — how the *units* of one `assigneeGroup` combine.
+2. **Across groups** (`groupsOperator`) — how the *group results* combine.
+
+### Layer 1 — inside one group
+
+For each group, it scans the group's `unitIds`, finds each unit's approval (a missing approval counts as `pending`), and flips three booleans. Then:
+
+- **`operator === "AND"`** (all must approve):
+  - any `rejected` → group is **`rejected`** (one no kills it)
+  - else any `pending` → group is **`pending`**
+  - else all `approved` → group is **`approved`**
+  - empty edge case → **`pending`**
+
+- **`operator === "OR"`** (any may approve):
+  - any `approved` → group is **`approved`**
+  - else any `pending` → group is **`pending`**
+  - else (all voted, all `rejected`) → group is **`rejected`**
+
+### Layer 2 — across the groups
+
+- **`groupsOperator === "AND"`**:
+  - any group `rejected` → step **`rejected`**
+  - every group `approved` → step **`approved`**
+  - otherwise → **`pending`**
+
+- **`groupsOperator === "OR"`**:
+  - any group `approved` → step **`approved`**
+  - every group `rejected` → step **`rejected`**
+  - otherwise → **`pending`**
+
+## Worked example
+
+Take the two-step process from the seed test. Step 1, `Purchasing Approval`, is configured:
+
+```text
+groupsOperator: "OR"
+assigneeGroups: [ { operator: "OR", unitIds: ["unitPurchasing", "unitWarehouse"] } ]
+```
+
+And step 2, `Finance Review`:
+
+```text
+groupsOperator: "OR"
+assigneeGroups: [ { operator: "OR", unitIds: ["unitFinance"] } ]
+```
+
+### Case A — step 1, Purchasing unit approves (OR group)
+
+`approvals` = `[{ unitId: "unitPurchasing", status: "approved" }]` (Warehouse hasn't voted → treated as pending).
+
+Group evaluation (`operator: "OR"`): `hasApproved = true` → group result **`approved`**.
+Across groups (`groupsOperator: "OR"`): some group approved → step status **`approved`**.
+
+→ `submitDecision` advances the PO to step 2. One vote was enough because the group is OR.
+
+### Case B — step 1, Warehouse votes `rejected` first (OR group)
+
+`approvals` = `[{ unitId: "unitWarehouse", status: "rejected" }]` (Purchasing pending).
+
+Group evaluation (`operator: "OR"`): `hasRejected = true`, no `hasApproved`, but `hasPending = true` → group **`pending`**.
+Across groups: not approved, not all rejected → step **`pending`**.
+
+→ The PO stays `InProgress` — the rejected vote is recorded but Purchasing can still approve and flip the step.
+
+### Case C — step 1, both units `rejected` (OR group)
+
+`approvals` = both `rejected`.
+
+Group evaluation: no approved, no pending, so → group **`rejected`**.
+Across groups (`OR`): every group rejected → step **`rejected`**.
+
+→ The PO becomes `Rejected`. Every assigned unit had to reject for an OR group to fail.
+
+### Case D — an AND step
+
+Suppose step 2 were `groupsOperator: "AND"` with one group `{ operator: "AND", unitIds: ["unitFinance", "unitHead"] }`. Finance approves, UnitHead hasn't voted:
+
+Group evaluation (`operator: "AND"`): `hasApproved = true`, `hasPending = true` → group **`pending`**.
+Step → **`pending`** until UnitHead also approves. If UnitHead rejects, the group becomes `rejected` and the step fails even though Finance approved — the AND semantics make every assigned unit's approval mandatory.
+
+## In the workflow
+
+`evaluateStepStatus` is invoked from [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision) (step 7 in its walkthrough) with the live approvals for the PO+step. Its return value decides the branch: `rejected` → PO `Rejected`, `approved` → advance to next step or PO `Approved`, `pending` → keep waiting.
+
+The inputs come from the processStep model: `groupsOperator` and `assigneeGroups` are stored on the step, and `unitIds` are strings (`array(string())`), which is why the approvals' `unitId` are stringified before comparison.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [stepApproval model](/docs/tutorials/procurement-workflow/models/stepApproval), [processStep model](/docs/tutorials/procurement-workflow/models/processStep), [submit-decision](/docs/tutorials/procurement-workflow/workflow/submit-decision), [add-process-step](/docs/tutorials/procurement-workflow/workflow/add-process-step).

@@ -1,0 +1,132 @@
+---
+sidebar_position: 8
+---
+
+# Inventory
+
+`inventory` tracks the **stock level of one product in one store**. A **unique compound index on `(store, "product._id")`** guarantees exactly one record per store+product pair. Records are created and updated by the `inventoryManager` utility (`addStock`, `removeStock`, `transferStock`), not directly by the acts.
+
+```ts
+// models/inventory.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  coerce, date, defaulted, number, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { product_excludes, store_excludes, user_excludes } from "./excludes.ts";
+
+export const inventory_pure = {
+  quantity: defaulted(number(), 0),
+  minQuantity: optional(number()),
+  maxQuantity: optional(number()),
+  batchNo: optional(string()),
+  expirationDate: optional(coerce(date(), string(), (value) => new Date(value))),
+  location: optional(string()),
+  ...createUpdateAt,
+};
+
+export const inventory_relations = {
+  store: {
+    schemaName: "store",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: store_excludes,
+    relatedRelations: {
+      inventories: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  product: {
+    schemaName: "product",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: product_excludes,
+    relatedRelations: {
+      inventories: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  lastCountedBy: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {
+      countedInventories: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `quantity` | `defaulted(number(), 0)` | current stock on hand |
+| `minQuantity` | `optional(number())` | re-order point hint |
+| `maxQuantity` | `optional(number())` | |
+| `batchNo` | `optional(string())` | lot tracking |
+| `expirationDate` | `optional(coerce(date(), string()))` | for perishables |
+| `location` | `optional(string())` | shelf/bin reference |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `store` | `store` | single (**required**) | `store.inventories` |
+| `product` | `product` | single (**required**) | `product.inventories` |
+| `lastCountedBy` | `user` | single (optional) | `user.countedInventories` |
+
+## The compound index
+
+```ts
+export const inventories = () =>
+  coreApp.odm.newModel("inventory", inventory_pure, inventory_relations);
+
+export const createInventoryIndex = async () => {
+  const collection = coreApp.odm.getCollection("inventory");
+  try {
+    await collection.createIndex({ store: 1, "product._id": 1 }, { unique: true });
+  } catch (error) {
+    console.error("Inventory compound index already exists or creation failed:", (error as Error).message);
+  }
+};
+```
+
+`createInventoryIndex()` is called at boot (from `mod.ts`, right after registration). The `{ store: 1, "product._id": 1 }` compound unique index is the data-model guarantee that powers the whole inventory manager: there can only ever be **one** row for a store+product, so `addStock` on a fresh pair inserts and on an existing pair updates.
+
+Note the index targets `"product._id"` — a dotted path *inside* the embedded relation snapshot — because the `product` field is an embedded pure projection of the product document, not a stored ObjectId.
+
+## In the workflow
+
+- [inventory-manager](/docs/tutorials/procurement-workflow/inventory/inventory-manager) — the utility that keeps `quantity` and the [stockMovement](/docs/tutorials/procurement-workflow/models/stockMovement) ledger consistent
+- [add-stock](/docs/tutorials/procurement-workflow/inventory/add-stock), [remove-stock](/docs/tutorials/procurement-workflow/inventory/remove-stock), [transfer-stock](/docs/tutorials/procurement-workflow/inventory/transfer-stock), [get-stock-level](/docs/tutorials/procurement-workflow/inventory/get-stock-level), [get-inventories](/docs/tutorials/procurement-workflow/inventory/get-inventories)
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "inventory",
+    "act": "getInventories",
+    "details": {
+      "set": { "page": 1 },
+      "get": { "quantity": true, "minQuantity": true, "store": { "name": true }, "product": { "name": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `E11000 duplicate key error` on compound index | two records for the same store+product | expected if you bypass `inventoryManager`; the manager upserts instead |
+| `Inventory not found for this store and product` | `removeStock`/`transferStock` on a store+product with no record | seed stock first via `addStock` |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

@@ -1,0 +1,310 @@
+---
+sidebar_position: 7
+---
+
+# inventoryManager
+
+`inventoryManager.ts` is the shared brain behind the inventory acts. Instead of each act inlining its own `findOne` / `$inc` / `insertOne` logic, the mutating acts ([addStock](/docs/tutorials/procurement-workflow/inventory/add-stock), [removeStock](/docs/tutorials/procurement-workflow/inventory/remove-stock), [transferStock](/docs/tutorials/procurement-workflow/inventory/transfer-stock)) delegate here, and the read helpers `getStockLevel` / `getProductStockLevels` are used by the read acts. You need it to understand the single source of truth for stock: every write updates exactly one `inventory` document *and* appends one `stockMovement` ledger row, so quantity changes are always auditable.
+
+It exports five functions: `addStock`, `removeStock`, `transferStock`, `getStockLevel`, and `getProductStockLevels`. All are `async` and return `Promise<Document>` (or `Promise<Document[]>` for the list read).
+
+:::note
+**About the imports**
+All framework imports in this repo use the `"lesan"` alias. In your own app, import the same names from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` points at the app's `utils/` folder, and `../mod.ts` exports the model instances (`inventory`, `product`, `stockMovement`).
+:::
+
+## The `StockOptions` type
+
+Both write helpers accept an optional options bag used to decorate the ledger entry — `referenceType` / `referenceId` link a movement to a source document (e.g. a purchase order or the other store in a transfer), and `description` is free-form. `lastCountedBy` is declared for future use by stock-count flows.
+
+```ts
+import { type Document, ObjectId } from "lesan";
+import { inventory, product, stockMovement } from "../mod.ts";
+
+type StockOptions = {
+  referenceType?: string;
+  referenceId?: string;
+  description?: string;
+  lastCountedBy?: string;
+};
+```
+
+(`lastCountedBy` is not currently written by any of the helpers — only `referenceType`, `referenceId`, and `description` are spread into the ledger doc.)
+
+## `addStock` — increase stock
+
+Adds `quantity` to a store+product. It first looks up the existing inventory record for that combo; if one exists it `$inc`s `quantity` and bumps `updatedAt`, otherwise it `insertOne`s a brand-new inventory doc with the `store` and `product` relations. `balanceBefore` is the old quantity (0 for a new record), `balanceAfter` is `balanceBefore + quantity`, and a positive-signed `stockMovement` row records the change.
+
+```ts
+export async function addStock(
+  storeId: string,
+  productId: string,
+  quantity: number,
+  reason: string,
+  createdByUserId: string,
+  options?: StockOptions,
+): Promise<Document> {
+  const existing = await inventory.findOne({
+    filters: {
+      "store._id": new ObjectId(storeId),
+      "product._id": new ObjectId(productId),
+    },
+    projection: { _id: 1, quantity: 1 },
+  }) as Document | null;
+
+  let balanceBefore = 0;
+
+  if (existing) {
+    balanceBefore = (existing.quantity as number) || 0;
+    await inventory.findOneAndUpdate({
+      filter: { _id: existing._id as ObjectId },
+      update: {
+        $inc: { quantity },
+        $set: { updatedAt: new Date() },
+      },
+      projection: { _id: 1, quantity: 1 },
+    });
+  } else {
+    await inventory.insertOne({
+      doc: { quantity },
+      relations: {
+        store: {
+          _ids: new ObjectId(storeId),
+          relatedRelations: { inventories: true },
+        },
+        product: {
+          _ids: new ObjectId(productId),
+          relatedRelations: { inventories: true },
+        },
+      },
+      projection: { _id: 1, quantity: 1 },
+    });
+  }
+
+  const balanceAfter = balanceBefore + quantity;
+
+  await stockMovement.insertOne({
+    doc: {
+      quantity,
+      balanceBefore,
+      balanceAfter,
+      reason,
+      ...(options?.referenceType && { referenceType: options.referenceType }),
+      ...(options?.referenceId && { referenceId: options.referenceId }),
+      ...(options?.description && { description: options.description }),
+    },
+    relations: {
+      store: {
+        _ids: new ObjectId(storeId),
+        relatedRelations: { stockMovements: true },
+      },
+      product: {
+        _ids: new ObjectId(productId),
+        relatedRelations: { stockMovements: true },
+      },
+      createdBy: {
+        _ids: new ObjectId(createdByUserId),
+        relatedRelations: { createdStockMovements: true },
+      },
+    },
+    projection: { _id: 1, quantity: 1, balanceBefore: 1, balanceAfter: 1 },
+  });
+
+  return { success: true, productId, balanceBefore, balanceAfter };
+}
+```
+
+Why `findOneAndUpdate` vs `insertOne`: a fresh combo has no record to update, so `addStock` creates one and uses the `relatedRelations` option to maintain the back-reference from `store.inventories` and `product.inventories`. An existing combo just needs the atomic `$inc`. Both paths write a ledger row with the positive `quantity`.
+
+## `removeStock` — decrease stock
+
+The inverse of `addStock`, with two hard guards. It throws `new Error("Inventory not found for this store and product")` if no record exists for the combo, and `new Error("Insufficient inventory quantity")` if the requested `quantity` exceeds the current balance. It then decrements via `$inc` with a **negative** value (`negQuantity = -Math.abs(quantity)`) and writes a ledger row whose `quantity` is that negative number.
+
+```ts
+export async function removeStock(
+  storeId: string,
+  productId: string,
+  quantity: number,
+  reason: string,
+  createdByUserId: string,
+  options?: StockOptions,
+): Promise<Document> {
+  const existing = await inventory.findOne({
+    filters: {
+      "store._id": new ObjectId(storeId),
+      "product._id": new ObjectId(productId),
+    },
+    projection: { _id: 1, quantity: 1 },
+  }) as Document | null;
+
+  if (!existing) {
+    throw new Error("Inventory not found for this store and product");
+  }
+
+  const balanceBefore = (existing.quantity as number) || 0;
+
+  if (balanceBefore < quantity) {
+    throw new Error("Insufficient inventory quantity");
+  }
+
+  const negQuantity = -Math.abs(quantity);
+
+  await inventory.findOneAndUpdate({
+    filter: { _id: existing._id as ObjectId },
+    update: {
+      $inc: { quantity: negQuantity },
+      $set: { updatedAt: new Date() },
+    },
+    projection: { _id: 1, quantity: 1 },
+  });
+
+  const balanceAfter = balanceBefore - quantity;
+
+  await stockMovement.insertOne({
+    doc: {
+      quantity: negQuantity,
+      balanceBefore,
+      balanceAfter,
+      reason,
+      ...(options?.referenceType && { referenceType: options.referenceType }),
+      ...(options?.referenceId && { referenceId: options.referenceId }),
+      ...(options?.description && { description: options.description }),
+    },
+    relations: {
+      store: {
+        _ids: new ObjectId(storeId),
+        relatedRelations: { stockMovements: true },
+      },
+      product: {
+        _ids: new ObjectId(productId),
+        relatedRelations: { stockMovements: true },
+      },
+      createdBy: {
+        _ids: new ObjectId(createdByUserId),
+        relatedRelations: { createdStockMovements: true },
+      },
+    },
+    projection: { _id: 1, quantity: 1, balanceBefore: 1, balanceAfter: 1 },
+  });
+
+  return { success: true, productId, balanceBefore, balanceAfter };
+}
+```
+
+The negative `negQuantity` is the key to the signed-ledger design: a downstream sum of all `stockMovement.quantity` values for a product equals its net change, so the ledger can be replayed to verify `balanceAfter` at any point.
+
+## `transferStock` — move between stores
+
+The composition act. It is literally `removeStock` (as `"transfer_out"`, referencing the destination store) followed by `addStock` (as `"transfer_in"`, referencing the source store). The descriptions name the other store, so a transfer row always explains itself.
+
+```ts
+export async function transferStock(
+  fromStoreId: string,
+  toStoreId: string,
+  productId: string,
+  quantity: number,
+  createdByUserId: string,
+): Promise<Document> {
+  await removeStock(fromStoreId, productId, quantity, "transfer_out", createdByUserId, {
+    referenceType: "store",
+    referenceId: toStoreId,
+    description: `Transfer to store ${toStoreId}`,
+  });
+
+  await addStock(toStoreId, productId, quantity, "transfer_in", createdByUserId, {
+    referenceType: "store",
+    referenceId: fromStoreId,
+    description: `Transfer from store ${fromStoreId}`,
+  });
+
+  return { success: true, productId, quantity, fromStoreId, toStoreId };
+}
+```
+
+Net effect: the source store drops by `quantity`, the destination rises by `quantity`, and two ledger rows (`transfer_out` signed negative, `transfer_in` signed positive) make the movement auditable end to end.
+
+## `getStockLevel` — one store + product
+
+A read that returns the full inventory document for a combo — including `minQuantity` / `maxQuantity` for reorder decisions, and the embedded `store` / `product` snapshots. When no record exists it returns `{ quantity: 0 }` instead of throwing, so callers can always treat the result as "current stock".
+
+```ts
+export async function getStockLevel(
+  storeId: string,
+  productId: string,
+): Promise<Document> {
+  const result = await inventory.findOne({
+    filters: {
+      "store._id": new ObjectId(storeId),
+      "product._id": new ObjectId(productId),
+    },
+    projection: {
+      _id: 1,
+      quantity: 1,
+      minQuantity: 1,
+      maxQuantity: 1,
+      batchNo: 1,
+      expirationDate: 1,
+      location: 1,
+      store: 1,
+      product: 1,
+    },
+  });
+
+  return (result as Document) || { quantity: 0 };
+}
+```
+
+This is what the [getStockLevel act](/docs/tutorials/procurement-workflow/inventory/get-stock-level) delegates to.
+
+## `getProductStockLevels` — all stores for one product
+
+A list read: every inventory row for a single product across all stores, sorted by `quantity` descending. Unlike `getStockLevel` it uses `aggregation` and returns an array, which makes it the natural feed for "where should I fulfill this product from?"
+
+```ts
+export async function getProductStockLevels(productId: string): Promise<Document[]> {
+  const results = await inventory
+    .aggregation({
+      pipeline: [
+        { $match: { "product._id": new ObjectId(productId) } },
+        { $sort: { quantity: -1 } },
+      ],
+      projection: {
+        _id: 1,
+        quantity: 1,
+        minQuantity: 1,
+        maxQuantity: 1,
+        store: 1,
+        product: 1,
+      },
+    })
+    .toArray();
+
+  return results as Document[];
+}
+```
+
+This helper is exported by the manager but not currently wrapped by an act — it's ready for a fulfillment-style query when you need it. (`product` is imported at the top of the file but unused in these five functions.)
+
+## How the ledger stays consistent
+
+The invariant is simple and enforced by the two write helpers:
+
+- **One inventory row, one ledger row.** Every mutation of `inventory.quantity` is immediately followed by a `stockMovement.insertOne` capturing `balanceBefore`, `balanceAfter`, and the signed `quantity` (+ on add, − on remove/transfer-out).
+- **`balanceBefore` always equals the pre-change quantity.** In `addStock` it's `existing.quantity` or `0`; in `removeStock` it's `existing.quantity` (the guards run before it's computed as the new value).
+- **`balanceAfter` is always `balanceBefore + signedQuantity`.** For add: `balanceBefore + quantity`; for remove: `balanceBefore - quantity`. Replaying a product's ledger rows reproduces its quantity history exactly.
+- **The `inventory` record is the source of truth for the *current* number**; the ledger is the source of truth for *how it got there*.
+
+That separation is why the [stockMovement model](/docs/tutorials/procurement-workflow/models/stockMovement) can be treated as a read-only audit log written only by this manager, and why [getStockMovements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements) can show a trustworthy trail for any product.
+
+## Errors
+
+| Error | Source | What it means | How to fix |
+|---|---|---|---|
+| `Inventory not found for this store and product` | `removeStock` | No `inventory` record exists for the combo | `addStock` first, or verify the `storeId` / `productId` |
+| `Insufficient inventory quantity` | `removeStock` | `quantity` is larger than `balanceBefore` | Reduce the quantity or restock the source store |
+
+These are plain `new Error(...)` throws — not `HttpError`s — so they surface as generic 500s with `success: false` rather than a specific HTTP status. `transferStock` surfaces both messages when its internal `removeStock` call fails.
+
+## In the workflow
+
+This is the shared util that powers the whole Inventory chapter: [addStock](/docs/tutorials/procurement-workflow/inventory/add-stock), [removeStock](/docs/tutorials/procurement-workflow/inventory/remove-stock), [transferStock](/docs/tutorials/procurement-workflow/inventory/transfer-stock), and [getStockLevel](/docs/tutorials/procurement-workflow/inventory/get-stock-level) each delegate to it. It reads/writes the [inventory](/docs/tutorials/procurement-workflow/models/inventory) and [stockMovement](/docs/tutorials/procurement-workflow/models/stockMovement) models, which are also read directly by [getInventories](/docs/tutorials/procurement-workflow/inventory/get-inventories) and [getStockMovements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements). See the [overview](/docs/tutorials/procurement-workflow/overview) for where inventory sits in the system.

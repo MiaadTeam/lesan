@@ -1,0 +1,348 @@
+---
+sidebar_position: 2
+---
+
+# Procurement Workflow: The Advanced Tutorial
+
+This guide walks through the **advanced tutorial** in this repository
+(`examples/advanced-tutorial/`) — a complete, runnable hospital **procurement and
+warehouse management system** built on Lesan. It is the largest in-repo Lesan
+application you can study: **15 models**, **~60 actions**, JWT authentication
+with role/feature-based access control, a configurable multi-step approval
+workflow, budget encumbrance, tendering, and store-to-store inventory tracking.
+
+Unlike the focused snippets in the [Advanced Guides](/docs/advanced/client-projections),
+this page shows how those pieces fit together in one coherent application. The
+full source lives in `examples/advanced-tutorial/`; every excerpt below is real
+code from that folder.
+
+:::info
+**Step-by-step tutorial**
+This page is the *big picture* — how the pieces fit together. For the full,
+page-by-page walkthrough — every model, every act, every utility, with the real
+code annotated and an "errors & fixes" section on each page — see the
+[**Procurement Workflow tutorial**](/docs/tutorials/procurement-workflow/overview).
+:::
+
+:::info
+**Run it**
+The app is runnable. See the `README.md` in `examples/advanced-tutorial/` for
+setup (`deno task seed`, `deno task start`, `deno task test`) and a complete
+model/act inventory. This guide focuses on *how the pieces fit*.
+:::
+
+## Domain Overview
+
+The core document is the **purchase order (PO)**: a unit requests goods, the
+request flows through configurable approval steps, a tender is created and
+awarded, goods are received into stores, inventory is tracked per store, and
+budget lines are encumbered (and later spent) along the way.
+
+```text
+organization ──> unit ──> store ──> inventory / stockMovement
+        │                        (product stock per store)
+        │
+        ├──> process ──> processStep (ordered, AND/OR assignee groups)
+        │        │
+        │        v
+purchaseOrder ── submit ──> stepApproval (per unit) ── evaluate ──> approve / reject
+        │                                                         │
+        ├── budgetLine (encumber -> spent on finalize)             v
+        ├── tender ── addOffer ── award                        Approved / Rejected
+        └── history[] (every performed action)                      │
+                                                               finalize -> Completed
+                                                               cancel   -> Cancelled
+```
+
+## Project Layout
+
+The app organizes a Lesan project into four directories: one file per model, one
+folder per act, and a shared `utils/` layer:
+
+```text
+advanced-tutorial/
+├── mod.ts                  # entry: lesan(), setDb, model registration, runServer
+├── models/
+│   ├── mod.ts              # barrel re-exporting every model factory
+│   ├── user.ts             # one file per model: pure fields + relations + factory
+│   ├── excludes.ts         # shared field-exclusion lists for relation snapshots
+│   ├── featureConstants.ts # the feature-enum array used by feature flags
+│   └── ...
+├── src/
+│   ├── mod.ts              # functionsSetup(): calls every domain's *Setup()
+│   ├── purchaseOrder/
+│   │   ├── mod.ts          # purchaseOrderSetup(): registers all PO acts
+│   │   ├── submit/         # mod.ts + submit.fn.ts + submit.val.ts
+│   │   ├── add/            # ...
+│   │   └── ...             # one folder per act
+│   └── ...                 # 15 model domains total
+├── utils/                  # shared helpers, aliased as @lib
+├── http/
+│   ├── e2e.hurl            # the 38-request end-to-end test
+│   └── _fixtures/seed.ts   # ghost-admin seed
+└── declarations/           # generated selectInp.ts (do not hand-edit)
+```
+
+### One file per model, one folder per act
+
+A model file declares its **pure fields**, its **relations**, and a factory that
+registers the model with Lesan's ODM:
+
+```ts
+// models/unit.ts (abridged)
+export const unit_pure = {
+  name: string(),
+  code: string(),
+  type: defaulted(coerce(unit_type_emums, string(), (v) => v as UnitType), "Department"),
+  ...createUpdateAt,
+};
+
+export const unit_relations = {
+  organization: {
+    schemaName: "organization",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: organization_excludes,
+    relatedRelations: { units: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  // head (User), parentUnit (Unit), ...
+};
+
+export const units = () => coreApp.odm.newModel("unit", unit_pure, unit_relations);
+```
+
+Every act is a folder with three files: a `setAct` registration, the `fn`
+implementation, and the superstruct `val`:
+
+```ts
+// src/organization/addOrganization/mod.ts
+export const addOrganizationSetup = () =>
+  coreApp.acts.setAct({
+    schema: "organization",
+    actName: "addOrganization",
+    validationRunType: "create",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: addOrganizationValidator(),
+    fn: addOrganizationFn,
+  });
+```
+
+### Wiring everything together (`mod.ts`)
+
+```ts
+export const coreApp = lesan();
+coreApp.odm.setDb(await new MongoClient(MONGO_URI).connect().then((c) => c.db("advancedTutorial")));
+
+export const user = users();           // registering a model returns the ODM handle
+export const purchaseOrder = purchaseOrders();
+// ... one exported handle per model
+
+export const { setAct, setService, getAtcsWithServices } = coreApp.acts;
+export const { selectStruct, getSchemas } = coreApp.schemas;
+
+functionsSetup();                      // registers every act
+
+coreApp.runServer({
+  port: 1380,
+  typeGeneration: true,                // writes declarations/selectInp.ts
+  playground: true,                    // development only
+  staticPath: ["/uploads"],
+  cors: ["http://localhost:3000"],
+});
+```
+
+:::tip
+**Model registration order matters**
+Each `newModel` call registers one schema and then rebuilds the inverse
+(`relatedRelations`) map for *every* schema. All registrations stay together in
+`mod.ts` in dependency order, and the returned handles are re-exported so any act
+can import its model from `mod.ts`.
+:::
+
+## Authentication & Access Control
+
+Auth is a chain of `preAct` hooks that populate the request context and then
+enforce the caller's role, features and scope.
+
+```ts
+preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+```
+
+1. **`setTokens`** — reads the `token` request header and verifies the JWT.
+   Signing is **WebCrypto HS256** (`utils/jwt.ts`), so it runs on Node, Bun and
+   Deno with zero auth dependencies.
+2. **`setUser`** — loads the full user (pure fields + embedded
+   `organizations`/`units` snapshots) onto the context via
+   `coreApp.contextFns`.
+3. **`grantAccess(checks)`** — resolves the **active role** from
+   `details.set.activeRoleId` and requires one check to match its role name,
+   feature flags, and (optionally) organization/unit scope. `user.isGhost`
+   bypasses every check.
+
+Inside an `ActFn` the current user is read straight from the context:
+
+```ts
+const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+```
+
+`MyContext` (`utils/context.ts`) extends Lesan's `LesanContenxt` with the loaded
+user, typed as `Merge<{ _id }, Partial<UserPure>>`.
+
+Roles and features are plain embedded data on the user:
+
+```ts
+// models/user.ts (abridged)
+roles: defaulted(array(object({
+  roleId: string(),
+  name: role_emums,
+  scopeType: optional(role_scope_type_emums), // organization | unit | store
+  scopeId: optional(string()),
+})), [{ roleId: crypto.randomUUID(), name: "Ordinary" }]),
+features: defaulted(array(object({ feature: feature_enums })), []),
+```
+
+`feature_enums` is driven by `feature_array` in `models/featureConstants.ts`
+(`canRegisterPurchaseOrder`, `canApprovePurchaseOrder`, `canManageBudget`, …).
+`hasFeature` (`utils/checkFeature.ts`) checks both the user's own flags and flags
+inherited from the units they belong to.
+
+## The Approval Workflow
+
+### Configure a process
+
+```text
+addProcess ──> addProcessStep (xN, ordered) ──> activateProcess (status: Active)
+```
+
+### Lifecycle of a purchase order
+
+```text
+ add         submit        step approvals (per step)        finalize
+Draft ──> (encumber budget) InProgress ──> Approved ──────> Completed
+            │                  │  └── rejected -> Rejected
+            └──> cancel -> Cancelled (release budget)
+```
+
+### `submit` — kick off the workflow
+
+`submit` (`src/purchaseOrder/submit/submit.fn.ts`) resolves the active process
+for the PO, validates it, and spawns one `stepApproval` per unit in the first
+step's assignee groups:
+
+```ts
+const steps = await processStep.aggregation({
+  pipeline: [{ $match: { "process._id": processId } }, { $sort: { order: 1 } }],
+  projection: { _id: 1, order: 1, assigneeGroups: 1 },
+}).toArray();
+
+const firstStepUnits = steps[0].assigneeGroups.flatMap((g) => g.unitIds);
+for (const unitId of new Set(firstStepUnits.map((u) => u.toString()))) {
+  await stepApproval.insertOne({
+    doc: { status: "pending" },
+    relations: {
+      purchaseOrder: { _ids: poId, relatedRelations: { stepApprovals: true } },
+      processStep:  { _ids: firstStep._id, relatedRelations: { approvals: true } },
+      unit:         { _ids: unitId, relatedRelations: { stepApprovals: true } },
+    },
+    projection: { _id: 1 },
+  });
+}
+```
+
+It then sets `status: "InProgress"`, `currentStep: 1`, pushes a `history` entry,
+and — when the PO is linked to a `budgetLine` — **encumbers** it:
+
+```ts
+await budgetLine.findOneAndUpdate({
+  filter: { _id: po.budgetLine._id },
+  update: { $inc: { totalEncumbered: po.estimatedAmount, remainingBudget: -po.estimatedAmount } },
+  projection: { _id: 1 },
+});
+```
+
+### `submitDecision` — evaluate a step
+
+Each approval is decided by its unit. `submitDecision`
+(`src/stepApproval/submitDecision/submitDecision.fn.ts`) marks the approval, then
+recomputes the step verdict with `evaluateStepStatus`
+(`utils/stepEvaluator.ts`), which applies the step's `groupsOperator`
+(`AND | OR`) over each assignee group's own `operator`:
+
+```ts
+const stepStatus = evaluateStepStatus(approvals, stepDoc.groupsOperator, stepDoc.assigneeGroups);
+```
+
+- `rejected` → the PO becomes `Rejected`.
+- `approved` with no next step → the PO becomes `Approved`.
+- `approved` with a next step → approvals are created for the next step's units
+  and `currentStep` advances.
+- anything else → the PO stays `InProgress` and the decision is recorded in
+  `history[]`.
+
+### `finalize` & `cancel`
+
+- `finalize` requires `Approved`; it converts encumbrance to spend
+  (`totalEncumbered -= amount`, `totalSpent += amount`), sets `Completed`, and
+  stamps `completedAt`.
+- `cancel` requires `Draft | Pending | InProgress`; it releases the encumbrance,
+  sets `Cancelled`, and records the reason.
+
+Every transition appends to `purchaseOrder.history[]` with the acting user, name,
+role and timestamp — inspectable via the `getHistory` act.
+
+## Inventory & Tendering
+
+Inventory acts (`addStock`, `removeStock`, `transferStock`) all delegate to
+`utils/inventoryManager.ts`, which keeps balances consistent and writes
+`stockMovement` ledger entries with before/after quantities:
+
+```ts
+export async function transferStock(fromStoreId, toStoreId, productId, quantity, userId) {
+  await removeStock(fromStoreId, productId, quantity, "transfer_out", userId, {
+    referenceType: "store", referenceId: toStoreId, description: `Transfer to ${toStoreId}`,
+  });
+  await addStock(toStoreId, productId, quantity, "transfer_in", userId, { ... });
+}
+```
+
+Tendering is a thin act layer over the embedded `tender.offers[]` array:
+`addTender` opens a tender, `addOffer` appends a supplier offer, and `award`
+flips the tender to `Awarded` after verifying the winning supplier actually bid.
+
+## Dashboard & Aggregation
+
+`user.dashboardStatistic` fans out parallel aggregations, each gated by the
+client's `get` projection — only the requested metrics are computed. The
+organization/unit scope is derived from the active role's `scopeType`/`scopeId`:
+
+```ts
+if (get.purchasingOrderCounts === 1) {
+  // $group by status -> draft/pending/inProgress/approved/rejected/completed/cancelled/total
+}
+if (get.pendingApprovalCount === 1 || get.recentApprovals === 1) {
+  // $facet over stepApproval: { pendingApprovalCount, recentApprovals }
+}
+if (get.inventoryLowStock === 1) {
+  // $match: { $expr: { $lt: ["$quantity", "$minQuantity"] } } -> $count
+}
+```
+
+## Design Patterns Worth Copying
+
+- **Client-driven `get` projections.** Validators build `get` with
+  `selectStruct(model, depth)`; relations must be projected as objects
+  (`{ budgetLine: { _id: 1 } }`), pure fields as `1`.
+- **`defaulted(...)` on pure fields only documents intent.** The ODM's
+  `insertOne` does not run superstruct `create`, so model defaults are **not**
+  applied on insert — the add-acts set defaults explicitly (the PO `add` fn
+  defaults `status` to `"Draft"`).
+- **Relations are denormalized snapshots.** A relation embeds a *pure* snapshot
+  of the target inside the source, plus the inverse snapshot in the target via
+  `relatedRelations`. `excludes.ts` trims heavy fields (e.g. `password`, nested
+  `history`) from those snapshots.
+- **Business logic lives in acts, not models.** Cross-document invariants (step
+  evaluation, budget math, inventory balances) are explicit `findOneAndUpdate` +
+  `addRelation` steps inside `ActFn`s — there are no DB triggers.
+- **One folder per act**, always `mod.ts` + `<act>.fn.ts` + `<act>.val.ts`.
+- **Errors** are `throwError(msg)` (`utils/throwError.ts`), surfaced as
+  `{ success: false, body: { message } }`.

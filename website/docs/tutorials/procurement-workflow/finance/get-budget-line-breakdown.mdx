@@ -1,0 +1,153 @@
+---
+sidebar_position: 3
+---
+
+# Get Budget Line Breakdown
+
+`getBudgetLineBreakdown` is the analytics act of the Finance chapter: given one **budgetLine**, it returns the line's own fields, every **purchaseOrder** that draws against it, and a `computed` block that reconciles the money (`encumbered`, `spent`, `available`). Use it when you need to show *why* a budget line looks the way it does — which orders reserved funds and which spent them.
+
+:::note
+**Imports**
+Throughout this tutorial the framework imports use the `"lesan"` alias, matching the app's `deno.json`. In your own project import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## The validator (`getBudgetLineBreakdown.val.ts`)
+
+The `set` needs just one thing besides the `activeRoleId` mixin: `_id` as an ObjectId. The `get` projection is the empty object `object({})` — this act doesn't use a client projection because it returns a *derived* shape, not a plain model document.
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { activeRoleMixin } from "@lib";
+
+export const getBudgetLineBreakdownValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: object({}),
+  });
+};
+```
+
+## The implementation (`getBudgetLineBreakdown.fn.ts`)
+
+First it loads the budget line with an explicit projection of the eight money-and-identity fields. If nothing comes back it throws `"budget line not found"`.
+
+Then it finds every purchase order whose embedded `budgetLine` snapshot matches this line's `_id` (the dot-path `"budgetLine._id"` — this is how a PO points at a budget line), sorted newest first, projected down to `title`, `estimatedAmount`, `status`, `currentStep`, `requestedAt`.
+
+The interesting part is the **reconciliation** — the act re-derives the budget state from the POs rather than trusting the stored counters:
+
+- `encumbered` sums `estimatedAmount` of orders still in `Pending`, `InProgress`, or `Approved`.
+- `spent` sums `estimatedAmount` of `Completed` orders.
+- `available` = `totalAllocated - encumbered - spent`.
+
+The response spreads the budget line (`...bl`), attaches the matching orders as `purchaseOrders`, and adds the `computed` block. The `e2e.hurl` suite relies on this: after a PO is submitted, `totalEncumbered` is `25000000`; after finalize + cancel, `totalEncumbered` is `0`, `totalSpent` is `25000000`, `remainingBudget` is `75000000`.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { budgetLine, purchaseOrder } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const getBudgetLineBreakdownFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+  } = body.details;
+
+  const budgetLineId = new ObjectId(_id as string);
+
+  const bl = await budgetLine.findOne({
+    filters: { _id: budgetLineId },
+    projection: {
+      _id: 1,
+      code: 1,
+      title: 1,
+      year: 1,
+      totalAllocated: 1,
+      totalEncumbered: 1,
+      totalSpent: 1,
+      remainingBudget: 1,
+    },
+  });
+
+  !bl && throwError("budget line not found");
+
+  const relatedPOs = await purchaseOrder
+    .aggregation({
+      pipeline: [
+        { $match: { "budgetLine._id": budgetLineId } },
+        { $sort: { createdAt: -1 } },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            estimatedAmount: 1,
+            status: 1,
+            currentStep: 1,
+            requestedAt: 1,
+          },
+        },
+      ],
+    })
+    .toArray();
+
+  const encumbered = relatedPOs
+    .filter((po) => ["Pending", "InProgress", "Approved"].includes(po.status))
+    .reduce((sum, po) => sum + (po.estimatedAmount as number) || 0, 0);
+
+  const spent = relatedPOs
+    .filter((po) => po.status === "Completed")
+    .reduce((sum, po) => sum + (po.estimatedAmount as number) || 0, 0);
+
+  return {
+    ...bl,
+    purchaseOrders: relatedPOs,
+    computed: {
+      encumbered,
+      spent,
+      available: (bl as any).totalAllocated - encumbered - spent,
+    },
+  };
+};
+```
+
+## In the workflow
+
+This is where the [Finance chapter](/docs/tutorials/procurement-workflow/overview) closes the loop: the counters that [submit](/docs/tutorials/procurement-workflow/workflow/po-submit), [finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize), and [cancel](/docs/tutorials/procurement-workflow/workflow/po-cancel) maintain on the [budgetLine model](/docs/tutorials/procurement-workflow/models/budgetLine) are cross-checked here against the actual purchase orders. If they ever disagree, the `computed` block makes it visible. It's the natural follow-up to [getBudgetLines](/docs/tutorials/procurement-workflow/finance/get-budget-lines) — list first, then drill into a single line.
+
+## Run it
+
+With the server on `http://localhost:1380` and a valid `token`:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "model": "budgetLine",
+    "act": "getBudgetLineBreakdown",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<budget-line-id>"
+      },
+      "get": {}
+    }
+  }'
+```
+
+The response body contains the eight projected fields, the `purchaseOrders` array, and:
+
+```json
+"computed": {
+  "encumbered": 25000000,
+  "spent": 0,
+  "available": 75000000
+}
+```
+
+## Errors & fixes
+
+Only one error is thrown by this act:
+
+- **`budget line not found`** — the `_id` didn't match any document in the `budgetLine` collection. Check you're passing the budget line's `_id` (the capture from `addBudgetLine`), not a purchase order's. If the request was meant to succeed, re-run [addBudgetLine](/docs/tutorials/procurement-workflow/finance/add-budget-line) first.

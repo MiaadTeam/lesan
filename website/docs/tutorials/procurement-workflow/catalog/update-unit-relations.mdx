@@ -1,0 +1,185 @@
+---
+sidebar_position: 15
+---
+
+# updateUnitRelations
+
+Moves a unit: re-assigns its `organization`, `head`, and/or `parentUnit`, keeping every back-reference snapshot in sync. Roles allowed: `Manager`, `Admin`, `OrgHead`. This is the biggest of the "update relations" acts because a unit has three relations.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { updateUnitRelationsFn } from "./updateUnitRelations.fn.ts";
+import { updateUnitRelationsValidator } from "./updateUnitRelations.val.ts";
+
+export const updateUnitRelationsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "unit",
+    actName: "updateUnitRelations",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead"] }])],
+    validator: updateUnitRelationsValidator(),
+    fn: updateUnitRelationsFn,
+  });
+```
+
+## The validator (`updateUnitRelations.val.ts`)
+
+```ts
+import { object, objectIdValidation, optional } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const updateUnitRelationsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+      organization: optional(objectIdValidation),
+      head: optional(objectIdValidation),
+      parentUnit: optional(objectIdValidation),
+    }),
+    get: selectStruct("unit", 2),
+  });
+};
+```
+
+- `_id` (required) identifies the unit to update.
+- `organization`, `head`, `parentUnit` are all optional ObjectIds — each one you send gets replaced; each one you omit is left alone.
+- `get` is depth 2 so the response can confirm the new relation snapshots.
+
+## The implementation (`updateUnitRelations.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { unit } from "../../../mod.ts";
+
+export const updateUnitRelationsFn: ActFn = async (body) => {
+  const {
+    set: { _id, organization, head, parentUnit },
+    get,
+  } = body.details;
+
+  const modelId = new ObjectId(_id as string);
+
+  if (organization) {
+    await unit.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        organization: {
+          _ids: new ObjectId(organization as string),
+          relatedRelations: { units: true },
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  if (head) {
+    await unit.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        head: {
+          _ids: new ObjectId(head as string),
+          relatedRelations: { headedUnits: true },
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  if (parentUnit) {
+    await unit.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        parentUnit: {
+          _ids: new ObjectId(parentUnit as string),
+          relatedRelations: { children: true },
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  return await unit.findOne({
+    filters: { _id: modelId },
+    projection: get,
+  });
+};
+```
+
+1. Three independent `if` blocks — each relation you send triggers one `unit.addRelation` call.
+2. Each call is `replace: true`, so the relation is **set**, not appended. The old target's back-reference is removed and the new target's back-reference is added:
+   - `organization` → updates the old/new organization's `units`.
+   - `head` → updates the old/new user's `headedUnits`.
+   - `parentUnit` → updates the old/new parent unit's `children`.
+3. `relatedRelations: { <backRef>: true }` is what tells the ODM to maintain the reverse snapshot.
+4. The final `unit.findOne` returns the updated document.
+
+Because each block is guarded by `if`, a request with only `_id` and `parentUnit` is a perfectly valid "move this unit under a new parent" call.
+
+## In the workflow
+
+Use this to fix mistakes made at `addUnit` time or to restructure: move a unit between organizations, appoint a new head, or re-parent it. Everything that references the unit keeps working because the snapshots are updated atomically.
+
+- [unit model](/docs/tutorials/procurement-workflow/models/unit)
+- Sibling acts: [addUnit](/docs/tutorials/procurement-workflow/catalog/add-unit), [getUnits](/docs/tutorials/procurement-workflow/catalog/get-units), [removeUnit](/docs/tutorials/procurement-workflow/catalog/remove-unit)
+- The same pattern at smaller scale: [updateOrganizationRelations](/docs/tutorials/procurement-workflow/catalog/update-organization-relations)
+
+## Run it
+
+```bash
+# Re-parent a unit
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "unit",
+    "act": "updateUnitRelations",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<unitId>",
+        "parentUnit": "<parentUnitId>"
+      },
+      "get": { "_id": 1, "name": 1, "parentUnit": { "_id": 1, "name": 1 } }
+    }
+  }'
+
+# Appoint a new head and change the organization in one call
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "unit",
+    "act": "updateUnitRelations",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<unitId>",
+        "organization": "<orgId>",
+        "head": "<userId>"
+      },
+      "get": { "_id": 1, "organization": { "_id": 1, "name": 1 }, "head": { "_id": 1, "first_name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `can not find this document` | The unit `_id` (or one of the relation targets) doesn't exist. | Verify ids via `getUnits`/`getOrganizations`/`getUsers`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin`/`OrgHead` (or ghost). | Use an allowed role or the ghost. |
+| superstruct "expected ObjectId-like string" | Any of `_id`/`organization`/`head`/`parentUnit` isn't a valid ObjectId. | Send 24-hex id strings. |

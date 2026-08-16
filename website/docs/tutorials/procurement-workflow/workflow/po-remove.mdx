@@ -1,0 +1,91 @@
+---
+sidebar_position: 14
+---
+
+# remove (purchaseOrder)
+
+`remove` permanently deletes a purchase order with `deleteOne`. It's a blunt instrument — there's no status guard, so any PO can be removed, and deleting a document with live relations cascades through the ODM's relation machinery (the related `user`, `product`, `process`, etc. snapshots get cleaned up too). Only `Manager`/`Admin` users can call it. Prefer [cancel](/docs/tutorials/procurement-workflow/workflow/po-cancel) for a record-preserving abort; use `remove` only for true deletions.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`remove.val.ts`)
+
+Only `_id` and the projection.
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const removeValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("purchaseOrder", 1),
+  });
+};
+```
+
+## The implementation (`remove.fn.ts`)
+
+A single `deleteOne` by `_id`. If nothing was deleted it throws `purchase order not found`; otherwise it returns the deleted document. Note: unlike the other mutating acts, `remove` does **not** push a history entry or touch the budgetLine — it just deletes.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { purchaseOrder } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const removeFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+  } = body.details;
+
+  const removed = await purchaseOrder.deleteOne({
+    filter: { _id: new ObjectId(_id as string) },
+  });
+
+  !removed && throwError("purchase order not found");
+  return removed;
+};
+```
+
+## In the workflow
+
+`remove` is the hard delete outside the normal lifecycle. It's not part of the happy path — that's [submit](/docs/tutorials/procurement-workflow/workflow/po-submit) → [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision) → [finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize) (or [cancel](/docs/tutorials/procurement-workflow/workflow/po-cancel)). Reach for it when a PO was created by mistake and should never have existed.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [po-add](/docs/tutorials/procurement-workflow/workflow/po-add), [po-cancel](/docs/tutorials/procurement-workflow/workflow/po-cancel).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "remove",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<poId>"
+      },
+      "get": {
+        "_id": 1,
+        "status": 1
+      }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `purchase order not found` | No PO with that `_id` | Verify the id via [gets](/docs/tutorials/procurement-workflow/workflow/po-gets) |
+
+Shared auth errors apply, and a `Manager`/`Admin` role is required (`You cant do this` otherwise).

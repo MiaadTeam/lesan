@@ -1,0 +1,108 @@
+---
+sidebar_position: 6
+---
+
+# getTags
+
+Lists **all tags**, newest first. Open to every authenticated role — tags are shared reference data, so anyone can read them. No filter fields; it's a flat list that feeds tag dropdowns and product filters.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getTagsFn } from "./getTags.fn.ts";
+import { getTagsValidator } from "./getTags.val.ts";
+
+export const getTagsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "tag",
+    actName: "getTags",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getTagsValidator(),
+    fn: getTagsFn,
+  });
+```
+
+## The validator (`getTags.val.ts`)
+
+```ts
+import { object } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getTagsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+    }),
+    get: selectStruct("tag", 2),
+  });
+};
+```
+
+- `set` has **no fields beyond `activeRoleId`** — this act takes no input.
+- `get` is depth 2, but since a tag has no relations, depth 2 behaves like depth 1 for practical purposes. `selectStruct` is uniform across the model, which is why the depth is 2 here and 1 on the write acts.
+
+## The implementation (`getTags.fn.ts`)
+
+```ts
+import { type ActFn, type Document } from "lesan";
+import { tag } from "../../../mod.ts";
+
+export const getTagsFn: ActFn = async (body) => {
+  const { get } = body.details;
+
+  return await tag
+    .aggregation({
+      pipeline: [
+        { $sort: { createdAt: -1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+1. `body.details.get` is the only thing used — there's nothing to filter by.
+2. The pipeline is a single `$sort: { createdAt: -1 }`, so the most recently created tag comes first.
+3. `.aggregation(...).toArray()` returns the whole list, each item projected to the client's `get` shape.
+
+## In the workflow
+
+`getTags` is the read path that backs [addProduct](/docs/tutorials/procurement-workflow/catalog/add-product) and [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations) — you fetch tags to populate the picker, then send their `_id`s back. It also pairs with [getProducts](/docs/tutorials/procurement-workflow/catalog/get-products), which can filter products by `tagId`.
+
+- [tag model](/docs/tutorials/procurement-workflow/models/tag)
+- Sibling acts: [addTag](/docs/tutorials/procurement-workflow/catalog/add-tag), [updateTag](/docs/tutorials/procurement-workflow/catalog/update-tag), [removeTag](/docs/tutorials/procurement-workflow/catalog/remove-tag)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "tag",
+    "act": "getTags",
+    "details": {
+      "set": { "activeRoleId": "ghost-role" },
+      "get": { "_id": 1, "name": 1, "color": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role not in the allowed list. | Use an allowed role or the ghost. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+
+An empty tag collection returns `[]` — not an error.

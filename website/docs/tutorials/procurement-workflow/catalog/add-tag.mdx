@@ -1,0 +1,110 @@
+---
+sidebar_position: 5
+---
+
+# addTag
+
+Creates a **tag** — a lightweight `{ name, color }` label used to classify products. Only `Manager` and `Admin` can create tags. The model enforces a **unique index on `name`**, so you can't create two tags with the same label.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { addTagFn } from "./addTag.fn.ts";
+import { addTagValidator } from "./addTag.val.ts";
+
+export const addTagSetup = () =>
+  coreApp.acts.setAct({
+    schema: "tag",
+    actName: "addTag",
+    validationRunType: "create",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: addTagValidator(),
+    fn: addTagFn,
+  });
+```
+
+`validationRunType: "create"` means superstruct **creates** a new value (applying `defaulted`/`coerce`) rather than just asserting — so you can rely on defaults being filled in.
+
+## The validator (`addTag.val.ts`)
+
+```ts
+import { object, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const addTagValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: string(),
+      color: string(),
+    }),
+    get: selectStruct("tag", 1),
+  });
+};
+```
+
+Both `name` and `color` are required strings. `color` is expected to be a CSS-ish value like `"#ff5252"` (it's just a string at the validator level). `get` is depth 1 — pure fields only, which is all a tag has.
+
+## The implementation (`addTag.fn.ts`)
+
+```ts
+import { type ActFn } from "lesan";
+import { tag } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+
+export const addTagFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { name, color } = stripActiveRole(set);
+
+  return await tag.insertOne({
+    doc: { name, color },
+    projection: get,
+  });
+};
+```
+
+1. `stripActiveRole(set)` removes `activeRoleId` (auth plumbing) from the incoming data and returns the rest.
+2. `{ name, color }` is destructured and passed as `doc` — note the tag model has no relations (`tag_relations = {}`), so no `relations` option is needed.
+3. `tag.insertOne` returns the saved doc shaped by the client's `get` projection.
+
+## In the workflow
+
+Tags are created before (or alongside) products so [addProduct](/docs/tutorials/procurement-workflow/catalog/add-product) can reference them, and [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations) can attach them. There's no `addTag`-to-tag relation — tags are flat.
+
+- [tag model](/docs/tutorials/procurement-workflow/models/tag)
+- Sibling acts: [getTags](/docs/tutorials/procurement-workflow/catalog/get-tags), [updateTag](/docs/tutorials/procurement-workflow/catalog/update-tag), [removeTag](/docs/tutorials/procurement-workflow/catalog/remove-tag)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "tag",
+    "act": "addTag",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "name": "Medical", "color": "#ff5252" },
+      "get": { "_id": 1, "name": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.tags index: name_1` | A tag with that `name` already exists (unique index). | Pick a different `name`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin` (or ghost). | Elevate the role or use the ghost token. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected a string but received..." | `name` or `color` missing/wrong type. | Send both as strings. |

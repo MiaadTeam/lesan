@@ -1,0 +1,113 @@
+---
+sidebar_position: 4
+---
+
+# removeFile
+
+Deletes a **file document** by its `_id`. Restricted to `Manager` and `Admin` — regular uploaders can create files but not remove them. Deleting a file that is still referenced (e.g. a purchase-order attachment) is blocked by the ODM's relation guard.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { removeFileFn } from "./removeFile.fn.ts";
+import { removeFileValidator } from "./removeFile.val.ts";
+
+export const removeFileSetup = () =>
+  coreApp.acts.setAct({
+    schema: "file",
+    actName: "removeFile",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: removeFileValidator(),
+    fn: removeFileFn,
+  });
+```
+
+Notice the role list here is just `["Manager", "Admin"]` — the narrowest gate in the file domain.
+
+## The validator (`removeFile.val.ts`)
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const removeFileValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("file", 1),
+  });
+};
+```
+
+- `set` is `activeRoleId` + `_id` (validated as an ObjectId).
+- `get` is depth 1 — if the deletion succeeds you can project the (pre-deletion) pure fields, but the `uploader` snapshot isn't selectable here.
+
+## The implementation (`removeFile.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { file } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const removeFileFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+  } = body.details;
+
+  const removed = await file.deleteOne({
+    filter: { _id: new ObjectId(_id as string) },
+  });
+
+  !removed && throwError("file not found");
+  return removed;
+};
+```
+
+1. `file.deleteOne` removes the document and returns a truthy result on success.
+2. `!removed && throwError("file not found")` turns a miss into an error response.
+3. `deleteOne` also runs the relation cleanup: any snapshot of this file living in another doc (e.g. the user's `files` back-reference array) is removed too.
+
+## In the workflow
+
+Cleanup act for the file store. Remember the **delete guard**: if this file is still linked from somewhere (a user's `avatar`, a purchase-order attachment), `deleteOne` refuses — you must first clear those relations.
+
+- [file model](/docs/tutorials/procurement-workflow/models/file)
+- Sibling acts: [uploadFile](/docs/tutorials/procurement-workflow/catalog/upload-file), [getFile](/docs/tutorials/procurement-workflow/catalog/get-file), [getFiles](/docs/tutorials/procurement-workflow/catalog/get-files)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "file",
+    "act": "removeFile",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<fileId>" },
+      "get": { "_id": 1, "name": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `file not found` | No file has that `_id`. | Check the id. |
+| `please clear below relations status before deletion: ...` | Another document still references this file (e.g. a PO attachment or a user's `avatar`). | Unlink the file from that document first (via the owning model's `update*Relations` act), then delete again. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin` (or ghost). | Elevate the role or use the ghost token. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected ObjectId-like string" | `_id` isn't a valid ObjectId. | Send the 24-hex id string. |

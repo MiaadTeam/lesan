@@ -1,0 +1,135 @@
+---
+sidebar_position: 4
+---
+
+# addProcessStep
+
+`addProcessStep` adds one ordered step to a `process`. A step names an approval gate, gives it an `order` number (steps run in ascending order), and declares **who** must approve it via `groupsOperator` + `assigneeGroups` — the AND/OR logic that [evaluateStepStatus](/docs/tutorials/procurement-workflow/workflow/step-evaluator) later interprets. Only `Manager`/`Admin` users can create steps. A process needs at least one step before [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process) will accept it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`addProcessStep.val.ts`)
+
+The interesting fields are `groupsOperator` and `assigneeGroups`:
+
+- `groupsOperator: "AND" | "OR"` — how the *groups* combine with each other.
+- `assigneeGroups` — an array of groups, each with its own `operator` (`"AND" | "OR"`) and a list of `unitIds` (the units that must vote).
+
+Both use the shared `group_operator_emums`. `stepType` is restricted to the seven step types (`Approval | Review | Notification | Action | Delivery | Receipt | Payment`), `order` is a required number, and `process` is the parent process.
+
+```ts
+import { array, boolean, defaulted, number, object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { group_operator_emums, step_type_emums } from "@model";
+
+export const addProcessStepValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: string(),
+      description: optional(string()),
+      stepType: optional(step_type_emums),
+      order: number(),
+      required: optional(boolean()),
+      groupsOperator: group_operator_emums,
+      assigneeGroups: array(
+        object({
+          operator: group_operator_emums,
+          unitIds: array(string()),
+        }),
+      ),
+      process: objectIdValidation,
+    }),
+    get: selectStruct("processStep", 1),
+  });
+};
+```
+
+## The implementation (`addProcessStep.fn.ts`)
+
+A tiny fn: it strips `activeRoleId`, builds a single `process` relation (with back-reference `steps: true` so the process embeds its steps), and inserts the step with `projection: get`. The `order` field is stored as-is; [getProcessSteps](/docs/tutorials/procurement-workflow/workflow/get-process-steps) and the submit flow rely on sorting by it.
+
+```ts
+import { type ActFn, type TInsertRelations, ObjectId } from "lesan";
+import { processStep } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+import type { processStep_relations } from "@model";
+
+export const addProcessStepFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { process, ...rest } = stripActiveRole(set);
+
+  const relations: TInsertRelations<typeof processStep_relations> = {
+    process: {
+      _ids: new ObjectId(process as string),
+      relatedRelations: { steps: true },
+    },
+  };
+
+  return await processStep.insertOne({
+    doc: rest,
+    relations,
+    projection: get,
+  });
+};
+```
+
+The registration in `mod.ts` uses `validationRunType: "create"` and a `preAct` chain of `[setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])]`.
+
+## In the workflow
+
+The second step of the workflow chapter, right after [addProcess](/docs/tutorials/procurement-workflow/workflow/add-process). Design your approval flow here: step 1 might be `Purchasing Manager Approval` assigned to the Purchasing unit, step 2 `Finance Review` assigned to the Finance unit, and so on. When a PO is [submitted](/docs/tutorials/procurement-workflow/workflow/po-submit), one `stepApproval` is created per unit of the *first* step, and each later step's approvals are created as the previous one is approved.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [processStep model](/docs/tutorials/procurement-workflow/models/processStep), [process model](/docs/tutorials/procurement-workflow/models/process), [addProcess](/docs/tutorials/procurement-workflow/workflow/add-process), [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process), [step-evaluator](/docs/tutorials/procurement-workflow/workflow/step-evaluator).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "processStep",
+    "act": "addProcessStep",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "name": "Purchasing Approval",
+        "description": "Approval by the purchasing unit",
+        "stepType": "Approval",
+        "order": 1,
+        "required": true,
+        "groupsOperator": "OR",
+        "assigneeGroups": [
+          { "operator": "OR", "unitIds": ["<unitId>"] }
+        ],
+        "process": "<processId>"
+      },
+      "get": {
+        "_id": 1,
+        "name": 1,
+        "order": 1,
+        "assigneeGroups": 1
+      }
+    }
+  }'
+```
+
+Add a second step with `order: 2` (e.g. `Finance Review`) before activating, matching the two-step process the [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process) example uses.
+
+## Errors & fixes
+
+The fn throws nothing of its own. Failures come from validation and the auth chain:
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `order` missing | `order: number()` is required | Provide an integer order |
+| `assigneeGroups` empty/invalid | Each group needs `operator` + `unitIds` (an array of strings) | Provide at least one group; `unitIds` entries must be strings |
+| `process` invalid | `process: objectIdValidation` failed | Pass a valid ObjectId for the process |
+| `You cant do this` | Active role isn't `Manager`/`Admin` | Use a Manager/Admin role |
+
+Shared auth-chain errors (`you should send your id with token key in req header`, `Invalid or expired token`, `activeRoleId is required`, `Active role not found`) also apply — see the [addProcess](/docs/tutorials/procurement-workflow/workflow/add-process#errors--fixes) table.

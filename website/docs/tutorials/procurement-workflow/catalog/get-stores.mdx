@@ -1,0 +1,131 @@
+---
+sidebar_position: 22
+---
+
+# getStores
+
+Lists **stores**, optionally filtered by their owning `unitId`, sorted alphabetically by `name`. Open to every authenticated role. This is the store picker used by the inventory acts.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getStoresFn } from "./getStores.fn.ts";
+import { getStoresValidator } from "./getStores.val.ts";
+
+export const getStoresSetup = () =>
+  coreApp.acts.setAct({
+    schema: "store",
+    actName: "getStores",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getStoresValidator(),
+    fn: getStoresFn,
+  });
+```
+
+## The validator (`getStores.val.ts`)
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getStoresValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      unitId: optional(string()),
+    }),
+    get: selectStruct("store", 2),
+  });
+};
+```
+
+- `unitId` is an optional plain string — omit it for all stores, or pass a unit id for that unit's stores only.
+- `get` is depth 2, so the `unit` relation snapshot is projectable.
+
+## The implementation (`getStores.fn.ts`)
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { store } from "../../../mod.ts";
+
+export const getStoresFn: ActFn = async (body) => {
+  const {
+    set: { unitId },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  unitId && (filters["unit._id"] = new ObjectId(unitId as string));
+
+  return await store
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { name: 1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+1. If `unitId` was sent, the filter targets `"unit._id"` — the dotted path into the embedded `unit` snapshot on each store.
+2. `$match` is prepended only when a filter exists; `$sort: { name: 1 }` orders results.
+3. `.toArray()` returns the list with the client's `get` projection applied.
+
+## In the workflow
+
+`getStores` feeds the inventory UI: pick a store, then `addStock`/`getInventories`/`getStockLevel`/`transferStock` (see the [Inventory chapter](/docs/category/inventory)) take a `storeId`. The `unitId` filter pairs with [getUnits](/docs/tutorials/procurement-workflow/catalog/get-units) to show "the warehouses of this department".
+
+- [store model](/docs/tutorials/procurement-workflow/models/store)
+- Sibling act: [addStore](/docs/tutorials/procurement-workflow/catalog/add-store)
+
+## Run it
+
+```bash
+# All stores
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "store",
+    "act": "getStores",
+    "details": {
+      "set": { "activeRoleId": "ghost-role" },
+      "get": { "_id": 1, "name": 1, "code": 1 }
+    }
+  }'
+
+# Stores of one unit
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "store",
+    "act": "getStores",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "unitId": "<unitId>" },
+      "get": { "_id": 1, "name": 1, "unit": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role not in the allowed list. | Use an allowed role or the ghost. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected a string" | `unitId` wasn't a string. | Send the id as a string. |
+
+An unmatched `unitId` returns `[]`, not an error.

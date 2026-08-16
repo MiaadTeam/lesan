@@ -1,0 +1,133 @@
+---
+sidebar_position: 10
+---
+
+# Process
+
+`process` is a **workflow configuration** — it defines how purchase orders flow through approval steps. Its lifecycle is `Draft → Active → Archived`; only an `Active` process can govern purchase orders. A process has ordered `steps` (see the [processStep model](/docs/tutorials/procurement-workflow/models/processStep)) and belongs to one organization.
+
+```ts
+// models/process.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  boolean, coerce, defaulted, enums, number, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { organization_excludes, product_excludes, unit_excludes, user_excludes } from "./excludes.ts";
+
+export const process_status_array = ["Draft", "Active", "Archived"];
+export const process_status_emums = enums(process_status_array);
+
+export const process_pure = {
+  name: string(),
+  description: optional(string()),
+  status: defaulted(
+    coerce(process_status_emums, string(), (value) => value as typeof process_status_array[number]),
+    "Draft",
+  ),
+  version: defaulted(number(), 1),
+  isActive: defaulted(boolean(), false),
+  ...createUpdateAt,
+};
+
+export const process_relations = {
+  organization: {
+    schemaName: "organization",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: organization_excludes,
+    relatedRelations: {
+      processes: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  createdBy: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {
+      createdProcesses: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  unit: {
+    schemaName: "unit",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: unit_excludes,
+    relatedRelations: {},
+  },
+  product: {
+    schemaName: "product",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: product_excludes,
+    relatedRelations: {},
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|------|
+| `name` | `string()` | |
+| `description` | `optional(string())` | |
+| `status` | `coerce(enums([Draft, Active, Archived]), "Draft")` | lifecycle state |
+| `version` | `defaulted(number(), 1)` | bump when you revise the process |
+| `isActive` | `defaulted(boolean(), false)` | only active processes govern POs |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `organization` | `organization` | single (**required**) | `organization.processes` |
+| `createdBy` | `user` | single (optional) | `user.createdProcesses` |
+| `unit` | `unit` | single (optional) | — |
+| `product` | `product` | single (optional) | — |
+
+`unit` and `product` are **optional filters**: a process can be scoped so it only applies to purchase orders from a given unit or for a given product. The `relatedRelations` are empty here on purpose — the process doesn't expose back-references for these two.
+
+## Factory
+
+```ts
+export const processes = () =>
+  coreApp.odm.newModel("process", process_pure, process_relations);
+```
+
+## In the workflow
+
+- [add-process](/docs/tutorials/procurement-workflow/workflow/add-process), [get-processes](/docs/tutorials/procurement-workflow/workflow/get-processes)
+- [activate-process](/docs/tutorials/procurement-workflow/workflow/activate-process) validates the steps and flips the process to `Active`
+- The [processStep model](/docs/tutorials/procurement-workflow/models/processStep) holds the ordered steps
+- [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit) resolves which process a purchase order follows
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "process",
+    "act": "getProcesses",
+    "details": {
+      "set": { "query": { "status": "Active" }, "page": 1 },
+      "get": { "name": true, "status": true, "version": true, "steps": { "name": true, "order": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `process not found` | `getProcesses`/`activateProcess` given an unknown `_id` | pass a real `_id` |
+| `process steps are required` | `activateProcess` on a process with no steps | add `processStep`s first (see [add-process-step](/docs/tutorials/procurement-workflow/workflow/add-process-step)) |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

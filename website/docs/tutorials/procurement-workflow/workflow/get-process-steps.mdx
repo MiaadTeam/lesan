@@ -1,0 +1,100 @@
+---
+sidebar_position: 5
+---
+
+# getProcessSteps
+
+`getProcessSteps` lists the `processStep` documents of one process in ascending `order`. It's the read-side companion to [addProcessStep](/docs/tutorials/procurement-workflow/workflow/add-process-step) — you use it to review the approval chain before activating, and the submit flow itself reuses the same query internally. Every authenticated role can call it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`getProcessSteps.val.ts`)
+
+Takes the parent `processId` and returns a depth-2 projection of the `processStep` schema (so you can include the embedded `process` snapshot and the `assigneeGroups` structure).
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getProcessStepsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      processId: objectIdValidation,
+    }),
+    get: selectStruct("processStep", 2),
+  });
+};
+```
+
+## The implementation (`getProcessSteps.fn.ts`)
+
+Almost identical in shape to [getProcesses](/docs/tutorials/procurement-workflow/workflow/get-processes): it builds a filter matching the embedded `"process._id"` snapshot, then sorts by `order: 1` ascending. The ascending order sort is what guarantees steps come back in the order the workflow should run.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { processStep } from "../../../mod.ts";
+
+export const getProcessStepsFn: ActFn = async (body) => {
+  const {
+    set: { processId },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  processId && (filters["process._id"] = new ObjectId(processId as string));
+
+  return await processStep
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { order: 1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+## In the workflow
+
+Reading the steps is where you confirm your AND/OR design is correct before [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process). When a PO is later [submitted](/docs/tutorials/procurement-workflow/workflow/po-submit) and each [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision) advances the PO, the same `order`-sorted query decides which step comes next.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [processStep model](/docs/tutorials/procurement-workflow/models/processStep), [process model](/docs/tutorials/procurement-workflow/models/process), [addProcessStep](/docs/tutorials/procurement-workflow/workflow/add-process-step), [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "processStep",
+    "act": "getProcessSteps",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "processId": "<processId>"
+      },
+      "get": {
+        "_id": 1,
+        "name": 1,
+        "order": 1,
+        "groupsOperator": 1,
+        "assigneeGroups": 1
+      }
+    }
+  }'
+```
+
+Expect the steps ordered `1, 2, 3, ...`.
+
+## Errors & fixes
+
+The fn throws nothing of its own. Validation and the shared auth-chain errors apply (`You cant do this` should not appear — all roles are allowed). If you pass a valid ObjectId for a process with no steps, you'll get `[]` (that's success; it just means the process isn't configured yet).
+
+See the [addProcess](/docs/tutorials/procurement-workflow/workflow/add-process#errors--fixes) error table for the shared auth messages.

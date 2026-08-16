@@ -81,7 +81,9 @@ relatedRelations: {
 }
 ```
 
-:::warning Many-to-many arrays
+:::warning
+**Many-to-many arrays**
+
 When two schemas relate to each other in both directions, one side should stay unlimited (`limit: null` or omitted) — otherwise documents can be silently dropped from the limited side.
 :::
 
@@ -166,4 +168,4 @@ await countries.deleteOne({
 });
 ```
 
-For real-world cascading patterns with many models — including relation-level `excludes`, `limit`/`sort`, and guarded `hardCascade` deletes — see the [Satek complex example](/docs/guides/complex-example).
+For real-world cascading patterns with many models — including relation-level `excludes`, `limit`/`sort`, and guarded `hardCascade` deletes — follow the [Procurement Workflow tutorial](/docs/tutorials/procurement-workflow/overview).

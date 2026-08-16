@@ -1,0 +1,131 @@
+---
+sidebar_position: 10
+---
+
+# getOrganizations
+
+Lists **organizations**, optionally filtered by a case-insensitive `name` match, sorted alphabetically by `name`. Open to every authenticated role — organizations are the tenant boundary, so most pages need to enumerate them.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getOrganizationsFn } from "./getOrganizations.fn.ts";
+import { getOrganizationsValidator } from "./getOrganizations.val.ts";
+
+export const getOrganizationsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "organization",
+    actName: "getOrganizations",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getOrganizationsValidator(),
+    fn: getOrganizationsFn,
+  });
+```
+
+## The validator (`getOrganizations.val.ts`)
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getOrganizationsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: optional(string()),
+    }),
+    get: selectStruct("organization", 2),
+  });
+};
+```
+
+- `name` is an optional plain string — a search term, not an exact value.
+- `get` is depth 2, so you can project the `parent` relation snapshot (and even `parent`'s `parent`).
+
+## The implementation (`getOrganizations.fn.ts`)
+
+```ts
+import { type ActFn, type Document } from "lesan";
+import { organization } from "../../../mod.ts";
+
+export const getOrganizationsFn: ActFn = async (body) => {
+  const {
+    set: { name },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  name && (filters.name = { $regex: name as string, $options: "i" });
+
+  return await organization
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { name: 1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+1. If `name` was provided, `filters.name` becomes a **case-insensitive regex** (`$options: "i"`) — so `"central"` matches `"Central Hospital"`.
+2. The `$match` stage is only prepended when there's actually a filter — otherwise it's just `$sort: { name: 1 }`.
+3. `.toArray()` returns the list, each doc projected to the client's `get` shape.
+
+## In the workflow
+
+This is the picker behind [addUnit](/docs/tutorials/procurement-workflow/catalog/add-unit), `addProcess`, `addBudgetLine`, `addTender`, and `add` (purchase order) — all of them take an organization id. The optional `name` search makes it usable as a type-ahead.
+
+- [organization model](/docs/tutorials/procurement-workflow/models/organization)
+- Sibling acts: [addOrganization](/docs/tutorials/procurement-workflow/catalog/add-organization), [updateOrganizationRelations](/docs/tutorials/procurement-workflow/catalog/update-organization-relations)
+
+## Run it
+
+```bash
+# All organizations
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "organization",
+    "act": "getOrganizations",
+    "details": {
+      "set": { "activeRoleId": "ghost-role" },
+      "get": { "_id": 1, "name": 1, "code": 1 }
+    }
+  }'
+
+# Search by name
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "organization",
+    "act": "getOrganizations",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "name": "central" },
+      "get": { "_id": 1, "name": 1, "parent": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role not in the allowed list. | Use an allowed role or the ghost. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected a string" | `name` wasn't a string. | Send the search term as a string. |
+
+An unmatched `name` returns `[]`, not an error.

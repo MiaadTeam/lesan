@@ -1,0 +1,97 @@
+---
+sidebar_position: 17
+---
+
+# getStepApprovals (stepApproval)
+
+`getStepApprovals` lists every `stepApproval` created for one purchase order, oldest first. It's the audit view of the approval process: which units voted, in which step, with what decision and comment. Because the `get` projection is depth-2, you can pull the related `processStep` and `unit` snapshots alongside each vote. Every authenticated role can call it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`getStepApprovals.val.ts`)
+
+Takes the `purchaseOrderId` and returns a depth-2 projection of the `stepApproval` schema.
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getStepApprovalsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      purchaseOrderId: objectIdValidation,
+    }),
+    get: selectStruct("stepApproval", 2),
+  });
+};
+```
+
+## The implementation (`getStepApprovals.fn.ts`)
+
+A fixed filter on the embedded `"purchaseOrder._id"` (converted to ObjectId), then `$match` → `$sort createdAt: 1`. The ascending sort means the vote history reads top-down in the order the approvals were created — step 1's approvals before step 2's.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { stepApproval } from "../../../mod.ts";
+
+export const getStepApprovalsFn: ActFn = async (body) => {
+  const {
+    set: { purchaseOrderId },
+    get,
+  } = body.details;
+
+  const filters: Document = {
+    "purchaseOrder._id": new ObjectId(purchaseOrderId as string),
+  };
+
+  return await stepApproval
+    .aggregation({
+      pipeline: [
+        { $match: filters },
+        { $sort: { createdAt: 1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+## In the workflow
+
+`getStepApprovals` is the read window into [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision)'s output. After [submit](/docs/tutorials/procurement-workflow/workflow/po-submit) you'll see one `pending` approval per unit of step 1; after votes you'll see `approved`/`rejected` statuses, `decidedAt` timestamps, and the `decidedBy` user. Compare with [getPendingByUnit](/docs/tutorials/procurement-workflow/workflow/get-pending-by-unit) — which shows only the still-open tasks for a *unit*, grouped by approver.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [stepApproval model](/docs/tutorials/procurement-workflow/models/stepApproval), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [submit-decision](/docs/tutorials/procurement-workflow/workflow/submit-decision), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "stepApproval",
+    "act": "getStepApprovals",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "purchaseOrderId": "<poId>"
+      },
+      "get": {
+        "_id": 1,
+        "status": 1,
+        "processStep": { "_id": 1, "order": 1 },
+        "unit": { "_id": 1, "name": 1 },
+        "decidedBy": { "_id": 1, "first_name": 1, "last_name": 1 }
+      }
+    }
+  }'
+```
+
+## Errors & fixes
+
+The fn throws nothing of its own. An invalid `purchaseOrderId` fails `objectIdValidation`; a valid id with no approvals returns `[]` (success). Shared auth-chain errors apply; all roles are allowed.

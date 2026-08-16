@@ -1,0 +1,109 @@
+---
+sidebar_position: 2
+---
+
+# Get Budget Lines
+
+`getBudgetLines` lists the **budgetLine** collection, newest year first, with optional filters by organization and year. It's the read-side counterpart to [addBudgetLine](/docs/tutorials/procurement-workflow/finance/add-budget-line) — use it for any screen that shows the budget book: dashboards, finance reports, or the dropdown a purchase order picks its budget line from.
+
+:::note
+**Imports**
+Throughout this tutorial the framework imports use the `"lesan"` alias, matching the app's `deno.json`. In your own project import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## The validator (`getBudgetLines.val.ts`)
+
+Both filters are optional strings. Note that `year` is declared as `string()` here even though the model stores it as a number — the function converts it. The `get` projection is `selectStruct("budgetLine", 2)`, one level deeper than `addBudgetLine`, so you can reach into the embedded `organization` relation's own fields.
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getBudgetLinesValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      organizationId: optional(string()),
+      year: optional(string()),
+    }),
+    get: selectStruct("budgetLine", 2),
+  });
+};
+```
+
+## The implementation (`getBudgetLines.fn.ts`)
+
+The function builds a `filters` document and only adds a `$match` stage if something was actually passed:
+
+- `organizationId` → `filters["organization._id"]` — the dot-path targets the embedded relation snapshot's `_id`, and it's cast to `new ObjectId(...)` because the stored snapshot keeps it as an ObjectId.
+- `year` → `filters.year` — cast with `Number(...)`, matching the model's numeric type.
+
+The pipeline always sorts by `year` descending then `code` ascending, so the newest fiscal year (and within it, alphabetical codes) come first. The filtered results flow through the `get` projection via `.toArray()`.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { budgetLine } from "../../../mod.ts";
+
+export const getBudgetLinesFn: ActFn = async (body) => {
+  const {
+    set: { organizationId, year },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  organizationId && (filters["organization._id"] = new ObjectId(organizationId as string));
+  year && (filters.year = Number(year));
+
+  return await budgetLine
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { year: -1, code: 1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+## In the workflow
+
+`getBudgetLines` is the listing page of the [Finance chapter](/docs/tutorials/procurement-workflow/overview). It answers "what did we allocate and what's left?" across organizations and years — and pairs naturally with [getBudgetLineBreakdown](/docs/tutorials/procurement-workflow/finance/get-budget-line-breakdown), which drills into a single line's purchase orders. The [budgetLine model](/docs/tutorials/procurement-workflow/models/budgetLine) shows the exact fields this projection can return, including the embedded `organization` snapshot.
+
+## Run it
+
+With the server on `http://localhost:1380` and a valid `token`:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "model": "budgetLine",
+    "act": "getBudgetLines",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "year": "2024"
+      },
+      "get": {
+        "_id": 1,
+        "code": 1,
+        "title": 1,
+        "year": 1,
+        "remainingBudget": 1,
+        "organization": { "_id": 1, "name": 1 }
+      }
+    }
+  }'
+```
+
+Both filters are optional — drop `set` to just the `activeRoleId` and you get every budget line, newest year first. The response is an array under `"body"`.
+
+## Errors & fixes
+
+`getBudgetLines` throws no custom errors. Two validator gotchas to watch:
+
+- **`year` arrives as a string** (`"2024"`, not `2024`) — the validator enforces `string()`, and the function converts it to a number for the `$match`.
+- **`organizationId` isn't pre-validated** — unlike `addBudgetLine`, here it's a plain `optional(string())`. The cast to `new ObjectId(...)` inside the function assumes a well-formed ID, so pass the real `_id` string from the `organization` collection to keep the `$match` on `"organization._id"` working.

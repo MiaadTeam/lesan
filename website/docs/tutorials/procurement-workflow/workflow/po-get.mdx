@@ -1,0 +1,99 @@
+---
+sidebar_position: 8
+---
+
+# get (purchaseOrder)
+
+`get` fetches a single purchase order by `_id` with the full depth-2 projection — including related snapshots like `requester`, `product`, `process`, `stepApprovals`, and `budgetLine`. It's the detail view behind any PO card: click a row in `gets` and load it here. Every authenticated role can call it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`get.val.ts`)
+
+Only `_id` plus the `activeRoleId` mixin. `get` is a depth-2 `selectStruct("purchaseOrder", 2)` — deeper than the list acts so the detail view can pull in related documents.
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("purchaseOrder", 2),
+  });
+};
+```
+
+## The implementation (`get.fn.ts`)
+
+A single `findOne` with `filters: { _id: new ObjectId(_id) }`. If nothing is found it throws `purchase order not found`; otherwise it returns the document shaped by the requested `get` projection.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { purchaseOrder } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const getFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  const foundedPO = await purchaseOrder.findOne({
+    filters: { _id: new ObjectId(_id as string) },
+    projection: get,
+  });
+
+  !foundedPO && throwError("purchase order not found");
+  return foundedPO;
+};
+```
+
+## In the workflow
+
+`get` sits between [gets](/docs/tutorials/procurement-workflow/workflow/po-gets) and the actions. From here you branch: `submit` a Draft, `cancel` a pending one, or view the [history](/docs/tutorials/procurement-workflow/workflow/po-get-history) and [step approvals](/docs/tutorials/procurement-workflow/workflow/get-step-approvals) of an in-flight order.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [po-gets](/docs/tutorials/procurement-workflow/workflow/po-gets), [po-get-history](/docs/tutorials/procurement-workflow/workflow/po-get-history).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "get",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<poId>"
+      },
+      "get": {
+        "_id": 1,
+        "title": 1,
+        "status": 1,
+        "currentStep": 1,
+        "estimatedAmount": 1,
+        "process": { "_id": 1, "name": 1 },
+        "requester": { "_id": 1, "first_name": 1, "last_name": 1 }
+      }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `purchase order not found` | No PO with that `_id` | Double-check the id (use `gets` to find a real one) |
+| `_id` invalid | `objectIdValidation` rejected the value | Pass a 24-char hex ObjectId |
+
+Shared auth-chain errors apply; all roles are allowed.

@@ -1,0 +1,139 @@
+---
+sidebar_position: 18
+---
+
+# getProducts
+
+Lists **products** with two optional filters: a free-text `search` (case-insensitive match on `name` **or** `code`) and a `tagId` (products carrying that tag). Sorted alphabetically by `name`. Open to every authenticated role.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getProductsFn } from "./getProducts.fn.ts";
+import { getProductsValidator } from "./getProducts.val.ts";
+
+export const getProductsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "product",
+    actName: "getProducts",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getProductsValidator(),
+    fn: getProductsFn,
+  });
+```
+
+## The validator (`getProducts.val.ts`)
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getProductsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      search: optional(string()),
+      tagId: optional(string()),
+    }),
+    get: selectStruct("product", 2),
+  });
+};
+```
+
+- `search` and `tagId` are both optional plain strings — send either, both, or neither.
+- `get` is depth 2, so `parent` and `tags` snapshots are projectable.
+
+## The implementation (`getProducts.fn.ts`)
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { product } from "../../../mod.ts";
+
+export const getProductsFn: ActFn = async (body) => {
+  const {
+    set: { search, tagId },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  if (search) {
+    filters.$or = [
+      { name: { $regex: search as string, $options: "i" } },
+      { code: { $regex: search as string, $options: "i" } },
+    ];
+  }
+  tagId && (filters["tags._id"] = new ObjectId(tagId as string));
+
+  return await product
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { name: 1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+1. `search` builds a `$or` clause: either `name` or `code` matches the term case-insensitively (`$options: "i"`).
+2. `tagId` adds `filters["tags._id"]` — again a dotted path into the embedded `tags` relation snapshot, so a `$match` is enough to find "products carrying this tag".
+3. Both filters combine into a single `$match`; `$sort: { name: 1 }` orders the results.
+4. `.toArray()` returns the list with the client's `get` projection.
+
+## In the workflow
+
+This is the catalog search page and the product picker for purchase orders. The `tagId` filter is how a UI shows "products in the Medical tag" after a user clicks a tag from [getTags](/docs/tutorials/procurement-workflow/catalog/get-tags).
+
+- [product model](/docs/tutorials/procurement-workflow/models/product)
+- Sibling acts: [addProduct](/docs/tutorials/procurement-workflow/catalog/add-product), [getProduct](/docs/tutorials/procurement-workflow/catalog/get-product), [removeProduct](/docs/tutorials/procurement-workflow/catalog/remove-product), [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations)
+
+## Run it
+
+```bash
+# Search by name or code
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "product",
+    "act": "getProducts",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "search": "TSH" },
+      "get": { "_id": 1, "name": 1, "code": 1, "price": 1 }
+    }
+  }'
+
+# Filter by tag
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "product",
+    "act": "getProducts",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "tagId": "<tagId>" },
+      "get": { "_id": 1, "name": 1, "tags": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role not in the allowed list. | Use an allowed role or the ghost. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected a string" | `search`/`tagId` wasn't a string. | Send them as strings. |
+
+An unmatched filter returns `[]`, not an error.

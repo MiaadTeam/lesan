@@ -1,0 +1,110 @@
+---
+sidebar_position: 14
+---
+
+# removeUnit
+
+Deletes a **unit** by its `_id`. Restricted to `Manager` and `Admin`. The ODM's relation guard protects against deleting a unit that still has referencing documents (stores, users, step approvals, purchase orders, process steps).
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { removeUnitFn } from "./removeUnit.fn.ts";
+import { removeUnitValidator } from "./removeUnit.val.ts";
+
+export const removeUnitSetup = () =>
+  coreApp.acts.setAct({
+    schema: "unit",
+    actName: "removeUnit",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: removeUnitValidator(),
+    fn: removeUnitFn,
+  });
+```
+
+## The validator (`removeUnit.val.ts`)
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const removeUnitValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("unit", 1),
+  });
+};
+```
+
+`set` is `activeRoleId` + `_id`. `get` is depth 1.
+
+## The implementation (`removeUnit.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { unit } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const removeUnitFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+  } = body.details;
+
+  const removed = await unit.deleteOne({
+    filter: { _id: new ObjectId(_id as string) },
+  });
+
+  !removed && throwError("unit not found");
+  return removed;
+};
+```
+
+1. `unit.deleteOne` removes the document and cleans up any snapshots pointing at it (e.g. the organization's `units` array).
+2. `!removed && throwError("unit not found")` errors on a miss.
+
+The unit model has three forward relations (`organization`, `head`, `parentUnit`) — but the *reverse* map is where deletion gets interesting. `store.unit`, `user.units`, `stepApproval.unit`, `purchaseOrder.requestingUnit`/`processStep` assignee groups all reference units, so the guard can block a deletion until those references are cleared.
+
+## In the workflow
+
+Cleanup for a department/warehouse that no longer exists. In practice units are removed only in a controlled fashion — deleting a unit that owns stores or has open purchase orders will be refused.
+
+- [unit model](/docs/tutorials/procurement-workflow/models/unit)
+- Sibling acts: [addUnit](/docs/tutorials/procurement-workflow/catalog/add-unit), [getUnits](/docs/tutorials/procurement-workflow/catalog/get-units), [updateUnitRelations](/docs/tutorials/procurement-workflow/catalog/update-unit-relations)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "unit",
+    "act": "removeUnit",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<unitId>" },
+      "get": { "_id": 1, "name": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `unit not found` | No unit has that `_id`. | Check the id. |
+| `please clear below relations status before deletion: ...` | Other documents still reference this unit (stores, users, step approvals, purchase orders, process steps, or child units). | Unlink the unit from those documents first (e.g. via `updateUnitRelations` on child units), then delete again. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin` (or ghost). | Elevate the role or use the ghost token. |
+| superstruct "expected ObjectId-like string" | `_id` isn't a valid ObjectId. | Send the 24-hex id string. |

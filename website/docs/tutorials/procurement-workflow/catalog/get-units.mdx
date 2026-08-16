@@ -1,0 +1,131 @@
+---
+sidebar_position: 13
+---
+
+# getUnits
+
+Lists **units**, optionally filtered by their owning `organizationId`, sorted alphabetically by `name`. Open to every authenticated role. This is the workhorse read for anything scoped to a department or warehouse.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getUnitsFn } from "./getUnits.fn.ts";
+import { getUnitsValidator } from "./getUnits.val.ts";
+
+export const getUnitsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "unit",
+    actName: "getUnits",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getUnitsValidator(),
+    fn: getUnitsFn,
+  });
+```
+
+## The validator (`getUnits.val.ts`)
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getUnitsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      organizationId: optional(string()),
+    }),
+    get: selectStruct("unit", 2),
+  });
+};
+```
+
+- `organizationId` is optional and typed as a plain string — omit it for all units, or pass an org id for that tenant's units only.
+- `get` is depth 2, so `organization`, `head`, and `parentUnit` relation snapshots are all selectable.
+
+## The implementation (`getUnits.fn.ts`)
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { unit } from "../../../mod.ts";
+
+export const getUnitsFn: ActFn = async (body) => {
+  const {
+    set: { organizationId },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  organizationId && (filters["organization._id"] = new ObjectId(organizationId as string));
+
+  return await unit
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { name: 1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+1. If `organizationId` was sent, the filter is `"organization._id"` — a dotted path into the embedded organization snapshot stored on every unit. No join required.
+2. `$match` is prepended only when a filter exists; `$sort: { name: 1 }` orders results alphabetically.
+3. `.toArray()` returns the list with the client's `get` projection applied.
+
+## In the workflow
+
+This is the picker behind [addStore](/docs/tutorials/procurement-workflow/catalog/add-store) (a store's owning unit), `addProcessStep` (assignee groups of `unitIds`), and purchase-order creation (`requestingUnit`). The `organizationId` filter is how a UI shows "units of the selected tenant".
+
+- [unit model](/docs/tutorials/procurement-workflow/models/unit)
+- Sibling acts: [addUnit](/docs/tutorials/procurement-workflow/catalog/add-unit), [removeUnit](/docs/tutorials/procurement-workflow/catalog/remove-unit), [updateUnitRelations](/docs/tutorials/procurement-workflow/catalog/update-unit-relations)
+
+## Run it
+
+```bash
+# All units
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "unit",
+    "act": "getUnits",
+    "details": {
+      "set": { "activeRoleId": "ghost-role" },
+      "get": { "_id": 1, "name": 1, "code": 1, "type": 1 }
+    }
+  }'
+
+# Units of one organization
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "unit",
+    "act": "getUnits",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "organizationId": "<orgId>" },
+      "get": { "_id": 1, "name": 1, "organization": { "_id": 1, "name": 1 }, "head": { "_id": 1, "first_name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role not in the allowed list. | Use an allowed role or the ghost. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected a string" | `organizationId` wasn't a string. | Send the id as a string. |
+
+An unmatched `organizationId` returns `[]`, not an error.

@@ -1,0 +1,101 @@
+---
+sidebar_position: 7
+---
+
+# Store
+
+`store` is a **physical storage place** — a warehouse or a shelf. Inventory is tracked *per store*, and stores belong to a `unit` (typically the `Warehouse`-type unit that owns them).
+
+```ts
+// models/store.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  optional, type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { unit_excludes } from "./excludes.ts";
+
+export const store_pure = {
+  name: string(),
+  code: string(),
+  address: optional(string()),
+  ...createUpdateAt,
+};
+
+export const store_relations = {
+  unit: {
+    schemaName: "unit",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: unit_excludes,
+    relatedRelations: {
+      stores: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | e.g. `Central Warehouse` |
+| `code` | `string()` | indexed **unique** |
+| `address` | `optional(string())` | |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `unit` | `unit` | single (optional) | `unit.stores` |
+
+## Factory
+
+```ts
+export const stores = () =>
+  coreApp.odm.newModel("store", store_pure, store_relations, {
+    createIndex: {
+      indexSpec: { code: 1 },
+      options: { unique: true },
+    },
+  });
+```
+
+## In the workflow
+
+The store is the **inventory boundary**:
+
+- [inventory model](/docs/tutorials/procurement-workflow/models/inventory) — one record per `store` + `product`
+- [stockMovement model](/docs/tutorials/procurement-workflow/models/stockMovement) — the ledger recording every change to a store's stock
+- [add-stock](/docs/tutorials/procurement-workflow/inventory/add-stock), [remove-stock](/docs/tutorials/procurement-workflow/inventory/remove-stock), [transfer-stock](/docs/tutorials/procurement-workflow/inventory/transfer-stock)
+
+Catalog acts: [add-store](/docs/tutorials/procurement-workflow/catalog/add-store), [get-stores](/docs/tutorials/procurement-workflow/catalog/get-stores).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "store",
+    "act": "getStores",
+    "details": {
+      "set": { "page": 1 },
+      "get": { "name": true, "code": true, "unit": { "name": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.stores` | `code` already used | pick a different code |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

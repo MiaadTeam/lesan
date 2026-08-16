@@ -162,7 +162,9 @@ Province Document:
 
 ### Inserting with Relations
 
-:::tip Go deeper
+:::tip
+**Go deeper**
+
 For advanced relationship patterns — multiple `relatedRelations` to one schema, `limit`/`sort`/`excludes`, `addRelation`/`removeRelation`, and `hardCascade` cascading deletes — see [Relations in Depth](/docs/advanced/relations-in-depth).
 :::
 
@@ -359,7 +361,9 @@ await cities.addRelation({
 | `replace` | `boolean` | ❌ | Replace existing single relation |
 | `projection` | `Projection` | ❌ | Fields to return |
 
-:::caution Single Relation Replacement
+:::caution
+**Single Relation Replacement**
+
 For `single` type relations, if the relation already exists and `replace` is not `true`, an error is thrown.
 :::
 

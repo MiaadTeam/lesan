@@ -1,0 +1,189 @@
+---
+sidebar_position: 4
+---
+
+# Get Users
+
+`getUsers` returns a **paginated, searchable, sortable list** of users — the backbone of the admin "user management" screen. It supports full-text search on `first_name` / `last_name` / `email` (powered by the text index `createUserTextIndex` creates at boot), filtering by role, sorting by relevance or any listed field, and pagination. It belongs to the `user` model.
+
+The act lives in `src/user/getUsers/`.
+
+## The validator (`getUsers.val.ts`)
+
+`set` spreads `activeRoleMixin` and `pagination` (`page` defaults to `1`, `limit` defaults to `50`, `skip` is optional — see [Project Layout](/docs/tutorials/procurement-workflow/project-layout) for the util). On top of that:
+
+- `search` — optional free-text string used for the `$text` query.
+- `roles` — optional array of role names (`enums(role_array)`, so only the seven known roles pass).
+- `sortBy` — optional, one of `createdAt`, `updatedAt`, `first_name`, `last_name`, `email`.
+- `sortOrder` — optional `asc` / `desc`.
+
+`get` is `selectStruct("user", 2)`.
+
+```ts
+import { array, enums, number, object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { role_array } from "@model";
+import { activeRoleMixin, pagination } from "@lib";
+
+export const getUsersValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      ...pagination,
+      search: optional(string()),
+      roles: optional(array(enums(role_array))),
+      sortBy: optional(enums(["createdAt", "updatedAt", "first_name", "last_name", "email"])),
+      sortOrder: optional(enums(["asc", "desc"])),
+    }),
+    get: selectStruct("user", 2),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `@model` / `@lib` / `../../../mod.ts` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+The preAct chain is the same shape as [getUser](/docs/tutorials/procurement-workflow/auth/getUser): `setTokens` → `setUser` → `grantAccess` allowing every non-ghost role. Any authenticated user can browse the user list.
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getUsersFn } from "./getUsers.fn.ts";
+import { getUsersValidator } from "./getUsers.val.ts";
+
+export const getUsersSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    actName: "getUsers",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getUsersValidator(),
+    fn: getUsersFn,
+  });
+```
+
+## The implementation (`getUsers.fn.ts`)
+
+This act builds a MongoDB **aggregation pipeline** stage by stage — a great example of why the `aggregation` method takes a raw `pipeline`. Let's walk the stages:
+
+1. **Search stage** — if `search` is truthy, push `{ $match: { $text: { $search: search } } }`. This requires the text index created at boot on `first_name`, `last_name`, `email`.
+2. **Role filter** — if `roles` is a non-empty array, push `{ $match: { "roles.name": { $in: roles } } }`. `roles` is stored as an array of objects, so the dotted path `"roles.name"` matches any embedded role.
+3. **Relevance score** — only when searching **and** not explicitly sorting by another field: `$addFields` a `textScore` via `{ $meta: "textScore" }`, so MongoDB ranks results by match quality.
+4. **Sort** — `sortField` is `"textScore"` when `sortBy === "relevance"`, else `sortBy` (falling back to `"_id"`). `sortDirection` is `1` for `asc`, `-1` otherwise.
+5. **Skip & limit** — `calculatedSkip = skip ?? limit * (page - 1)`. If the client didn't pass `skip` explicitly, it's derived from `page` and `limit` (defaults `1` and `50` from `pagination`).
+
+Then the pipeline runs with the client's `get` projection and the results are returned as an array.
+
+```ts
+import type { ActFn, Document } from "lesan";
+import { user } from "../../../mod.ts";
+
+export const getUsersFn: ActFn = async (body) => {
+  const {
+    set: { page, limit, skip, search, roles, sortBy, sortOrder },
+    get,
+  } = body.details;
+
+  const pipeline: Document[] = [];
+
+  search &&
+    pipeline.push({
+      $match: { $text: { $search: search } },
+    });
+
+  roles && roles.length > 0 &&
+    pipeline.push({
+      $match: { "roles.name": { $in: roles } },
+    });
+
+  if (search && (!sortBy || sortBy === "relevance")) {
+    pipeline.push({
+      $addFields: {
+        textScore: { $meta: "textScore" },
+      },
+    });
+  }
+
+  const sortField = sortBy === "relevance" ? "textScore" : (sortBy || "_id");
+  const sortDirection = sortOrder === "asc" ? 1 : -1;
+  pipeline.push({ $sort: { [sortField]: sortDirection } });
+
+  const calculatedSkip = skip ?? limit * (page - 1);
+  pipeline.push({ $skip: calculatedSkip });
+  pipeline.push({ $limit: limit });
+
+  return await user
+    .aggregation({
+      pipeline,
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+Two notes on behavior:
+
+- `sortBy: "relevance"` is only meaningful **with** a search term — without one there's no `textScore` field, so the sort falls back to `_id` order.
+- The response is a plain array of projected user docs. Pair it with [countUsers](/docs/tutorials/procurement-workflow/auth/countUsers) (same search string) to compute page totals for a paginated UI.
+
+## In the workflow
+
+`getUsers` is the read-many act of the admin area. It pairs naturally with `countUsers` for pagination and feeds `_id`s into `getUser` for detail views.
+
+- [countUsers](/docs/tutorials/procurement-workflow/auth/countUsers) — the matching total for your search, for pagination.
+- [getUser](/docs/tutorials/procurement-workflow/auth/getUser) — the detail view for one result.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `grantAccess` and the `activeRoleId` mechanism.
+- [User model](/docs/tutorials/procurement-workflow/models/user) — `role_array` and the text-indexed fields.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+Needs `token` and `activeRoleId`. Here's a search + pagination + sort combo:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "user",
+    "act": "getUsers",
+    "details": {
+      "set": {
+        "activeRoleId": "<roleId>",
+        "page": 1,
+        "limit": 10,
+        "search": "ghost",
+        "sortBy": "relevance",
+        "sortOrder": "asc"
+      },
+      "get": {
+        "_id": 1,
+        "first_name": 1,
+        "last_name": 1,
+        "email": 1,
+        "roles": 1
+      }
+    }
+  }'
+```
+
+The response is an array of projected users in `body`.
+
+## Errors & fixes
+
+`getUsersFn` itself contains no `throwError` calls — all failures come from the preAct chain or superstruct validation.
+
+| Message | Source | What it means | How to fix |
+|---------|--------|---------------|------------|
+| `you should send your id with token key in req header` | `setTokens` | Missing `token` header. | Add `-H "token: <jwt>"`. |
+| `Invalid or expired token` | `setTokens` | JWT didn't verify. | Re-login. |
+| `Invalid or missing token data` | `setUser` | Token payload had no `_id`. | Re-login. |
+| `user not exist` | `setUser` | The token's user was deleted. | Use a different account or re-create it. |
+| `activeRoleId is required` | `grantAccess` | `set.activeRoleId` was omitted. | Always send `activeRoleId` in `set`. |
+| `Active role not found` | `grantAccess` | The `activeRoleId` doesn't match any role on the user. | Use a `roleId` from the login response. |
+| `You cant do this` | `grantAccess` | The active role isn't allowed to list users. | `getUsers` allows all non-ghost roles, so this means an unexpected role name. |
+| `$text` query failure (framework error) | MongoDB | `search` was used but the text index wasn't created. | `createUserTextIndex()` runs at boot in `mod.ts` — restart the server after any index change. |
+| Generic validation error | superstruct | `sortBy`/`roles` used invalid enum values, or `page`/`limit` aren't numbers. | `sortBy` must be one of `createdAt`, `updatedAt`, `first_name`, `last_name`, `email`; `roles` values must be from `role_array`. |

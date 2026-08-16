@@ -1,0 +1,171 @@
+---
+sidebar_position: 15
+---
+
+# updateRelations (purchaseOrder)
+
+`updateRelations` lets you *replace* one or more relations of a purchase order after it was created — `requester`, `organization`, `requestingUnit`, `product`, `process`, `budgetLine`, `tender`, or the `attachments` array. Every relation is swapped with `replace: true`, so the old embedded snapshot is dropped and the new one takes its place, with back-references kept in sync. This is how you fix a wrong `budgetLine` before submit, or attach a `tender` to a PO. Only `Manager`/`Admin`, or `UnitHead` with the `canRegisterPurchaseOrder` feature, can call it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`updateRelations.val.ts`)
+
+The `_id` plus every relinkable relation as optional ObjectIds; `attachments` is an optional array of ObjectIds. The `get` is a depth-2 projection (this act returns the refreshed PO at the end).
+
+```ts
+import { array, object, objectIdValidation, optional } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const updateRelationsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+      requester: optional(objectIdValidation),
+      organization: optional(objectIdValidation),
+      requestingUnit: optional(objectIdValidation),
+      product: optional(objectIdValidation),
+      process: optional(objectIdValidation),
+      attachments: optional(array(objectIdValidation)),
+      budgetLine: optional(objectIdValidation),
+      tender: optional(objectIdValidation),
+    }),
+    get: selectStruct("purchaseOrder", 2),
+  });
+};
+```
+
+## The implementation (`updateRelations.fn.ts`)
+
+1. Collects all single relations into a `single` map and iterates them. Each present value becomes an `addRelation` call with `replace: true` and the appropriate `relatedRelations` back-reference (`purchaseOrders: true` for the document relations, `{}` for none).
+2. Handles `attachments` separately — it's a multiple relation, so the fn passes an *array* of ObjectIds, again with `replace: true`.
+3. Returns the refreshed PO via `findOne` with the requested `get` projection.
+
+Because every call uses `replace: true`, this act **replaces** rather than appends: a PO that had `tender` A will now point to `tender` B, and the old tender's back-reference is dropped.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { purchaseOrder } from "../../../mod.ts";
+
+export const updateRelationsFn: ActFn = async (body) => {
+  const {
+    set: { _id, requester, organization, requestingUnit, product, process, attachments, budgetLine, tender },
+    get,
+  } = body.details;
+
+  const modelId = new ObjectId(_id as string);
+
+  const single = {
+    requester,
+    organization,
+    requestingUnit,
+    product,
+    process,
+    budgetLine,
+    tender,
+  } as Record<string, unknown>;
+
+  for (const [rel, value] of Object.entries(single)) {
+    if (!value) continue;
+    const related = (() => {
+      switch (rel) {
+        case "requester":
+          return { purchaseOrders: true };
+        case "organization":
+          return { purchaseOrders: true };
+        case "requestingUnit":
+          return { purchaseOrders: true };
+        case "product":
+          return { purchaseOrders: true };
+        case "process":
+          return { purchaseOrders: true };
+        case "budgetLine":
+          return { purchaseOrders: true };
+        case "tender":
+          return { purchaseOrders: true };
+        default:
+          return {};
+      }
+    })();
+
+    await purchaseOrder.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        [rel]: {
+          _ids: new ObjectId(value as string),
+          relatedRelations: related,
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  if (attachments) {
+    await purchaseOrder.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        attachments: {
+          _ids: (attachments as string[]).map((id: string) => new ObjectId(id)),
+          relatedRelations: {},
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  return await purchaseOrder.findOne({
+    filters: { _id: modelId },
+    projection: get,
+  });
+};
+```
+
+## In the workflow
+
+`updateRelations` is the corrective tool alongside [add](/docs/tutorials/procurement-workflow/workflow/po-add). Typical uses:
+
+- Fix a wrong `budgetLine` before [submit](/docs/tutorials/procurement-workflow/workflow/po-submit) encumbers it.
+- Attach a `tender` awarded during the finance chapter.
+- Replace the `process` if the wrong workflow was resolved at creation.
+
+Note that swapping a `process` on an order that's already flowing has no effect on existing `stepApproval` docs — they point at their own `processStep`.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [po-add](/docs/tutorials/procurement-workflow/workflow/po-add), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "updateRelations",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<poId>",
+        "budgetLine": "<budgetLineId>",
+        "tender": "<tenderId>"
+      },
+      "get": {
+        "_id": 1,
+        "status": 1,
+        "budgetLine": { "_id": 1, "code": 1 },
+        "tender": { "_id": 1, "status": 1 }
+      }
+    }
+  }'
+```
+
+Expect the PO back with the new `budgetLine`/`tender` snapshots in place.
+
+## Errors & fixes
+
+The fn throws nothing of its own — failures come from validation (an invalid ObjectId on any relation field) and the auth chain. `Missing feature: canRegisterPurchaseOrder` appears for a `UnitHead` without the feature. If a provided relation id doesn't exist, the insert of the relation may still succeed but the snapshot will be empty — verify the referenced document exists first.

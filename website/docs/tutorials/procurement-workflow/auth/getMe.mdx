@@ -1,0 +1,126 @@
+---
+sidebar_position: 2
+---
+
+# Get Me
+
+`getMe` returns the currently authenticated user — the one whose token you sent — without needing any `set` fields. It's the fastest way for a client to hydrate its own profile (name, roles, features, units) right after login. It belongs to the `user` model and is the canonical example of reading the request context that `setTokens` and `setUser` built for you.
+
+The act lives in `src/user/getMe/`.
+
+## The validator (`getMe.val.ts`)
+
+`set` is an **empty object** — this act needs no input from the client. `get` is `selectStruct("user", 2)`, so the client can project pure fields **and** one level of relations (avatar, organizations, units).
+
+```ts
+import { object } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+
+export const getMeValidator = () => {
+  return object({
+    set: object({}),
+    get: selectStruct("user", 2),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `../../../mod.ts` / `@lib` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+`getMe` is the simplest real-world example of a **protected** act: its `preAct` is `[setTokens, setUser]`. `setTokens` reads the `token` header and verifies it (putting the decoded user into context); `setUser` then loads the **fresh** user document from the database and replaces the context user with it. By the time `getMeFn` runs, `context.user` is the real, current document.
+
+```ts
+import { setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getMeFn } from "./getMe.fn.ts";
+import { getMeValidator } from "./getMe.val.ts";
+
+export const getMeSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    fn: getMeFn,
+    actName: "getMe",
+    preAct: [setTokens, setUser],
+    validator: getMeValidator(),
+  });
+```
+
+## The implementation (`getMe.fn.ts`)
+
+The function reads `context.user._id` out of the context (`coreApp.contextFns.getContextModel()`), then runs a small aggregation that `$match`es on that `_id`. It throws if nothing came back (the user was deleted between `setUser` and this query), and otherwise returns the first document projected by the client's `get`.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { coreApp, user } from "../../../mod.ts";
+import { type MyContext, throwError } from "@lib";
+
+export const getMeFn: ActFn = async (body) => {
+  const context: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+  const _id = context.user._id;
+
+  const { get } = body.details;
+
+  const foundedUser = await user
+    .aggregation({
+      pipeline: [{ $match: { _id: new ObjectId(_id) } }],
+      projection: get,
+    })
+    .toArray();
+  foundedUser.length < 1 && throwError("user not exist");
+  return foundedUser[0];
+};
+```
+
+Why an aggregation instead of `findOne`? Because `projection` on an aggregation can still follow relations that require a `$lookup`, and the pipeline is a natural fit when you might later want to add more stages (like `$match` on a feature flag). For the single-document case either works — this one keeps the door open for richer pipelines.
+
+## In the workflow
+
+`getMe` is the "who am I?" act. Right after [login](/docs/tutorials/procurement-workflow/auth/login), the client calls `getMe` with the token to get the current user's profile and role list.
+
+- [Login](/docs/tutorials/procurement-workflow/auth/login) — how you get the token that `getMe` needs.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `setTokens` and `setUser`, the preAct chain that fills `context.user`.
+- [User model](/docs/tutorials/procurement-workflow/models/user) — the fields you can project with `selectStruct("user", 2)`.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+Needs the token from [login](/docs/tutorials/procurement-workflow/auth/login) — put it in a `token` header. `set` stays empty; ask for a projection with one level of relations:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "user",
+    "act": "getMe",
+    "details": {
+      "set": {},
+      "get": {
+        "_id": 1,
+        "first_name": 1,
+        "last_name": 1,
+        "email": 1,
+        "roles": 1,
+        "units": { "_id": 1, "name": 1 }
+      }
+    }
+  }'
+```
+
+`selectStruct` fields accept `0` or `1`; relation sub-objects are optional.
+
+## Errors & fixes
+
+The fn itself throws one message, and the `preAct` chain can throw four more before the fn runs. All five are listed here because they all surface as a `success: false` response.
+
+| Message | Source | What it means | How to fix |
+|---------|--------|---------------|------------|
+| `you should send your id with token key in req header` | `setTokens` | The `token` header is missing entirely. | Add `-H "token: <jwt>"` using the token returned by [login](/docs/tutorials/procurement-workflow/auth/login). |
+| `Invalid or expired token` | `setTokens` | The header exists but the JWT signature/format didn't verify. | Re-login to get a fresh token; tokens expire after 90 days. |
+| `Invalid or missing token data` | `setUser` | The token decoded, but the payload had no `_id` (malformed payload). | Re-login; this only happens if a token was forged or tampered with. |
+| `user not exist` | `setUser` / `getMeFn` | The `_id` in the token (or in the fresh query) points at a deleted user. | The account was removed; log in as another user or re-create it with [addUser](/docs/tutorials/procurement-workflow/auth/addUser). |
+| Generic validation error | superstruct | `set` was not empty (`{}`) or `get` used invalid fields/values. | `getMe` takes no `set`; keep projections to `0`/`1` and existing field names. |

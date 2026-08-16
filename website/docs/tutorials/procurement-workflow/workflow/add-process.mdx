@@ -1,0 +1,154 @@
+---
+sidebar_position: 1
+---
+
+# addProcess
+
+`addProcess` creates a new `process` — the workflow definition that purchase orders later flow through. You name the workflow, describe it, attach it to an `organization` (and optionally narrow it to a specific `unit` or `product`), and it lands in the database as a `Draft`. Only `Manager`/`Admin` users can create processes; you'll add steps with [addProcessStep](/docs/tutorials/procurement-workflow/workflow/add-process-step) and switch it to `Active` with [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process) before any purchase order can run on it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`addProcess.val.ts`)
+
+The `set` needs a `name` and an `organization`; everything else is optional. `status` is restricted to the process enums (`Draft | Active | Archived`), `unit` and `product` are optional scope narrowers, and `...activeRoleMixin` injects the `activeRoleId` field every act requires. The `get` is a depth-1 projection of the `process` schema built by `selectStruct`.
+
+```ts
+import { object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { process_status_emums } from "@model";
+
+export const addProcessValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: string(),
+      description: optional(string()),
+      status: optional(process_status_emums),
+      organization: objectIdValidation,
+      unit: optional(objectIdValidation),
+      product: optional(objectIdValidation),
+    }),
+    get: selectStruct("process", 1),
+  });
+};
+```
+
+## The implementation (`addProcess.fn.ts`)
+
+`stripActiveRole(set)` removes the `activeRoleId` plumbing field so it never reaches the database. The function then builds a `relations` object: `organization` is always linked (with a back-reference update of `processes: true`), while `unit` and `product` are linked only if provided. The `createdBy` relation points at the current user pulled from `coreApp.contextFns.getContextModel()`. Finally `process.insertOne` writes the document — with `status` defaulting to `"Draft"` — and returns the `get` projection.
+
+```ts
+import { type ActFn, type TInsertRelations, ObjectId } from "lesan";
+import { process } from "../../../mod.ts";
+import { coreApp } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+import type { MyContext } from "@lib";
+import type { process_relations } from "@model";
+
+export const addProcessFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { organization, unit, product, status, ...rest } = stripActiveRole(set);
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  const relations: TInsertRelations<typeof process_relations> = {
+    organization: {
+      _ids: new ObjectId(organization as string),
+      relatedRelations: { processes: true },
+    },
+  };
+
+  unit &&
+    (relations.unit = {
+      _ids: new ObjectId(unit as string),
+    });
+
+  product &&
+    (relations.product = {
+      _ids: new ObjectId(product as string),
+    });
+
+  return await process.insertOne({
+    doc: { ...rest, status: status ?? "Draft" },
+    relations: {
+      ...relations,
+      createdBy: {
+        _ids: user._id,
+      },
+    },
+    projection: get,
+  });
+};
+```
+
+The act is registered in `mod.ts` with `validationRunType: "create"` (so superstruct *creates* the validated document instead of merely asserting it) and a `preAct` chain of `[setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])]` — only Managers and Admins may create processes.
+
+## In the workflow
+
+The workflow chapter's entry point. You will always do these in order:
+
+1. **`addProcess`** — define the workflow (this page)
+2. **`addProcessStep`** — add ordered approval steps with AND/OR assignee groups
+3. **`activateProcess`** — flip it to `Active` so purchase orders can use it
+4. **`add` (purchaseOrder)** — create the PO, which resolves to this process
+5. **`submit`** — start the PO flowing through the steps
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [process model](/docs/tutorials/procurement-workflow/models/process), [processStep model](/docs/tutorials/procurement-workflow/models/processStep), [addProcessStep](/docs/tutorials/procurement-workflow/workflow/add-process-step), [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process).
+
+## Run it
+
+Log in as the seeded ghost admin to get a token (the ghost bypasses role checks, so `activeRoleId` is ignored):
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "user",
+    "act": "login",
+    "details": {
+      "set": { "email": "ghost@medsupply.io", "password": "GhostPass123!" },
+      "get": { "token": "t", "user": { "_id": 1 } }
+    }
+  }' | jq -r ".body.token")
+
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "process",
+    "act": "addProcess",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "name": "Medical Equipment Purchase",
+        "description": "Two-step approval workflow",
+        "status": "Draft",
+        "organization": "<organizationId>"
+      },
+      "get": {
+        "_id": 1,
+        "name": 1,
+        "status": 1
+      }
+    }
+  }'
+```
+
+Expect `{ "body": { "_id": "...", "name": "Medical Equipment Purchase", "status": "Draft" }, "success": true }`.
+
+## Errors & fixes
+
+The `fn` throws no explicit errors of its own — failures here come from the auth chain and validation:
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `you should send your id with token key in req header` | No `token` header sent | Add `-H "token: $TOKEN"` |
+| `Invalid or expired token` | `setTokens` couldn't verify the JWT | Log in again for a fresh token |
+| `activeRoleId is required` | Non-ghost user without `activeRoleId` in `set` | Add `"activeRoleId": "<roleId>"` (captured from `login`) |
+| `Active role not found` | `activeRoleId` doesn't match any of the user's roles | Use a `roleId` from `body.user.roles[].roleId` |
+| `You cant do this` | The active role isn't `Manager`/`Admin` | Log in as a user with the right role |
+| Superstruct errors (e.g. `At path: set.organization — Expected a value of type ...`) | Missing/invalid field | `name` and `organization` are required; `organization` must be a valid ObjectId |

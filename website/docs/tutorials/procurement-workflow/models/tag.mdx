@@ -1,0 +1,89 @@
+---
+sidebar_position: 3
+---
+
+# Tag
+
+`tag` is the simplest model in the app — a lightweight label (`name` + `color`) used to classify products. It has **no relations of its own**, but products hold a `tags` relation to it, so the tag gets a `products` back-reference injected by the relation engine.
+
+```ts
+// models/tag.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import { string } from "lesan";
+import { createUpdateAt } from "@lib";
+
+export const tag_pure = {
+  name: string(),
+  color: string(),
+  ...createUpdateAt,
+};
+
+export const tag_relations = {};
+
+export const tags = () =>
+  coreApp.odm.newModel("tag", tag_pure, tag_relations, {
+    createIndex: {
+      indexSpec: { name: 1 },
+      options: { unique: true },
+    },
+  });
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | tag text; indexed **unique** |
+| `color` | `string()` | hex code, e.g. `#ff5252` |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+`tag_relations` is empty. Even so, `product.tags` declares a back-reference (`tag.products`), so the model registry still gives tags an implicit `products` list — populated automatically whenever a product adds the tag.
+
+## Factory
+
+```ts
+export const tags = () =>
+  coreApp.odm.newModel("tag", tag_pure, tag_relations, {
+    createIndex: {
+      indexSpec: { name: 1 },
+      options: { unique: true },
+    },
+  });
+```
+
+The unique `name` index means you can't create `Medical` twice — the tag acts as an enforced enum by data.
+
+## In the workflow
+
+- [add-tag](/docs/tutorials/procurement-workflow/catalog/add-tag), [get-tags](/docs/tutorials/procurement-workflow/catalog/get-tags)
+- [update-tag](/docs/tutorials/procurement-workflow/catalog/update-tag), [remove-tag](/docs/tutorials/procurement-workflow/catalog/remove-tag)
+
+Products attach tags via `updateProductRelations` — see the [product model](/docs/tutorials/procurement-workflow/models/product).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "tag",
+    "act": "getTags",
+    "details": { "set": { "page": 1 }, "get": { "name": true, "color": true } }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.tags` | a tag with this `name` already exists | reuse the existing tag, or use a different name |
+| `tag not found` | `updateTag`/`removeTag` given an unknown `_id` | use a real tag `_id` |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

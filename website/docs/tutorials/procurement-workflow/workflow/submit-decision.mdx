@@ -1,0 +1,358 @@
+---
+sidebar_position: 16
+---
+
+# submitDecision (stepApproval)
+
+`submitDecision` is where a unit head votes on a pending approval task. Given one `approvalId`, a `decision` (`approved` or `rejected`) and an optional `comment`, it:
+
+1. records the vote on the `stepApproval`,
+2. re-evaluates the whole step with [evaluateStepStatus](/docs/tutorials/procurement-workflow/workflow/step-evaluator),
+3. and then **automates the consequences** — advance to the next step (creating its pending approvals), approve the whole PO, or reject it.
+
+This single act implements the entire AND/OR decision engine of the app, so it's the deepest one in the chapter. Only `Manager`/`Admin`, or `UnitHead` with the `canApprovePurchaseOrder` feature, can vote.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`submitDecision.val.ts`)
+
+`approvalId` (the `stepApproval` document), `decision` locked to `enums(["approved", "rejected"])`, optional `comment`. The `get` returns the *purchase order*, not the approval — because that's the document this act mutates.
+
+```ts
+import { enums, object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const submitDecisionValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      approvalId: objectIdValidation,
+      decision: enums(["approved", "rejected"]),
+      comment: optional(string()),
+    }),
+    get: selectStruct("purchaseOrder", 1),
+  });
+};
+```
+
+## The implementation (`submitDecision.fn.ts`)
+
+The fn performs these steps in order:
+
+1. **Loads the approval** with a rich projection — its own `status`, plus the embedded `purchaseOrder.status/currentStep`, the `processStep`'s `groupsOperator`/`assigneeGroups`, and the `unit._id`. Missing → `approval not found`.
+2. **Guards the vote** — the approval must still be `status: "pending"`, else `this approval has already been decided`; and the PO must be `status: "InProgress"`, else `the purchase order is not in progress`.
+3. **Records the decision** — `stepApproval.findOneAndUpdate` sets `status: decision`, `decidedAt: new Date()`, and `comment` when provided. (Note: `decision` is stored directly into `status` — the validator already locked it to `approved|rejected`.)
+4. **Links the decider** — when the decision is `approved`, it adds a `decidedBy` relation to the current `user` (with back-reference `stepDecisions: true`, `replace: true`).
+5. **Reloads the step** — `processStep.findOne` for `order`, `groupsOperator`, `assigneeGroups`. Missing → `process step not found`.
+6. **Gathers every approval for this PO+step** via aggregation, projecting each one's `unitId` (as a string) and `status`.
+7. **Evaluates the step** with `evaluateStepStatus(approvals, step.groupsOperator, step.assigneeGroups)` → `"approved" | "rejected" | "pending"` (see the [step-evaluator](/docs/tutorials/procurement-workflow/workflow/step-evaluator) page for the truth table).
+8. **Reloads the PO** to read its `process._id` (needed to find the next step).
+9. Defines a `pushHistory(action, details?)` helper that appends an attributed history entry.
+
+Then it branches on the step status:
+
+- **`rejected`** → PO becomes `Rejected` with `completedAt`, history `rejected` (+ `stepOrder`, `decision`). Workflow ends.
+- **`approved`** → find the next step of the process with `order: { $gt: currentStep.order }` sorted ascending, limit 1:
+  - **no next step** → PO becomes `Approved` with `completedAt`, history `approved`. Workflow done — [finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize) becomes available.
+  - **next step exists** → create one `pending` `stepApproval` per unique unit in the next step's `assigneeGroups` (exactly like `submit` does for step 1), then set `currentStep` to the next step's order and push history `approved`.
+- **`pending`** → nothing structural changes; just push history `decision` with `stepOrder` + `decision` (a `rejected` vote that didn't flip the AND/OR group still gets recorded, but the PO keeps waiting).
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import {
+  coreApp,
+  processStep,
+  purchaseOrder,
+  stepApproval,
+} from "../../../mod.ts";
+import { evaluateStepStatus, throwError } from "@lib";
+import type { MyContext } from "@lib";
+
+export const submitDecisionFn: ActFn = async (body) => {
+  const {
+    set: { approvalId, decision, comment },
+    get,
+  } = body.details;
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  const approvalIdObj = new ObjectId(approvalId as string);
+
+  const approval = await stepApproval.findOne({
+    filters: { _id: approvalIdObj },
+    projection: {
+      _id: 1,
+      status: 1,
+      "purchaseOrder._id": 1,
+      "purchaseOrder.status": 1,
+      "purchaseOrder.currentStep": 1,
+      "processStep._id": 1,
+      "processStep.groupsOperator": 1,
+      "processStep.assigneeGroups": 1,
+      "unit._id": 1,
+    },
+  });
+
+  !approval && throwError("approval not found");
+
+  if (approval!.status !== "pending") {
+    throwError("this approval has already been decided");
+  }
+
+  const poStatus = (approval as any)?.purchaseOrder?.status;
+  if (poStatus !== "InProgress") {
+    throwError("the purchase order is not in progress");
+  }
+
+  const poId = new ObjectId((approval as any).purchaseOrder._id as string);
+  const stepId = new ObjectId((approval as any).processStep._id as string);
+
+  await stepApproval.findOneAndUpdate({
+    filter: { _id: approvalIdObj },
+    update: {
+      $set: {
+        status: decision,
+        ...(comment && { comment }),
+        decidedAt: new Date(),
+      },
+    },
+    projection: { _id: 1 },
+  });
+
+  if (decision === "approved") {
+    await stepApproval.addRelation({
+      filters: { _id: approvalIdObj },
+      relations: {
+        decidedBy: {
+          _ids: user._id,
+          relatedRelations: { stepDecisions: true },
+        },
+      },
+      projection: { _id: 1 },
+      replace: true,
+    });
+  }
+
+  const stepDoc = await processStep.findOne({
+    filters: { _id: stepId },
+    projection: {
+      _id: 1,
+      order: 1,
+      groupsOperator: 1,
+      assigneeGroups: 1,
+    },
+  });
+
+  !stepDoc && throwError("process step not found");
+
+  const approvals = await stepApproval
+    .aggregation({
+      pipeline: [
+        {
+          $match: {
+            "purchaseOrder._id": poId,
+            "processStep._id": stepId,
+          },
+        },
+        { $project: { unitId: { $toString: "$unit._id" }, status: 1 } },
+      ],
+    })
+    .toArray();
+
+  const stepStatus = evaluateStepStatus(
+    approvals.map((a) => ({
+      unitId: (a as any).unitId as string,
+      status: (a as any).status as "pending" | "approved" | "rejected",
+    })),
+    (stepDoc as any).groupsOperator as "AND" | "OR",
+    ((stepDoc as any).assigneeGroups || []) as {
+      operator: "AND" | "OR";
+      unitIds: string[];
+    }[],
+  );
+
+  const po = await purchaseOrder.findOne({
+    filters: { _id: poId },
+    projection: { _id: 1, status: 1, currentStep: 1, "process._id": 1 },
+  });
+
+  const performerName = `${(user as any).first_name ?? ""} ${(user as any).last_name ?? ""}`.trim();
+
+  const pushHistory = (action: string, details?: Record<string, unknown>) => ({
+    $push: {
+      history: {
+        action,
+        performed: {
+          by: user._id.toString(),
+          name: performerName,
+          at: new Date(),
+          role: { id: "", name: "" },
+        },
+        ...(details && { details }),
+      },
+    },
+  });
+
+  if (stepStatus === "rejected") {
+    return await purchaseOrder.findOneAndUpdate({
+      filter: { _id: poId },
+      update: {
+        $set: { status: "Rejected", completedAt: new Date() },
+        ...pushHistory("rejected", { stepOrder: (stepDoc as any).order, decision }),
+      },
+      projection: get,
+    });
+  }
+
+  if (stepStatus === "approved") {
+    const nextSteps = await processStep
+      .aggregation({
+        pipeline: [
+          { $match: { "process._id": (po as any)?.process?._id, order: { $gt: (stepDoc as any).order } } },
+          { $sort: { order: 1 } },
+          { $limit: 1 },
+        ],
+        projection: { _id: 1, order: 1, groupsOperator: 1, assigneeGroups: 1 },
+      })
+      .toArray();
+
+    const nextStep = nextSteps[0];
+
+    if (!nextStep) {
+      return await purchaseOrder.findOneAndUpdate({
+        filter: { _id: poId },
+        update: {
+          $set: { status: "Approved", completedAt: new Date() },
+          ...pushHistory("approved", { stepOrder: (stepDoc as any).order, decision }),
+        },
+        projection: get,
+      });
+    }
+
+    const nextUnits = (nextStep as any).assigneeGroups.flatMap(
+      (g: { unitIds: string[] }) => g.unitIds,
+    );
+    const uniqueUnits = [...new Set(nextUnits.map((u: unknown) => String(u)))];
+
+    for (const unitId of uniqueUnits) {
+      await stepApproval.insertOne({
+        doc: { status: "pending" },
+        relations: {
+          purchaseOrder: {
+            _ids: poId,
+            relatedRelations: { stepApprovals: true },
+          },
+          processStep: {
+            _ids: new ObjectId(nextStep._id as string),
+            relatedRelations: { approvals: true },
+          },
+          unit: {
+            _ids: new ObjectId(String(unitId)),
+            relatedRelations: { stepApprovals: true },
+          },
+        },
+        projection: { _id: 1 },
+      });
+    }
+
+    return await purchaseOrder.findOneAndUpdate({
+      filter: { _id: poId },
+      update: {
+        $set: { currentStep: (nextStep as any).order },
+        ...pushHistory("approved", { stepOrder: (stepDoc as any).order, decision }),
+      },
+      projection: get,
+    });
+  }
+
+  return await purchaseOrder.findOneAndUpdate({
+    filter: { _id: poId },
+    update: {
+      ...pushHistory("decision", { stepOrder: (stepDoc as any).order, decision }),
+    },
+    projection: get,
+  });
+};
+```
+
+### Why the whole step is re-evaluated
+
+Each `stepApproval` only records *one unit's* vote. Whether the step is satisfied depends on all the votes together — and that's `evaluateStepStatus`'s job. After every vote it recomputes the step outcome from the *current* state of all approvals for that PO+step, which means:
+
+- a lone `rejected` vote on an **OR** group is not fatal (another unit can still approve),
+- but a `rejected` vote on an **AND** group immediately rejects the step,
+- and the step only "advances" once `evaluateStepStatus` returns `approved`.
+
+That's also why the `pending` fallthrough exists: the vote was recorded but the step isn't settled, so the PO keeps `InProgress` and stays in [getPendingByUnit](/docs/tutorials/procurement-workflow/workflow/get-pending-by-unit).
+
+### Why `unitId` is stringified
+
+The aggregation projects `unitId: { $toString: "$unit._id" }` and the next-step units are deduped with `String(u)`. `evaluateStepStatus` compares approval `unitId` strings against `group.unitIds` — which the processStep validator stores as `array(string())`. Matching strings (not ObjectIds) keeps the comparison consistent between the two sides.
+
+## In the workflow
+
+`submitDecision` is the pump of the workflow. Every unit's vote runs it; the branch it takes moves the PO forward:
+
+```
+PO submitted ─▶ step 1 approvals created
+                     │
+               submitDecision (per unit) ─▶ evaluateStepStatus
+                     │
+      ┌──────────────┼─────────────────┐
+   rejected        pending           approved
+      │               │                  │
+ Rejected (end)   waits for         next step? ──yes──▶ create its approvals, currentStep++
+     (PO terminal)   more votes          │
+                                         no
+                                    Approved ─▶ finalize ─▶ Completed
+```
+
+The seed test runs exactly this: approve step 1 → PO `currentStep` becomes 2 and a second approval appears; approve step 2 → PO becomes `Approved`.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [stepApproval model](/docs/tutorials/procurement-workflow/models/stepApproval), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [processStep model](/docs/tutorials/procurement-workflow/models/processStep), [step-evaluator](/docs/tutorials/procurement-workflow/workflow/step-evaluator), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit), [get-step-approvals](/docs/tutorials/procurement-workflow/workflow/get-step-approvals), [get-pending-by-unit](/docs/tutorials/procurement-workflow/workflow/get-pending-by-unit).
+
+## Run it
+
+First find a pending approval (from [getPendingByUnit](/docs/tutorials/procurement-workflow/workflow/get-pending-by-unit) or [getStepApprovals](/docs/tutorials/procurement-workflow/workflow/get-step-approvals)):
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "stepApproval",
+    "act": "submitDecision",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "approvalId": "<approvalId>",
+        "decision": "approved",
+        "comment": "Approved. Stock is sufficient."
+      },
+      "get": {
+        "_id": 1,
+        "status": 1,
+        "currentStep": 1
+      }
+    }
+  }'
+```
+
+Approve every step to reach `Approved`; or pass `decision: "rejected"` to see the PO flip to `Rejected`.
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `approval not found` | No `stepApproval` with that id | Verify the id via [getStepApprovals](/docs/tutorials/procurement-workflow/workflow/get-step-approvals) |
+| `this approval has already been decided` | The approval `status` is already `approved`/`rejected` | Each approval accepts exactly one vote — find the *other* pending approval |
+| `the purchase order is not in progress` | The PO's status isn't `InProgress` (e.g. it was cancelled) | A cancelled/approved/rejected PO no longer accepts votes |
+| `process step not found` | The approval's `processStep` was deleted | Recreate the step, or check for a broken relation |
+| `You cant do this` | Active role isn't `Manager`/`Admin`/`UnitHead` (with feature) | Use a role that can vote |
+| `Missing feature: canApprovePurchaseOrder` | A `UnitHead` without the feature tried to vote | Grant the feature or use a Manager/Admin role |
+
+Shared auth-chain errors apply too.

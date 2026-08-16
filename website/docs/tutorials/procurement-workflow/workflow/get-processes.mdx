@@ -1,0 +1,106 @@
+---
+sidebar_position: 2
+---
+
+# getProcesses
+
+`getProcesses` lists the `process` documents for the workflow chapter. It's a read-only aggregation that lets you filter by `organization` and `status` and returns the newest processes first (sorted by `createdAt` descending). Every authenticated role can call it — it's what the UI uses to show the process list before you open one and add steps.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`getProcesses.val.ts`)
+
+Both filters are optional: `organizationId` is a plain string (it gets converted to an ObjectId inside the fn) and `status` is constrained to the process enums. The `get` is a depth-2 `selectStruct` so you can pull related `organization`, `createdBy`, `unit`, and `product` snapshots along with the pure fields.
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { process_status_emums } from "@model";
+
+export const getProcessesValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      organizationId: optional(string()),
+      status: optional(process_status_emums),
+    }),
+    get: selectStruct("process", 2),
+  });
+};
+```
+
+## The implementation (`getProcesses.fn.ts`)
+
+The fn builds a MongoDB filter document. Because relations are stored as embedded snapshots, `organization` is matched by `"organization._id"` (the dotted path into the embedded snapshot). The pipeline starts with a `$match` stage only when there's something to match, then sorts by `createdAt` descending. `projection: get` shapes the documents, and `.toArray()` resolves the aggregation cursor.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { process } from "../../../mod.ts";
+
+export const getProcessesFn: ActFn = async (body) => {
+  const {
+    set: { organizationId, status },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  organizationId && (filters["organization._id"] = new ObjectId(organizationId as string));
+  status && (filters.status = status as string);
+
+  return await process
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { createdAt: -1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+## In the workflow
+
+`getProcesses` is the read companion to [addProcess](/docs/tutorials/procurement-workflow/workflow/add-process) — you'd call it to see all the workflows in an organization, check which are `Draft` vs `Active`, and grab a `_id` to pass to [getProcessSteps](/docs/tutorials/procurement-workflow/workflow/get-process-steps) or [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process).
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [process model](/docs/tutorials/procurement-workflow/models/process), [addProcess](/docs/tutorials/procurement-workflow/workflow/add-process), [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "process",
+    "act": "getProcesses",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "organizationId": "<organizationId>",
+        "status": "Active"
+      },
+      "get": {
+        "_id": 1,
+        "name": 1,
+        "status": 1,
+        "organization": { "_id": 1, "name": 1 }
+      }
+    }
+  }'
+```
+
+Omit `organizationId`/`status` to return every process. Expect an array of matching processes, newest first.
+
+## Errors & fixes
+
+The fn throws nothing of its own — only the shared auth-chain errors apply (see the [addProcess](/docs/tutorials/procurement-workflow/workflow/add-process#errors--fixes) table): `you should send your id with token key in req header`, `Invalid or expired token`, `activeRoleId is required`, `Active role not found`. Since every role is allowed, `You cant do this` shouldn't appear unless the active role string doesn't match `Manager | Admin | OrgHead | UnitHead | Employee`.
+
+:::tip
+**Empty results aren't an error**
+`getProcesses` returns `[]` when nothing matches — that's success. If you filtered by `status: "Active"` and get nothing, the process is probably still `Draft`; run [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process) on it.
+:::

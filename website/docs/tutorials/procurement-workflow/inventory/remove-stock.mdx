@@ -1,0 +1,138 @@
+---
+sidebar_position: 2
+---
+
+# removeStock
+
+`removeStock` decreases the quantity of a product in a store and writes a matching `stockMovement` entry with a **negative** `quantity`. It works on the `inventory` model (the quantity record) and the `stockMovement` model (the ledger). You need it any time goods leave a store — a goods issue, a stock-out, or a manual write-off. Unlike `addStock`, it will *refuse* to go below zero or act on a store/product combo that has no inventory record yet.
+
+## The validator (`removeStock.val.ts`)
+
+The shape is identical to `addStock` — the `set` takes `storeId`, `productId`, `quantity`, and the same optional reason/description/reference fields. Here `reason` defaults to `"goods_issue"` (in the fn) instead of `"goods_receipt"`. `activeRoleId` is spread in from `@lib` for `grantAccess`, and `get` is a one-level `inventory` projection.
+
+```ts
+import { number, object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const removeStockValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      storeId: objectIdValidation,
+      productId: objectIdValidation,
+      quantity: number(),
+      reason: optional(string()),
+      description: optional(string()),
+      referenceType: optional(string()),
+      referenceId: optional(string()),
+    }),
+    get: selectStruct("inventory", 1),
+  });
+};
+```
+
+:::note
+**About the imports**
+All framework imports in this repo use the `"lesan"` alias. In your own app, import the same names from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` points at the app's `utils/` folder.
+:::
+
+## The implementation (`removeStock.fn.ts`)
+
+Like its sibling, the fn is a thin delegator. It destructures the same `set` fields, reads the current `user` from context to stamp `createdByUserId`, and passes everything to the shared `removeStock` helper in `utils/inventoryManager.ts`. The default reason is `"goods_issue"`.
+
+```ts
+import { type ActFn } from "lesan";
+import { removeStock as removeStockUtil } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import type { MyContext } from "@lib";
+
+export const removeStockFn: ActFn = async (body) => {
+  const {
+    set: { storeId, productId, quantity, reason, description, referenceType, referenceId },
+  } = body.details;
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  return await removeStockUtil(
+    storeId as string,
+    productId as string,
+    quantity as number,
+    (reason as string) || "goods_issue",
+    user._id.toString(),
+    {
+      ...(description && { description: description as string }),
+      ...(referenceType && { referenceType: referenceType as string }),
+      ...(referenceId && { referenceId: referenceId as string }),
+    },
+  );
+};
+```
+
+The helper performs the two safety checks documented on the [inventoryManager](/docs/tutorials/procurement-workflow/inventory/inventory-manager) page: it throws `"Inventory not found for this store and product"` when no inventory record exists, and `"Insufficient inventory quantity"` when `balanceBefore < quantity`. Only then does it `$inc` the inventory down and write the negative ledger entry.
+
+## How it's registered (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { removeStockFn } from "./removeStock.fn.ts";
+import { removeStockValidator } from "./removeStock.val.ts";
+
+export const removeStockSetup = () =>
+  coreApp.acts.setAct({
+    schema: "inventory",
+    actName: "removeStock",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "StoreHead"] }])],
+    validator: removeStockValidator(),
+    fn: removeStockFn,
+  });
+```
+
+Same role gate as `addStock`: only `Manager`, `Admin`, or `StoreHead` may remove stock.
+
+## In the workflow
+
+`removeStock` is the outbound half of inventory: goods issued to a unit, consumed, or adjusted down. It is the inverse of [addStock](/docs/tutorials/procurement-workflow/inventory/add-stock) and the building block of [transferStock](/docs/tutorials/procurement-workflow/inventory/transfer-stock), which is literally a `removeStock("transfer_out")` followed by an `addStock("transfer_in")`. The signed [stockMovement](/docs/tutorials/procurement-workflow/models/stockMovement) entries it writes are what [getStockMovements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements) returns. See the [overview](/docs/tutorials/procurement-workflow/overview) for the full picture.
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "service": "main",
+    "model": "inventory",
+    "act": "removeStock",
+    "details": {
+      "set": {
+        "activeRoleId": "<role-id>",
+        "storeId": "<store-id>",
+        "productId": "<product-id>",
+        "quantity": 5,
+        "reason": "goods_issue",
+        "referenceType": "purchaseOrder",
+        "referenceId": "<po-id>"
+      },
+      "get": { "_id": 1, "quantity": 1 }
+    }
+  }'
+```
+
+The `body` of the response is whatever the helper returned, e.g. `{ success: true, productId, balanceBefore, balanceAfter }`.
+
+## Errors & fixes
+
+| Error | What it means | How to fix |
+|---|---|---|
+| `you should send your id with token key in req header` | `setTokens` found no `token` header | Add `-H "token: <your-jwt>"` to the request |
+| `Invalid or expired token` | JWT verification failed | Log in again and use the fresh token |
+| `Invalid or missing token data` | Token payload has no `_id` | Use a token produced by the app's `login` act |
+| `user not exist` | `setUser` couldn't find the user doc | The token references a deleted user — log in again |
+| `activeRoleId is required` | `grantAccess` needs the active role | Send `activeRoleId` in `details.set` (unless the user `isGhost`) |
+| `Active role not found` | The `activeRoleId` isn't among the user's roles | Pass one of the role ids on the user document |
+| `You cant do this` | The active role is not `Manager`, `Admin`, or `StoreHead` | Switch to an allowed role or use a ghost admin |
+| `Inventory not found for this store and product` | No `inventory` record exists for the combo | `addStock` first, or the ids are wrong |
+| `Insufficient inventory quantity` | `quantity` is bigger than the current stock | Reduce the quantity, or `addStock` first |
+| `Invalid ObjectId` / validator failure | `storeId` / `productId` isn't a valid 24-char hex string | Check the ids you're sending |

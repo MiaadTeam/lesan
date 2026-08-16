@@ -1,0 +1,161 @@
+---
+sidebar_position: 7
+---
+
+# Update User
+
+`updateUser` edits the **scalar (pure) fields** of an existing user — name, email, position, `isActive`, `features`, and optionally the password (which is re-hashed). It deliberately does **not** touch relations; those are handled by the sibling act [updateUserRelations](/docs/tutorials/procurement-workflow/auth/updateUserRelations). It belongs to the `user` model.
+
+The act lives in `src/user/updateUser/`.
+
+## The validator (`updateUser.val.ts`)
+
+`set` spreads `activeRoleMixin`, requires `_id`, and makes every editable field **optional** — you send only what changed. `features` is optional (no `defaulted`, so passing nothing leaves the existing array untouched). Note there's no `avatar` / `organizations` / `units` here: those are relations and belong to the other act. `get` is `selectStruct("user", 1)`.
+
+```ts
+import {
+  array,
+  boolean,
+  object,
+  objectIdValidation,
+  optional,
+  string,
+} from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { feature_enums } from "@model";
+
+export const updateUserValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+      first_name: optional(string()),
+      last_name: optional(string()),
+      email: optional(string()),
+      password: optional(string()),
+      position: optional(string()),
+      isActive: optional(boolean()),
+      features: optional(array(object({ feature: feature_enums }))),
+    }),
+    get: selectStruct("user", 1),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `@model` / `@lib` / `../../../mod.ts` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+Like [addUser](/docs/tutorials/procurement-workflow/auth/addUser), this act uses `validationRunType: "create"` and a `Manager`/`Admin`-only `grantAccess`. Unit-level roles (`OrgHead`, `UnitHead`, ...) cannot edit users.
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { updateUserFn } from "./updateUser.fn.ts";
+import { updateUserValidator } from "./updateUser.val.ts";
+
+export const updateUserSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    actName: "updateUser",
+    validationRunType: "create",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: updateUserValidator(),
+    fn: updateUserFn,
+  });
+```
+
+## The implementation (`updateUser.fn.ts`)
+
+Destructure `_id` and `password` out of `set`; everything else lands in `rest`. Build an `update` object with `{ $set: { ...rest } }`. If a new `password` was supplied, merge a hashed copy into `$set` (so the stored password is always hashed, never plaintext). Then `user.findOneAndUpdate({ filter, update, projection })` returns the freshly-updated, projected document.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { user } from "../../../mod.ts";
+import { hashPassword } from "@lib";
+import { throwError } from "@lib";
+
+export const updateUserFn: ActFn = async (body) => {
+  const {
+    set: { _id, password, ...rest },
+    get,
+  } = body.details;
+
+  const userId = new ObjectId(_id as string);
+
+  const update = { $set: { ...rest } } as Record<string, unknown>;
+  if (password) {
+    update.$set = { ...(update.$set as Record<string, unknown>), password: await hashPassword(password as string) };
+  }
+
+  const updated = await user.findOneAndUpdate({
+    filter: { _id: userId },
+    update,
+    projection: get,
+  });
+
+  !updated && throwError("user not found");
+  return updated;
+};
+```
+
+A note on the `$set` rebuild: instead of mutating `rest` in place, it spreads `update.$set` and adds `password` — keeping `rest` free of the raw password, so even the intermediate object never holds a plaintext secret.
+
+## In the workflow
+
+`updateUser` is the edit-half of the CRUD pair with [addUser](/docs/tutorials/procurement-workflow/auth/addUser). Pair it with `updateUserRelations` when the request mixes scalar edits and relation changes.
+
+- [addUser](/docs/tutorials/procurement-workflow/auth/addUser) — how the user was created.
+- [updateUserRelations](/docs/tutorials/procurement-workflow/auth/updateUserRelations) — the counterpart act for `avatar` / `organizations` / `units`.
+- [getUser](/docs/tutorials/procurement-workflow/auth/getUser) — read the current state before editing.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `hashPassword`.
+- [User model](/docs/tutorials/procurement-workflow/models/user) — the pure fields being updated.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+Needs `token`, `activeRoleId`, and the target user's `_id`. Send only the fields you want to change:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "user",
+    "act": "updateUser",
+    "details": {
+      "set": {
+        "activeRoleId": "<roleId>",
+        "_id": "<userId>",
+        "position": "Senior Purchasing Manager",
+        "isActive": true
+      },
+      "get": {
+        "_id": 1,
+        "first_name": 1,
+        "last_name": 1,
+        "position": 1,
+        "isActive": 1
+      }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Message | Source | What it means | How to fix |
+|---------|--------|---------------|------------|
+| `you should send your id with token key in req header` | `setTokens` | Missing `token` header. | Add `-H "token: <jwt>"`. |
+| `Invalid or expired token` | `setTokens` | JWT didn't verify. | Re-login. |
+| `Invalid or missing token data` | `setUser` | Token payload had no `_id`. | Re-login. |
+| `user not exist` | `setUser` | The token's user was deleted. | Use a different account. |
+| `activeRoleId is required` | `grantAccess` | `set.activeRoleId` was omitted. | Always send `activeRoleId` in `set`. |
+| `Active role not found` | `grantAccess` | The `activeRoleId` doesn't match any role on the user. | Use a `roleId` from the login response. |
+| `You cant do this` | `grantAccess` | Active role is not `Manager` or `Admin`. | Use a manager/admin role, or the ghost superuser. |
+| `user not found` | `updateUserFn` | No user matches the `_id`. | Check the `_id` (24-char hex ObjectId); verify the user exists. |
+| Duplicate key error (framework error) | MongoDB | Setting `email` to one that's already taken. | The `email` unique index rejected it — pick another email. |
+| Generic validation error | superstruct | Missing `_id`, or an invalid field type (e.g. `isActive` not boolean, `features` not `{ feature: <enum> }`). | Keep `_id` as a 24-char hex string and the rest within their declared superstruct types. |

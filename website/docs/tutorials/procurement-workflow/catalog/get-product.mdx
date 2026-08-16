@@ -1,0 +1,112 @@
+---
+sidebar_position: 17
+---
+
+# getProduct
+
+Fetches a **single product** by its `_id`, with the full depth-2 projection available (`parent`, `tags`). Open to every authenticated role. This is the detail view behind a product listing.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getProductFn } from "./getProduct.fn.ts";
+import { getProductValidator } from "./getProduct.val.ts";
+
+export const getProductSetup = () =>
+  coreApp.acts.setAct({
+    schema: "product",
+    actName: "getProduct",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getProductValidator(),
+    fn: getProductFn,
+  });
+```
+
+## The validator (`getProduct.val.ts`)
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getProductValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("product", 2),
+  });
+};
+```
+
+- `set` is `activeRoleId` + `_id`.
+- `get` is depth 2, so you can project `parent` (itself a product) and the `tags` array (each a tag snapshot).
+
+## The implementation (`getProduct.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { product } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const getProductFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  const foundedProduct = await product.findOne({
+    filters: { _id: new ObjectId(_id as string) },
+    projection: get,
+  });
+
+  !foundedProduct && throwError("product not found");
+  return foundedProduct;
+};
+```
+
+1. The string `_id` is converted with `new ObjectId(_id)`.
+2. `product.findOne` returns the doc shaped by the client's `get` projection. Because relations are embedded snapshots, `parent` and `tags` come back directly — no additional queries.
+3. `!foundedProduct && throwError("product not found")` turns a miss into an error.
+
+## In the workflow
+
+The single-item view used when a purchase order or inventory entry references a product. Pair it with [getProducts](/docs/tutorials/procurement-workflow/catalog/get-products) for lists, and [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations) for adjusting its relations.
+
+- [product model](/docs/tutorials/procurement-workflow/models/product)
+- Sibling acts: [addProduct](/docs/tutorials/procurement-workflow/catalog/add-product), [getProducts](/docs/tutorials/procurement-workflow/catalog/get-products), [removeProduct](/docs/tutorials/procurement-workflow/catalog/remove-product), [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "product",
+    "act": "getProduct",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<productId>" },
+      "get": { "_id": 1, "name": 1, "price": 1, "parent": { "_id": 1, "name": 1 }, "tags": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `product not found` | No product has that `_id`. | Check the id — get it from `getProducts`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role not in the allowed list. | Use an allowed role or the ghost. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected ObjectId-like string" | `_id` isn't a valid ObjectId. | Send the 24-hex id string. |

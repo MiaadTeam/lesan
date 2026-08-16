@@ -1,0 +1,134 @@
+---
+sidebar_position: 11
+---
+
+# ProcessStep
+
+`processStep` is **one step inside a process workflow**. Each step has a `stepType` (`Approval`, `Review`, `Notification`, `Action`, `Delivery`, `Receipt`, `Payment`), an `order` number, and **assignee groups** with AND/OR logic: the step's `groupsOperator` combines groups, while each group's internal `operator` combines its `unitIds`.
+
+```ts
+// models/processStep.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  array, boolean, coerce, defaulted, enums, number, object, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { process_excludes } from "./excludes.ts";
+
+export const group_operator_array = ["AND", "OR"];
+export const group_operator_emums = enums(group_operator_array);
+
+export const step_type_array = [
+  "Approval", "Review", "Notification", "Action", "Delivery", "Receipt", "Payment",
+];
+export const step_type_emums = enums(step_type_array);
+
+export const assigneeGroup_pure = {
+  operator: coerce(group_operator_emums, enums(group_operator_array), (value) => value as typeof group_operator_array[number]),
+  unitIds: array(string()),
+};
+
+export const processStep_pure = {
+  name: string(),
+  description: optional(string()),
+  stepType: defaulted(
+    coerce(step_type_emums, string(), (value) => value as typeof step_type_array[number]),
+    "Approval",
+  ),
+  order: number(),
+  required: defaulted(boolean(), true),
+  groupsOperator: coerce(group_operator_emums, enums(group_operator_array), (value) => value as typeof group_operator_array[number]),
+  assigneeGroups: defaulted(array(object(assigneeGroup_pure)), []),
+  ...createUpdateAt,
+};
+
+export const processStep_relations = {
+  process: {
+    schemaName: "process",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: process_excludes,
+    relatedRelations: {
+      steps: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: { field: "order", order: "asc" as RelationSortOrderType },
+      },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | e.g. `Department Head Approval` |
+| `description` | `optional(string())` | |
+| `stepType` | `coerce(enums([...7 types]), "Approval")` | |
+| `order` | `number()` | position in the workflow; **sorted ascending** in the process relation |
+| `required` | `defaulted(boolean(), true)` | non-required steps are skipped if unresolved |
+| `groupsOperator` | `coerce(enums([AND, OR]))` | combines the groups **across** |
+| `assigneeGroups` | `defaulted(array({operator, unitIds}), [])` | each group combines its units `OR`/`AND` |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## The AND/OR semantics
+
+The approval engine reads this shape as a nested boolean expression:
+
+```
+(unitIds[0] OR unitIds[1] ...) [groupsOperator] (unitIds[0] OR unitIds[1] ...) ...
+```
+
+A single group `{ operator: "OR", unitIds: [purchasing, warehouse] }` with `groupsOperator: "AND"` means: *purchasing **OR** warehouse must act*. Two groups with `groupsOperator: "AND"` means both groups must resolve — e.g. one finance unit **AND** (one of two warehouse units). The full evaluation is explained on the [step-evaluator](/docs/tutorials/procurement-workflow/workflow/step-evaluator) page.
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `process` | `process` | single (**required**) | `process.steps` (sorted by `order` asc, limit 50) |
+
+Note the back-reference `process.steps` sorts on `field: "order"` **ascending** — steps come back in workflow order, which is exactly what the submit/evaluate acts need.
+
+## Factory
+
+```ts
+export const processSteps = () =>
+  coreApp.odm.newModel("processStep", processStep_pure, processStep_relations);
+```
+
+## In the workflow
+
+- [add-process-step](/docs/tutorials/procurement-workflow/workflow/add-process-step) appends a step to a process
+- [get-process-steps](/docs/tutorials/procurement-workflow/workflow/get-process-steps) lists them
+- [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit) and [submit-decision](/docs/tutorials/procurement-workflow/workflow/submit-decision) drive the order through these steps
+- [step-evaluator](/docs/tutorials/procurement-workflow/workflow/step-evaluator) applies the AND/OR logic
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "processStep",
+    "act": "getProcessSteps",
+    "details": {
+      "set": { "query": { "process._id": "<process_id>" }, "page": 1 },
+      "get": { "name": true, "order": true, "stepType": true, "assigneeGroups": true }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `processStep not found` | act given an unknown `_id` | pass a real `_id` |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

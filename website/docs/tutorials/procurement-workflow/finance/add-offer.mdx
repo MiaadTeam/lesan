@@ -1,0 +1,129 @@
+---
+sidebar_position: 5
+---
+
+# Add Offer
+
+`addOffer` records one supplier's bid on an **tender** by pushing an entry into the tender's embedded `offers` array. Use it for each bid received while the tender is still `Open` — this is how a procurement officer collects competing quotes before choosing a winner.
+
+:::note
+**Imports**
+Throughout this tutorial the framework imports use the `"lesan"` alias, matching the app's `deno.json`. In your own project import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## The validator (`addOffer.val.ts`)
+
+`tenderId` is the tender to bid on (an ObjectId); `supplier` is a name string; `price` and `score` are both numbers (the score lets you rank non-price criteria); `submittedAt` is an ISO string that the model coerce-converts to a `Date`. The `get` projection is `selectStruct("tender", 1)` — note the act returns the **tender**, not the offer, so you can echo back the whole updated tender including its `offers` array.
+
+```ts
+import { number, object, objectIdValidation, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const addOfferValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      tenderId: objectIdValidation,
+      supplier: string(),
+      price: number(),
+      score: number(),
+      submittedAt: string(),
+    }),
+    get: selectStruct("tender", 1),
+  });
+};
+```
+
+## The implementation (`addOffer.fn.ts`)
+
+The function first **reads before it writes**: it loads the tender with just `_id` and `status`. Two guards come from that read:
+
+- `!foundedTender` → throw `"tender not found"`.
+- `status !== "Open"` → throw `"tender is not open for offers"`. This is the guard that makes tendering meaningful — once a tender is `Awarded` or `Closed`, no new bids are accepted.
+
+Only then does it run `findOneAndUpdate`: a `$push` onto the `offers` array with the validated `{ supplier, price, score }`, converting `submittedAt` from the ISO string to a `Date` at the last moment (`new Date(submittedAt as string)`). The embedded offer shape matches `tenderOffer_pure` in the [tender model](/docs/tutorials/procurement-workflow/models/tender).
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { tender } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const addOfferFn: ActFn = async (body) => {
+  const {
+    set: { tenderId, supplier, price, score, submittedAt },
+    get,
+  } = body.details;
+
+  const tenderIdObj = new ObjectId(tenderId as string);
+
+  const foundedTender = await tender.findOne({
+    filters: { _id: tenderIdObj },
+    projection: { _id: 1, status: 1 },
+  });
+
+  !foundedTender && throwError("tender not found");
+
+  if (foundedTender!.status !== "Open") {
+    throwError("tender is not open for offers");
+  }
+
+  return await tender.findOneAndUpdate({
+    filter: { _id: tenderIdObj },
+    update: {
+      $push: {
+        offers: {
+          supplier,
+          price,
+          score,
+          submittedAt: new Date(submittedAt as string),
+        },
+      },
+    },
+    projection: get,
+  });
+};
+```
+
+## In the workflow
+
+`addOffer` is the middle step of the tendering arc: [addTender](/docs/tutorials/procurement-workflow/finance/add-tender) opens the auction, `addOffer` gathers the bids, and [award](/docs/tutorials/procurement-workflow/finance/award-tender) picks the winner from `offers[]`. Browse all tenders and their offers with [getTenders](/docs/tutorials/procurement-workflow/finance/get-tenders). The offers live **inside** the tender document (embedded array) rather than as a separate collection — that's the `offers: [{ supplier, price, score, submittedAt }]` field on the [tender model](/docs/tutorials/procurement-workflow/models/tender). The winning price is what the purchase order eventually commits through the [approval workflow](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Run it
+
+With the server on `http://localhost:1380` and a valid `token`:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "model": "tender",
+    "act": "addOffer",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "tenderId": "<tender-id>",
+        "supplier": "ZistShimi",
+        "price": 240000,
+        "score": 92,
+        "submittedAt": "2024-06-20T10:00:00Z"
+      },
+      "get": {
+        "_id": 1,
+        "offers": 1
+      }
+    }
+  }'
+```
+
+The response body is the updated tender — `"body.offers[0].supplier"` should echo `"ZistShimi"`. Call it once per supplier.
+
+## Errors & fixes
+
+Two errors are thrown by this act:
+
+- **`tender not found`** — the `tenderId` didn't match any tender. Verify you're using the `_id` returned by [addTender](/docs/tutorials/procurement-workflow/finance/add-tender).
+- **`tender is not open for offers`** — the tender's `status` isn't `Open`. You can't bid on a tender that's already `Awarded` or `Closed`. Either open a new tender with `addTender` (default `Open`), or check [getTenders](/docs/tutorials/procurement-workflow/finance/get-tenders) to find an `Open` one.
+
+Also note the validator: `price` and `score` must be **numbers** (not `"240000"` strings), and `submittedAt` must be a parseable ISO string — a garbage date becomes an invalid `Date` after the coerce.

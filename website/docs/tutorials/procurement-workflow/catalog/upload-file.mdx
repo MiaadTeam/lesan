@@ -1,0 +1,144 @@
+---
+sidebar_position: 1
+---
+
+# uploadFile
+
+Registers a new **file metadata record** in the `file` model and links it to the currently logged-in user via the `uploader` relation. The file model backs avatars, purchase-order attachments, and tender documents, so this is the act you call whenever a user uploads something. It is open to every authenticated role (everyone can upload).
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+The act is registered against the `file` schema. The `preAct` chain (`setTokens` → `setUser` → `grantAccess`) runs before validation: it resolves the JWT from the `token` header, loads the full user, and checks the caller's active role.
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { uploadFileFn } from "./uploadFile.fn.ts";
+import { uploadFileValidator } from "./uploadFile.val.ts";
+
+export const uploadFileSetup = () =>
+  coreApp.acts.setAct({
+    schema: "file",
+    fn: uploadFileFn,
+    actName: "uploadFile",
+    preAct: [
+      setTokens,
+      setUser,
+      grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }]),
+    ],
+    validator: uploadFileValidator(),
+  });
+```
+
+Note the allowed-role list is the whole roster — including `Ordinary`. Uploads are deliberately low-barrier.
+
+## The validator (`uploadFile.val.ts`)
+
+```ts
+import { defaulted, enums, number, object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { file_type_array } from "@model";
+
+export const uploadFileValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: string(),
+      mimeType: string(),
+      size: number(),
+      type: optional(defaulted(enums(file_type_array), () => "other")),
+      alt_text: optional(string()),
+    }),
+    get: selectStruct("file", 1),
+  });
+};
+```
+
+- `...activeRoleMixin` is `{ activeRoleId: string() }` — every request must say which role it acts as; `grantAccess` reads it from the body.
+- `type` is an enum from `file_type_array` (`["image", "video", "docs", "other"]`) and defaults to `"other"` when omitted.
+- `size` must be a number (bytes).
+- `get` is a `selectStruct("file", 1)` projection — depth 1 gives you the pure fields (`_id`, `name`, `mimeType`, `size`, `type`, `alt_text`, timestamps) but **not** the `uploader` relation snapshot.
+
+## The implementation (`uploadFile.fn.ts`)
+
+```ts
+import { type ActFn } from "lesan";
+import { coreApp, file } from "../../../mod.ts";
+import type { MyContext } from "@lib";
+
+export const uploadFileFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  const { activeRoleId, ...rest } = set;
+
+  return await file.insertOne({
+    doc: rest,
+    relations: {
+      uploader: {
+        _ids: user._id,
+      },
+    },
+    projection: get,
+  });
+};
+```
+
+1. `body.details` gives you `set` (what to write) and `get` (what to project back).
+2. `coreApp.contextFns.getContextModel()` returns the request context — which the `preAct` chain has already filled with the authenticated `user`. That user's `_id` becomes the uploader.
+3. `activeRoleId` is stripped out — it's auth plumbing, not a persisted field.
+4. `file.insertOne` writes `rest` (the metadata) and attaches the `uploader` relation. Because the relation is defined as `single` with `relatedRelations: { files: { type: "multiple", limit: 50 } }` on the user side, Lesan also embeds a back-reference snapshot of this file into the user's `files` array.
+
+The actual binary bytes are handled elsewhere (static uploads are served under `/uploads`); this act records *what* was uploaded and *by whom*.
+
+## In the workflow
+
+`file` is the attachment store for the whole system — the `user.avatar` and `purchaseOrder` attachment relations both point at it. In the Catalog chapter it's the first thing you create so a user can attach files to later documents.
+
+- [file model](/docs/tutorials/procurement-workflow/models/file)
+- [getFile](/docs/tutorials/procurement-workflow/catalog/get-file) and [getFiles](/docs/tutorials/procurement-workflow/catalog/get-files) read it back
+- [removeFile](/docs/tutorials/procurement-workflow/catalog/remove-file) cleans it up
+- The [user model](/docs/tutorials/procurement-workflow/models/user) uses a `file` as its `avatar`
+
+## Run it
+
+Log in first to get a JWT, then send it as the `token` header. The ghost admin (`ghost@medsupply.io` / `GhostPass123!`) bypasses role checks, so any `activeRoleId` works (the e2e test uses `"ghost-role"`).
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "file",
+    "act": "uploadFile",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "name": "quote_2024.pdf",
+        "mimeType": "application/pdf",
+        "size": 245760,
+        "type": "docs"
+      },
+      "get": { "_id": 1, "name": 1, "mimeType": 1, "size": 1, "type": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `you should send your id with token key in req header` | No `token` header sent. | Add `-H "token: <jwt>"`. |
+| `Invalid or expired token` | The JWT failed to verify. | Log in again and use a fresh token. |
+| `Invalid or missing token data` | Token verified but the payload has no `_id`. | Log in again; the token payload must carry the user `_id`. |
+| `user not exist` | The token's user was deleted. | Re-login as an existing user. |
+| `activeRoleId is required` | The `set` object has no `activeRoleId`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` doesn't match one of the user's roles. | Pass a real `roleId` from the user's `roles` array. |
+| `You cant do this` | The active role isn't in the act's allowed list. | Use a role with upload permission, or the ghost. |
+| superstruct "expected ... but received ..." | A `set` field is missing or wrong-typed (e.g. `size` as a string). | Match the validator: `name`/`mimeType` strings, `size` a number, `type` one of `image`/`video`/`docs`/`other`. |

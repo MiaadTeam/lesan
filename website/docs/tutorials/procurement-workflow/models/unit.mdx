@@ -1,0 +1,130 @@
+---
+sidebar_position: 5
+---
+
+# Unit
+
+`unit` is a **department or warehouse inside an organization**. Every unit belongs to exactly one organization (required), can have a **head** user and a **parent unit** (a tree), and is the **scope object** for step approvals and inventory ownership — approval steps assign units, and stores are owned by units.
+
+```ts
+// models/unit.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  coerce, defaulted, enums, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { organization_excludes, unit_excludes, user_excludes } from "./excludes.ts";
+
+export const unit_type_array = ["Department", "Warehouse", "Finance", "Store"];
+export const unit_type_emums = enums(unit_type_array);
+
+export const unit_pure = {
+  name: string(),
+  code: string(),
+  type: defaulted(
+    coerce(unit_type_emums, string(), (value) => value as typeof unit_type_array[number]),
+    "Department",
+  ),
+  description: optional(string()),
+  ...createUpdateAt,
+};
+
+export const unit_relations = {
+  organization: {
+    schemaName: "organization",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: organization_excludes,
+    relatedRelations: {
+      units: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  head: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {
+      headedUnits: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  parentUnit: {
+    schemaName: "unit",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: unit_excludes,
+    relatedRelations: {
+      children: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | |
+| `code` | `string()` | e.g. `UNIT-PUR` |
+| `type` | `coerce(enums([Department, Warehouse, Finance, Store]), "Department")` | a free-form-ish bucket with a default |
+| `description` | `optional(string())` | |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `organization` | `organization` | single (**required**) | `organization.units` |
+| `head` | `user` | single (optional) | `user.headedUnits` |
+| `parentUnit` | `unit` (self) | single (optional) | `unit.children` |
+
+`organization` is the only relation in this model marked `optional: false` — a unit without an organization is meaningless here.
+
+## Factory
+
+```ts
+export const units = () =>
+  coreApp.odm.newModel("unit", unit_pure, unit_relations);
+```
+
+No unique index at the model level — `code` uniqueness is enforced by the calling act if the business needs it.
+
+## In the workflow
+
+Units are the **approval scope**. An approval step's `assigneeGroups` list unit ids, and a `stepApproval` is created **per unit**. See:
+
+- [stepApproval model](/docs/tutorials/procurement-workflow/models/stepApproval)
+- [processStep model](/docs/tutorials/procurement-workflow/models/processStep)
+- the [workflow chapter](/docs/tutorials/procurement-workflow/workflow/po-submit)
+
+Catalog acts: [add-unit](/docs/tutorials/procurement-workflow/catalog/add-unit), [get-units](/docs/tutorials/procurement-workflow/catalog/get-units), [remove-unit](/docs/tutorials/procurement-workflow/catalog/remove-unit), [update-unit-relations](/docs/tutorials/procurement-workflow/catalog/update-unit-relations).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "unit",
+    "act": "getUnits",
+    "details": {
+      "set": { "page": 1 },
+      "get": { "name": true, "code": true, "type": true, "organization": { "name": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `unit not found` | `removeUnit`/`updateUnitRelations` given an unknown `_id` | pass a real `_id` |
+| `please clear below relations status before deletion` | `removeUnit` on a unit still referenced by members/stores/etc. | remove those relations first (see the [remove-unit](/docs/tutorials/procurement-workflow/catalog/remove-unit) page) |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

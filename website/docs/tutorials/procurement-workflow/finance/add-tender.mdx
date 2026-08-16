@@ -1,0 +1,123 @@
+---
+sidebar_position: 4
+---
+
+# Add Tender
+
+`addTender` opens a **tender** — a public procurement auction that collects supplier offers for a purchase. It's the act that starts competitive bidding: you give it a title (and optionally a status, deadline, description, and organization), and it creates the tender in the default `Open` state, stamped with the authenticated user as `createdBy`. Use it whenever the organization wants to buy through competitive quotes rather than a fixed supplier.
+
+:::note
+**Imports**
+Throughout this tutorial the framework imports use the `"lesan"` alias, matching the app's `deno.json`. In your own project import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## The validator (`addTender.val.ts`)
+
+`title` is the only required field besides the `activeRoleId` mixin. `status` is optional but constrained to the real status enum via `tender_status_emums` — the source of truth for `["Open", "Awarded", "Closed"]` defined in `models/tender.ts`. `deadline` and `description` are optional strings, and `organization` an optional ObjectId. The `get` projection is `selectStruct("tender", 1)`.
+
+```ts
+import { object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { tender_status_emums } from "@model";
+
+export const addTenderValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      title: string(),
+      status: optional(tender_status_emums),
+      deadline: optional(string()),
+      description: optional(string()),
+      organization: optional(objectIdValidation),
+    }),
+    get: selectStruct("tender", 1),
+  });
+};
+```
+
+## The implementation (`addTender.fn.ts`)
+
+After `stripActiveRole` removes the `activeRoleId`, `organization` and `status` are pulled out of the rest. The current user comes from the request context via `coreApp.contextFns.getContextModel()`.
+
+Two relations get wired up:
+
+- **`organization`** (only if sent) — stores the organization's `Pure` snapshot inside the tender and pushes the tender into the organization's inverse `tenders` back-reference.
+- **`createdBy`** — always set to `user._id`, with the user's inverse `createdTenders` back-reference. This is the audit trail: every tender knows who opened it.
+
+Finally `insertOne` stores the document with `status: status ?? "Open"` — if the client didn't pick a status, it defaults to `Open`, the only state offers can be added to.
+
+```ts
+import { type ActFn, type TInsertRelations, ObjectId } from "lesan";
+import { coreApp, tender } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+import type { MyContext } from "@lib";
+import type { tender_relations } from "@model";
+
+export const addTenderFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { organization, status, ...rest } = stripActiveRole(set);
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  const relations: TInsertRelations<typeof tender_relations> = {};
+
+  organization &&
+    (relations.organization = {
+      _ids: new ObjectId(organization as string),
+      relatedRelations: { tenders: true },
+    });
+
+  relations.createdBy = {
+    _ids: user._id,
+    relatedRelations: { createdTenders: true },
+  };
+
+  return await tender.insertOne({
+    doc: { ...rest, status: status ?? "Open" },
+    relations,
+    projection: get,
+  });
+};
+```
+
+## In the workflow
+
+`addTender` opens the tendering arc of the [Finance chapter](/docs/tutorials/procurement-workflow/overview). The lifecycle after it: suppliers post offers with [addOffer](/docs/tutorials/procurement-workflow/finance/add-offer) (only while `Open`), the buyer closes it with [award](/docs/tutorials/procurement-workflow/finance/award-tender) (status flips to `Awarded`), and it can be browsed with [getTenders](/docs/tutorials/procurement-workflow/finance/get-tenders). A tender is distinct from a budget line — the [budgetLine model](/docs/tutorials/procurement-workflow/models/budgetLine) reserves *money*, while the [tender model](/docs/tutorials/procurement-workflow/models/tender) collects *supplier offers*; they meet when the awarded tender's price informs the purchase order that goes through the [approval workflow](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Run it
+
+With the server on `http://localhost:1380` and a valid `token`:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "model": "tender",
+    "act": "addTender",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "title": "TSH Kit Supply Tender",
+        "status": "Open",
+        "organization": "<organization-id>"
+      },
+      "get": {
+        "_id": 1,
+        "title": 1,
+        "status": 1
+      }
+    }
+  }'
+```
+
+`status` is optional — omit it and the tender is still created as `Open`. Keep the returned `_id`; it's the `tenderId` you'll pass to `addOffer` and `award`.
+
+## Errors & fixes
+
+`addTender` throws no custom errors of its own — the validator and the ODM guard everything. The cases worth knowing:
+
+- **`status` must be one of `Open`, `Awarded`, `Closed`** — the `tender_status_emums` enum rejects anything else (e.g. `"open"` lowercase). The response is `{ success: false }` with the failed value in the message.
+- **Missing `title`** — it's the only required field besides `activeRoleId`. Add it to `set`.
+- **`organization` must be a valid ObjectId** — `objectIdValidation` rejects malformed IDs. Pass the real `_id` string from the `organization` collection.

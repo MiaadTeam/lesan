@@ -1,0 +1,164 @@
+---
+sidebar_position: 20
+---
+
+# updateProductRelations
+
+Re-assigns a product's **relations only**: its `parent` (category) and/or its `tags` array, keeping every back-reference snapshot in sync. Only `Manager` and `Admin`. Because `tags` is a `multiple` relation, this act shows the `replace: true` pattern for both single and array relations.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { updateProductRelationsFn } from "./updateProductRelations.fn.ts";
+import { updateProductRelationsValidator } from "./updateProductRelations.val.ts";
+
+export const updateProductRelationsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "product",
+    actName: "updateProductRelations",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: updateProductRelationsValidator(),
+    fn: updateProductRelationsFn,
+  });
+```
+
+## The validator (`updateProductRelations.val.ts`)
+
+```ts
+import { array, object, objectIdValidation, optional } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const updateProductRelationsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+      parent: optional(objectIdValidation),
+      tags: optional(array(objectIdValidation)),
+    }),
+    get: selectStruct("product", 2),
+  });
+};
+```
+
+- `_id` (required) identifies the product.
+- `parent` is an optional ObjectId. `tags` is an optional **array** of ObjectIds — the full new tag list (see `replace: true` below).
+- `get` is depth 2 so the response can show the new `parent`/`tags` snapshots.
+
+## The implementation (`updateProductRelations.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { product } from "../../../mod.ts";
+
+export const updateProductRelationsFn: ActFn = async (body) => {
+  const {
+    set: { _id, parent, tags },
+    get,
+  } = body.details;
+
+  const modelId = new ObjectId(_id as string);
+
+  if (parent) {
+    await product.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        parent: {
+          _ids: new ObjectId(parent as string),
+          relatedRelations: { children: true },
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  if (tags) {
+    await product.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        tags: {
+          _ids: (tags as string[]).map((id: string) => new ObjectId(id)),
+          relatedRelations: {
+            products: true,
+          },
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  return await product.findOne({
+    filters: { _id: modelId },
+    projection: get,
+  });
+};
+```
+
+1. The `parent` block: `addRelation` with `replace: true` **sets** the single `parent` relation. The old parent's `children` loses this product; the new parent's `children` gains it.
+2. The `tags` block: `addRelation` with `replace: true` **replaces the whole array**. This is important — the request must send the *complete* desired tag list, not just an added tag. The ODM diff's the old and new sets, removing this product from tags it was dropped from and adding it to new ones (via `products: true`).
+3. Each block is guarded by `if`, so you can update just the parent, just the tags, or both in one call.
+4. The final `product.findOne` returns the updated document.
+
+## In the workflow
+
+This is how products get tagged *after* creation — the e2e test creates the "Medical" tag, then uses `updateProductRelations` with `tags: ["<tagId>"]` to attach it to the "TSH Lab Kit" product. It's also the way you move a product between categories.
+
+- [product model](/docs/tutorials/procurement-workflow/models/product)
+- Sibling acts: [addProduct](/docs/tutorials/procurement-workflow/catalog/add-product), [getProduct](/docs/tutorials/procurement-workflow/catalog/get-product), [getProducts](/docs/tutorials/procurement-workflow/catalog/get-products), [removeProduct](/docs/tutorials/procurement-workflow/catalog/remove-product)
+- Same pattern: [updateUnitRelations](/docs/tutorials/procurement-workflow/catalog/update-unit-relations)
+
+## Run it
+
+```bash
+# Attach tags (the full new list)
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "product",
+    "act": "updateProductRelations",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<productId>", "tags": ["<tagId>"] },
+      "get": { "_id": 1, "tags": { "_id": 1, "name": 1 } }
+    }
+  }'
+
+# Move a product to a new category
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "product",
+    "act": "updateProductRelations",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<productId>", "parent": "<parentProductId>" },
+      "get": { "_id": 1, "name": 1, "parent": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `can not find this document` | The product `_id` (or a `parent`/`tags` id) doesn't exist. | Verify ids via `getProducts`/`getTags`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin` (or ghost). | Elevate the role or use the ghost token. |
+| superstruct "expected an array" | `tags` wasn't an array. | Send `tags` as an array of id strings. |
+| superstruct "expected ObjectId-like string" | `_id`, `parent`, or a `tags` entry isn't a valid ObjectId. | Send 24-hex id strings. |
+
+:::note
+**Send the full tag list**
+With `replace: true`, omitting a currently-attached tag from the `tags` array **detaches** it. To keep tags, always send the complete desired set. (Sending an empty `tags: []` clears all tags — the `if (tags)` guard treats `[]` as falsy? No — `[]` is truthy in JS, so it **does** run and clears the tags.)
+:::

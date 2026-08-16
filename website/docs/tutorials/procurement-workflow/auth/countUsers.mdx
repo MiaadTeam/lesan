@@ -1,0 +1,123 @@
+---
+sidebar_position: 5
+---
+
+# Count Users
+
+`countUsers` returns the number of users that match an optional search term — no documents, just a number. It exists to back **pagination**: a list UI calls [getUsers](/docs/tutorials/procurement-workflow/auth/getUsers) for the page of rows and `countUsers` (with the same `search`) for the total, so it can render the page count. It belongs to the `user` model.
+
+The act lives in `src/user/countUsers/`.
+
+## The validator (`countUsers.val.ts`)
+
+`set` spreads `activeRoleMixin` plus an optional `search` string. `get` is `selectStruct("user", 1)` — a vestige of the shared pattern; the implementation ignores it (a count has no projection), but the validator keeps the shape consistent with the other user acts.
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const countUsersValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      search: optional(string()),
+    }),
+    get: selectStruct("user", 1),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `@lib` / `../../../mod.ts` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+This is where `countUsers` differs from the browse acts: `grantAccess` here only allows the **leadership roles** — `Manager`, `Admin`, `OrgHead`, `UnitHead`. Regular `Employee` / `Ordinary` users can list users (`getUsers`) but cannot get system-wide counts. That's a deliberate, fine-grained permission choice made entirely in the preAct.
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { countUsersFn } from "./countUsers.fn.ts";
+import { countUsersValidator } from "./countUsers.val.ts";
+
+export const countUsersSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    actName: "countUsers",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead"] }])],
+    validator: countUsersValidator(),
+    fn: countUsersFn,
+  });
+```
+
+## The implementation (`countUsers.fn.ts`)
+
+Build a `filters` object; if `search` is present, set `filters.$text = { $search: search }` — the same `$text` operator [getUsers](/docs/tutorials/procurement-workflow/auth/getUsers) uses, backed by the `first_name` / `last_name` / `email` text index. Then call `user.countDocument({ filter: filters })` and return the number.
+
+```ts
+import type { ActFn, Document } from "lesan";
+import { user } from "../../../mod.ts";
+
+export const countUsersFn: ActFn = async (body) => {
+  const {
+    set: { search },
+  } = body.details;
+
+  const filters: Document = {};
+  search && (filters.$text = { $search: search });
+
+  return await user.countDocument({ filter: filters });
+};
+```
+
+`countDocument` returns a number directly (the count of matching documents), so the client gets `{ count: N }` in the body. Omitting `search` counts **all** users in the collection.
+
+## In the workflow
+
+`countUsers` is half of the pagination pair: get the page with `getUsers`, get the total with `countUsers` using the same `search` string.
+
+- [getUsers](/docs/tutorials/procurement-workflow/auth/getUsers) — the matching list endpoint for the same search term.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `grantAccess` and the `activeRoleId` mechanism.
+- [User model](/docs/tutorials/procurement-workflow/models/user) — the text-indexed fields behind `$text`.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+Needs `token` and `activeRoleId`. To count all users, omit `search`:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "user",
+    "act": "countUsers",
+    "details": {
+      "set": {
+        "activeRoleId": "<roleId>"
+      },
+      "get": {}
+    }
+  }'
+```
+
+Response: `{ "body": { "count": N }, "success": true }`.
+
+## Errors & fixes
+
+`countUsersFn` has no `throwError` calls — every failure comes from the preAct chain or validation.
+
+| Message | Source | What it means | How to fix |
+|---------|--------|---------------|------------|
+| `you should send your id with token key in req header` | `setTokens` | Missing `token` header. | Add `-H "token: <jwt>"`. |
+| `Invalid or expired token` | `setTokens` | JWT didn't verify. | Re-login. |
+| `Invalid or missing token data` | `setUser` | Token payload had no `_id`. | Re-login. |
+| `user not exist` | `setUser` | The token's user was deleted. | Use a different account or re-create it. |
+| `activeRoleId is required` | `grantAccess` | `set.activeRoleId` was omitted. | Always send `activeRoleId` in `set`. |
+| `Active role not found` | `grantAccess` | The `activeRoleId` doesn't match any role on the user. | Use a `roleId` from the login response. |
+| `You cant do this` | `grantAccess` | The active role isn't one of `Manager`, `Admin`, `OrgHead`, `UnitHead`. | The ghost superuser bypasses this; for others, use a role in the allowed list. |
+| `$text` query failure (framework error) | MongoDB | `search` used without the text index. | Ensure `createUserTextIndex()` ran at boot (restart the server). |
+| Generic validation error | superstruct | `search` isn't a string. | Pass `search` as a string, or omit it entirely. |

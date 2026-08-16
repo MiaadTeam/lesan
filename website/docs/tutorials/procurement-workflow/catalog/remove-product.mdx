@@ -1,0 +1,110 @@
+---
+sidebar_position: 19
+---
+
+# removeProduct
+
+Deletes a **product** by its `_id`. Only `Manager` and `Admin`. The ODM's relation guard refuses to delete a product that is still referenced — by purchase orders, inventory records, or its own child products.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { removeProductFn } from "./removeProduct.fn.ts";
+import { removeProductValidator } from "./removeProduct.val.ts";
+
+export const removeProductSetup = () =>
+  coreApp.acts.setAct({
+    schema: "product",
+    actName: "removeProduct",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: removeProductValidator(),
+    fn: removeProductFn,
+  });
+```
+
+## The validator (`removeProduct.val.ts`)
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const removeProductValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("product", 1),
+  });
+};
+```
+
+`set` is `activeRoleId` + `_id`. `get` is depth 1.
+
+## The implementation (`removeProduct.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { product } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const removeProductFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+  } = body.details;
+
+  const removed = await product.deleteOne({
+    filter: { _id: new ObjectId(_id as string) },
+  });
+
+  !removed && throwError("product not found");
+  return removed;
+};
+```
+
+1. `product.deleteOne` removes the document.
+2. `!removed && throwError("product not found")` errors on a miss.
+
+Products have forward relations (`parent`, `tags`) and a big reverse map: they're referenced by child products (`children`), tags (`products` back-ref), purchase orders, and inventory records. The delete guard checks all of those before removing the document.
+
+## In the workflow
+
+Cleanup for a decommissioned item. In practice, products are more often deactivated (`active: false`) than deleted, precisely because so many downstream documents reference them — `removeProduct` is for the rare case of a truly orphaned catalog entry.
+
+- [product model](/docs/tutorials/procurement-workflow/models/product)
+- Sibling acts: [addProduct](/docs/tutorials/procurement-workflow/catalog/add-product), [getProduct](/docs/tutorials/procurement-workflow/catalog/get-product), [getProducts](/docs/tutorials/procurement-workflow/catalog/get-products), [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "product",
+    "act": "removeProduct",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<productId>" },
+      "get": { "_id": 1, "name": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `product not found` | No product has that `_id`. | Check the id. |
+| `please clear below relations status before deletion: ...` | Purchase orders, inventory records, tags, or child products still reference this product. | Clear the references first (e.g. update the purchase order / inventory / child product relations), then delete again. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin` (or ghost). | Elevate the role or use the ghost token. |
+| superstruct "expected ObjectId-like string" | `_id` isn't a valid ObjectId. | Send the 24-hex id string. |

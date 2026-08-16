@@ -1,0 +1,144 @@
+---
+sidebar_position: 16
+---
+
+# addProduct
+
+Creates a **product** (a purchasable good), optionally nested under a `parent` product (category tree) and/or tagged with existing tags. Only `Manager` and `Admin`. The model enforces a **unique index on `code`**.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { addProductFn } from "./addProduct.fn.ts";
+import { addProductValidator } from "./addProduct.val.ts";
+
+export const addProductSetup = () =>
+  coreApp.acts.setAct({
+    schema: "product",
+    actName: "addProduct",
+    validationRunType: "create",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: addProductValidator(),
+    fn: addProductFn,
+  });
+```
+
+## The validator (`addProduct.val.ts`)
+
+```ts
+import { array, boolean, defaulted, number, object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const addProductValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: string(),
+      code: string(),
+      price: optional(number()),
+      unit: optional(string()),
+      active: optional(boolean()),
+      description: optional(string()),
+      parent: optional(objectIdValidation),
+      tags: optional(array(objectIdValidation)),
+    }),
+    get: selectStruct("product", 1),
+  });
+};
+```
+
+- `name` and `code` are required. `price`, `unit`, `active`, and `description` are optional — note `price` defaults to `0` and `active` to `true` in the model, so omitting them is safe.
+- `parent` is an optional ObjectId (the category it lives under).
+- `tags` is an optional **array** of ObjectIds — the ids must already exist (`addTag` created them).
+- `get` is depth 1.
+
+## The implementation (`addProduct.fn.ts`)
+
+```ts
+import { type ActFn, type TInsertRelations, ObjectId } from "lesan";
+import { product } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+import type { product_relations } from "@model";
+
+export const addProductFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { parent, tags, ...rest } = stripActiveRole(set);
+
+  const relations: TInsertRelations<typeof product_relations> = {};
+
+  parent &&
+    (relations.parent = {
+      _ids: new ObjectId(parent as string),
+      relatedRelations: { children: true },
+    });
+
+  if (tags && (tags as string[]).length > 0) {
+    relations.tags = {
+      _ids: (tags as string[]).map((id: string) => new ObjectId(id)),
+      relatedRelations: {
+        products: true,
+      },
+    };
+  }
+
+  return await product.insertOne({
+    doc: rest,
+    relations,
+    projection: get,
+  });
+};
+```
+
+1. `parent` and `tags` are pulled out as relations; `rest` (name/code/price/unit/active/description) becomes the document.
+2. `parent`, if given, is a `single` relation; its `relatedRelations: { children: true }` adds this product to the parent's `children` back-reference.
+3. `tags`, if given (and non-empty), is a `multiple` relation. The array of id strings is mapped to `ObjectId`s and `products: true` adds the product to each tag's `products` back-reference.
+4. `product.insertOne` writes the doc and both relations, and returns the projected result.
+
+## In the workflow
+
+Products are the goods that purchase orders buy and that inventory tracks. Create tags first ([addTag](/docs/tutorials/procurement-workflow/catalog/add-tag)), then products, then tag them via [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations). Inventory acts (`addStock`, `transferStock`) and `add` (purchase order) all take a `productId`.
+
+- [product model](/docs/tutorials/procurement-workflow/models/product)
+- Sibling acts: [getProduct](/docs/tutorials/procurement-workflow/catalog/get-product), [getProducts](/docs/tutorials/procurement-workflow/catalog/get-products), [removeProduct](/docs/tutorials/procurement-workflow/catalog/remove-product), [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "product",
+    "act": "addProduct",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "name": "TSH Lab Kit",
+        "code": "PRD-001",
+        "price": 250000,
+        "unit": "pack"
+      },
+      "get": { "_id": 1, "name": 1, "code": 1, "price": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.products index: code_1` | A product with that `code` already exists (unique index). | Pick a different `code`. |
+| `can not find this relatation : parent` / `can not find this relatation : tags` (or a MongoDB cast error) | A `parent`/`tags` id doesn't match an existing document. | Only pass ids from `getProducts`/`getTags`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin` (or ghost). | Elevate the role or use the ghost token. |
+| superstruct "expected an array" | `tags` wasn't an array. | Send `tags` as an array of id strings. |
+| superstruct "expected ObjectId-like string" | `parent` or a `tags` entry isn't a valid ObjectId. | Send 24-hex id strings. |

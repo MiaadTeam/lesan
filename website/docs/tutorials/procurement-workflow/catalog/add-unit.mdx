@@ -1,0 +1,148 @@
+---
+sidebar_position: 12
+---
+
+# addUnit
+
+Creates a **unit** (department or warehouse) that belongs to exactly one organization, with optional `head` (user) and `parentUnit` (tree) relations. Roles allowed: `Manager`, `Admin`, `OrgHead`. Units are the scope object for step-approvals and inventory ownership, so this act is called early in the setup of any tenant.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { addUnitFn } from "./addUnit.fn.ts";
+import { addUnitValidator } from "./addUnit.val.ts";
+
+export const addUnitSetup = () =>
+  coreApp.acts.setAct({
+    schema: "unit",
+    actName: "addUnit",
+    validationRunType: "create",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead"] }])],
+    validator: addUnitValidator(),
+    fn: addUnitFn,
+  });
+```
+
+## The validator (`addUnit.val.ts`)
+
+```ts
+import { object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { unit_type_emums } from "@model";
+
+export const addUnitValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: string(),
+      code: string(),
+      type: unit_type_emums,
+      description: optional(string()),
+      organization: objectIdValidation,
+      head: optional(objectIdValidation),
+      parentUnit: optional(objectIdValidation),
+    }),
+    get: selectStruct("unit", 1),
+  });
+};
+```
+
+- `name`, `code`, and `type` are required. `type` is `unit_type_emums` from the model — one of `["Department", "Warehouse", "Finance", "Store"]`.
+- `organization` is **required** (`objectIdValidation`) — every unit must belong to a tenant.
+- `head` and `parentUnit` are optional ObjectIds.
+- `get` is depth 1.
+
+## The implementation (`addUnit.fn.ts`)
+
+```ts
+import { type ActFn, type TInsertRelations, ObjectId } from "lesan";
+import { unit } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+import type { unit_relations } from "@model";
+
+export const addUnitFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { organization, head, parentUnit, ...rest } = stripActiveRole(set);
+
+  const relations: TInsertRelations<typeof unit_relations> = {
+    organization: {
+      _ids: new ObjectId(organization as string),
+      relatedRelations: { units: true },
+    },
+  };
+
+  head &&
+    (relations.head = {
+      _ids: new ObjectId(head as string),
+      relatedRelations: { headedUnits: true },
+    });
+
+  parentUnit &&
+    (relations.parentUnit = {
+      _ids: new ObjectId(parentUnit as string),
+      relatedRelations: { children: true },
+    });
+
+  return await unit.insertOne({
+    doc: rest,
+    relations,
+    projection: get,
+  });
+};
+```
+
+1. `stripActiveRole` removes `activeRoleId`; `organization`, `head`, and `parentUnit` are pulled out as relations, leaving `rest` (name/code/type/description) as the document.
+2. The `relations` object is typed with `TInsertRelations<typeof unit_relations>` — TypeScript validates the relation names against the model definition.
+3. `organization` is always attached, with `relatedRelations: { units: true }` so the organization's `units` back-reference gains this unit.
+4. `head` (if given) updates the user's `headedUnits`; `parentUnit` (if given) updates the parent unit's `children`.
+5. `unit.insertOne` writes everything and returns the projected doc.
+
+## In the workflow
+
+Units sit directly under organizations and above stores. The e2e test creates two units ("Purchasing Department", type `Department`, and "Central Warehouse", type `Warehouse`) before anything else gets built. Later acts reference units heavily: [addStore](/docs/tutorials/procurement-workflow/catalog/add-store), `addProcessStep`, `add` (purchase order), and `addStock`.
+
+- [unit model](/docs/tutorials/procurement-workflow/models/unit)
+- Sibling acts: [getUnits](/docs/tutorials/procurement-workflow/catalog/get-units), [removeUnit](/docs/tutorials/procurement-workflow/catalog/remove-unit), [updateUnitRelations](/docs/tutorials/procurement-workflow/catalog/update-unit-relations)
+- Upstream: [addOrganization](/docs/tutorials/procurement-workflow/catalog/add-organization)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "unit",
+    "act": "addUnit",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "name": "Purchasing Department",
+        "code": "UNIT-PUR",
+        "type": "Department",
+        "organization": "<orgId>"
+      },
+      "get": { "_id": 1, "name": 1, "code": 1, "organization": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `can not find this relatation : organization` (or a MongoDB cast error) | The `organization` id doesn't match an existing organization. | Get a valid id from `getOrganizations`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin`/`OrgHead` (or ghost). | Use an allowed role or the ghost. |
+| superstruct "expected one of Department, Warehouse, Finance, Store" | `type` isn't a valid unit type. | Use one of the enum values. |
+| superstruct "expected ObjectId-like string" | `organization`/`head`/`parentUnit` isn't a valid ObjectId. | Send 24-hex id strings. |
+| superstruct "expected a string but received..." | `name`/`code` missing or wrong type. | Send both as strings. |

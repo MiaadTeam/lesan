@@ -69,7 +69,9 @@ const addUser: ActFn = async (body) => {
 };
 ```
 
-:::caution Shared mutable context
+:::caution
+**Shared mutable context**
+
 `contextFns` is a module-level mutable object — it is set per-request before the pipeline runs and read inside hooks/`fn`. In a single-process server this is safe (requests run sequentially per process), but it is **not** isolated across processes. Keep all per-request data on it and clear it at the start of each request if you manage requests yourself.
 :::
 
@@ -110,4 +112,4 @@ const logRequest = async () => {
 // add logRequest to preValidation of every act you want tracked
 ```
 
-For a full end-to-end example including custom context, role checks, and feature flags, see the [Satek complex example](/docs/guides/complex-example) — a 30-model procurement system built on these hooks.
+For a full end-to-end example including custom context, role checks, and feature flags, follow the [Procurement Workflow tutorial](/docs/tutorials/procurement-workflow/overview) — a 15-model procurement system built on these hooks (its auth chain is `setTokens` → `setUser` → `grantAccess`).

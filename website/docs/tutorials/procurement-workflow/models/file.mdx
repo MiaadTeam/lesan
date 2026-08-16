@@ -1,0 +1,113 @@
+---
+sidebar_position: 2
+---
+
+# File
+
+The `file` model stores **metadata about an uploaded file** — its name, MIME type, size, and a coarse `type` bucket (`image` / `video` / `docs` / `other`). The actual bytes are served from the static uploads folder (`/uploads`, see `staticPath` in the entry point); the `file` document is the reference that relations point at.
+
+Files are used as **avatars**, as **purchase-order attachments**, and as **tender documents**.
+
+```ts
+// models/file.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  coerce, defaulted, enums, number, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { user_excludes } from "./excludes.ts";
+
+export const file_type_array = ["image", "video", "docs", "other"];
+export const file_type_emums = enums(file_type_array);
+
+export const file_pure = {
+  name: string(),
+  mimeType: string(),
+  size: number(),
+  type: defaulted(
+    coerce(file_type_emums, string(), (value) => value as typeof file_type_array[number]),
+    "other",
+  ),
+  alt_text: optional(string()),
+  ...createUpdateAt,
+};
+
+export const file_relations = {
+  uploader: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {
+      files: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | file name |
+| `mimeType` | `string()` | e.g. `application/pdf` |
+| `size` | `number()` | bytes |
+| `type` | `coerce(enums([image, video, docs, other]), "other")` | a coarse bucket; the `coerce` lets clients send a raw string |
+| `alt_text` | `optional(string())` | accessibility text |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+Note the `coerce` pattern used for enums throughout this app: the *schema* stores an enum (`file_type_emums`), but `coerce` accepts the incoming plain `string()` and casts it — so a client sending `"image"` (a plain string) validates cleanly. This same idiom appears on `unit`, `product`, `inventory`, `process`, `processStep`, `purchaseOrder`, `stepApproval`, and `tender`.
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `uploader` | `user` | single (optional) | `user.files` |
+
+`uploader` records who uploaded the file. The back-reference `user.files` means a `getMe` / `getUser` projection can include the user's uploaded files without a second query.
+
+## Factory
+
+```ts
+export const files = () =>
+  coreApp.odm.newModel("file", file_pure, file_relations);
+```
+
+No `createIndex`, no model-level `excludes` — file documents are returned as-is (minus what the relation-level `excludes` strips when a file is embedded inside another document).
+
+## In the workflow
+
+- [upload-file](/docs/tutorials/procurement-workflow/catalog/upload-file) writes the metadata document (the bytes go to `/uploads`)
+- [get-file](/docs/tutorials/procurement-workflow/catalog/get-file), [get-files](/docs/tutorials/procurement-workflow/catalog/get-files) read them
+- [remove-file](/docs/tutorials/procurement-workflow/catalog/remove-file) deletes the metadata
+
+Purchase orders reference files through their `attachments` relation — see the [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "file",
+    "act": "getFiles",
+    "details": {
+      "set": { "query": { "type": "docs" }, "page": 1 },
+      "get": { "name": true, "mimeType": true, "size": true, "uploader": { "first_name": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `file not found` | the `_id` given to `getFile`/`removeFile` doesn't exist | pass the real `_id` (from an insert or a `getFiles` response) |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::
