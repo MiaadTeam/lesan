@@ -38,7 +38,7 @@ export default function HeroSection(): JSX.Element {
 
         <AnimatedSection animation="fadeInUp" delay={0}>
           <div className={styles.eyebrow}>
-            <Tag label="v2.0 Released" variant="cyan" />
+            <Tag label="v0.2.3 Released" variant="cyan" />
           </div>
         </AnimatedSection>
         
