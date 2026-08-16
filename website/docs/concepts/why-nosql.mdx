@@ -1,0 +1,198 @@
+---
+sidebar_position: 5
+---
+
+# Why NoSQL?
+
+As you have seen on the [previous page](/docs/concepts/server-client-communication), data duplication reduces the number of multiple requests to the database, which affects both the speed of receiving data and the way SSG content is created. In addition, the number of ways to receive embedded data in these databases — especially MongoDB's `aggregations` — makes managing and filtering this data easier.
+
+## Why MongoDB?
+
+We had two ways to achieve the best performance:
+
+1. Generally design a **database from scratch** to achieve at least these goals:
+   - Give the database exactly what we receive from the customer on the client side, so there is no additional processing for analyzing the request.
+   - Embed all relationships at least one level deep.
+   - Receive data with any degree of penetration into the depths of relationships using only **one** query.
+2. Pick an existing database and bring all our structures in line with it.
+
+Implementing a new database, although attractive, is infinitely time-consuming and requires a lot of time and cost to mature and become usable. Among the available databases, **MongoDB** met all our needs, for at least three reasons:
+
+1. MongoDB is a **NoSQL** database — exactly what we were looking for.
+2. MongoDB's process of selecting recursive fields — **`projection`** — is a standard object with a *field-name* key and a value of `0` or `1`. We could ask the customer for the same object on the client side without any processing and send it directly to the database.
+3. The key point was the creative idea of **`aggregation`**: we could penetrate into the depths of relationships with only **one** request for any amount of data we wanted. It was enough to create helper functions for building the request `pipelines`.
+
+## A Lesan Pipeline Example
+
+Let's examine how to create a pipeline for filtering and selecting data in MongoDB aggregations with an example.
+
+Consider the schemas we had for `country`, `province`, and `city`. Now we want to receive a list of `25` provinces along with their `country` and `cities` with **one** request. The pipeline we create in a normal NoSQL setup looks like this (the pipeline needed for Lesan will be slightly different, which we'll discuss later):
+
+```js
+provinces.aggregation([
+  {
+    $lookup: {
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
+    },
+  },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
+  {
+    $lookup: {
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
+    },
+  },
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      abb: 1,
+      country: { _id: 1, name: 1, abb: 1 },
+      cities: { _id: 1, name: 1, abb: 1 },
+    },
+  },
+]);
+```
+
+Now, if we create the same pipeline for a project that uses **Lesan**, it looks like this:
+
+```js
+states.aggregation([
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      abb: 1,
+      country: { _id: 1, name: 1, abb: 1 },
+      cities: { _id: 1, name: 1, abb: 1 },
+    },
+  },
+]);
+```
+
+Yes, we send an almost **empty pipeline** — because all relationships are embedded in Lesan, and we only send the `projection` to select the requested fields.
+
+### What if we penetrate one more level into the relationships?
+
+For example, let's request the `provinces` of `countries` again from within the countries, and the `country` of that `city` again from within the cities. (It's true that this example is unrealistically funny, but we implement it only for comparison so the concept is easy to convey.) In the usual case, the pipeline looks like this:
+
+```js
+states.aggregation([
+  {
+    $lookup: {
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
+    },
+  },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
+  {
+    $lookup: {
+      from: "state",
+      localField: "country.states._id",
+      foreignField: "_id",
+      as: "country.states",
+    },
+  },
+  {
+    $lookup: {
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
+    },
+  },
+  {
+    $lookup: {
+      from: "country",
+      localField: "cities.country._id",
+      foreignField: "_id",
+      as: "cities.country",
+    },
+  },
+  { $unwind: { path: "$cities.country", preserveNullAndEmptyArrays: true } },
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      abb: 1,
+      country: {
+        _id: 1,
+        name: 1,
+        abb: 1,
+        states: { _id: 1, name: 1, abb: 1 },
+      },
+      cities: {
+        _id: 1,
+        name: 1,
+        abb: 1,
+        country: { _id: 1, name: 1, abb: 1 },
+      },
+    },
+  },
+]);
+```
+
+But the project created with **Lesan** will create a pipeline like this:
+
+```js
+states.aggregation([
+  {
+    $lookup: {
+      from: "country",
+      localField: "country._id",
+      foreignField: "_id",
+      as: "country",
+    },
+  },
+  { $unwind: { path: "$country", preserveNullAndEmptyArrays: true } },
+  {
+    $lookup: {
+      from: "city",
+      localField: "cities._id",
+      foreignField: "_id",
+      as: "cities",
+    },
+  },
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      abb: 1,
+      country: {
+        _id: 1,
+        name: 1,
+        abb: 1,
+        states: { _id: 1, name: 1, abb: 1 },
+      },
+      cities: {
+        _id: 1,
+        name: 1,
+        abb: 1,
+        country: { _id: 1, name: 1, abb: 1 },
+      },
+    },
+  },
+]);
+```
+
+If you notice, we have **no pipeline** to get the `provinces` inside the country, because in Lesan all relationships are stored in an embedded way. If we have the country with its relationships, we have definitely stored the last `50` provinces of each country inside it. So, while we store the country as pure and without relationships in the axis of each province, we receive it again with a pipeline.
+
+Instead of `50 × 50 + 50` documents (if we requested `50` provinces per country by default), we only receive `50` documents — the countries where the provinces are embedded.
+
+Now imagine that, for example, the last registered `restaurants` in each country were also requested in this query. Usually `50 × 50 + 50 × 50 + 50` documents would have to be requested, but with Lesan the same document received for each country will also have a list of the last `50` restaurants — so we only request those `50` documents instead of `5050`. And as each relationship is added, these numbers get further apart.
+
+The same policy applies to `cities` in relation to the `country`. The only difference is that here `50` provinces are requested, each province wants the last `50` cities, and each city has a relationship with a country that has been requested — so we would have to receive `50 × 50 + 2500` documents, which with Lesan we have reduced to `50 × 50`.
+
+Another point to note: the pipeline created at the last stage in Lesan is very similar to the pipeline created in the normal state at the first stage — only the `projection` field in these two pipelines is different.
+
+## Next Steps
+
+- See how Lesan handles the heavy writes that embedding creates: [Queuing Data Changes](/docs/concepts/queuing-data-changes)
+- Understand why relations work this way: [What Is the Relationship Really?](/docs/concepts/what-is-the-relationship)

@@ -1,0 +1,299 @@
+---
+sidebar_position: 11
+---
+
+# submit (purchaseOrder)
+
+`submit` is the act that *starts* the procurement workflow. It takes a `Draft` (or `Pending`) purchase order and:
+
+1. **resolves** the process it will flow through (explicit link, or auto-resolve via [resolveProcessForPO](/docs/tutorials/procurement-workflow/workflow/resolve-process)),
+2. **encumbers the budget** — moves `estimatedAmount` out of `remainingBudget` and into `totalEncumbered` on the linked `budgetLine`,
+3. **creates the first step's approvals** — one `stepApproval` per unit assigned to step 1,
+4. transitions the PO to **`InProgress` with `currentStep: 1`**, and pushes a `submitted` history entry.
+
+After this call the order is live: it shows up in [getPendingByUnit](/docs/tutorials/procurement-workflow/workflow/get-pending-by-unit) for the approvers and waits for their [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision). Only `Manager`/`Admin`, or `UnitHead`/`Employee` with the `canRegisterPurchaseOrder` feature, can submit.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`submit.val.ts`)
+
+Remarkably small for what it does — just the PO `_id` and a depth-1 projection.
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const submitValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("purchaseOrder", 1),
+  });
+};
+```
+
+## The implementation (`submit.fn.ts`)
+
+The fn performs these steps in order:
+
+1. **Loads the PO** with a focused projection (`_id`, `status`, `currentStep`, `estimatedAmount`, `title`, and the `_id`s of `organization`, `requestingUnit`, `product`, `process`, `budgetLine`). Throws `purchase order not found` if it doesn't exist.
+2. **Checks the status** — only `Draft` and `Pending` may be submitted; anything else throws `only draft orders can be submitted`.
+3. **Resolves the process** — uses the PO's embedded `process._id` if present; otherwise calls `resolveProcessForPO` using the embedded organization/unit/product snapshots. If still nothing → `no active process found for this purchase order`.
+4. **Verifies the process is active** — loads the process and requires `status === "Active"`, else `process is not active`.
+5. **Loads the process steps** — queries `processStep` for the process sorted by `order: 1`. Empty → `process has no steps`.
+6. **Creates the first step's approvals** — takes the first step's `assigneeGroups`, flattens all `unitIds`, deduplicates, and inserts one `stepApproval` with `status: "pending"` per unique unit, linked to the PO, the step, and the unit (each with back-references).
+7. **Builds the `submitted` history entry** with the current user and `details: { processId, stepOrder: 1 }`.
+8. **Prepares the updates** — `status: "InProgress"`, `currentStep: 1`.
+9. **Back-fills the process relation** — if the PO had no `process` link yet, it calls `purchaseOrder.addRelation` with `replace: true` to attach the resolved process.
+10. **Encumbers the budget** — if a `budgetLine` is linked, it `$inc`s `totalEncumbered: +estimatedAmount` and `remainingBudget: -estimatedAmount` (see the math box below).
+11. **Commits** — `findOneAndUpdate` sets status/currentStep and `$push`es the history entry, returning the `get` projection.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { budgetLine, coreApp, process, processStep, purchaseOrder, stepApproval } from "../../../mod.ts";
+import { resolveProcessForPO, throwError } from "@lib";
+import type { MyContext } from "@lib";
+
+export const submitFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  const poId = new ObjectId(_id as string);
+
+  const po = await purchaseOrder.findOne({
+    filters: { _id: poId },
+    projection: {
+      _id: 1,
+      status: 1,
+      currentStep: 1,
+      estimatedAmount: 1,
+      title: 1,
+      "organization._id": 1,
+      "requestingUnit._id": 1,
+      "product._id": 1,
+      "process._id": 1,
+      "budgetLine._id": 1,
+    },
+  });
+
+  !po && throwError("purchase order not found");
+
+  if (po!.status !== "Draft" && po!.status !== "Pending") {
+    throwError("only draft orders can be submitted");
+  }
+
+  let processId = (po as any)?.process?._id as string | undefined;
+
+  if (!processId && (po as any)?.organization?._id) {
+    processId = await resolveProcessForPO({
+      organizationId: (po as any).organization._id.toString(),
+      ...((po as any)?.requestingUnit?._id && {
+        requestingUnitId: (po as any).requestingUnit._id.toString(),
+      }),
+      productId: (po as any).product._id.toString(),
+    });
+  }
+
+  !processId && throwError("no active process found for this purchase order");
+
+  const processDoc = await process.findOne({
+    filters: { _id: new ObjectId(processId) },
+    projection: { _id: 1, status: 1 },
+  });
+
+  !processDoc || processDoc!.status !== "Active" &&
+    throwError("process is not active");
+
+  const steps = await processStep
+    .aggregation({
+      pipeline: [
+        { $match: { "process._id": new ObjectId(processId as string) } },
+        { $sort: { order: 1 } },
+      ],
+      projection: {
+        _id: 1,
+        name: 1,
+        order: 1,
+        stepType: 1,
+        groupsOperator: 1,
+        assigneeGroups: 1,
+      },
+    })
+    .toArray();
+
+  if (!steps || steps.length === 0) {
+    throwError("process has no steps");
+  }
+
+  const firstStep = steps[0];
+  const firstStepUnits = (firstStep!.assigneeGroups as {
+    unitIds: string[];
+  }[]).flatMap((g) => g.unitIds);
+
+  const uniqueUnitIds = [...new Set(firstStepUnits.map((u) => u.toString()))];
+
+  for (const unitId of uniqueUnitIds) {
+    await stepApproval.insertOne({
+      doc: { status: "pending" },
+      relations: {
+        purchaseOrder: {
+          _ids: poId,
+          relatedRelations: { stepApprovals: true },
+        },
+        processStep: {
+          _ids: new ObjectId(firstStep!._id as string),
+          relatedRelations: { approvals: true },
+        },
+        unit: {
+          _ids: new ObjectId(unitId),
+          relatedRelations: { stepApprovals: true },
+        },
+      },
+      projection: { _id: 1 },
+    });
+  }
+
+  const performerName = `${(user as any).first_name ?? ""} ${(user as any).last_name ?? ""}`.trim();
+  const performedBy = user._id.toString();
+
+  const historyEntry = {
+    action: "submitted",
+    performed: {
+      by: performedBy,
+      name: performerName,
+      at: new Date(),
+      role: {
+        id: "",
+        name: "",
+      },
+    },
+    details: { processId, stepOrder: 1 },
+  };
+
+  const updates: Record<string, unknown> = {
+    status: "InProgress",
+    currentStep: 1,
+  };
+
+  if (!(po as any).process?._id) {
+    await purchaseOrder.addRelation({
+      filters: { _id: poId },
+      relations: {
+        process: {
+          _ids: new ObjectId(processId as string),
+          relatedRelations: { purchaseOrders: true },
+        },
+      },
+      projection: { _id: 1 },
+      replace: true,
+    });
+  }
+
+  if ((po as any)?.budgetLine?._id) {
+    const budgetLineId = (po as any).budgetLine._id;
+    await budgetLine.findOneAndUpdate({
+      filter: { _id: budgetLineId },
+      update: {
+        $inc: {
+          totalEncumbered: po!.estimatedAmount || 0,
+          remainingBudget: -(po!.estimatedAmount || 0),
+        },
+      },
+      projection: { _id: 1 },
+    });
+  }
+
+  return await purchaseOrder.findOneAndUpdate({
+    filter: { _id: poId },
+    update: {
+      $set: updates,
+      $push: { history: historyEntry },
+    },
+    projection: get,
+  });
+};
+```
+
+### Why the budget math works
+
+The `budgetLine` tracks three numbers that must always sum correctly:
+
+```text
+totalAllocated = totalSpent + totalEncumbered + remainingBudget
+```
+
+- **Submit (this page):** `totalEncumbered += amount` and `remainingBudget -= amount`. The money is *reserved* but not yet spent — it can't be used for another order while the PO is in flight.
+- **Finalize ([po-finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize)):** `totalEncumbered -= amount` and `totalSpent += amount`. The reservation converts into actual spend.
+- **Cancel ([po-cancel](/docs/tutorials/procurement-workflow/workflow/po-cancel)):** `totalEncumbered -= amount` and `remainingBudget += amount`. The reservation is released back to the pool.
+
+So after submit, `remainingBudget` drops and `totalEncumbered` rises — the seed test checks exactly that (`totalEncumbered == 25000000` after submitting a 25M order). Since `estimatedAmount` defaults to `0`, a PO without an amount encumbers nothing (the `|| 0` guard).
+
+### Why `firstStepUnits` dedupes
+
+A step's `assigneeGroups` can repeat a unit across groups (`{operator: "OR", unitIds: ["unitA"]}, {operator: "AND", unitIds: ["unitA"]}`). Creating two `stepApproval` docs for the same unit would double their vote. `[...new Set(...)]` guarantees exactly one pending approval per unit — which is also what [evaluateStepStatus](/docs/tutorials/procurement-workflow/workflow/step-evaluator) expects when it looks up one approval per `unitId`.
+
+## In the workflow
+
+`submit` is the hinge of the whole chapter — it's where a passive `Draft` becomes a live workflow:
+
+```
+add ─▶ Draft ──submit──▶ InProgress (currentStep: 1, budget encumbered)
+                                │
+                          submitDecision (per unit) ──▶ advance to step 2...
+                                │
+                          Approved ──finalize──▶ Completed
+```
+
+One approval task is created per unit of step 1; each of those is decided via [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision), which uses [evaluateStepStatus](/docs/tutorials/procurement-workflow/workflow/step-evaluator) to decide whether to advance, approve, or reject the whole PO.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [process model](/docs/tutorials/procurement-workflow/models/process), [processStep model](/docs/tutorials/procurement-workflow/models/processStep), [stepApproval model](/docs/tutorials/procurement-workflow/models/stepApproval), [budgetLine model](/docs/tutorials/procurement-workflow/models/budgetLine), [resolveProcess](/docs/tutorials/procurement-workflow/workflow/resolve-process), [po-add](/docs/tutorials/procurement-workflow/workflow/po-add), [submit-decision](/docs/tutorials/procurement-workflow/workflow/submit-decision).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "submit",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<poId>"
+      },
+      "get": {
+        "_id": 1,
+        "title": 1,
+        "status": 1,
+        "currentStep": 1,
+        "history": 1
+      }
+    }
+  }'
+```
+
+Expect `{ "body": { "status": "InProgress", "currentStep": 1, "history": [..., { "action": "submitted", ... }] }, "success": true }`. Then check the budget with the budgetLine act `getBudgetLineBreakdown` to see `totalEncumbered` bumped and `remainingBudget` dropped, and call [getStepApprovals](/docs/tutorials/procurement-workflow/workflow/get-step-approvals) to see the pending approvals.
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `purchase order not found` | No PO with that `_id` | Verify the id via [gets](/docs/tutorials/procurement-workflow/workflow/po-gets) |
+| `only draft orders can be submitted` | PO status isn't `Draft`/`Pending` | You can't re-submit; the order is already in flight or terminal |
+| `no active process found for this purchase order` | No `process` link and `resolveProcessForPO` found nothing | Create + activate a process, or attach one via [po-update-relations](/docs/tutorials/procurement-workflow/workflow/po-update-relations) |
+| `process is not active` | The linked process isn't `Active` | Run [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process) |
+| `process has no steps` | The process has zero `processStep` docs | Add steps with [addProcessStep](/docs/tutorials/procurement-workflow/workflow/add-process-step) |
+| `No active process found for this organization. Please create and activate a process first.` | Raised by `resolveProcessForPO` | Same as `no active process...` above |
+
+Shared auth errors apply, and `Missing feature: canRegisterPurchaseOrder` appears for `UnitHead`/`Employee` without the feature.

@@ -1,0 +1,127 @@
+---
+sidebar_position: 15
+---
+
+# Tender
+
+`tender` is a **public procurement auction** for a purchase order. It collects offers from suppliers in an embedded `offers` array, and when awarded, the winning offer's price becomes the order's committed amount.
+
+```ts
+// models/tender.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  array, coerce, date, defaulted, enums, number, object, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { organization_excludes, user_excludes } from "./excludes.ts";
+
+export const tender_status_array = ["Open", "Awarded", "Closed"];
+export const tender_status_emums = enums(tender_status_array);
+
+export const tenderOffer_pure = {
+  supplier: string(),
+  price: number(),
+  score: defaulted(number(), 0),
+  submittedAt: coerce(date(), string(), (value) => new Date(value)),
+};
+
+export const tender_pure = {
+  title: string(),
+  status: defaulted(
+    coerce(tender_status_emums, string(), (value) => value as typeof tender_status_array[number]),
+    "Open",
+  ),
+  deadline: optional(coerce(date(), string(), (value) => new Date(value))),
+  description: optional(string()),
+  offers: defaulted(array(object(tenderOffer_pure)), []),
+  ...createUpdateAt,
+};
+
+export const tender_relations = {
+  organization: {
+    schemaName: "organization",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: organization_excludes,
+    relatedRelations: {
+      tenders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  createdBy: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {
+      createdTenders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `title` | `string()` | |
+| `status` | `coerce(enums([Open, Awarded, Closed]), "Open")` | |
+| `deadline` | `optional(coerce(date()))` | no offers after this |
+| `description` | `optional(string())` | |
+| `offers` | `defaulted(array({supplier, price, score, submittedAt}), [])` | **embedded** supplier bids |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+**`offers` is embedded, not a separate model.** Each offer is `{ supplier: string, price: number, score: number, submittedAt: date }`. This is a deliberate choice: offers only ever make sense inside their tender, they're never queried across tenders, and embedding keeps a tender read atomic. If you ever need to query offers *globally*, that's the signal to promote them to their own model.
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `organization` | `organization` | single (optional) | `organization.tenders` |
+| `createdBy` | `user` | single (optional) | `user.createdTenders` |
+
+## Factory
+
+```ts
+export const tenders = () =>
+  coreApp.odm.newModel("tender", tender_pure, tender_relations);
+```
+
+## In the workflow
+
+- [add-tender](/docs/tutorials/procurement-workflow/finance/add-tender) opens a tender
+- [add-offer](/docs/tutorials/procurement-workflow/finance/add-offer) appends a supplier bid
+- [award-tender](/docs/tutorials/procurement-workflow/finance/award-tender) picks a winner and flips to `Awarded`
+- [get-tenders](/docs/tutorials/procurement-workflow/finance/get-tenders) lists them
+
+A [purchaseOrder](/docs/tutorials/procurement-workflow/models/purchaseOrder) can reference a tender through its `tender` relation.
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "tender",
+    "act": "getTenders",
+    "details": {
+      "set": { "query": { "status": "Open" }, "page": 1 },
+      "get": { "title": true, "status": true, "offers": { "supplier": true, "price": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `tender not found` | act given an unknown `_id` | pass a real `_id` |
+| `tender is not Open` | adding an offer / awarding a closed or awarded tender | only `Open` tenders accept offers or awards |
+| `offer already exists for this supplier` | the same supplier bidding twice | update the existing offer instead |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

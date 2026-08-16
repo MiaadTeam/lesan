@@ -1,0 +1,608 @@
+---
+sidebar_position: 2
+---
+
+# Getting Started
+
+This is the official Lesan tutorial. It follows the original documentation step by step: we first run a minimal server, then we add our first **model**, then our first **act** (the Lesan word for an API endpoint), and finally we connect two models with a **relation**.
+
+Lesan is a collection of a web server and an ODM. Inspired by GraphQL, it delegates data retrieval management to the **client** — without adding an extra layer (such as a GraphQL language processor) on either side. It uses the full power of NoSQL databases to **embed** all the relationships of a schema within itself, without making the server-side programmer manage the duplicated embeddings.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- **MongoDB 7+** installed and running (we assume `mongodb://127.0.0.1:27017`)
+- **Node.js 18+**, **Bun**, or **Deno** installed
+- **MongoDB Compass** (optional but recommended) — to inspect what Lesan stores in the database
+
+:::info
+Lesan is cross-platform — the same code runs unchanged on Node.js, Bun, and Deno. Only the import differs.
+:::
+
+## Installation
+
+Create a new project and install Lesan plus the MongoDB driver.
+
+### Node.js
+
+```bash
+npm init -y
+npm install @hemedani/lesan mongodb
+```
+
+### Bun
+
+```bash
+bun init -y
+bun add @hemedani/lesan mongodb
+```
+
+### Deno
+
+Deno fetches packages from JSR at runtime — just import `lesan` from `jsr:@hemedani/lesan`:
+
+```typescript
+import { lesan, MongoClient } from "jsr:@hemedani/lesan";
+```
+
+## The Minimal Server
+
+Create a `mod.ts` file with the following:
+
+```typescript
+import { lesan, MongoClient } from "@hemedani/lesan";
+
+const coreApp = lesan();
+
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
+const db = client.db("dbName"); // change dbName to the appropriate name for your project
+
+coreApp.odm.setDb(db);
+
+coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
+```
+
+Now run this command in the terminal:
+
+```bash
+# Node.js
+npx tsx mod.ts
+
+# Bun
+bun run mod.ts
+
+# Deno
+deno run -A mod.ts
+```
+
+You should see this message:
+
+```
+HTTP webserver running.
+please send a post request to http://localhost:1366/lesan
+you can visit playground on http://localhost:1366/playground
+
+Listening on http://localhost:1366/
+```
+
+Now you can visit the playground at `http://localhost:1366/playground`. Because no model and no function have been written yet, we still cannot send a request to the server. Let's implement our first model.
+
+![Playground with no models yet](https://github.com/MiaadTeam/lesan/assets/6236123/e578cac5-25b5-42f5-b05b-18d7b383afa6)
+
+## Add a New Model
+
+To add a new model, we call the `newModel` function from `coreApp.odm`. Let's add a `country` model. Add the following code **before** `coreApp.runServer`:
+
+```typescript
+const countryPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const countryRelations = {};
+
+const countries = coreApp.odm.newModel("country", countryPure, countryRelations);
+```
+
+We also need to import `string` and `number` from Lesan. These are validators exported from [Superstruct](https://docs.superstructjs.org/). We use Superstruct to define models and validate function inputs.
+
+The `newModel` function accepts three inputs:
+
+- **First input** — the name of the new model.
+- **Second input** — the pure fields of that model in the database. It's an object whose keys are the field names and whose values are Superstruct validators.
+- **Third input** — the relations between models. Because we have only one model here, we pass an empty object. We'll read more about this later.
+
+Finally, `newModel` returns an object with services such as `insertOne`, `insertMany`, `updateOne`, `deleteOne`, and so on.
+
+## Add an Access Point
+
+Every model needs at least one **act** as an access point to communicate and send or receive data. To add an act to `countries`, add the following code before `coreApp.runServer`:
+
+```typescript
+const addCountryValidator = () => {
+  return object({
+    set: object(countryPure),
+    get: coreApp.schemas.selectStruct("country", 1),
+  });
+};
+
+const addCountry: ActFn = async (body) => {
+  const { name, population, abb } = body.details.set;
+  return await countries.insertOne({
+    doc: {
+      name,
+      population,
+      abb,
+    },
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "addCountry",
+  validator: addCountryValidator(),
+  fn: addCountry,
+});
+```
+
+We need to import `object` and the `ActFn` type from Lesan.
+
+### The `setAct` function
+
+To add an act to `country`, we use the `setAct` function in `coreApp.acts`. It receives an object with these keys:
+
+- **`schema`** — the name of the model to which we want to set an action.
+- **`actName`** — a simple string to identify the act.
+- **`fn`** — the function we call when a request arrives for it.
+- **`validator`** — a Superstruct object called *before* the act fn, validating the incoming data. It includes `set` and `get` objects.
+
+There are also three optional keys:
+
+- **`validationRunType`** — receives `assert` or `create`, and determines how the validator runs, so we can create data or change previous data during validation.
+- **`preAct`** — an array of functions executed in order *before* the main endpoint function. With these we can store information in the context or prevent the main function from running. It's mostly used for **authentication** and **authorization** — think of it as middleware in Express.
+- **`preValidation`** — like `preAct`, but executes before the validator.
+
+Inside Lesan there is a **context**, available through the `contextFns.getContextModel()` function. We can share information between the functions of an act (`preAct`, `preValidation`, `validator`, and `fn`) through it. By default, the `body` and `headers` of each request are available in this context, and if you change the body in the context, the body passed to `fn` is updated too.
+
+### The validator function
+
+In the `addCountryValidator` function we return the Superstruct `object` function. It contains two keys:
+
+- **`set`** — an object in which we define the required input information for each request on the client side. In the act function we can read it from `body.details.set`.
+- **`get`** — an object in which we specify what data can be sent back to the client. The client specifies what it needs with values of `0` or `1` for each key:
+
+```typescript
+get: object({
+  name: enums([0, 1]),
+  population: enums([0, 1]),
+  abb: enums([0, 1]),
+});
+```
+
+But as you can see, we used the `selectStruct` function of `coreApp.schemas`. It has two inputs: the **name of the model** we want to generate the object for, and the **degree of penetration** into each relation. The second input can be a `number` or an `object`:
+
+```typescript
+get: coreApp.schemas.selectStruct("country", {
+  provinces: { cities: 1 },
+  createdBy: 2,
+  users: { posts: 1 },
+});
+```
+
+If given an object, the keys must be relation names of the model, and each value can be a `number` or another object of its relations. The generated object expands every relation into its own nested `get` object. We send the data received in the `get` key **directly as a projection to MongoDB**.
+
+### The `fn` function
+
+The `fn` key receives the main act function. It gets an input called `body`, which is the request body sent from the client side. The request body should be a JSON like this:
+
+```json
+{
+  "service": "main",
+  "model": "country",
+  "act": "addCountry",
+  "details": {
+    "set": {
+      "name": "Iran",
+      "population": 85000000,
+      "abb": "IR"
+    },
+    "get": {
+      "_id": 1,
+      "name": 1,
+      "population": 1,
+      "abb": 1
+    }
+  }
+}
+```
+
+- **`service`** — selects one of the microservices set on the application.
+- **`model`** — selects one of the models added to the application.
+- **`act`** — selects one of the acts added to the application.
+- **`details`** — carries the data being sent to the server along with the data to be delivered back to the user. It has two internal keys:
+  - **`set`** — the information we need in the act function. In `addCountry` we extract `name`, `population`, and `abb` from `body.details.set`.
+  - **`get`** — the fields the user needs returned. We pass this object directly to Mongo's `projection`.
+
+We use the `insertOne` function, exported from the `countries` model, to add a new document. It accepts an object with these keys:
+
+```typescript
+{
+  doc: OptionalUnlessRequiredId<InferPureFieldsType>;
+  relations?: TInsertRelations<TR>;
+  options?: InsertOptions;
+  projection?: Projection;
+}
+```
+
+- **`doc`** — an object of the pure values of the selected model.
+- **`relations`** — an object of the relations of this model. There are no relations here yet — we'll read about this in the next section.
+- **`options`** — the official MongoDB driver options for `insertOne`.
+- **`projection`** — a native MongoDB projection used to shape the written data. In `insertOne` you can only penetrate one step into relations (here only pure fields, since there are no relations).
+
+## Run and Test
+
+Now you can run `deno run -A mod.ts` (or `npx tsx mod.ts` / `bun run mod.ts`).
+
+### Using the Playground
+
+Open `http://localhost:1366/playground` in your browser — an interactive explorer where you pick the model, act, and fields, then send the request without writing a line of code.
+
+![Playground showing the addCountry act](https://github.com/MiaadTeam/lesan/assets/6236123/1e514e6c-58b3-484b-ae73-e6cc8e26c56c)
+
+### Using Postman or curl
+
+Send a `POST` request to `http://localhost:1366/lesan` with this body:
+
+```bash
+curl -X POST http://localhost:1366/lesan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service": "main",
+    "model": "country",
+    "act": "addCountry",
+    "details": {
+      "set": { "name": "Iran", "population": 85000000, "abb": "IR" },
+      "get": { "_id": 1, "name": 1, "population": 1, "abb": 1 }
+    }
+  }'
+```
+
+You should get this result:
+
+```json
+{
+  "body": {
+    "_id": "6534d7c6c5dec0be8e7bf751",
+    "name": "Iran",
+    "population": 85000000,
+    "abb": "IR"
+  },
+  "success": true
+}
+```
+
+![The same request sent from Postman](https://github.com/MiaadTeam/lesan/assets/6236123/1c9e0d4a-c875-4b14-9832-8d7c680ebe18)
+
+### The `runServer` function
+
+The last thing to talk about is `coreApp.runServer`. It receives an object with these keys:
+
+- **`port`** — the port the server runs on.
+- **`playground`** — a `Boolean` that specifies whether the playground is available at `http://{server-address}:{port}/playground`.
+- **`typeGeneration`** — a `Boolean` that creates a folder named `declarations`, inside which the type definitions of the program are generated (including the type-safe `lesanApi` client). We'll read more about this later.
+- **`staticPath`** — an array of paths (strings) whose contents are served statically.
+- **`cors`** — either `"*"` or an array of URLs allowed to communicate with the server without CORS errors.
+
+## Add a Relation
+
+As we said before, Lesan **embeds** all relationships: when you define a relation, the pure fields of both models are stored inside each other. So far we have defined only one model — let's add a second one, `city`, that relates to `country`. Each city belongs to one country, and each country has many cities.
+
+Add the following code to the previous code, before `coreApp.runServer`:
+
+```typescript
+const cityPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel("city", cityPure, cityRelations);
+```
+
+We've already talked about `newModel`. The third input — the relation definition — receives an object whose keys are the field names (the relation data is stored inside each document under this name) and whose values are `TRelation` metadata:
+
+```typescript
+export type RelationDataType = "single" | "multiple";
+
+export type RelationSortOrderType = "asc" | "desc";
+
+export type TRelatedRelation = {
+  type: RelationDataType;
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType;
+  };
+};
+
+interface TRelation {
+  schemaName: string;
+  type: RelationDataType;
+  optional: boolean;
+  sort?: {
+    field: string;
+    order: RelationSortOrderType;
+  };
+  relatedRelations: {
+    [key: string]: TRelatedRelation;
+  };
+}
+```
+
+- **`schemaName`** — the exact name of the other schema to establish a relation with.
+- **`type`** — whether the relation type is `single` or `multiple`.
+- **`optional`** — whether it is mandatory to enter this relation when inserting a new document.
+- **`sort`** *(optional, only for `multiple`)* — which field of the related schema the embedded data should be sorted by. It receives an object with a `field` (a schema field name) and an `order` (`asc` or `desc`).
+- **`relatedRelations`** — the effect of this schema on the other side of the relation. For each related relation it receives a `type`, an optional `limit` (how many related documents to keep embedded), and an optional `sort`.
+
+### Add a new act with a relation
+
+Let's define an act for the `city` model:
+
+```typescript
+const addCityValidator = () => {
+  return object({
+    set: object({
+      ...cityPure,
+      country: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+
+const addCity: ActFn = async (body) => {
+  const { country, name, population, abb } = body.details.set;
+
+  return await cities.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCity",
+  validator: addCityValidator(),
+  fn: addCity,
+});
+```
+
+We need to import `objectIdValidation` and `ObjectId` from Lesan.
+
+We've already seen `validator`, `act`, `setAct`, and `insertOne`. Here we only talk about the **`relations`** input of the insert function. Its type is:
+
+```typescript
+export type TInsertRelations<T extends IRelationsFileds> = {
+  [mainKey in keyof T]?: {
+    _ids: ObjectId | ObjectId[];
+    relatedRelations?: {
+      [key in keyof T[mainKey]["relatedRelations"]]: boolean;
+    };
+  };
+};
+```
+
+This object's keys are the relation names we defined in the model. Each value has:
+
+- **`_ids`** — an `ObjectId` or an array of `ObjectId`s to link to.
+- **`relatedRelations`** — an object whose keys are the related-relation names, with a `boolean` value. If `true`, in addition to the relation being saved in this new document, the created document is also saved in the related relation (on the other side). If `false`, the relation is saved only in this new document.
+
+Here, by adding a city and giving the country's `_id`, Lesan stores both the pure fields of that country inside the newly created city, and — inside that country, in an array of objects — the pure fields of this city. Both sides, automatically.
+
+### All the code
+
+Here is the complete code so far:
+
+```typescript
+import {
+  ActFn,
+  lesan,
+  MongoClient,
+  number,
+  object,
+  ObjectId,
+  objectIdValidation,
+  RelationDataType,
+  RelationSortOrderType,
+  string,
+} from "@hemedani/lesan";
+
+const coreApp = lesan();
+
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
+const db = client.db("dbName");
+coreApp.odm.setDb(db);
+
+const countryCityPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const countries = coreApp.odm.newModel("country", countryCityPure, {});
+
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
+
+const addCountryValidator = () => {
+  return object({
+    set: object(countryCityPure),
+    get: coreApp.schemas.selectStruct("country", 1),
+  });
+};
+
+const addCountry: ActFn = async (body) => {
+  const { name, population, abb } = body.details.set;
+  return await countries.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "addCountry",
+  validator: addCountryValidator(),
+  fn: addCountry,
+});
+
+const addCityValidator = () => {
+  return object({
+    set: object({
+      ...countryCityPure,
+      country: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+
+const addCity: ActFn = async (body) => {
+  const { country, name, population, abb } = body.details.set;
+  return await cities.insertOne({
+    doc: { name, population, abb },
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: { cities: true },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCity",
+  validator: addCityValidator(),
+  fn: addCity,
+});
+
+coreApp.runServer({ port: 1366, typeGeneration: true, playground: true });
+```
+
+Run it and open the playground. You can now add a country, then add a city by selecting the country's `_id`.
+
+![Playground showing the addCountry act](https://github.com/MiaadTeam/lesan/assets/6236123/4d2bc0d0-8715-44ce-b31c-c6222d1aaed2)
+
+![Playground showing the addCity act with a country relation](https://github.com/MiaadTeam/lesan/assets/6236123/b59ae7fc-2f11-4326-9944-f5a99d698486)
+
+### What happens in the database?
+
+If you open MongoDB Compass, you'll see that when you add a city, the pure values are stored as embedded on **both** sides of the relation:
+
+```jsonc
+// countries collection
+{
+  "_id": "6534d7c6c5dec0be8e7bf751",
+  "name": "Iran",
+  "population": 85000000,
+  "abb": "IR",
+  "cities": [
+    {
+      "_id": "6534d8a1c5dec0be8e7bf888",
+      "name": "Tehran",
+      "population": 9000000,
+      "abb": "THR"
+    }
+  ]
+}
+
+// cities collection
+{
+  "_id": "6534d8a1c5dec0be8e7bf888",
+  "name": "Tehran",
+  "population": 9000000,
+  "abb": "THR",
+  "country": {
+    "_id": "6534d7c6c5dec0be8e7bf751",
+    "name": "Iran",
+    "population": 85000000,
+    "abb": "IR"
+  }
+}
+```
+
+Here is what that looks like in MongoDB Compass — the country collection:
+
+![Country document with embedded cities in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/9824ded0-ba32-4d4b-a726-838b31bea988)
+
+And the city collection:
+
+![City document with embedded country in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/eb1a7ea0-fe7e-44e3-96df-08b2d37d4fd9)
+
+This makes receiving data much faster — no joins or extra queries needed.
+
+The only noteworthy point: a **limited** number of cities are stored inside the country (here `limit: 50`). Save as many as you think you'll need for the first page. To get the rest of the cities, you query their own schema.
+
+## Next Steps
+
+You now have a running Lesan API with models, relations, and embedded data. From here:
+
+- **[Add More Relations](/docs/tutorials/add-more-relations)** — more related relations, a `capital`, and a many-to-many `user` model
+- **[Managing Relations](/docs/tutorials/managing-relations)** — updating relations of existing documents with `addRelation`/`removeRelation`
+- **[Find & findOne](/docs/tutorials/find-and-find-one)** — reading documents and their embedded relations back out
+- **[Aggregation](/docs/tutorials/aggregation)** — penetrating more than one step into relations
+- **[findOneAndUpdate](/docs/tutorials/find-one-and-update)** — updating documents (and why it's the hardest problem in Lesan)
+- **[deleteOne](/docs/tutorials/delete-one)** — deleting documents, with `hardCascade`
+- **[insertMany](/docs/tutorials/insert-many)** — inserting many documents with relations embedded correctly
+- **[Models & ODM](/docs/api/models)** — pure fields, relations in depth, and every ODM operation
+- **[Queries & Projections](/docs/api/queries)** — client-driven projections, filtering, and aggregation
+- **[Server API](/docs/api/server)** — middleware hooks (`preAct`), context, services, and configuration
+- **[Type System](/docs/api/types)** — generated types and the `lesanApi` client in detail
+- **[What Is the Relationship Really?](/docs/concepts/what-is-the-relationship)** — why Lesan's relationships work the way they do

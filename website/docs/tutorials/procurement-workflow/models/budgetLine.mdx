@@ -1,0 +1,123 @@
+---
+sidebar_position: 14
+---
+
+# BudgetLine
+
+`budgetLine` is a **budget allocation** that purchase orders draw against. The lifecycle: PO **submit** creates an encumbrance (reserves funds), PO **finalize** converts the encumbrance to spend, and PO **cancel** releases it. `remainingBudget` is kept in sync by the workflow acts — the model itself just stores the numbers.
+
+```ts
+// models/budgetLine.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  coerce, date, defaulted, number, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { organization_excludes } from "./excludes.ts";
+
+export const budgetLine_pure = {
+  code: string(),
+  title: string(),
+  year: number(),
+  totalAllocated: defaulted(number(), 0),
+  totalEncumbered: defaulted(number(), 0),
+  totalSpent: defaulted(number(), 0),
+  remainingBudget: defaulted(number(), 0),
+  startDate: optional(coerce(date(), string(), (value) => new Date(value))),
+  endDate: optional(coerce(date(), string(), (value) => new Date(value))),
+  ...createUpdateAt,
+};
+
+export const budgetLine_relations = {
+  organization: {
+    schemaName: "organization",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: organization_excludes,
+    relatedRelations: {
+      budgetLines: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|------|
+| `code` | `string()` | e.g. `BL-2024-01` |
+| `title` | `string()` | e.g. `Laboratory Consumables` |
+| `year` | `number()` | fiscal year |
+| `totalAllocated` | `defaulted(number(), 0)` | the original budget |
+| `totalEncumbered` | `defaulted(number(), 0)` | reserved by submitted POs |
+| `totalSpent` | `defaulted(number(), 0)` | spent on finalized POs |
+| `remainingBudget` | `defaulted(number(), 0)` | allocated − encumbered − spent |
+| `startDate` / `endDate` | `optional(coerce(date()))` | budget period |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## The encumbrance invariant
+
+The four money fields must always satisfy:
+
+```
+remainingBudget = totalAllocated − totalEncumbered − totalSpent
+```
+
+The acts maintain it:
+
+| Event | `totalEncumbered` | `totalSpent` | `remainingBudget` |
+|-------|-------------------|--------------|-------------------|
+| PO **submit** | `+= amount` | — | `−= amount` |
+| PO **finalize** | `−= amount` | `+= amount` | (unchanged) |
+| PO **cancel** | `−= amount` | — | `+= amount` |
+
+If `remainingBudget < amount` at submit, the submit is rejected (see [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit)).
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `organization` | `organization` | single (optional) | `organization.budgetLines` |
+
+## Factory
+
+```ts
+export const budgetLines = () =>
+  coreApp.odm.newModel("budgetLine", budgetLine_pure, budgetLine_relations);
+```
+
+## In the workflow
+
+- [add-budget-line](/docs/tutorials/procurement-workflow/finance/add-budget-line) sets `totalAllocated` and seeds `remainingBudget = totalAllocated`
+- [get-budget-lines](/docs/tutorials/procurement-workflow/finance/get-budget-lines), [get-budget-line-breakdown](/docs/tutorials/procurement-workflow/finance/get-budget-line-breakdown)
+- Every [purchaseOrder](/docs/tutorials/procurement-workflow/models/purchaseOrder) references a `budgetLine` via its `budgetLine` relation
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "budgetLine",
+    "act": "getBudgetLines",
+    "details": {
+      "set": { "query": { "year": 2024 }, "page": 1 },
+      "get": { "code": true, "title": true, "totalAllocated": true, "remainingBudget": true }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `budgetLine not found` | act given an unknown `_id` | pass a real `_id` |
+| `Insufficient remaining budget` | a PO submit would push `remainingBudget` negative | allocate more budget or reduce the amount |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

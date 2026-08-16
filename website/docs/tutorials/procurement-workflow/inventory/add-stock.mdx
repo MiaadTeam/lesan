@@ -1,0 +1,137 @@
+---
+sidebar_position: 1
+---
+
+# addStock
+
+`addStock` increases the quantity of a product in a single store and writes a matching entry into the `stockMovement` ledger. It works on the `inventory` model (one record per store + product) and the `stockMovement` model (the audit trail). You need it any time goods physically arrive at a store — a goods receipt, a purchase order being finalized, or a manual stocking.
+
+## The validator (`addStock.val.ts`)
+
+The `set` holds the who/where/what: `storeId` and `productId` (both validated as real `ObjectId`s), the `quantity` to add (a plain `number`), and four optional strings that describe *why* the stock arrived. `reason` defaults to `"goods_receipt"` in the fn when omitted; `referenceType` / `referenceId` let you link the movement back to a source document (e.g. a purchase order), and `description` is free-form. `activeRoleId` is spread in from `@lib` so `grantAccess` can pick the active role. The `get` projection is `selectStruct("inventory", 1)` — a one-level projection of the inventory fields.
+
+```ts
+import { number, object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const addStockValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      storeId: objectIdValidation,
+      productId: objectIdValidation,
+      quantity: number(),
+      reason: optional(string()),
+      description: optional(string()),
+      referenceType: optional(string()),
+      referenceId: optional(string()),
+    }),
+    get: selectStruct("inventory", 1),
+  });
+};
+```
+
+:::note
+**About the imports**
+All framework imports in this repo use the `"lesan"` alias. In your own app, import the same names from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` points at the app's `utils/` folder.
+:::
+
+## The implementation (`addStock.fn.ts`)
+
+The fn is deliberately thin: it pulls the `set` fields out of `body.details`, grabs the currently-logged-in `user` from the request context (this is what `setTokens` → `setUser` put there), and hands everything to the shared `addStock` helper in `utils/inventoryManager.ts`. Notice `user._id.toString()` is passed as `createdByUserId` — every movement records who made it. The optional fields are only included in the options object when they are actually present, so an empty add produces no empty strings.
+
+```ts
+import { type ActFn } from "lesan";
+import { addStock as addStockUtil } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import type { MyContext } from "@lib";
+
+export const addStockFn: ActFn = async (body) => {
+  const {
+    set: { storeId, productId, quantity, reason, description, referenceType, referenceId },
+  } = body.details;
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  return await addStockUtil(
+    storeId as string,
+    productId as string,
+    quantity as number,
+    (reason as string) || "goods_receipt",
+    user._id.toString(),
+    {
+      ...(description && { description: description as string }),
+      ...(referenceType && { referenceType: referenceType as string }),
+      ...(referenceId && { referenceId: referenceId as string }),
+    },
+  );
+};
+```
+
+All the real logic — the `findOne` on the existing inventory, the `$inc` or the fresh `insertOne`, and the `stockMovement` write — lives in the helper. That helper is documented on its own page: [inventoryManager](/docs/tutorials/procurement-workflow/inventory/inventory-manager). The `get` projection is validated but mostly unused here because the helper returns a plain summary object, not a stored document.
+
+## How it's registered (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { addStockFn } from "./addStock.fn.ts";
+import { addStockValidator } from "./addStock.val.ts";
+
+export const addStockSetup = () =>
+  coreApp.acts.setAct({
+    schema: "inventory",
+    actName: "addStock",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "StoreHead"] }])],
+    validator: addStockValidator(),
+    fn: addStockFn,
+  });
+```
+
+Three preAct hooks run before the validator: `setTokens` reads the `token` header and verifies the JWT, `setUser` loads the real user doc into the context, and `grantAccess` restricts the act to users whose active role is `Manager`, `Admin`, or `StoreHead`.
+
+## In the workflow
+
+`addStock` is where the *inventory* half of the system starts. On the procurement side it is the natural counterpart to finalizing a purchase order or receiving a tender award; on the inventory side it is the mirror image of [removeStock](/docs/tutorials/procurement-workflow/inventory/remove-stock). Each call writes one [stockMovement](/docs/tutorials/procurement-workflow/models/stockMovement) record and updates one [inventory](/docs/tutorials/procurement-workflow/models/inventory) document, keeping the ledger consistent with `balanceBefore` / `balanceAfter`. Reads: [getStockLevel](/docs/tutorials/procurement-workflow/inventory/get-stock-level), [getInventories](/docs/tutorials/procurement-workflow/inventory/get-inventories), [getStockMovements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements). See the [overview](/docs/tutorials/procurement-workflow/overview) for where inventory sits in the whole system.
+
+## Run it
+
+Log in first (e.g. the ghost admin `ghost@medsupply.io` / `GhostPass123!`) to get a `token`, then:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "service": "main",
+    "model": "inventory",
+    "act": "addStock",
+    "details": {
+      "set": {
+        "activeRoleId": "<role-id>",
+        "storeId": "<store-id>",
+        "productId": "<product-id>",
+        "quantity": 25,
+        "reason": "goods_receipt",
+        "description": "Initial stock"
+      },
+      "get": { "_id": 1, "quantity": 1 }
+    }
+  }'
+```
+
+The `body` of the response is whatever the helper returned, e.g. `{ success: true, productId, balanceBefore, balanceAfter }`.
+
+## Errors & fixes
+
+| Error | What it means | How to fix |
+|---|---|---|
+| `you should send your id with token key in req header` | `setTokens` found no `token` header | Add `-H "token: <your-jwt>"` to the request |
+| `Invalid or expired token` | JWT verification failed | Log in again and use the fresh token |
+| `Invalid or missing token data` | Token payload has no `_id` | Use a token produced by the app's `login` act |
+| `user not exist` | `setUser` couldn't find the user doc | The token references a deleted user — log in again |
+| `activeRoleId is required` | `grantAccess` needs the active role | Send `activeRoleId` in `details.set` (unless the user `isGhost`) |
+| `Active role not found` | The `activeRoleId` isn't among the user's roles | Pass one of the role ids on the user document |
+| `You cant do this` | The active role is not `Manager`, `Admin`, or `StoreHead` | Switch to an allowed role or use a ghost admin |
+| `Invalid ObjectId` / validator failure | `storeId` / `productId` isn't a valid 24-char hex string | Check the ids you're sending |

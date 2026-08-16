@@ -1,0 +1,112 @@
+---
+sidebar_position: 2
+---
+
+# getFile
+
+Fetches a **single file document** by its `_id`. Use it when you have a file id (from a user's avatar, a PO attachment, or a `getFiles` list) and want the full metadata — and optionally the `uploader` snapshot. Open to all authenticated roles.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getFileFn } from "./getFile.fn.ts";
+import { getFileValidator } from "./getFile.val.ts";
+
+export const getFileSetup = () =>
+  coreApp.acts.setAct({
+    schema: "file",
+    actName: "getFile",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getFileValidator(),
+    fn: getFileFn,
+  });
+```
+
+## The validator (`getFile.val.ts`)
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getFileValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("file", 2),
+  });
+};
+```
+
+- `set` is just `activeRoleId` + `_id`; `objectIdValidation` enforces a 24-hex-char ObjectId string.
+- `get` is `selectStruct("file", 2)` — **depth 2**, so you can project the `uploader` relation snapshot too, e.g. `uploader: { _id: 1, first_name: 1 }`.
+
+## The implementation (`getFile.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { file } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const getFileFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  const foundedFile = await file.findOne({
+    filters: { _id: new ObjectId(_id as string) },
+    projection: get,
+  });
+
+  !foundedFile && throwError("file not found");
+  return foundedFile;
+};
+```
+
+1. `_id` comes in as a string from JSON; `new ObjectId(_id)` converts it.
+2. `file.findOne` applies the client's `get` projection — only the requested fields (and nested relation fields) come back.
+3. A missing document is a hard error: `throwError("file not found")`. The response becomes `{ success: false, body: { message: "file not found" } }`.
+
+## In the workflow
+
+This is the detail view for a file picked from the [getFiles](/docs/tutorials/procurement-workflow/catalog/get-files) list. `uploader` gives you the person who uploaded it without a second request.
+
+- [file model](/docs/tutorials/procurement-workflow/models/file)
+- Sibling acts: [uploadFile](/docs/tutorials/procurement-workflow/catalog/upload-file), [getFiles](/docs/tutorials/procurement-workflow/catalog/get-files), [removeFile](/docs/tutorials/procurement-workflow/catalog/remove-file)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "file",
+    "act": "getFile",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<fileId>" },
+      "get": { "_id": 1, "name": 1, "mimeType": 1, "uploader": { "_id": 1, "first_name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `file not found` | No file has that `_id`. | Check the id — get it from an `uploadFile`/`getFiles` response. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId` from the user's `roles`. |
+| `You cant do this` | Active role not in the allowed list. | Use an allowed role or the ghost. |
+| `Invalid or expired token` / `you should send your id with token key in req header` | Auth header problem. | Send `token: <jwt>`; re-login if expired. |
+| superstruct "expected ObjectId-like string" | `_id` isn't a valid ObjectId. | Send the 24-hex id string. |

@@ -1,0 +1,96 @@
+---
+sidebar_position: 9
+---
+
+# count (purchaseOrder)
+
+`count` returns the number of purchase orders matching a filter — a cheap badge counter for dashboards ("37 Pending", "5 Awaiting approval"). Unlike `gets` it returns no documents, just `{ count }`, so it's ideal for status chips and header stats. Every authenticated role can call it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`count.val.ts`)
+
+Filters by `status`, `organizationId`, or `requestingUnitId` — all optional. Note the `get` is `object({})`: this act ignores the projection entirely.
+
+```ts
+import { object, optional, string } from "lesan";
+import { activeRoleMixin } from "@lib";
+import { purchaseOrder_status_emums } from "@model";
+
+export const countValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      status: optional(purchaseOrder_status_emums),
+      organizationId: optional(string()),
+      requestingUnitId: optional(string()),
+    }),
+    get: object({}),
+  });
+};
+```
+
+## The implementation (`count.fn.ts`)
+
+Builds the same dotted-path filters as `gets` (without `search`), then runs a single aggregation: `$match` (only if there are filters) → `$count: "count"`. `.toArray()` yields at most one document; `count?.count || 0` guards the empty case.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { purchaseOrder } from "../../../mod.ts";
+
+export const countFn: ActFn = async (body) => {
+  const {
+    set: { status, organizationId, requestingUnitId },
+  } = body.details;
+
+  const filters: Document = {};
+  status && (filters.status = status as string);
+  organizationId && (filters["organization._id"] = new ObjectId(organizationId as string));
+  requestingUnitId && (filters["requestingUnit._id"] = new ObjectId(requestingUnitId as string));
+
+  const [count] = await purchaseOrder
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $count: "count" },
+      ] as Document[],
+    })
+    .toArray();
+
+  return { count: count?.count || 0 };
+};
+```
+
+## In the workflow
+
+`count` complements [gets](/docs/tutorials/procurement-workflow/workflow/po-gets) — same filters, no payload. A dashboard could call `count` for each status (`Draft`, `Pending`, `InProgress`, `Approved`) to render the pipeline, then call `gets` with `page`/`limit` when the user opens one tab.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [po-gets](/docs/tutorials/procurement-workflow/workflow/po-gets).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "count",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "status": "Draft"
+      },
+      "get": {}
+    }
+  }'
+```
+
+Expect `{ "body": { "count": 1 }, "success": true }`.
+
+## Errors & fixes
+
+The fn throws nothing of its own. A valid `count` of zero is still success (`{ count: 0 }`). Shared auth-chain errors apply; all roles are allowed.

@@ -1,0 +1,127 @@
+---
+sidebar_position: 1
+---
+
+# Add Budget Line
+
+`addBudgetLine` creates a **budgetLine** — an annual budget allocation that purchase orders draw against. It's the starting point of the Finance chapter: before a purchase order can reserve funds, its budget line has to exist. You need it whenever you allocate money (a `code`, `title`, `year`, and `totalAllocated`) for a department or the whole organization to spend.
+
+:::note
+**Imports**
+Throughout this tutorial the framework imports use the `"lesan"` alias, matching the app's `deno.json`. In your own project import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## The validator (`addBudgetLine.val.ts`)
+
+The `set` object demands three required fields — `code`, `title`, `year` — plus the `activeRoleId` from `activeRoleMixin` (every act in this app requires it). Everything else is optional: `totalAllocated` (the amount of money, defaults to `0` in the model), `startDate`/`endDate` as ISO strings, and `organization` as an ObjectId. The `get` projection is `selectStruct("budgetLine", 1)` — one level deep, so you can ask for the embedded `organization` snapshot too.
+
+```ts
+import { number, object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const addBudgetLineValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      code: string(),
+      title: string(),
+      year: number(),
+      totalAllocated: optional(number()),
+      startDate: optional(string()),
+      endDate: optional(string()),
+      organization: optional(objectIdValidation),
+    }),
+    get: selectStruct("budgetLine", 1),
+  });
+};
+```
+
+## The implementation (`addBudgetLine.fn.ts`)
+
+The function unwraps `set` and `get` from `body.details`, then uses `stripActiveRole` to drop the `activeRoleId` the validator required — it's request plumbing, not a field you want stored.
+
+If an `organization` was sent, it becomes a relation: Lesan resolves the ObjectId and stores the organization's `Pure` snapshot *inside* the budget line, and pushes the new budget line into the organization's inverse `budgetLines` back-reference (`relatedRelations: { budgetLines: true }`).
+
+Then `insertOne` runs. The three money fields are **initialized here, not taken from the client**: `totalEncumbered: 0`, `totalSpent: 0`, and — the important one — `remainingBudget` starts equal to `totalAllocated` (falling back to `0` if it was omitted). From now on the purchase-order workflow will `$inc` these fields directly, so the ledger stays consistent no matter what order POs are submitted in.
+
+```ts
+import { type ActFn, type TInsertRelations, ObjectId } from "lesan";
+import { budgetLine } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+import type { budgetLine_relations } from "@model";
+
+export const addBudgetLineFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { organization, ...rest } = stripActiveRole(set);
+
+  const relations: TInsertRelations<typeof budgetLine_relations> = {};
+
+  organization &&
+    (relations.organization = {
+      _ids: new ObjectId(organization as string),
+      relatedRelations: { budgetLines: true },
+    });
+
+  return await budgetLine.insertOne({
+    doc: {
+      ...rest,
+      totalEncumbered: 0,
+      totalSpent: 0,
+      remainingBudget: (rest as any).totalAllocated || 0,
+    },
+    relations,
+    projection: get,
+  });
+};
+```
+
+## In the workflow
+
+`addBudgetLine` is the first act of the [Finance chapter](/docs/tutorials/procurement-workflow/overview). Once a budget line exists, a [purchaseOrder](/docs/tutorials/procurement-workflow/models/tender) can point at it and the encumbrance cycle begins:
+
+- **Submit** reserves funds — the PO's [submit](/docs/tutorials/procurement-workflow/workflow/po-submit) act `$inc`s `totalEncumbered` up and `remainingBudget` down by `estimatedAmount`.
+- **Finalize** converts the reservation into spend — `totalEncumbered` down, `totalSpent` up.
+- **Cancel** releases it — `totalEncumbered` down, `remainingBudget` back up.
+
+See the [budgetLine model](/docs/tutorials/procurement-workflow/models/budgetLine) for the full field list and the `organization → budgetLines` back-reference. Sibling pages: [getBudgetLines](/docs/tutorials/procurement-workflow/finance/get-budget-lines) and [getBudgetLineBreakdown](/docs/tutorials/procurement-workflow/finance/get-budget-line-breakdown).
+
+## Run it
+
+With the server on `http://localhost:1380` and a valid `token` (obtained from the `login` act in the [Auth & Users](/docs/tutorials/procurement-workflow/overview) chapter):
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "model": "budgetLine",
+    "act": "addBudgetLine",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "code": "BL-2024-01",
+        "title": "Laboratory Consumables",
+        "year": 2024,
+        "totalAllocated": 100000000,
+        "organization": "<organization-id>"
+      },
+      "get": {
+        "_id": 1,
+        "code": 1,
+        "totalAllocated": 1,
+        "remainingBudget": 1
+      }
+    }
+  }'
+```
+
+A successful response has `"success": true` and — because `remainingBudget` is seeded from `totalAllocated` — the body shows `"remainingBudget": 100000000`. The returned `_id` is what you'll pass as `budgetLine` when [adding a purchase order](/docs/tutorials/procurement-workflow/workflow/po-add).
+
+## Errors & fixes
+
+`addBudgetLine` throws no custom errors of its own — every `budgetLine` value is a fresh, valid document. The only failures come from the superstruct validator:
+
+- **Missing `code`, `title`, or `year`** — they're required. The request returns `{ success: false }` and you'll see the failed path, e.g. `At path: set.code`. Add the missing field.
+- **`year` is a number** — passing `"2024"` as a string is rejected. Send `2024`.
+- **`organization` must be a valid ObjectId** — `objectIdValidation` rejects arbitrary strings. Pass the real `_id` string from the `organization` collection.

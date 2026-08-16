@@ -1,0 +1,499 @@
+---
+sidebar_position: 10
+---
+
+# Dashboard Statistic
+
+`dashboardStatistic` is the act that powers the admin dashboard. It runs **several independent MongoDB aggregations in parallel** across `purchaseOrder`, `stepApproval`, `budgetLine`, `inventory`, and `stockMovement`, and returns only the slices the client asked for in `get`. It belongs to the `user` model (it's about *the logged-in user's* view of the system) and is the best example in the app of **client-driven aggregation selection** plus **role-scoped data visibility**.
+
+The act lives in `src/user/dashboardStatistic/`.
+
+## The validator (`dashboardStatistic.val.ts`)
+
+`set` spreads `activeRoleMixin` (the `activeRoleId`) and accepts optional `unitId` / `orgId` overrides. The interesting part is `get`: instead of a projection of user fields, it's a plain object of ten **optional numeric flags** — each `1` says "compute this statistic". There is no `selectStruct` here because the response shape is not a user document.
+
+```ts
+import { number, object, optional, string } from "lesan";
+import { activeRoleMixin } from "@lib";
+
+export const dashboardStatisticValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      unitId: optional(string()),
+      orgId: optional(string()),
+    }),
+    get: object({
+      purchasingOrderCounts: optional(number()),
+      pendingApprovalCount: optional(number()),
+      recentApprovals: optional(number()),
+      finance: optional(number()),
+      prStatusDistribution: optional(number()),
+      inventorySummary: optional(number()),
+      inventoryLowStock: optional(number()),
+      budgetBurnDown: optional(number()),
+      prMonthlyTrend: optional(number()),
+      stockMovementSummary: optional(number()),
+    }),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `@lib` / `../../../mod.ts` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+The preAct is just `[setTokens, setUser]` — **no `grantAccess`**. Role-based scoping happens *inside* the fn itself: the act reads the caller's active role and scope and limits each aggregation accordingly. So authorization here is data-driven, not a simple allow-list.
+
+```ts
+import { setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { dashboardStatisticFn } from "./dashboardStatistic.fn.ts";
+import { dashboardStatisticValidator } from "./dashboardStatistic.val.ts";
+
+export const dashboardStatisticSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    actName: "dashboardStatistic",
+    preAct: [setTokens, setUser],
+    validator: dashboardStatisticValidator(),
+    fn: dashboardStatisticFn,
+  });
+```
+
+## The implementation (`dashboardStatistic.fn.ts`)
+
+The fn has a clear three-phase structure. Let's go through it.
+
+**Phase 1 — resolve the active role and effective scope.** It reads the context user (`coreApp.contextFns.getContextModel()`), finds the role matching `activeRoleId`, and throws `"Active role not found"` if there is none. Then it computes `effectiveUnitId` / `effectiveOrgId` based on the role:
+
+- `OrgHead` / `Manager` → scope to an **organization** (from their role's `scopeId` if it's `scopeType: "organization"`, otherwise from the `orgId` param).
+- `UnitHead` → scope to a **unit** (from their role's scope).
+- anything else (e.g. `Employee` / `Ordinary`) → use the `unitId` / `orgId` request params as-is.
+
+```ts
+import type { ActFn, Document } from "lesan";
+import { ObjectId } from "lesan";
+import {
+  budgetLine,
+  coreApp,
+  inventory,
+  purchaseOrder,
+  stepApproval,
+  stockMovement,
+} from "../../../mod.ts";
+import type { MyContext } from "@lib";
+import { throwError } from "@lib";
+
+export const dashboardStatisticFn: ActFn = async (body) => {
+  const {
+    set: { activeRoleId, unitId: paramUnitId, orgId: paramOrgId },
+    get,
+  } = body.details;
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  const activeRole = (user.roles || []).find(
+    (r: { roleId: string }) => r.roleId === activeRoleId,
+  ) as { name: string; scopeType?: string; scopeId?: string } | undefined;
+
+  if (!activeRole) {
+    throwError("Active role not found");
+    return;
+  }
+
+  let effectiveUnitId: ObjectId | null = null;
+  let effectiveOrgId: ObjectId | null = null;
+
+  if (activeRole.name === "OrgHead" || activeRole.name === "Manager") {
+    if (activeRole.scopeType === "organization" && activeRole.scopeId) {
+      effectiveOrgId = new ObjectId(activeRole.scopeId);
+    } else if (paramOrgId) {
+      effectiveOrgId = new ObjectId(paramOrgId as string);
+    }
+  } else if (activeRole.name === "UnitHead") {
+    if (activeRole.scopeType === "unit" && activeRole.scopeId) {
+      effectiveUnitId = new ObjectId(activeRole.scopeId);
+    }
+  } else {
+    if (paramUnitId) effectiveUnitId = new ObjectId(paramUnitId as string);
+    if (paramOrgId) effectiveOrgId = new ObjectId(paramOrgId as string);
+  }
+
+  const result: Record<string, unknown> = {};
+  const tasks: Promise<void>[] = [];
+```
+
+**Phase 2 — fan out one aggregation per requested flag.** Each `if (get.<flag> === 1)` pushes a promise onto `tasks`. All promises write into the shared `result` object. The scope filters are injected via `$match` on embedded relation snapshots (`"requestingUnit._id"`, `"organization._id"`, `"unit._id"` — the dotted paths into the relation-embedded pure snapshots). A few highlights:
+
+- `purchasingOrderCounts` — `$group` with `$cond` counting each `purchaseOrder.status` bucket (Draft, Pending, InProgress, Approved, Rejected, Completed, Cancelled) plus a `total`.
+- `prStatusDistribution` — groups by `$status` and normalizes to a fixed lowercase map, zero-filling statuses with no rows.
+- `pendingApprovalCount` / `recentApprovals` — one `$facet` on `stepApproval`: a count of `status: "pending"` and the five most recent pending approvals.
+- `finance` and `budgetBurnDown` — `$group` summing `totalAllocated`, `totalEncumbered`, `totalSpent`, and `remainingBudget` over `budgetLine`.
+- `inventorySummary` — a `$facet` with a total `$group` and a `byProduct` breakdown (top 5 products by quantity).
+- `inventoryLowStock` — `$count` of rows where `quantity < minQuantity` (`$expr`).
+- `prMonthlyTrend` — `$group` by `year`/`month` of `requestedAt` over the last 12 months.
+- `stockMovementSummary` — groups by `reason`, then in JS splits the signed totals into `totalIn` / `totalOut`.
+
+```ts
+  const prMatch: Document = {};
+  if (effectiveUnitId) prMatch["requestingUnit._id"] = effectiveUnitId;
+  else if (effectiveOrgId) prMatch["organization._id"] = effectiveOrgId;
+
+  if (get.purchasingOrderCounts === 1) {
+    tasks.push(
+      purchaseOrder.aggregation({
+        pipeline: [
+          ...(Object.keys(prMatch).length > 0 ? [{ $match: prMatch }] : []),
+          {
+            $group: {
+              _id: null,
+              draft: { $sum: { $cond: [{ $eq: ["$status", "Draft"] }, 1, 0] } },
+              pending: { $sum: { $cond: [{ $eq: ["$status", "Pending"] }, 1, 0] } },
+              inProgress: { $sum: { $cond: [{ $eq: ["$status", "InProgress"] }, 1, 0] } },
+              approved: { $sum: { $cond: [{ $eq: ["$status", "Approved"] }, 1, 0] } },
+              rejected: { $sum: { $cond: [{ $eq: ["$status", "Rejected"] }, 1, 0] } },
+              completed: { $sum: { $cond: [{ $eq: ["$status", "Completed"] }, 1, 0] } },
+              cancelled: { $sum: { $cond: [{ $eq: ["$status", "Cancelled"] }, 1, 0] } },
+              total: { $sum: 1 },
+            },
+          },
+        ],
+      }).toArray().then((arr) => {
+        const c = arr[0];
+        result.purchasingOrderCounts = c
+          ? {
+            draft: c.draft,
+            pending: c.pending,
+            inProgress: c.inProgress,
+            approved: c.approved,
+            rejected: c.rejected,
+            completed: c.completed,
+            cancelled: c.cancelled,
+            total: c.total,
+          }
+          : { draft: 0, pending: 0, inProgress: 0, approved: 0, rejected: 0, completed: 0, cancelled: 0, total: 0 };
+      }),
+    );
+  }
+
+  if (get.prStatusDistribution === 1) {
+    const statuses = [
+      "Draft",
+      "Pending",
+      "InProgress",
+      "Approved",
+      "Rejected",
+      "Completed",
+      "Cancelled",
+    ];
+    tasks.push(
+      purchaseOrder.aggregation({
+        pipeline: [
+          ...(Object.keys(prMatch).length > 0 ? [{ $match: prMatch }] : []),
+          { $group: { _id: "$status", count: { $sum: 1 } } },
+        ],
+      }).toArray().then((arr) => {
+        const groups: Record<string, number> = {};
+        for (const g of arr) groups[g._id as string] = g.count;
+        result.prStatusDistribution = Object.fromEntries(
+          statuses.map((s) => [s.toLowerCase(), groups[s] || 0]),
+        );
+      }),
+    );
+  }
+
+  if (get.pendingApprovalCount === 1 || get.recentApprovals === 1) {
+    const saMatch: Document = {};
+    if (effectiveUnitId) saMatch["unit._id"] = effectiveUnitId;
+
+    const saFacet: Record<string, unknown[]> = {};
+    if (get.pendingApprovalCount === 1) {
+      saFacet.pendingApprovalCount = [
+        { $match: { status: "pending" } },
+        { $count: "count" },
+      ];
+    }
+    if (get.recentApprovals === 1) {
+      saFacet.recentApprovals = [
+        { $match: { status: "pending" } },
+        { $sort: { createdAt: -1 } },
+        { $limit: 5 },
+      ];
+    }
+
+    tasks.push(
+      stepApproval.aggregation({
+        pipeline: [
+          ...(Object.keys(saMatch).length > 0 ? [{ $match: saMatch }] : []),
+          { $facet: saFacet },
+        ],
+      }).toArray().then((arr) => {
+        const facet = arr[0] || {};
+        result.pendingApprovalCount = facet.pendingApprovalCount?.[0]?.count || 0;
+        result.recentApprovals = facet.recentApprovals || [];
+      }),
+    );
+  }
+
+  if (get.finance === 1) {
+    const blMatch: Document = {};
+    if (effectiveOrgId) blMatch["organization._id"] = effectiveOrgId;
+    if (effectiveUnitId) blMatch["unit._id"] = effectiveUnitId;
+
+    tasks.push(
+      budgetLine.aggregation({
+        pipeline: [
+          ...(Object.keys(blMatch).length > 0 ? [{ $match: blMatch }] : []),
+          {
+            $group: {
+              _id: null,
+              totalAllocated: { $sum: "$totalAllocated" },
+              totalEncumbered: { $sum: "$totalEncumbered" },
+              totalSpent: { $sum: "$totalSpent" },
+              totalRemaining: { $sum: "$remainingBudget" },
+            },
+          },
+        ],
+      }).toArray().then((arr) => {
+        result.finance = arr[0]
+          ? {
+            totalAllocated: arr[0].totalAllocated,
+            totalEncumbered: arr[0].totalEncumbered,
+            totalSpent: arr[0].totalSpent,
+            totalRemaining: arr[0].totalRemaining,
+          }
+          : { totalAllocated: 0, totalEncumbered: 0, totalSpent: 0, totalRemaining: 0 };
+      }),
+    );
+  }
+
+  if (get.inventorySummary === 1) {
+    tasks.push(
+      inventory.aggregation({
+        pipeline: [
+          {
+            $facet: {
+              total: [
+                {
+                  $group: {
+                    _id: null,
+                    totalItems: { $sum: 1 },
+                    totalQuantity: { $sum: "$quantity" },
+                  },
+                },
+              ],
+              byProduct: [
+                { $match: { "product._id": { $exists: true, $ne: null } } },
+                {
+                  $group: {
+                    _id: "$product._id",
+                    name: { $first: "$product.name" },
+                    count: { $sum: 1 },
+                    totalQuantity: { $sum: "$quantity" },
+                  },
+                },
+                { $sort: { totalQuantity: -1 } },
+                { $limit: 5 },
+              ],
+            },
+          },
+        ],
+      }).toArray().then((arr) => {
+        const facet = arr[0] || {};
+        const total = facet.total?.[0];
+        result.inventorySummary = {
+          totalItems: total?.totalItems || 0,
+          totalQuantity: total?.totalQuantity || 0,
+          byProduct: facet.byProduct || [],
+        };
+      }),
+    );
+  }
+
+  if (get.inventoryLowStock === 1) {
+    tasks.push(
+      inventory.aggregation({
+        pipeline: [
+          { $match: { minQuantity: { $exists: true, $ne: null } } },
+          { $match: { $expr: { $lt: ["$quantity", "$minQuantity"] } } },
+          { $count: "count" },
+        ],
+      }).toArray().then((arr) => {
+        result.inventoryLowStock = arr[0]?.count || 0;
+      }),
+    );
+  }
+
+  if (get.budgetBurnDown === 1) {
+    const blMatch: Document = {};
+    if (effectiveOrgId) blMatch["organization._id"] = effectiveOrgId;
+
+    tasks.push(
+      budgetLine.aggregation({
+        pipeline: [
+          ...(Object.keys(blMatch).length > 0 ? [{ $match: blMatch }] : []),
+          {
+            $group: {
+              _id: null,
+              totalAllocated: { $sum: "$totalAllocated" },
+              totalEncumbered: { $sum: "$totalEncumbered" },
+              totalSpent: { $sum: "$totalSpent" },
+              totalRemaining: { $sum: "$remainingBudget" },
+            },
+          },
+        ],
+      }).toArray().then((arr) => {
+        result.budgetBurnDown = arr[0]
+          ? {
+            totalAllocated: arr[0].totalAllocated,
+            totalEncumbered: arr[0].totalEncumbered,
+            totalSpent: arr[0].totalSpent,
+            totalRemaining: arr[0].totalRemaining,
+          }
+          : { totalAllocated: 0, totalEncumbered: 0, totalSpent: 0, totalRemaining: 0 };
+      }),
+    );
+  }
+
+  if (get.prMonthlyTrend === 1) {
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+    tasks.push(
+      purchaseOrder.aggregation({
+        pipeline: [
+          { $match: { requestedAt: { $gte: twelveMonthsAgo }, ...prMatch } },
+          {
+            $group: {
+              _id: {
+                year: { $year: "$requestedAt" },
+                month: { $month: "$requestedAt" },
+              },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { "_id.year": 1, "_id.month": 1 } },
+          {
+            $project: {
+              _id: 0,
+              year: "$_id.year",
+              month: "$_id.month",
+              count: 1,
+            },
+          },
+        ],
+      }).toArray().then((arr) => {
+        result.prMonthlyTrend = arr || [];
+      }),
+    );
+  }
+
+  if (get.stockMovementSummary === 1) {
+    tasks.push(
+      stockMovement.aggregation({
+        pipeline: [
+          {
+            $group: {
+              _id: "$reason",
+              totalQuantity: { $sum: "$quantity" },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ],
+      }).toArray().then((arr) => {
+        const byReason = arr || [];
+        const totalIn = byReason
+          .filter((r) => (r.totalQuantity as number) > 0)
+          .reduce((sum, r) => sum + (r.totalQuantity as number), 0);
+        const totalOut = byReason
+          .filter((r) => (r.totalQuantity as number) < 0)
+          .reduce((sum, r) => sum + Math.abs(r.totalQuantity as number), 0);
+        result.stockMovementSummary = { totalIn, totalOut, byReason };
+      }),
+    );
+  }
+
+  await Promise.all(tasks);
+  return result;
+};
+```
+
+**Phase 3 — wait for everything, return.** `await Promise.all(tasks)` runs all requested aggregations concurrently (they're independent), then the fn returns `result` with exactly the keys the client's `get` requested.
+
+Two notes:
+
+- Because there's no `grantAccess`, a ghost or a user with any role can call this — but the *data* they get is scoped by `activeRole.name`. The request `unitId` / `orgId` params are ignored for scoped roles (an `OrgHead` can't peek into another organization by passing a foreign `orgId`).
+- Since the ghost superuser has a `Manager` role, driving it with the ghost's `roleId` yields the organization-wide view (no scope → no `$match` → whole-collection stats), which is exactly what the e2e test relies on.
+
+## In the workflow
+
+`dashboardStatistic` is the landing page data source. The e2e test (`http/e2e.hurl`) drives it with the ghost's `roleId` and asserts on `purchasingOrderCounts`.
+
+- [Login](/docs/tutorials/procurement-workflow/auth/login) — the `roleId` you pass as `activeRoleId` comes from the login response's `roles[0].roleId`.
+- [getUsers](/docs/tutorials/procurement-workflow/auth/getUsers) — an admin-management list act with the same `activeRoleId` pattern.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `MyContext` and how `context.user.roles` is populated.
+- [User model](/docs/tutorials/procurement-workflow/models/user) — the `roles` field with `scopeType` / `scopeId`.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+Needs `token` and `activeRoleId` (use the `roleId` from the login response). Ask for only the slices you need — here, order counts, pending approvals, and low-stock:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "user",
+    "act": "dashboardStatistic",
+    "details": {
+      "set": {
+        "activeRoleId": "<roleId>"
+      },
+      "get": {
+        "purchasingOrderCounts": 1,
+        "pendingApprovalCount": 1,
+        "inventoryLowStock": 1
+      }
+    }
+  }'
+```
+
+Response shape:
+
+```json
+{
+  "body": {
+    "purchasingOrderCounts": {
+      "draft": 0,
+      "pending": 0,
+      "inProgress": 0,
+      "approved": 0,
+      "rejected": 0,
+      "completed": 2,
+      "cancelled": 0,
+      "total": 2
+    },
+    "pendingApprovalCount": 0,
+    "inventoryLowStock": 0
+  },
+  "success": true
+}
+```
+
+## Errors & fixes
+
+| Message | Source | What it means | How to fix |
+|---------|--------|---------------|------------|
+| `you should send your id with token key in req header` | `setTokens` | Missing `token` header. | Add `-H "token: <jwt>"`. |
+| `Invalid or expired token` | `setTokens` | JWT didn't verify. | Re-login. |
+| `Invalid or missing token data` | `setUser` | Token payload had no `_id`. | Re-login. |
+| `user not exist` | `setUser` | The token's user was deleted. | Use a different account. |
+| `Active role not found` | `dashboardStatisticFn` | The `activeRoleId` doesn't match any role in `context.user.roles`. | Use a `roleId` from the login response's `roles` array. |
+| Generic validation error | superstruct | `get` used a flag outside the ten declared names, or `activeRoleId` was omitted. | `activeRoleId` is required; `get` accepts only the ten documented flags. |
+| Unrelated-field projection error (framework error) | MongoDB | `effectiveUnitId` / `effectiveOrgId` referenced a field that doesn't exist on the documents (e.g. `requestingUnit._id` before any PO has one). | The aggregations default empty results (`0` / `[]`) rather than failing — this only surfaces if the source model lacks the expected embedded snapshot field. |

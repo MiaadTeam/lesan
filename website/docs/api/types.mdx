@@ -1,0 +1,692 @@
+---
+sidebar_position: 5
+---
+
+# Type System
+
+Lesan provides end-to-end type safety through automatic TypeScript type generation. Your schemas, actions, and API client are all fully typed based on your actual code.
+
+## Type Generation
+
+When you enable `typeGeneration: true` in your server configuration, Lesan automatically generates TypeScript declaration files based on your schemas and actions.
+
+```typescript
+await coreApp.runServer({
+  port: 8000,
+  typeGeneration: true,  // Auto-generate types on startup
+});
+```
+
+This creates a `declarations/selectInp.ts` file containing:
+
+- Schema input types (for projections)
+- Schema types (full document shapes)
+- Request types (for all actions)
+- A type-safe API client (`lesanApi`)
+
+## Generated Types
+
+### Schema Input Types
+
+For each schema, Lesan generates an input type that represents valid projection shapes:
+
+```typescript
+export type cityInp = {
+  province?: number | provinceInp
+  users?: number | userInp
+}
+```
+
+These types are used by the `selectStruct` validator to ensure client projections are type-safe at runtime.
+
+### Schema Types
+
+Full TypeScript types representing your document structure:
+
+```typescript
+export type citySchema = {
+  _id?: string
+  name?: string
+  population?: number
+  province?: {
+    _id?: string
+    name?: string
+    population?: number
+    country?: {
+      _id?: string
+      name?: string
+      population?: number
+    }
+  }
+}
+```
+
+### Request Types
+
+A comprehensive `ReqType` that maps every service, model, and action to its validator shape:
+
+```typescript
+export type ReqType = {
+  main: {
+    city: {
+      addCity: {
+        set: {
+          name?: string
+          population?: number
+          provinceId?: string
+        }
+        get: Record<string, any>
+      }
+      getCities: {
+        set: Record<string, any>
+        get: Record<string, any>
+      }
+    }
+    province: {
+      // ...
+    }
+  }
+}
+```
+
+This allows compile-time verification that your API requests match the expected shape.
+
+---
+
+## Type-Safe API Client
+
+Lesan generates a fully type-safe HTTP client called `lesanApi`.
+
+### Creating the Client
+
+```typescript
+import { lesanApi } from "./declarations/selectInp.ts";
+
+const api = lesanApi({
+  URL: "http://localhost:8000/lesan",
+  baseHeaders: {
+    "X-API-Key": "your-api-key",
+  },
+});
+```
+
+### Making Type-Safe Requests
+
+```typescript
+const result = await api.send({
+  service: "main",
+  model: "city",
+  act: "addCity",
+  details: {
+    set: {
+      name: "Tehran",
+      population: 9000000,
+      provinceId: "507f1f77bcf86cd799439011",
+    },
+    get: {
+      name: 1,
+      population: 1,
+    },
+  },
+});
+```
+
+**TypeScript guarantees:**
+- `service` must be a valid service key
+- `model` must exist in that service
+- `act` must exist for that model
+- `details.set` must match the action's validator shape
+- `details.get` must be a valid projection
+
+### Custom Headers
+
+```typescript
+api.setHeaders({
+  "Authorization": "Bearer token123",
+});
+
+const config = api.getSetting();
+// Returns current configuration
+```
+
+### Additional Request Headers
+
+```typescript
+const result = await api.send(
+  {
+    model: "city",
+    act: "addCity",
+    details: { /* ... */ },
+  },
+  {
+    "X-Request-ID": "uuid-123",
+  }
+);
+```
+
+---
+
+## Superstruct Integration
+
+Lesan uses [Superstruct](https://docs.superstructjs.org/) for runtime validation and type inference.
+
+### Validation Functions
+
+All Superstruct validators are exported from `@hemedani/lesan`:
+
+```typescript
+import {
+  string, number, boolean, object, array, optional,
+  assert, create, is, Infer,
+} from "@hemedani/lesan";
+```
+
+### Inferring Types from Schemas
+
+Use Superstruct's `Infer` type to extract TypeScript types from validators:
+
+```typescript
+import { object, string, number, Infer } from "@hemedani/lesan";
+
+const UserStruct = object({
+  name: string(),
+  email: string(),
+  age: optional(number()),
+});
+
+type User = Infer<typeof UserStruct>;
+// Equivalent to: { name: string; email: string; age?: number }
+```
+
+### Creating Validators for Actions
+
+```typescript
+const addUserValidator = object({
+  set: object({
+    name: string(),
+    email: string(),
+    age: optional(number()),
+  }),
+  get: object(),  // Projection - any shape is valid
+});
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addUser",
+  validator: addUserValidator,
+  fn: addUserFn,
+});
+```
+
+### Runtime Validation Modes
+
+#### Assert Mode (Default)
+
+Throws on invalid input:
+
+```typescript
+// In your action handler, Lesan calls:
+assert(body.details, addUserValidator);
+```
+
+#### Create Mode
+
+Coerces and fills defaults:
+
+```typescript
+import { defaulted } from "@hemedani/lesan";
+
+const updateUserValidator = object({
+  set: object({
+    name: defaulted(string(), "Anonymous"),
+    isActive: defaulted(boolean(), true),
+  }),
+  get: object(),
+});
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "updateUser",
+  validator: updateUserValidator,
+  fn: updateUserFn,
+  validationRunType: "create",  // Use create mode
+});
+```
+
+---
+
+## Core Types Reference
+
+### `TLesanBody`
+
+The standard request body shape:
+
+```typescript
+interface TLesanBody {
+  service?: string;
+  model: string;
+  act: string;
+  details: {
+    set: Record<string, any>;
+    get: Record<string, any>;
+  };
+}
+```
+
+### `LesanContext`
+
+The request context container:
+
+```typescript
+interface LesanContext {
+  [key: string]: any;
+  Headers: Headers;
+  body: TLesanBody | null;
+}
+```
+
+### `ActFn`
+
+The action handler function type:
+
+```typescript
+type ActFn = (body: TLesanBody) => any;
+```
+
+### `Act`
+
+The action configuration type:
+
+```typescript
+interface Act {
+  validator: Struct<any>;
+  fn: ActFn;
+  preAct?: Function[];
+  preValidation?: Function[];
+  validationRunType?: "assert" | "create";
+}
+```
+
+### `ActInp`
+
+The input for registering an action:
+
+```typescript
+interface ActInp {
+  schema: string;
+  actName: string;
+  validator: Struct<any>;
+  fn: ActFn;
+  preAct?: Function[];
+  preValidation?: Function[];
+  validationRunType?: "assert" | "create";
+}
+```
+
+### `Services`
+
+The services registry type:
+
+```typescript
+interface Services {
+  main: Acts;
+  [key: string]: Acts | string | undefined;
+}
+```
+
+### `Acts`
+
+The actions collection type:
+
+```typescript
+interface Acts {
+  [schemaName: string]: {
+    [actName: string]: Act;
+  };
+}
+```
+
+---
+
+## Model Types
+
+### `IPureFields`
+
+Pure field definitions:
+
+```typescript
+interface IPureFields {
+  [key: string]: Struct<any>;
+}
+```
+
+### `TRelation`
+
+Relation definition:
+
+```typescript
+interface TRelation {
+  schemaName: string;
+  type: RelationDataType;
+  optional: boolean;
+  excludes?: string[];
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: "asc" | "desc";
+  };
+  relatedRelations: {
+    [key: string]: TRelatedRelation;
+  };
+}
+```
+
+### `IMainRelation`
+
+Main relation (stored on source document):
+
+```typescript
+interface IMainRelation {
+  schemaName: string;
+  type: RelationDataType;
+  optional: boolean;
+  excludes?: string[];
+  limit?: null | number;
+  sort?: {
+    field: string;
+    order: "asc" | "desc";
+  };
+}
+```
+
+### `IRelatedRelation`
+
+Related relation (auto-generated back-reference):
+
+```typescript
+interface IRelatedRelation {
+  schemaName: string;
+  mainRelationName: string;
+  mainRelationType: RelationDataType;
+  type: RelationDataType;
+  limit?: null | number;
+  excludes?: string[];
+  sort?: {
+    field: string;
+    order: "asc" | "desc";
+  };
+}
+```
+
+### `IRelationsFileds`
+
+Collection of relation definitions:
+
+```typescript
+interface IRelationsFileds {
+  [key: string]: TRelation;
+}
+```
+
+### `TInsertRelations`
+
+Type for inserting relations:
+
+```typescript
+type TInsertRelations<T extends IRelationsFileds> = {
+  [mainKey in keyof T]?: {
+    _ids: ObjectId | ObjectId[];
+    relatedRelations?: {
+      [key in keyof T[mainKey]["relatedRelations"]]: boolean;
+    };
+  };
+};
+```
+
+### `IModel`
+
+Complete model definition:
+
+```typescript
+interface IModel {
+  pure: IPureFields;
+  relations: Record<string, TRelation>;
+  mainRelations: Record<string, IMainRelation>;
+  relatedRelations: Record<string, IRelatedRelation>;
+  options?: { excludes?: (string | number)[] };
+}
+```
+
+---
+
+## ODM Types
+
+### `Projection`
+
+MongoDB projection type:
+
+```typescript
+type Projection = { [key: string]: number | Projection };
+```
+
+### `OptionType`
+
+Model options:
+
+```typescript
+type OptionType<PF extends IPureFields> = {
+  createIndex?: {
+    indexSpec: IndexSpecification;
+    options?: CreateIndexesOptions;
+  };
+  excludes?: Partial<(keyof PF)>[];
+};
+```
+
+### `IFindModelInputs`
+
+Find operation inputs:
+
+```typescript
+interface IFindModelInputs {
+  filters: Filter<Document>;
+  projection?: Projection;
+  options?: FindOptions;
+}
+```
+
+---
+
+## Aggregation Types
+
+### Pipeline Stage Types
+
+```typescript
+type PipelineStage =
+  | LookupObj      // $lookup
+  | UnwindObj      // $unwind
+  | ProjectionObj  // $project
+  | MatchObj       // $match
+  | AddFieldsObj   // $addFields
+  | SortObj        // $sort
+  | GroupObj       // $group
+  | LimitObj       // $limit
+  | SkipObj        // $skip;
+```
+
+### Lookup Configuration
+
+```typescript
+interface Lookup {
+  from: string;
+  localField?: string;
+  foreignField?: string;
+  as: string;
+  let?: { [key: string]: string };
+  pipeline?: ProjectionPip;
+}
+```
+
+---
+
+## Utility Types
+
+### `DeepPartial`
+
+Recursively makes all properties optional:
+
+```typescript
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+```
+
+Used by the `lesanApi` client for partial request bodies.
+
+### `RelationDataType`
+
+Relation cardinality:
+
+```typescript
+type RelationDataType = "single" | "multiple";
+```
+
+### `RelationSortOrderType`
+
+Sort direction:
+
+```typescript
+type RelationSortOrderType = "asc" | "desc";
+```
+
+### `RelationType`
+
+Relation category:
+
+```typescript
+type RelationType = "mainRelations" | "relatedRelations" | "relations";
+```
+
+---
+
+## MongoDB Re-exports
+
+Lesan re-exports commonly used MongoDB types for convenience:
+
+```typescript
+import {
+  ObjectId,
+  Document,
+  Filter,
+  FindOptions,
+  UpdateFilter,
+  InsertOneOptions,
+  DeleteOptions,
+  AggregateOptions,
+  // ... and many more
+} from "@hemedani/lesan";
+```
+
+See `npmDeps.ts` in the source for the complete list of re-exports.
+
+---
+
+## Type Best Practices
+
+### 1. Use `Infer` for Schema Types
+
+```typescript
+import { object, string, number, Infer } from "@hemedani/lesan";
+
+const CityStruct = object({ name: string(), population: number() });
+type City = Infer<typeof CityStruct>;
+```
+
+### 2. Export Relation Types
+
+```typescript
+export const cityRelations = {
+  province: {
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    // ...
+  },
+};
+
+export type city_relations = typeof cityRelations;
+```
+
+### 3. Use `TInsertRelations` for Type-Safe Inserts
+
+```typescript
+import { TInsertRelations } from "@hemedani/lesan";
+import type { city_relations } from "./models.ts";
+
+const relations: TInsertRelations<typeof city_relations> = {
+  province: {
+    _ids: new ObjectId(provinceId),
+    relatedRelations: { cities: true },
+  },
+};
+```
+
+### 4. Enable Type Generation in Development
+
+```typescript
+await coreApp.runServer({
+  port: 8000,
+  typeGeneration: process.env.NODE_ENV === "development",
+});
+```
+
+---
+
+## API Reference Table
+
+### Type Generation
+
+| Function | Description |
+|----------|-------------|
+| `generateSchemTypes(schemas, acts)` | Generate TypeScript declarations |
+| `lesanApi({ URL, settings, baseHeaders })` | Create type-safe API client |
+
+### Client Methods
+
+| Method | Description |
+|--------|-------------|
+| `api.send(body, additionalHeaders?)` | Type-safe API request |
+| `api.setHeaders(headers)` | Update default headers |
+| `api.getSetting()` | Get current config |
+
+### Core Types
+
+| Type | Description |
+|------|-------------|
+| `TLesanBody` | Standard request shape |
+| `LesanContext` | Request context |
+| `ActFn` | Action handler signature |
+| `Act` | Action configuration |
+| `ActInp` | Action registration input |
+| `Services` | Services registry |
+| `Acts` | Actions collection |
+
+### Model Types
+
+| Type | Description |
+|------|-------------|
+| `IPureFields` | Pure field definitions |
+| `TRelation` | Relation definition |
+| `IMainRelation` | Main relation shape |
+| `IRelatedRelation` | Related relation shape |
+| `IRelationsFileds` | Relation fields map |
+| `TInsertRelations` | Insert relation input |
+| `IModel` | Complete model |
+
+### Utility Types
+
+| Type | Description |
+|------|-------------|
+| `Projection` | MongoDB projection |
+| `DeepPartial` | Recursive partial |
+| `RelationDataType` | `single` or `multiple` |
+| `RelationSortOrderType` | `asc` or `desc` |

@@ -1,0 +1,128 @@
+---
+sidebar_position: 6
+---
+
+# getStockMovements
+
+`getStockMovements` lists the stock-movement ledger — every `addStock` / `removeStock` / `transferStock` write — optionally filtered by store, product, and reason, sorted by `createdAt` descending (newest first). It works on the `stockMovement` model. You need it to audit *why* inventory changed: who moved what, when, from what balance to what balance.
+
+## The validator (`getStockMovements.val.ts`)
+
+All three `set` filters are optional: `storeId`, `productId` (ObjectIds), and `reason` (a plain string, one of `goods_receipt`, `goods_issue`, `transfer_in`, `transfer_out`, `adjustment`). The `get` projection is `selectStruct("stockMovement", 2)` so the embedded `store`, `product`, and `createdBy` relations can be expanded.
+
+```ts
+import { object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getStockMovementsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      storeId: optional(objectIdValidation),
+      productId: optional(objectIdValidation),
+      reason: optional(string()),
+    }),
+    get: selectStruct("stockMovement", 2),
+  });
+};
+```
+
+:::note
+**About the imports**
+All framework imports in this repo use the `"lesan"` alias. In your own app, import the same names from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` points at the app's `utils/` folder.
+:::
+
+## The implementation (`getStockMovements.fn.ts`)
+
+Same aggregation pattern as `getInventories`, but against the `stockMovement` model with one extra filter. The `filters` object collects whatever was sent: `"store._id"`, `"product._id"` (both wrapped in `new ObjectId(...)`), and `reason` as a plain string. The `$match` stage appears only when at least one filter exists; the pipeline always ends with `$sort: { createdAt: -1 }` so the most recent movement is first. `get` supplies the projection and the rows come back as an array.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { stockMovement } from "../../../mod.ts";
+
+export const getStockMovementsFn: ActFn = async (body) => {
+  const {
+    set: { storeId, productId, reason },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  storeId && (filters["store._id"] = new ObjectId(storeId as string));
+  productId && (filters["product._id"] = new ObjectId(productId as string));
+  reason && (filters.reason = reason as string);
+
+  return await stockMovement
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { createdAt: -1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+Because every movement stores `balanceBefore` and `balanceAfter`, this list is a genuine audit trail: you can replay a product's stock history from these rows.
+
+## How it's registered (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getStockMovementsFn } from "./getStockMovements.fn.ts";
+import { getStockMovementsValidator } from "./getStockMovements.val.ts";
+
+export const getStockMovementsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "stockMovement",
+    actName: "getStockMovements",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "StoreHead", "UnitHead", "Employee"] }])],
+    validator: getStockMovementsValidator(),
+    fn: getStockMovementsFn,
+  });
+```
+
+Note the `schema` is `"stockMovement"`, not `"inventory"` — the ledger is its own model.
+
+## In the workflow
+
+`getStockMovements` is the read side of the ledger that the [inventoryManager](/docs/tutorials/procurement-workflow/inventory/inventory-manager) writes on every [addStock](/docs/tutorials/procurement-workflow/inventory/add-stock), [removeStock](/docs/tutorials/procurement-workflow/inventory/remove-stock), and [transferStock](/docs/tutorials/procurement-workflow/inventory/transfer-stock). It complements the current-state reads [getStockLevel](/docs/tutorials/procurement-workflow/inventory/get-stock-level) and [getInventories](/docs/tutorials/procurement-workflow/inventory/get-inventories). See the [overview](/docs/tutorials/procurement-workflow/overview) for the full data flow.
+
+## Run it
+
+```bash
+# Movements of one product in one store:
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "service": "main",
+    "model": "stockMovement",
+    "act": "getStockMovements",
+    "details": {
+      "set": {
+        "activeRoleId": "<role-id>",
+        "storeId": "<store-id>",
+        "productId": "<product-id>"
+      },
+      "get": { "_id": 1, "quantity": 1, "balanceBefore": 1, "balanceAfter": 1, "reason": 1, "createdAt": 1 }
+    }
+  }'
+```
+
+The `body` is an array of stockMovement documents shaped by your `get` projection.
+
+## Errors & fixes
+
+| Error | What it means | How to fix |
+|---|---|---|
+| `you should send your id with token key in req header` | `setTokens` found no `token` header | Add `-H "token: <your-jwt>"` to the request |
+| `Invalid or expired token` | JWT verification failed | Log in again and use the fresh token |
+| `Invalid or missing token data` | Token payload has no `_id` | Use a token produced by the app's `login` act |
+| `user not exist` | `setUser` couldn't find the user doc | The token references a deleted user — log in again |
+| `activeRoleId is required` | `grantAccess` needs the active role | Send `activeRoleId` in `details.set` (unless the user `isGhost`) |
+| `Active role not found` | The `activeRoleId` isn't among the user's roles | Pass one of the role ids on the user document |
+| `You cant do this` | The active role isn't in the allowed read roles | Switch to an allowed role or use a ghost admin |
+| `Invalid ObjectId` / validator failure | A provided `storeId` / `productId` isn't a valid 24-char hex string, or `reason` isn't a string | Check the ids / reason you're sending |

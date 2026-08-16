@@ -1,0 +1,182 @@
+---
+sidebar_position: 1
+---
+
+# Login
+
+`login` authenticates a user with their email and password and returns a fresh JWT token plus the matching user document. It is the first act of the Auth & Users chapter because **every protected act in the app requires a `token` header that only `login` can produce**. It belongs to the `user` model and is the only user act without a `preAct` chain — you don't need a token to get one.
+
+The act lives in `src/user/login/`. Note that the folder is named `login` but the implementation files are `loginUser.fn.ts` / `loginUser.val.ts` (the folder is the act, the files are named after the function they export).
+
+## The validator (`loginUser.val.ts`)
+
+The `set` holds exactly two fields: `email` (validated with `emailPattern` from `@model`) and `password` (`size(string(), 8, 100)` — between 8 and 100 characters). The `get` is optional and lets the client ask for either a `token` (a short string) or a projection of the `user` via `selectStruct("user", 1)` — depth 1 means pure fields only, no nested relations.
+
+```ts
+import { object, optional, size, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { emailPattern } from "@model";
+
+export const loginUserValidator = () => {
+  return object({
+    set: object({
+      email: emailPattern,
+      password: size(string(), 8, 100),
+    }),
+    get: optional(
+      object({
+        token: optional(size(string(), 1, 1000)),
+        user: selectStruct("user", 1),
+      }),
+    ),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `@model` / `@lib` / `../../../mod.ts` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+`login` is registered with **no `preAct`** — that's what makes it the entry point. `setTokens`, `setUser`, and `grantAccess` don't run here because there is no token yet to verify.
+
+```ts
+import { coreApp } from "../../../mod.ts";
+import { loginUserFn } from "./loginUser.fn.ts";
+import { loginUserValidator } from "./loginUser.val.ts";
+
+export const loginUserSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    actName: "login",
+    fn: loginUserFn,
+    validator: loginUserValidator(),
+  });
+```
+
+## The implementation (`loginUser.fn.ts`)
+
+The function destructures `password` and `email` out of `set`, and the whole `get` projection. Inside it defines a small `createTokenForUser` helper that builds a token with `_id`, `email`, and `roles`, plus an `exp` 90 days in the future (`60 * 60 * 24 * 90` seconds). The token is created by `createToken` from `@lib` (see [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils)).
+
+Because `password` is excluded from the model's default projections, the function **forces** `get.user.email`, `get.user.password`, and `get.user.roles` to `1` before the query so it can verify the password. It looks the user up with `user.findOne({ filters: { email }, projection: get.user })`, throws if no user matches, compares the submitted password against the stored hash with `comparePassword`, and — if it matches — deletes the password from the object so it never leaks into the response.
+
+```ts
+import { type ActFn } from "lesan";
+import { createToken } from "@lib";
+import { user } from "../../../mod.ts";
+import { comparePassword } from "@lib";
+import { throwError } from "@lib";
+
+export const loginUserFn: ActFn = async (body) => {
+  const {
+    set: { password, email },
+    get,
+  } = body.details;
+
+  const createTokenForUser = async (user: any) => {
+    const token = await createToken({
+      _id: user._id,
+      email: user.email,
+      roles: user.roles,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 90,
+    });
+    return { token, user };
+  };
+
+  get.user.email = 1;
+  get.user.password = 1;
+  get.user.roles = 1;
+
+  const foundedUser = await user.findOne({
+    filters: { email },
+    projection: get.user,
+  });
+
+  if (!foundedUser) {
+    throwError("This user does not exist at all!");
+  }
+
+  const passIsCorrect = await comparePassword(password, foundedUser!.password);
+
+  if (passIsCorrect) {
+    delete foundedUser!.password;
+    return await createTokenForUser(foundedUser);
+  } else {
+    throwError("Your password is incorrect!");
+  }
+};
+```
+
+Two things worth calling out:
+
+- `password` is hashed with **SHA-256** (see `hashPassword` in [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils)), and the seed script stores the SHA-256 hex of `GhostPass123!`. `comparePassword` re-hashes the submitted value and compares hex strings.
+- The app's bootstrap superuser has `isGhost: true`, which lets it **bypass** every role/feature check in `grantAccess` — but `login` itself doesn't care about roles, it only checks the password.
+
+## In the workflow
+
+`login` is the gate for the whole app. Call it first, keep the returned `token`, and send it as the `token` header on every other user act:
+
+- [User model](/docs/tutorials/procurement-workflow/models/user) — the `user` schema, `emailPattern`, `roles`, and the excluded `password` field.
+- [getMe](/docs/tutorials/procurement-workflow/auth/getMe) — the first act you call with the token.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `createToken`, `comparePassword`, `throwError`.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+The seed script (`deno task seed`) creates the ghost admin `ghost@medsupply.io` / `GhostPass123!`. `login` needs **no** `token` header:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "user",
+    "act": "login",
+    "details": {
+      "set": {
+        "email": "ghost@medsupply.io",
+        "password": "GhostPass123!"
+      },
+      "get": {
+        "token": "t",
+        "user": {
+          "_id": 1,
+          "first_name": 1,
+          "last_name": 1,
+          "email": 1,
+          "roles": 1
+        }
+      }
+    }
+  }'
+```
+
+A successful response looks like:
+
+```json
+{
+  "body": {
+    "token": "<your.jwt.token>",
+    "user": {
+      "_id": "...",
+      "first_name": "Ghost",
+      "last_name": "Admin",
+      "email": "ghost@medsupply.io",
+      "roles": [{ "roleId": "...", "name": "Manager" }]
+    }
+  },
+  "success": true
+}
+```
+
+Copy `body.token` into a `token: <jwt>` header for every other user act in this chapter.
+
+## Errors & fixes
+
+| Message | What it means | How to fix |
+|---------|---------------|------------|
+| `This user does not exist at all!` | No user matches the submitted `email` (case-sensitive exact match). | Double-check the email; create the user with [addUser](/docs/tutorials/procurement-workflow/auth/addUser) first, or use the seeded `ghost@medsupply.io`. |
+| `Your password is incorrect!` | The email exists but the password doesn't hash to the stored value. | Re-type the password. If you're re-seeding, remember the seed sets the password to `GhostPass123!`. |
+
+Before the fn ever runs, the superstruct validator rejects a `set` that fails `emailPattern` or has a `password` shorter than 8 characters — you'll get a generic validation error from the framework rather than one of the messages above.

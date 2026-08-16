@@ -1,0 +1,394 @@
+---
+sidebar_position: 1
+---
+
+# What Is the Relationship Really?
+
+Let's compare a bit — it may be funny, but let's do it.
+
+## What Are the Relationships Between People?
+
+- Right relationships are lasting and long-term.
+- Both parties accept responsibility for the relationship and its changes.
+- Changes on one side of the relationship also affect the other side.
+- The two sides of a relationship live together.
+- If the relationship leads to the birth of a child, both parties accept the relationship.
+- If one party dies — especially if it's a lover — the other party probably won't want to live either.
+
+## Relationships in SQL
+
+- There is no real relationship. The two sides have only one connection.
+- The two sides are not together; each lives independently.
+- Relationships are not deep.
+- Relationships don't give birth to any children. (In Lesan, you'll see that relationships encourage you to create new models.)
+- If we want to delete one side of the relationship, especially if the other side depends on it, we only receive an error message.
+- And the most important thing: it's not clear what kind of effects each relationship we create will have on the other side.
+
+## Relationships in NoSQL
+
+- There is no real relationship. In fact, there is no proper connection between the two sides.
+- If we consider embedding as a relationship:
+  - The changes of each party have no effect on the other side and cause many inconsistencies in the data.
+  - The two sides leave each other after the relationship. In fact, it's not clear what kind of effects each relationship we create will have on the other side.
+- In this type of database, they prevent the child from being born — and if a child is born, only one side is informed and probably won't take much responsibility for it.
+- There is no management in deleting information; it is easily deleted by either side of the relationship.
+
+## Relationships in Lesan
+
+- Relationships are as strong as possible and are described in detail when creating a model.
+- Relationships fully contain each other's pure properties within themselves.
+- If a relationship changes, all related parties are notified and apply the changes according to a process.
+- By establishing a relationship and seeing many changes on one side of it, you are encouraged to create new relationships. Don't worry — this will not add more complexity to the data model; it will make the data more understandable. (There is an example below.)
+- Having complete information about relationships, we can prevent the deletion of a document that other documents depend on with an error message, and we can recursively delete all dependent documents by setting a small option.
+- And the most important point: it is exactly clear what effects each relationship we create will have on the other side.
+
+## Example
+
+### SQL
+
+Let's go back to our example — countries, cities, and users. If we want to define the relationships between the country, city, and user models in SQL, it will look like this (the code below is written for PostgreSQL):
+
+```sql
+CREATE TABLE country (
+  id serial PRIMARY KEY,
+  name VARCHAR ( 50 ) UNIQUE NOT NULL,
+  abb VARCHAR ( 50 ) NOT NULL,
+  population INT NOT NULL,
+);
+
+CREATE TABLE city (
+  id serial PRIMARY KEY,
+  name VARCHAR ( 50 ) UNIQUE NOT NULL,
+  abb VARCHAR ( 50 ) NOT NULL,
+  population INT NOT NULL,
+  country_id INT NOT NULL,
+  FOREIGN KEY (country_id)
+    REFERENCES country (country_id),
+);
+
+CREATE TABLE user (
+  id serial PRIMARY KEY,
+  name VARCHAR ( 50 ) UNIQUE NOT NULL,
+  age INT NOT NULL,
+  country_id INT NOT NULL,
+  FOREIGN KEY (country_id)
+    REFERENCES country (country_id),
+  city_id INT NOT NULL,
+  FOREIGN KEY (city_id)
+    REFERENCES city_id (city_id),
+);
+```
+
+Pay attention: the relationships are separated from each other as much as possible, and only one ID is kept on one side. Whenever we need to know the details of a relationship, we have to visit both sides.
+
+For example, let's imagine we want the cities of Iran. We must first find Iran, then filter the cities using Iran's ID.
+
+Now imagine we want to find the country of Iran along with its 50 most populated cities. We have to find Iran first, then find the cities according to the country ID filter, along with a sort on the city population field and a limit of 50.
+
+Let's run a more complex query. Suppose we want to receive the 50 most populous cities from the 50 most populous countries in the world. Or we want to find the oldest people in the 50 most populous countries in the world. To get the above cities or users, we have to create and execute much more complex queries that may be time-consuming in some cases. Although there are alternative ways — such as creating separate tables in SQL for these specific purposes — these ways also add a lot of complexity to the project.
+
+### NoSQL
+
+What if we could do the above with just a simple query? NoSQL is designed for this. Let's see how these tables are implemented in NoSQL databases (here we use `mongoose` so that we have the shape of the schemas):
+
+```ts
+const CountrySchema = new mongoose.Schema({
+  name: String,
+  abb: String,
+  population: Number,
+});
+const Country = mongoose.model("Country", CountrySchema);
+
+const CitySchema = new mongoose.Schema({
+  name: String,
+  abb: String,
+  population: Number,
+  country: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Country,
+  },
+});
+const City = mongoose.model("City", CitySchema);
+
+const UserSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  country: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Country,
+  },
+  city: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: City,
+  },
+});
+const User = mongoose.model("User", CitySchema);
+```
+
+The code above is exactly equivalent to the code we wrote for PostgreSQL, and it creates exactly the same tables in MongoDB. All the issues we described for SQL are present here as well. But wait — we can add other fields to these tables to simplify the complex queries we talked about above.
+
+We can store its cities inside each country by adding a field called `cities`:
+
+```ts
+const CountrySchema = new mongoose.Schema({
+  name: String,
+  abb: String,
+  population: Number,
+  cities: [{
+    name: String,
+    abb: String,
+    population: Number,
+  }],
+});
+```
+
+Now we can get a country along with its cities with a single query. For example, we can get the country of Iran along with its cities with just one database query. But some new issues have arisen:
+
+- **How should we save the cities inside the country?** We must find the country associated with the city in the function we write to add the city, and add this new city to the `cities` field of that country. This means that when adding a city, we must insert a new record in the cities table *and* edit a record in the countries table.
+- **Can we store all the cities of a country within itself?** The short answer is no. It is possible that the number of a country's cities can be stored within it, but in some situations the number of documents we need to store inside another document may be very large — such as the users of a country. So what should we do? Save a limited number of cities — how many? The number we feel should be requested in the first pagination (for example, 50). So, in the function we write to store a city, we must be aware that if the `cities` field within the country has stored 50 cities, we should not add this new city to that field.
+- **What if a city changes?** As a rule, we should find the country related to that city, check whether this city is stored in the country's `cities` field, and if so, correct it.
+- **What if a city is removed?** We need to find the country associated with the city, and if this city is present in the country's `cities` field, modify that field as well. How? First, remove the city from the array of cities; then check whether this field has reached the limited number we previously considered. If so, this country may have other cities that are not in this field — so we need to find one of them and add it to this field.
+
+All this was added just so that we can have its cities when receiving a country! Don't worry, it's worth it. Because we usually add cities and countries once, and besides, their information doesn't change much (except for the population, which we'll talk about later). And on the other hand, these cities and countries will be received many times.
+
+Now, what if we want to get the 50 most populous countries along with the 50 most populous cities of each country? We can add a new field to the country:
+
+```ts
+const CountrySchema = new mongoose.Schema({
+  name: String,
+  abb: String,
+  population: Number,
+  cities: [{
+    name: String,
+    abb: String,
+    population: Number,
+  }],
+  mostPopulousCities: [{
+    name: String,
+    abb: String,
+    population: Number,
+  }],
+});
+```
+
+For the `mostPopulousCities` field, we should consider all the events that happened above, although with a slight change:
+
+- **What if a city changes?** We need to find the country associated with the city, then see if this city is stored in the `cities` and `mostPopulousCities` fields of this country. If it is stored in the `cities` field, we must do the same steps as above. But if it is stored in the `mostPopulousCities` field, we must first see which city field has changed. If the population field has changed, this city may no longer be included in this list, and we want to remove it from the list and add another city based on population. Otherwise, it's possible this city is not in the `mostPopulousCities` list at all, but due to the change in the city's population, we want to add it. Note that this city may be added anywhere in this list, and on the other hand, if the list has reached the end of its predetermined capacity, we must remove a city from the end.
+
+Let's look at this issue from the other side of the relationship. What if we want to access the country related to a city from within the cities? For this purpose, we can add a `country` field in each city. And instead of storing only the country's ID in it, embed all the country's information in it:
+
+```ts
+const CitySchema = new mongoose.Schema({
+  name: String,
+  abb: String,
+  population: Number,
+  country: {
+    name: String,
+    abb: String,
+    population: Number,
+  },
+});
+```
+
+The good thing here is that this field is no longer an array — it's just an object — so we don't have any of the calculations we had to manage cities in the country. It is enough to find the country related to the city in the function we wrote to add cities and put it as the value of the `country` field in the city.
+
+But the critical issue here is that if the country is updated, we must find **all** cities related to that country and update the country stored inside them as well. Sometimes this number may be very high. For example, consider China or India, put users instead of cities, and imagine that all the people of this country are registered in this software. In this case, with every update of the country, we must update at least another billion documents. (There are different solutions for this problem in Lesan, which you'll see below.)
+
+Finally, our Mongoose model will probably look like this:
+
+```ts
+const CountrySchema = new mongoose.Schema({
+  name: String,
+  abb: String,
+  population: Number,
+  cities: [{
+    name: String,
+    abb: String,
+    population: Number,
+  }],
+  mostPopulousCities: [{
+    name: String,
+    abb: String,
+    population: Number,
+  }],
+});
+const Country = mongoose.model("country", CitySchema);
+
+const CitySchema = new mongoose.Schema({
+  name: String,
+  abb: String,
+  population: Number,
+  country: {
+    name: String,
+    abb: String,
+    population: Number,
+  },
+});
+const City = mongoose.model("City", CitySchema);
+
+const UserSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  country: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Country,
+  },
+  city: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: City,
+  },
+});
+const User = mongoose.model("User", CitySchema);
+```
+
+### Lesan
+
+So, if we want to create the same relationships with Lesan, what should we do? Just enter the code below:
+
+```ts
+import {
+  lesan,
+  MongoClient,
+  number,
+  RelationDataType,
+  RelationSortOrderType,
+  string,
+} from "@hemedani/lesan";
+
+const coreApp = lesan();
+
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
+coreApp.odm.setDb(client.db("dbName"));
+
+// Country Model
+const countryCityPure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const countryRelations = {};
+
+const countries = coreApp.odm.newModel("country", countryCityPure, countryRelations);
+
+// City Model
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      mostPopulousCities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "population",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel("city", countryCityPure, cityRelations);
+
+// User Model
+const userPure = {
+  name: string(),
+  age: number(),
+};
+
+const userRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      users: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+  city: {
+    optional: false,
+    schemaName: "city",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      users: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const users = coreApp.odm.newModel("user", userPure, userRelations);
+```
+
+In the code above, we haven't defined any relationship for the country — but in fact, the country is related to both the city and the user. This relationship is defined by *them*, because they were the ones who requested the relationship.
+
+If you pay attention, we defined two `relatedRelations` for the country when defining city relations, which causes two fields called `cities` and `mostPopulousCities` to be added to the country schema. For the `cities` field, we set the sort on `_id` in `descending` order, and limited the capacity of the field to 50 with the `limit` option — this stores the last 50 cities of each country. But in the `mostPopulousCities` field, we store another 50 cities in each country, this time sorting on the city `population` field.
+
+The important thing here is that everything we said we need to do in NoSQL databases using Mongoose is done automatically in Lesan. You don't need any additional code to manage these relationships during `insert`, `update`, or `delete` — all the work is done by Lesan.
+
+:::tip
+**Try it yourself**
+
+We also prepared a complete E2E test suite for these exact models — clone the repo, run the playground, and watch every `insert`, `update`, and `delete` propagate to both sides of the relation. See [Testing Relations in Lesan](/docs/concepts/testing-relations).
+:::
+
+## The Sweets of Relationships in Lesan
+
+You only deal with the **pure fields** of a schema. The management of relationships — creating, retrieving, updating, and deleting the duplicated embeddings — is done entirely automatically by Lesan. As a result:
+
+- **You get relations for free.** You define a relationship once, on one side, and Lesan builds the embedded snapshot on *both* sides. You never write code to keep the two sides in sync.
+- **Receiving data is easy.** Because every relationship is embedded inside its parent, a country arrives with its cities, its most populous cities, and its users already inside it. One request to the database instead of three — this is where the fifteen-to-several-hundred-times-faster reads come from.
+- **You can sort and filter by relations.** Because the pure fields of the related model are physically stored inside the document, you can sort a country's `cities` by `population`, or filter them by any embedded field, as if they were ordinary fields. Filtering on an embedded field is something of a miracle compared to the joins or extra queries you'd need elsewhere.
+- **A relationship encourages a new model.** As the example above shows, when you see many changes on one side of a relationship (e.g., a country's most-populous-cities), you are encouraged to promote it into its own relationship (`mostPopulousCities`). This doesn't add complexity — it makes the data more understandable.
+
+### Model Design in Lesan
+
+- **Relationships are defined from one side.** A relationship is always requested by the *important* side. In the example, `city` and `user` request their relationship with `country` — they need the country's information. The country never has to declare `cities` or `users`; those appear automatically as `relatedRelations`.
+- **Side effects are visible from the definition point.** When you define `city → country`, the `relatedRelations` block at that same spot declares exactly what will happen on the country side (`cities`, `mostPopulousCities`, each with its own `limit` and `sort`). The effect of a relationship is explicit, not hidden.
+- **The playground shows you the whole picture.** Don't worry about losing track of who relates to whom. In the playground's `Schema` modal you can see, for any model, *all* its relationships — both the ones it defined itself and the ones other models defined for it:
+
+  ![Screenshot 2023-12-31 at 22-33-26 Lesan Playground](https://github.com/MiaadTeam/lesan/assets/6236123/a4ecfb41-a356-40dd-a2e5-d3a550d17d99)
+
+- **Always request the relationship from its important side.** This lets you attach as many appropriate side effects as you want — different `limit`s, different `sort`s, even several parallel relations to the same schema (like `cities` and `mostPopulousCities`). Had you defined it the other way around, you'd be stuck with whatever the other side chose to give you.
+
+### Every Frequently-Changing Field Can Become a Relationship
+
+The moment a field starts changing often, its embedded copies start going stale — and someone has to update them all. Consider a bank, or a country's civil registry: a person's address or a bank balance changes frequently, and that same value is embedded in dozens of documents. Every change forces updates across all of them.
+
+Lesan turns this into a design principle: **if a field changes often, promote it to a relationship.** Then the frequently-changing data lives in its own model, is updated in one place, and the documents that need it fetch the fresh value on demand — while the rarely-changing pure fields stay comfortably embedded.
+
+## The Bitterness of Relationships in Lesan
+
+Some relationships cause very large updates. The [stress E2E test](/docs/concepts/testing-relations#stress-e2e-file) is the clearest example: when you update the `country`, Lesan updates the country record itself **plus** `100,000` other documents (the country snapshots embedded in `50,000` cities and `50,000` users). This is the honest trade-off for embedding: writes are heavier, reads are dramatically lighter.
+
+The good news is that this is a *known, bounded* cost, and Lesan gives you several ways to manage it:
+
+1. **Create a new relationship.** The cleanest solution is to not embed the fast-changing data at all. Promote the volatile field into its own model and relate to it — then changes stay in one place and never ripple across a hundred thousand documents.
+2. **Use a queue.** Move the propagation of changes off the hot path. The updates to the related documents are queued and applied asynchronously, so the original request doesn't have to wait for a million embedded copies to be refreshed.
+3. **Use an in-memory database.** For data that must be read extremely fast and changes very often, keep the hot model in an in-memory store (e.g., Redis or MongoDB's in-memory storage engine). Reads never touch the disk, and the relationship graph stays small and fast.
+
+And remember the bigger picture: these update/delete/insert consistency problems already exist everywhere — in server cache layers, in CDNs, in every denormalized system. They are not new, and they are not Lesan-specific. What Lesan does differently is **bring these problems into the backend logic**, make them explicit and manageable, and **automate most of the operations**. In doing so it prevents a great deal of wasted energy and duplicated effort, and it replaces ad-hoc, error-prone synchronization code with a single, tested mechanism.
+
+The [Query Queue (QQ)](/docs/concepts/queuing-data-changes) page explains how Lesan schedules and merges these large updates, and why an [in-memory database](/docs/concepts/queuing-data-changes#in-memory-databases) can help. For the deeper rationale behind embedding and the client-driven projection that makes it so fast, see [Why NoSQL?](/docs/concepts/why-nosql).

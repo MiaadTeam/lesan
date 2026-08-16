@@ -1,0 +1,222 @@
+---
+sidebar_position: 2
+---
+
+# Project Layout
+
+Before we look at any model or act, understand how the app is organized. Lesan doesn't dictate a folder structure — this is the one the advanced-tutorial uses, and it scales well: **one file per model, one folder per act, and a shared `utils/` layer**.
+
+```text
+advanced-tutorial/
+├── mod.ts                  # entry: lesan(), setDb, register all models, runServer
+├── deno.json               # tasks + import aliases (@model, @lib, lesan)
+├── models/
+│   ├── mod.ts              # barrel re-exporting every model file
+│   ├── user.ts             # one file per model: pure fields + relations + factory
+│   ├── excludes.ts         # per-schema field-exclusion lists used by relations
+│   ├── featureConstants.ts # the feature-enum array used by feature flags
+│   └── ...                 # 15 model files total
+├── src/
+│   ├── mod.ts              # functionsSetup(): calls every domain's *Setup()
+│   ├── <domain>/
+│   │   ├── mod.ts          # e.g. userSetup(): registers all user acts
+│   │   └── <act>/
+│   │       ├── mod.ts      # coreApp.acts.setAct({ schema, actName, fn, validator, preAct })
+│   │       ├── <act>.fn.ts # the ActFn implementation
+│   │       └── <act>.val.ts# the superstruct validator (set / get)
+│   └── ...                 # one folder per model domain
+├── utils/                  # shared helpers, aliased as @lib
+├── http/
+│   ├── e2e.hurl            # the 38-request end-to-end test
+│   └── _fixtures/seed.ts   # ghost-admin seed script
+└── declarations/           # generated selectInp.ts (do not hand-edit)
+```
+
+## The entry point (`mod.ts`)
+
+Everything starts here. `lesan()` creates the app, `setDb` attaches MongoDB, each `newModel(...)` factory registers a model, `functionsSetup()` registers every act, and `runServer` boots the HTTP server.
+
+```ts
+import { lesan, MongoClient } from "lesan";
+import {
+  budgetLines, createInventoryIndex, createUserTextIndex, files,
+  inventories, organizations, processes, processSteps, products,
+  purchaseOrders, stepApprovals, stockMovements, stores, tags,
+  tenders, units, users,
+} from "@model";
+import { functionsSetup } from "./src/mod.ts";
+
+const MONGO_URI = Deno.env.get("MONGO_URI") || "mongodb://127.0.0.1:27017/";
+const APP_PORT = Deno.env.get("APP_PORT") || 1380;
+const ENV = Deno.env.get("ENV") || "development";
+
+export const coreApp = lesan();
+const client = await new MongoClient(MONGO_URI).connect();
+const db = client.db("advancedTutorial");
+coreApp.odm.setDb(db);
+
+// Registering a model returns the ODM handle. One exported handle per model:
+export const user = users();
+export const file = files();
+export const tag = tags();
+export const organization = organizations();
+export const unit = units();
+export const process = processes();
+export const processStep = processSteps();
+export const product = products();
+export const store = stores();
+export const inventory = inventories();
+export const stockMovement = stockMovements();
+export const purchaseOrder = purchaseOrders();
+export const stepApproval = stepApprovals();
+export const budgetLine = budgetLines();
+export const tender = tenders();
+
+export const { setAct, setService, getAtcsWithServices } = coreApp.acts;
+export const { selectStruct, getSchemas } = coreApp.schemas;
+
+functionsSetup();
+
+createInventoryIndex();
+createUserTextIndex();
+
+coreApp.runServer({
+  port: Number(APP_PORT),
+  typeGeneration: true,
+  playground: ENV === "development" ? true : false,
+  staticPath: ["/uploads"],
+  cors: ["http://localhost:3000"],
+});
+```
+
+:::danger
+**Model registration order matters**
+Each `newModel` call registers one schema and then rebuilds the inverse (`relatedRelations`) map for **every** schema. All registrations stay together in `mod.ts` in dependency order — a model can reference another model's name in its relations before that model is registered, but keep every `newModel` call together so the reverse map is complete before any act runs.
+:::
+
+## Import aliases
+
+The app uses path aliases so imports stay clean. In `deno.json`:
+
+```json
+{
+  "imports": {
+    "lesan": "../../src/mod.ts",
+    "mongodb": "npm:mongodb@^6.3.0",
+    "@model": "./models/mod.ts",
+    "@lib": "./utils/mod.ts"
+  }
+}
+```
+
+- `lesan` → the framework itself (this repo's source). In your own project this would be `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno).
+- `@model` → the model barrel (pure fields, relations, factories, `excludes`, feature enums).
+- `@lib` → the shared utils barrel.
+
+So an act can import both its model handle and the utils in one line:
+
+```ts
+import { coreApp, purchaseOrder } from "../../../mod.ts";
+import { resolveProcessForPO, throwError } from "@lib";
+```
+
+## One file per model
+
+A model file declares its **pure fields**, its **relations**, and a **factory** that registers it. For example `models/tag.ts`:
+
+```ts
+import { string, color } from "lesan";
+import { coreApp } from "../mod.ts";
+
+export const tag_pure = {
+  name: string(),
+  color: string(),
+};
+
+export const tag_relations = {};
+
+export const tags = () => coreApp.odm.newModel("tag", tag_pure, tag_relations);
+```
+
+Relations reference other models by `schemaName`. Here's `models/unit.ts` showing a `single` relation with `excludes` and a back-reference:
+
+```ts
+export const unit_relations = {
+  organization: {
+    schemaName: "organization",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: organization_excludes,
+    relatedRelations: { units: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  // head (User), parentUnit (Unit), ...
+};
+```
+
+## One folder per act
+
+Every act is a folder with three files — the registration (`mod.ts`), the implementation (`<act>.fn.ts`), and the validator (`<act>.val.ts`). For example `src/tag/addTag/`:
+
+```ts
+// src/tag/addTag/mod.ts
+export const addTagSetup = () =>
+  coreApp.acts.setAct({
+    schema: "tag",
+    actName: "addTag",
+    validationRunType: "create",
+    validator: addTagValidator(),
+    fn: addTagFn,
+  });
+```
+
+```ts
+// src/tag/addTag/addTag.fn.ts
+export const addTagFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  return await tag.insertOne({ doc: set, projection: get });
+};
+```
+
+```ts
+// src/tag/addTag/addTag.val.ts
+export const addTagValidator = () => {
+  return object({
+    set: object({ name: string(), color: optional(string()) }),
+    get: selectStruct("tag", 1),
+  });
+};
+```
+
+## Wiring the acts (`src/mod.ts`)
+
+Each domain exports a `*Setup()` that registers its acts; `functionsSetup()` calls them all:
+
+```ts
+export const functionsSetup = () => {
+  userSetup();
+  fileSetup();
+  tagSetup();
+  organizationSetup();
+  unitSetup();
+  productSetup();
+  storeSetup();
+  inventorySetup();
+  stockMovementSetup();
+  processSetup();
+  processStepSetup();
+  purchaseOrderSetup();
+  stepApprovalSetup();
+  budgetLineSetup();
+  tenderSetup();
+};
+```
+
+## Generated types (`declarations/`)
+
+With `typeGeneration: true`, every boot writes `declarations/selectInp.ts` — a superstruct schema for each model's selectable `get` projection. It's generated output: **do not hand-edit it**.
+
+## Runtime differences
+
+This app reads config from `Deno.env` and runs with `deno task`. On Node/Bun you'd read `process.env` instead, and the import aliases would be handled by your bundler/tsconfig paths rather than `deno.json`. Everything else is identical.
+
+Next: the [user model](/docs/tutorials/procurement-workflow/models/user) and authentication.

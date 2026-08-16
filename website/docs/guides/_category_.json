@@ -1,0 +1,8 @@
+{
+  "label": "Example Projects",
+  "position": 8,
+  "link": {
+    "type": "generated-index",
+    "description": "Runnable example projects in this repository — the cross-platform starter apps and the full Procurement Workflow application."
+  }
+}

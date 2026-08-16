@@ -1,0 +1,105 @@
+---
+sidebar_position: 10
+---
+
+# getHistory (purchaseOrder)
+
+`getHistory` returns the audit trail of a purchase order: the `history[]` array of every action (`created`, `submitted`, `approved`, `rejected`, `finalized`, `cancelled`, ...) with who performed it and when. Because every PO action in this app pushes a history entry, this one act gives you the complete lifecycle story of a document. Every authenticated role can call it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`getHistory.val.ts`)
+
+Just `_id` plus the mixin. The `get` projection uses `selectStruct("purchaseOrder", 1)` — but the fn only actually honors the `history` key of it.
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getHistoryValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("purchaseOrder", 1),
+  });
+};
+```
+
+## The implementation (`getHistory.fn.ts`)
+
+It queries the PO with a narrow projection `{ _id: 1, title: 1, history: get.history || {} }` — it intentionally reads only what it needs. If the PO is missing it throws `purchase order not found`. It then normalizes the shape: always returns `_id`, `title`, and `history` (defaulting to `[]` when a PO has none).
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { purchaseOrder } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const getHistoryFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  const po = await purchaseOrder.findOne({
+    filters: { _id: new ObjectId(_id as string) },
+    projection: { _id: 1, title: 1, history: get.history || {} },
+  });
+
+  !po && throwError("purchase order not found");
+
+  return { _id: po!._id, title: (po as any).title, history: (po as any).history || [] };
+};
+```
+
+## In the workflow
+
+History is the cross-cutting audit log of the whole chapter. Every act that changes a PO pushes an entry:
+
+- [add](/docs/tutorials/procurement-workflow/workflow/po-add) → `created`
+- [submit](/docs/tutorials/procurement-workflow/workflow/po-submit) → `submitted` (with `processId`, `stepOrder: 1`)
+- [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision) → `approved` / `rejected` / `decision` (with `stepOrder` + `decision`)
+- [finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize) → `finalized`
+- [cancel](/docs/tutorials/procurement-workflow/workflow/po-cancel) → `cancelled` (with `reason` when provided)
+
+Each entry records `performed: { by, name, at, role }` so the trail is attributable.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [po-get](/docs/tutorials/procurement-workflow/workflow/po-get), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit), [po-finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "getHistory",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<poId>"
+      },
+      "get": {
+        "_id": 1,
+        "title": 1,
+        "history": 1
+      }
+    }
+  }'
+```
+
+Expect the full history array, newest action last.
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `purchase order not found` | No PO with that `_id` | Verify the id via `gets` |
+
+Shared auth-chain errors apply; all roles are allowed. A PO with no history returns `history: []` (a `Draft` created outside this app might be empty).

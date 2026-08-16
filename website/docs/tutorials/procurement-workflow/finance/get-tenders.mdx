@@ -1,0 +1,109 @@
+---
+sidebar_position: 7
+---
+
+# Get Tenders
+
+`getTenders` lists the **tender** collection, newest first, with optional filters by status and organization. Use it to browse the auction board — which tenders are `Open` (still taking offers), `Awarded`, or `Closed` — and to inspect the offers that have come in for each one.
+
+:::note
+**Imports**
+Throughout this tutorial the framework imports use the `"lesan"` alias, matching the app's `deno.json`. In your own project import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## The validator (`getTenders.val.ts`)
+
+Both filters are optional. `status` is constrained to the real status enum via `tender_status_emums` (`["Open", "Awarded", "Closed"]` from `models/tender.ts`), and `organizationId` is a plain optional string. The `get` projection is `selectStruct("tender", 2)` — two levels deep, so you can reach into the embedded `organization` and `createdBy` relation snapshots, and of course read the full `offers` array.
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { tender_status_emums } from "@model";
+
+export const getTendersValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      status: optional(tender_status_emums),
+      organizationId: optional(string()),
+    }),
+    get: selectStruct("tender", 2),
+  });
+};
+```
+
+## The implementation (`getTenders.fn.ts`)
+
+The function builds a `filters` document and only adds a `$match` stage when a filter was actually sent:
+
+- `status` → `filters.status` — the enum value stored directly on the document (`"Open"`, `"Awarded"`, or `"Closed"`).
+- `organizationId` → `filters["organization._id"]` — the dot-path into the embedded organization snapshot's `_id`, cast with `new ObjectId(...)` to match how it's stored.
+
+The pipeline always sorts by `createdAt` descending — newest tenders first — and the results flow through the `get` projection via `.toArray()`.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { tender } from "../../../mod.ts";
+
+export const getTendersFn: ActFn = async (body) => {
+  const {
+    set: { status, organizationId },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  status && (filters.status = status as string);
+  organizationId && (filters["organization._id"] = new ObjectId(organizationId as string));
+
+  return await tender
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { createdAt: -1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+## In the workflow
+
+`getTenders` is the read side of the whole [Finance](/docs/tutorials/procurement-workflow/overview) tendering arc. Call it with `status: "Open"` to find tenders still accepting bids via [addOffer](/docs/tutorials/procurement-workflow/finance/add-offer), inspect an offer's exact `supplier` name before calling [award](/docs/tutorials/procurement-workflow/finance/award-tender), or review history of `Awarded`/`Closed` tenders. The shape it returns is defined by the [tender model](/docs/tutorials/procurement-workflow/models/tender): `status`, `deadline`, `description`, the embedded `offers` array, and the `organization`/`createdBy` relation snapshots. Winning tenders feed the purchase order's committed price through the [approval workflow](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Run it
+
+With the server on `http://localhost:1380` and a valid `token`:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "model": "tender",
+    "act": "getTenders",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "status": "Open"
+      },
+      "get": {
+        "_id": 1,
+        "title": 1,
+        "status": 1,
+        "offers": 1,
+        "organization": { "_id": 1, "name": 1 }
+      }
+    }
+  }'
+```
+
+Both filters are optional — drop `status` to see every tender regardless of state. The response is an array under `"body"`, sorted newest first.
+
+## Errors & fixes
+
+`getTenders` throws no custom errors. Two things to keep straight:
+
+- **`status` must be one of `Open`, `Awarded`, `Closed`** — the `tender_status_emums` enum rejects anything else (e.g. `"awarded"` lowercase, or `"Draft"`). Filter with the exact enum values.
+- **`organizationId` isn't pre-validated** — like `getBudgetLines`, it's a plain `optional(string())` here. The `new ObjectId(...)` cast inside the function assumes a well-formed ID, so pass the real `_id` string from the `organization` collection to keep the `$match` on `"organization._id"` working.

@@ -1,0 +1,169 @@
+---
+sidebar_position: 13
+---
+
+# cancel (purchaseOrder)
+
+`cancel` aborts a purchase order that hasn't finished. It's allowed from `Draft`, `Pending`, and `InProgress` — i.e. any state before the order is `Approved`/`Rejected`/terminal. On cancel it **releases the budget reservation** (`totalEncumbered -= amount`, `remainingBudget += amount`), sets `status: "Cancelled"`, stamps `completedAt`, and pushes a `cancelled` history entry with an optional `reason`. Only `Manager`/`Admin`, or `UnitHead` with the `canRegisterPurchaseOrder` feature, can cancel.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`cancel.val.ts`)
+
+The PO `_id` plus an optional `reason` string. Everything else is derived from the stored document.
+
+```ts
+import { object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const cancelValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+      reason: optional(string()),
+    }),
+    get: selectStruct("purchaseOrder", 1),
+  });
+};
+```
+
+## The implementation (`cancel.fn.ts`)
+
+1. Loads the PO (`_id`, `status`, `estimatedAmount`, `budgetLine._id`). Missing → `purchase order not found`.
+2. **Status guard**: the cancellable set is `["Draft", "Pending", "InProgress"]`. Anything else → `this purchase order cannot be cancelled`.
+3. **Releases the encumbrance** — if a `budgetLine` is linked, `$inc`s `totalEncumbered: -amount` and `remainingBudget: +amount`.
+4. Pushes a `cancelled` history entry, adding `details: { reason }` only when a `reason` was provided.
+5. Sets `status: "Cancelled"` and `completedAt: new Date()`, returning the `get` projection.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { budgetLine, coreApp, purchaseOrder } from "../../../mod.ts";
+import { throwError } from "@lib";
+import type { MyContext } from "@lib";
+
+export const cancelFn: ActFn = async (body) => {
+  const {
+    set: { _id, reason },
+    get,
+  } = body.details;
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  const poId = new ObjectId(_id as string);
+
+  const po = await purchaseOrder.findOne({
+    filters: { _id: poId },
+    projection: {
+      _id: 1,
+      status: 1,
+      estimatedAmount: 1,
+      "budgetLine._id": 1,
+    },
+  });
+
+  !po && throwError("purchase order not found");
+
+  const cancellable = ["Draft", "Pending", "InProgress"];
+  if (!cancellable.includes(po!.status)) {
+    throwError("this purchase order cannot be cancelled");
+  }
+
+  if ((po as any)?.budgetLine?._id) {
+    await budgetLine.findOneAndUpdate({
+      filter: { _id: (po as any).budgetLine._id },
+      update: {
+        $inc: {
+          totalEncumbered: -(po!.estimatedAmount || 0),
+          remainingBudget: po!.estimatedAmount || 0,
+        },
+      },
+      projection: { _id: 1 },
+    });
+  }
+
+  const performerName = `${(user as any).first_name ?? ""} ${(user as any).last_name ?? ""}`.trim();
+
+  return await purchaseOrder.findOneAndUpdate({
+    filter: { _id: poId },
+    update: {
+      $set: {
+        status: "Cancelled",
+        completedAt: new Date(),
+      },
+      $push: {
+        history: {
+          action: "cancelled",
+          performed: {
+            by: user._id.toString(),
+            name: performerName,
+            at: new Date(),
+            role: { id: "", name: "" },
+          },
+          ...(reason && { details: { reason } }),
+        },
+      },
+    },
+    projection: get,
+  });
+};
+```
+
+### Why cancel restores the budget
+
+Cancel is the mirror image of [submit](/docs/tutorials/procurement-workflow/workflow/po-submit):
+
+- Submit: `totalEncumbered += amount`, `remainingBudget -= amount` (money reserved).
+- Cancel: `totalEncumbered -= amount`, `remainingBudget += amount` (money released back to the pool).
+
+Unlike [finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize) — which converts the reservation into permanent spend — cancel puts the money back where it can be used by a future order. In the seed test, after cancelling a 5M order, `remainingBudget` climbs back and `totalEncumbered` returns to `0`.
+
+## In the workflow
+
+Cancel is the graceful exit for anything not yet finalized:
+
+```
+Draft / Pending / InProgress ──cancel──▶ Cancelled
+```
+
+Because the guard allows `InProgress`, an order can be cancelled *while approvals are still pending* — the outstanding `stepApproval` docs remain in the DB, but the PO status is terminal so [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision) will refuse them with `the purchase order is not in progress`. Once a PO is `Approved`, cancelling is no longer allowed (the step approvals are done); it must go through finalize instead.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [budgetLine model](/docs/tutorials/procurement-workflow/models/budgetLine), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit), [po-finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "cancel",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<poId>",
+        "reason": "Budget freeze"
+      },
+      "get": {
+        "_id": 1,
+        "status": 1
+      }
+    }
+  }'
+```
+
+Expect `{ "body": { "status": "Cancelled" }, "success": true }`. Omit `reason` to skip the details on the history entry.
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `purchase order not found` | No PO with that `_id` | Verify the id via [gets](/docs/tutorials/procurement-workflow/workflow/po-gets) |
+| `this purchase order cannot be cancelled` | PO status is `Approved`/`Rejected`/`Completed`/`Cancelled` | Only `Draft`, `Pending`, `InProgress` can be cancelled; an `Approved` PO must be finalized instead |
+
+Shared auth errors apply, and `Missing feature: canRegisterPurchaseOrder` appears for a `UnitHead` without the feature. A PO without a `budgetLine` is still cancelled fine — the release step is skipped.

@@ -1,0 +1,130 @@
+---
+sidebar_position: 21
+---
+
+# addStore
+
+Creates a **store** — a physical location (warehouse/shelf) where inventory is kept — optionally owned by a `unit`. Roles allowed: `Manager`, `Admin`, `OrgHead`. The model enforces a **unique index on `code`**.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { addStoreFn } from "./addStore.fn.ts";
+import { addStoreValidator } from "./addStore.val.ts";
+
+export const addStoreSetup = () =>
+  coreApp.acts.setAct({
+    schema: "store",
+    actName: "addStore",
+    validationRunType: "create",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead"] }])],
+    validator: addStoreValidator(),
+    fn: addStoreFn,
+  });
+```
+
+## The validator (`addStore.val.ts`)
+
+```ts
+import { object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const addStoreValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: string(),
+      code: string(),
+      address: optional(string()),
+      unit: optional(objectIdValidation),
+    }),
+    get: selectStruct("store", 1),
+  });
+};
+```
+
+- `name` and `code` are required strings; `address` is optional.
+- `unit` is an optional ObjectId — the warehouse/department unit that owns this store. Note it's optional at the validator level even though the model relation is also optional.
+- `get` is depth 1.
+
+## The implementation (`addStore.fn.ts`)
+
+```ts
+import { type ActFn, type TInsertRelations, ObjectId } from "lesan";
+import { store } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+import type { store_relations } from "@model";
+
+export const addStoreFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { unit, ...rest } = stripActiveRole(set);
+
+  const relations: TInsertRelations<typeof store_relations> = {};
+
+  unit &&
+    (relations.unit = {
+      _ids: new ObjectId(unit as string),
+      relatedRelations: { stores: true },
+    });
+
+  return await store.insertOne({
+    doc: rest,
+    relations,
+    projection: get,
+  });
+};
+```
+
+1. `stripActiveRole` removes `activeRoleId`; `unit` is pulled out as a relation, leaving `rest` (name/code/address) as the document.
+2. The `relations` object is typed with `TInsertRelations<typeof store_relations>`.
+3. If `unit` was given, `relations.unit` is a `single` relation; `relatedRelations: { stores: true }` adds this store to the unit's `stores` back-reference array.
+4. `store.insertOne` writes the doc and returns the projected result.
+
+## In the workflow
+
+Stores are where inventory physically lives: every `inventory` record and `stockMovement` is scoped to a store. The e2e test creates two stores ("Central Warehouse Store" `ST-01` and "Pharmacy Store" `ST-02`) under the warehouse unit, then `addStock` fills them. Store acts flow into the [Inventory chapter](/docs/category/inventory).
+
+- [store model](/docs/tutorials/procurement-workflow/models/store)
+- Sibling act: [getStores](/docs/tutorials/procurement-workflow/catalog/get-stores)
+- Upstream: [addUnit](/docs/tutorials/procurement-workflow/catalog/add-unit) creates the `unit` a store belongs to
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "store",
+    "act": "addStore",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "name": "Central Warehouse Store",
+        "code": "ST-01",
+        "unit": "<unitId>"
+      },
+      "get": { "_id": 1, "name": 1, "code": 1, "unit": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.stores index: code_1` | A store with that `code` already exists (unique index). | Pick a different `code`. |
+| `can not find this relatation : unit` (or a MongoDB cast error) | The `unit` id doesn't match an existing unit. | Get a valid id from `getUnits`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin`/`OrgHead` (or ghost). | Use an allowed role or the ghost. |
+| superstruct "expected ObjectId-like string" | `unit` isn't a valid ObjectId. | Send the unit's 24-hex id. |
+| superstruct "expected a string but received..." | `name`/`code` missing or wrong type. | Send both as strings. |

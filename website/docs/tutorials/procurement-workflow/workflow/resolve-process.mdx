@@ -1,0 +1,120 @@
+---
+sidebar_position: 20
+---
+
+# resolveProcessForPO
+
+`resolveProcessForPO` is the shared utility that answers one question: **which `Active` process should this purchase order run on?** It's used by [po-add](/docs/tutorials/procurement-workflow/workflow/po-add) (when no `process` is passed) and by [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit) (when the PO has no process link yet). It walks a three-step fallback chain — unit-specific, then product-specific, then organization default — and returns the first `Active` process it finds.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` is the tutorial's alias for `utils/`.
+:::
+
+## The function
+
+```ts
+import { ObjectId } from "lesan";
+import { process } from "../mod.ts";
+import { throwError } from "./throwError.ts";
+
+interface ResolveProcessParams {
+  organizationId: string;
+  requestingUnitId?: string;
+  productId: string;
+}
+
+export async function resolveProcessForPO(
+  params: ResolveProcessParams,
+): Promise<string> {
+  const {
+    organizationId,
+    requestingUnitId,
+    productId,
+  } = params;
+  const orgId = new ObjectId(organizationId);
+
+  if (requestingUnitId) {
+    const unitProcess = await process.findOne({
+      filters: {
+        "organization._id": orgId,
+        "unit._id": new ObjectId(requestingUnitId),
+        status: "Active",
+      },
+      projection: { _id: 1 },
+    });
+    if (unitProcess) return unitProcess._id.toString();
+  }
+
+  const doc = await process.findOne({
+    filters: {
+      "organization._id": orgId,
+      "product._id": new ObjectId(productId),
+      status: "Active",
+    },
+    projection: { _id: 1 },
+  });
+  if (doc) return doc._id.toString();
+
+  const [orgProcess] = await process.aggregation({
+    pipeline: [
+      {
+        $match: {
+          "organization._id": orgId,
+          status: "Active",
+          $and: [
+            { "unit._id": { $exists: false } },
+            { "product._id": { $exists: false } },
+          ],
+        },
+      },
+      { $limit: 1 },
+    ],
+    projection: { _id: 1 },
+  }).toArray();
+
+  if (orgProcess) return orgProcess._id.toString();
+
+  throwError(
+    "No active process found for this organization. Please create and activate a process first.",
+  );
+  return "";
+}
+```
+
+## The fallback chain
+
+The function tries, in order:
+
+1. **Unit-scoped process** (only when `requestingUnitId` is passed): an `Active` process whose embedded `organization._id` matches **and** whose `unit._id` matches the requesting unit. If found → return it.
+2. **Product-scoped process**: an `Active` process matching `organization._id` **and** `product._id`. If found → return it.
+3. **Organization default**: the first `Active` process for the organization that is scoped to *neither* a unit *nor* a product — the `$and` with `{ exists: false }` on both fields is what makes it the catch-all. If found → return it.
+4. **None found** → throw `No active process found for this organization. Please create and activate a process first.`
+
+The precedence is deliberate: a PO that comes from a specific requesting unit should inherit the unit's tailored workflow before falling back to a generic one, and a product-specific workflow (e.g. "medical equipment") beats the organization default.
+
+### Why `$exists: false` matters for step 3
+
+Step 3 must exclude processes that *do* have a unit or product scope — otherwise the default would accidentally pick up a unit-scoped process from step 1's query. The `$and: [{ "unit._id": { $exists: false } }, { "product._id": { $exists: false } }]` guarantees the fallback only matches processes with neither scope set.
+
+## In the workflow
+
+Called in two places:
+
+- **[po-add](/docs/tutorials/procurement-workflow/workflow/po-add)**: `if (!resolvedProcess && organization)` → resolve when the caller didn't pass `process`. The PO is created already bound to the resolved process.
+- **[po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit)**: `if (!processId && po.organization?._id)` → resolve when the PO has no process link yet (e.g. created without an organization). The resolved process is then attached to the PO via `addRelation`.
+
+Both call sites pass `requestingUnitId` only when the PO has a `requestingUnit`.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [process model](/docs/tutorials/procurement-workflow/models/process), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [po-add](/docs/tutorials/procurement-workflow/workflow/po-add), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `No active process found for this organization. Please create and activate a process first.` | No `Active` process matched at any level of the chain | Create a process ([addProcess](/docs/tutorials/procurement-workflow/workflow/add-process)), add steps ([addProcessStep](/docs/tutorials/procurement-workflow/workflow/add-process-step)), and activate it ([activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process)); or pass `process` explicitly to `add` |
+
+Notes:
+
+- The function only ever returns an **`Active`** process — a `Draft` process is invisible to the resolver, which is why `activateProcess` is a mandatory setup step.
+- A wrong `organizationId`/`productId` yields the same throw — make sure the referenced documents exist.

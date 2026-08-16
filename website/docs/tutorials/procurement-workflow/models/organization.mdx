@@ -1,0 +1,99 @@
+---
+sidebar_position: 4
+---
+
+# Organization
+
+`organization` is the **tenant** — a hospital, clinic, or chain. It supports a **self-referencing parent tree** (organizations can nest), and almost everything else hangs off it: units belong to it, purchase orders are raised in it, budget lines and tenders are scoped to it.
+
+```ts
+// models/organization.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  optional, type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { organization_excludes } from "./excludes.ts";
+
+export const organization_pure = {
+  name: string(),
+  code: string(),
+  description: optional(string()),
+  ...createUpdateAt,
+};
+
+export const organization_relations = {
+  parent: {
+    schemaName: "organization",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: organization_excludes,
+    relatedRelations: {
+      children: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | display name |
+| `code` | `string()` | business code; indexed **unique** |
+| `description` | `optional(string())` | |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `parent` | `organization` (self) | single (optional) | `organization.children` |
+
+The self-reference is how you build a tree: a chain → hospitals → departments. `parent` is optional so the root organization has none. A nested organization also inherits all the implicit back-references added by *other* models (`users`, `units`, `purchaseOrders`, `budgetLines`, `tenders`, `processes`).
+
+## Factory
+
+```ts
+export const organizations = () =>
+  coreApp.odm.newModel("organization", organization_pure, organization_relations, {
+    createIndex: {
+      indexSpec: { code: 1 },
+      options: { unique: true },
+    },
+  });
+```
+
+## In the workflow
+
+- [add-organization](/docs/tutorials/procurement-workflow/catalog/add-organization)
+- [get-organizations](/docs/tutorials/procurement-workflow/catalog/get-organizations)
+- [update-organization-relations](/docs/tutorials/procurement-workflow/catalog/update-organization-relations) (adds/removes `parent`)
+
+Organizations scope the role-based access (`scopeType: "organization"`), and are referenced by [unit](/docs/tutorials/procurement-workflow/models/unit), [purchaseOrder](/docs/tutorials/procurement-workflow/models/purchaseOrder), [budgetLine](/docs/tutorials/procurement-workflow/models/budgetLine), and [tender](/docs/tutorials/procurement-workflow/models/tender).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "organization",
+    "act": "getOrganizations",
+    "details": { "set": { "page": 1 }, "get": { "name": true, "code": true, "children": { "name": true } } }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.organizations` | `code` already used | pick a different code |
+| `organization not found` | `updateOrganizationRelations` given an unknown `_id` | pass a real `_id` |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

@@ -1,0 +1,447 @@
+---
+sidebar_position: 11
+---
+
+# Auth Utilities
+
+Every protected act in this app shares one **preAct chain** — `setTokens` → `setUser` → `grantAccess(...)` — plus a set of supporting helpers for tokens, passwords, feature checks, and context typing. All of them live in `examples/advanced-tutorial/utils/` and are re-exported from the `@lib` barrel (`utils/mod.ts`). This page explains each one, in the order the request pipeline hits them.
+
+The pipeline order is worth memorizing: `setTokens` proves *who sent the token*, `setUser` loads the *fresh* user record, `grantAccess` decides *what that user may do*. The fn then runs.
+
+```ts
+// utils/mod.ts (excerpt — the auth-related exports)
+export * from "./createUpdateAt.ts";
+export * from "./pagination.ts";
+export * from "./throwError.ts";
+export * from "./setUser.ts";
+export * from "./grantAccess.ts";
+export * from "./activeRole.ts";
+export * from "./setToken.ts";
+export * from "./jwt.ts";
+export * from "./password.ts";
+export * from "./context.ts";
+export * from "./checkFeature.ts";
+```
+
+:::note
+**Runtime-agnostic imports**
+Some utils import `"lesan"` (this repo's alias for the framework source). On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `../models/...` and `../mod.ts` relative imports stay as they are in your project.
+:::
+
+## `setTokens` (`utils/setToken.ts`)
+
+The **first** preAct of every protected act. It reads the `token` header from the request context (`coreApp.contextFns.getContextModel().Headers`), requires it to exist, verifies the JWT with `verifyToken`, and stores the decoded payload (`{ _id, email, roles, exp }`) into the context as `user`.
+
+```ts
+import { coreApp } from "../mod.ts";
+import { throwError } from "./throwError.ts";
+import { verifyToken } from "./jwt.ts";
+
+export const setTokens = async () => {
+  const { Headers } = coreApp.contextFns.getContextModel();
+  const token = Headers.get("token");
+
+  if (!token) {
+    throwError("you should send your id with token key in req header");
+  }
+
+  try {
+    const verifiedUser = await verifyToken(token as string);
+    coreApp.contextFns.setContext({ user: verifiedUser });
+  } catch (_e) {
+    throwError("Invalid or expired token");
+  }
+};
+```
+
+**Where it's used:** the first element of `preAct` in `getMe`, `getUser`, `getUsers`, `countUsers`, `addUser`, `updateUser`, `updateUserRelations`, `removeUser`, and `dashboardStatistic`. Not in `login` (you don't have a token yet).
+
+## `setUser` (`utils/setUser.ts`)
+
+The **second** preAct. The context user from `setTokens` is just the *decoded JWT payload* — stale and minimal. `setUser` re-reads the actual document from the database, so every act works against the **current** user (fresh roles, features, membership). It loads all pure fields plus `organizations`/`units` (as `_id`-only projections), and stores that document back into context.
+
+```ts
+import { ObjectId } from "lesan";
+import { coreApp, user } from "../mod.ts";
+import type { MyContext } from "./context.ts";
+import { throwError } from "./throwError.ts";
+
+export const setUser = async () => {
+  const ctx = coreApp.contextFns.getContextModel() as MyContext;
+  const tokenUser = ctx.user;
+
+  if (!tokenUser || !tokenUser._id) {
+    throwError("Invalid or missing token data");
+  }
+
+  const userPureProjection = coreApp.schemas.createProjection("user", "Pure");
+
+  const foundedUser = await user.findOne({
+    filters: { _id: new ObjectId(tokenUser._id) },
+    projection: {
+      ...userPureProjection,
+      organizations: { _id: 1 },
+      units: { _id: 1 },
+    },
+  });
+
+  !foundedUser && throwError("user not exist");
+
+  coreApp.contextFns.setContext({ user: foundedUser });
+};
+```
+
+**Where it's used:** right after `setTokens` in every protected act. `getMe` reads `context.user._id`; `dashboardStatistic` reads `context.user.roles`.
+
+## `grantAccess` (`utils/grantAccess.ts`)
+
+The **third** preAct — the authorization gate. It's a factory: you call `grantAccess([...checks])` and it returns a `checkAccess` preAct closure. The closure:
+
+1. Skips **every** check for the ghost superuser (`if (user.isGhost) return;`).
+2. Requires `set.activeRoleId` from the request body (so every protected act must spread `activeRoleMixin`).
+3. Finds the matching role in `user.roles`; throws if missing.
+4. Iterates the checks — a check matches when `activeRole.name` is in `check.roles`.
+5. For a matching check, verifies `check.features` via `hasFeature`, and if the check has a `getScope`, requires the active role's `scopeType`/`scopeId` to equal the scope the request body implies.
+6. If no check matched → `"You cant do this"`.
+
+```ts
+import { throwError } from "./throwError.ts";
+import type { MyContext } from "./context.ts";
+import { coreApp } from "../mod.ts";
+import { hasFeature } from "./checkFeature.ts";
+
+export type RoleCheck = {
+  roles: string[];
+  features?: string[];
+  getScope?: (
+    body: any,
+  ) => { scopeType: string; scopeId: string } | null;
+};
+
+export const grantAccess = (checks: RoleCheck[]) => {
+  const checkAccess = () => {
+    const { user }: MyContext = coreApp.contextFns
+      .getContextModel() as MyContext;
+
+    if (user.isGhost) return;
+
+    const body = (coreApp.contextFns.getContextModel() as any)?.body;
+    const activeRoleId = body?.details?.set?.activeRoleId;
+
+    if (!activeRoleId) {
+      return throwError("activeRoleId is required");
+    }
+
+    const activeRole = user.roles?.find((r) => r.roleId === activeRoleId);
+
+    if (!activeRole) {
+      return throwError("Active role not found");
+    }
+
+    for (const check of checks) {
+      if (!check.roles.includes(activeRole.name)) continue;
+
+      if (check.features && check.features.length > 0) {
+        for (const feature of check.features) {
+          if (!hasFeature(user, feature as any)) {
+            throwError(`Missing feature: ${feature}`);
+          }
+        }
+      }
+
+      if (!check.getScope) return;
+
+      const scope = check.getScope(body);
+      if (
+        scope &&
+        activeRole.scopeType === scope.scopeType &&
+        activeRole.scopeId === scope.scopeId
+      ) {
+        return;
+      }
+    }
+
+    throwError("You cant do this");
+  };
+
+  return checkAccess;
+};
+
+export const requireFeature = (feature: string) => {
+  const checkFeature = () => {
+    const { user }: MyContext = coreApp.contextFns
+      .getContextModel() as MyContext;
+
+    if (user.isGhost) return;
+
+    if (!hasFeature(user, feature as any)) {
+      throwError(`Missing feature: ${feature}`);
+    }
+  };
+
+  return checkFeature;
+};
+```
+
+**Where it's used:** the third element of `preAct` in `getUser`, `getUsers`, `countUsers`, `addUser`, `updateUser`, `updateUserRelations`, and `removeUser`. Note the different rules per act — `getUser`/`getUsers` allow every role; `addUser`/`updateUser`/`removeUser` allow only `Manager`/`Admin` (plus an OrgHead scope rule in `addUser`); `countUsers` allows the four leadership roles. `requireFeature` is exported alongside for feature-gated acts elsewhere in the app.
+
+## `activeRole` (`utils/activeRole.ts`)
+
+The `activeRoleId` mechanism in two helpers: a superstruct mixin to spread into every protected validator's `set`, and a helper to strip the field out when writing to the database (it's request-scoped, never persisted).
+
+```ts
+import { string } from "lesan";
+
+export const activeRoleMixin = { activeRoleId: string() };
+
+export const stripActiveRole = <T extends Record<string, unknown>>(
+  set: T,
+): Omit<T, "activeRoleId"> => {
+  const { activeRoleId, ...rest } = set;
+  return rest;
+};
+```
+
+**Where it's used:** `...activeRoleMixin` appears in the `set` of `getUser`, `getUsers`, `countUsers`, `addUser`, `updateUser`, `updateUserRelations`, `removeUser`, and `dashboardStatistic` validators. `addUser` destructures `activeRoleId` out of `set` in its fn so it never reaches the database.
+
+## `checkFeature` (`utils/checkFeature.ts`)
+
+Feature flags give **fine-grained** permissions beyond roles. `hasFeature` checks the user's own `features` array *and* the `features` of each unit the user belongs to — so a feature granted at unit level applies to every member. `feature_array` (in `models/featureConstants.ts`) defines the eleven known flags.
+
+```ts
+import { feature_array } from "../models/featureConstants.ts";
+
+type Feature = typeof feature_array[number];
+
+type UserWithFeatures = {
+  features?: { feature: Feature }[];
+  units?: { features?: { feature: Feature }[] }[];
+};
+
+type UnitWithFeatures = {
+  features?: { feature: Feature }[];
+};
+
+export function hasFeature(user: UserWithFeatures, feature: Feature): boolean {
+  if (user.features?.some((f) => f.feature === feature)) return true;
+  if (user.units?.some((unit) => hasUnitFeature(unit, feature))) return true;
+  return false;
+}
+
+export function hasUnitFeature(
+  unit: UnitWithFeatures,
+  feature: Feature,
+): boolean {
+  return unit.features?.some((f) => f.feature === feature) ?? false;
+}
+```
+
+**Where it's used:** inside `grantAccess`'s `features` checks and by `requireFeature`. The `features` field on a user is validated against `feature_enums` in `addUser`/`updateUser`.
+
+## `jwt` (`utils/jwt.ts`)
+
+A **dependency-free HS256 JWT** implementation using the Web-standard `crypto.subtle` — the same code runs on Node, Bun, and Deno. `createToken` signs a header/body/signature triple; `verifyToken` splits, verifies the signature, and decodes the body. The secret comes from `TOKEN_KEY` (falling back to a hardcoded development secret), and the key is imported once at module load (`jwtTokenKey`).
+
+```ts
+import { throwError } from "./throwError.ts";
+
+/**
+ * Minimal dependency-free JWT (HS256) using WebCrypto.
+ *
+ * Works on Node, Bun and Deno — no third-party auth dependency needed.
+ * Satek uses `djwt`; this distilled example implements the same idea with
+ * HMAC-SHA256 over WebCrypto so the code runs on every runtime.
+ */
+
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+const getEnv = (key: string, fallback: string): string => {
+  const global = globalThis as Record<string, any>;
+  if (typeof Deno !== "undefined" && Deno.env?.get) {
+    return Deno.env.get(key) || fallback;
+  }
+  if (global.process?.env) {
+    return global.process.env[key] || fallback;
+  }
+  return fallback;
+};
+
+const secretKey = getEnv("TOKEN_KEY", "advancedTutorialSuperSecretKey");
+
+const importKey = async () => {
+  const keyBuf = encoder.encode(secretKey);
+  return crypto.subtle.importKey(
+    "raw",
+    keyBuf,
+    { name: "HMAC", hash: "SHA-256" },
+    true,
+    ["sign", "verify"],
+  );
+};
+
+export const jwtTokenKey = await importKey();
+
+const base64Url = (input: ArrayBuffer | string) => {
+  const bytes = typeof input === "string"
+    ? encoder.encode(input)
+    : new Uint8Array(input);
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+
+const base64UrlDecode = (input: string) => {
+  const pad = input.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = pad + "===".slice((pad.length + 3) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+};
+
+export const createToken = async (payload: Record<string, unknown>) => {
+  const header = base64Url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const body = base64Url(JSON.stringify(payload));
+  const signature = base64Url(
+    await crypto.subtle.sign(
+      "HMAC",
+      jwtTokenKey,
+      encoder.encode(`${header}.${body}`),
+    ),
+  );
+  return `${header}.${body}.${signature}`;
+};
+
+export const verifyToken = async (token: string) => {
+  const [header, body, signature] = token.split(".");
+  if (!header || !body || !signature) throwError("Malformed token");
+
+  const isValid = await crypto.subtle.verify(
+    "HMAC",
+    jwtTokenKey,
+    base64UrlDecode(signature),
+    encoder.encode(`${header}.${body}`),
+  );
+
+  if (!isValid) throwError("Invalid token signature");
+
+  return JSON.parse(decoder.decode(base64UrlDecode(body)));
+};
+```
+
+**Where it's used:** `createToken` in [login](/docs/tutorials/procurement-workflow/auth/login) builds the 90-day token; `verifyToken` in `setTokens` authenticates every request. Set `TOKEN_KEY` in your environment — the fallback secret is only for development.
+
+## `password` (`utils/password.ts`)
+
+Password hashing via SHA-256 over WebCrypto. `hashPassword` returns a hex digest; `comparePassword` re-hashes the submitted password and compares hex strings. (Note: plain SHA-256 hashing is deliberately simple for this demo — a production app should use a salted KDF.)
+
+```ts
+import { throwError } from "./throwError.ts";
+
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+const toHex = (buffer: ArrayBuffer) => {
+  return [...new Uint8Array(buffer)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+};
+
+const fromHex = (hex: string) => {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+  }
+  return bytes;
+};
+
+export const hashPassword = async (password: string): Promise<string> => {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    encoder.encode(password),
+  );
+  return toHex(digest);
+};
+
+export const comparePassword = async (
+  password: string,
+  hash: string,
+): Promise<boolean> => {
+  try {
+    const digest = await crypto.subtle.digest(
+      "SHA-256",
+      encoder.encode(password),
+    );
+    return decoder.decode(digest) === decoder.decode(fromHex(hash));
+  } catch (_e) {
+    throwError("Something went wrong while comparing passwords");
+    return false;
+  }
+};
+```
+
+**Where it's used:** `hashPassword` in [addUser](/docs/tutorials/procurement-workflow/auth/addUser) and [updateUser](/docs/tutorials/procurement-workflow/auth/updateUser) before storage; `comparePassword` in [login](/docs/tutorials/procurement-workflow/auth/login). The seed script stores the SHA-256 hex of `GhostPass123!` so the comparison matches.
+
+## `context` (`utils/context.ts`)
+
+The type-shape of the request context. `MyContext` extends Lesan's `LesanContenxt` and guarantees the context carries a `user` whose `_id` is an `ObjectId` merged with the (partial) `user_pure` shape. Acts cast `coreApp.contextFns.getContextModel()` to `MyContext` so `context.user._id`, `context.user.roles`, etc. are typed.
+
+```ts
+import {
+  type Infer,
+  type LesanContenxt,
+  object,
+  type ObjectId,
+} from "lesan";
+import type { user_pure } from "../models/user.ts";
+
+type Merge<A, B> =
+  & {
+    [K in keyof A]: K extends keyof B ? B[K] : A[K];
+  }
+  & B extends infer O ? { [K in keyof O]: O[K] }
+  : never;
+
+type UserPureStruct = ReturnType<typeof object<typeof user_pure>>;
+type UserPure = Infer<UserPureStruct>;
+
+export interface MyContext extends LesanContenxt {
+  user: Merge<
+    {
+      _id: ObjectId;
+    },
+    Partial<UserPure>
+  >;
+}
+```
+
+**Where it's used:** every protected act and every auth util casts the context to `MyContext`. Note the cast is a runtime no-op — `contextFns.getContextModel()` returns `any`, so the type is documentation/autocomplete rather than enforcement (see the framework's `context.ts` for how the mutable context is set).
+
+## `throwError` (`utils/throwError.ts`)
+
+The whole app's error convention: `throwError(msg)` just throws `new Error(msg)`. The framework's server layer catches it and responds with `{ body: { message }, success: false }`. Using a helper (instead of bare `throw`) keeps the intent readable and gives one place to change the error type later (e.g. to a typed `HttpError` with an HTTP status).
+
+```ts
+export const throwError = (msg?: string): never => {
+  throw new Error(msg);
+};
+```
+
+**Where it's used:** everywhere — every act fn and every auth util calls it with a lowercase, terse message. Several tests assert on the exact messages, so keep them stable when you reuse the pattern.
+
+## The chain in action
+
+Putting it together for a request to [getUsers](/docs/tutorials/procurement-workflow/auth/getUsers):
+
+1. Client sends `token: <jwt>` and `activeRoleId` in the body's `set`.
+2. `setTokens` verifies the JWT → context `user` = decoded payload.
+3. `setUser` reloads the fresh user document → context `user` = current DB record.
+4. `grantAccess([{ roles: [...] }])` finds the active role and confirms it may list users.
+5. `getUsersFn` runs the aggregation.
+
+The same five steps, with different `grantAccess` rules, power every other protected act in this chapter.

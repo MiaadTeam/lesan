@@ -1,0 +1,584 @@
+---
+sidebar_position: 6
+---
+
+# Cross-Platform Support
+
+Lesan is designed to run seamlessly across **Node.js**, **Bun**, and **Deno** — the three major JavaScript runtimes. This is achieved through a clean **Platform Abstraction Layer (PAL)** that isolates runtime-specific APIs behind consistent interfaces.
+
+## Supported Runtimes
+
+| Runtime | Version | Status | Notes |
+|---------|---------|--------|-------|
+| **Node.js** | 18+ | ✅ Fully Supported | Production-ready |
+| **Bun** | 1.0+ | ✅ Fully Supported | High performance |
+| **Deno** | 1.40+ | ✅ Fully Supported | Native TypeScript |
+
+## Platform Abstraction Layer
+
+Lesan's core framework is **runtime-agnostic**. All platform-specific functionality is abstracted behind interfaces:
+
+```
+┌─────────────────────────────────────────┐
+│           Lesan Core Framework           │
+├─────────────────────────────────────────┤
+│     Platform Adapter (Auto-Detected)     │
+├──────────┬──────────┬──────────┬────────┤
+│   Node   │   Bun    │   Deno   │ Fallback│
+│ Adapters │ Adapters │ Adapters │ (Node)  │
+└──────────┴──────────┴──────────┴────────┘
+```
+
+### Adapter Interfaces
+
+The platform layer provides adapters for:
+
+| Adapter | Purpose | Key Methods |
+|---------|---------|-------------|
+| **FileSystemAdapter** | File I/O | `readFile`, `writeFile`, `ensureDir` |
+| **HttpServerAdapter** | HTTP server | `serve`, `serveFile`, `shutdown` |
+| **EnvironmentAdapter** | Environment vars | `get`, `set`, `getAll` |
+| **RuntimeAdapter** | Runtime detection | `detect`, `getVersion`, `getName` |
+| **BundlerAdapter** | Code bundling | `bundle`, `transform` |
+
+### Runtime Detection
+
+Lesan automatically detects the current runtime at startup:
+
+```typescript
+import { detectRuntime, RuntimeType, isNode, isBun, isDeno } from "@hemedani/lesan";
+
+const runtime = detectRuntime();
+console.log(runtime.name);  // "node", "bun", or "deno"
+console.log(runtime.version); // "20.5.1", "1.0.0", etc.
+
+if (isNode()) {
+  console.log("Running on Node.js");
+}
+
+if (isBun()) {
+  console.log("Running on Bun");
+}
+
+if (isDeno()) {
+  console.log("Running on Deno");
+}
+```
+
+---
+
+## Node.js
+
+### Installation
+
+```bash
+npm install @hemedani/lesan mongodb superstruct
+```
+
+### Usage
+
+```typescript
+import { lesan, MongoClient } from "@hemedani/lesan";
+
+const coreApp = lesan();
+const client = await new MongoClient("mongodb://localhost:27017/").connect();
+coreApp.odm.setDb(client.db("myapp"));
+
+await coreApp.runServer({ port: 8000 });
+```
+
+### Node.js-Specific Features
+
+The Node.js adapter uses:
+
+- **`node:http`** for HTTP server (`createServer`)
+- **`node:fs/promises`** for file system operations
+- **Web Standard `Request`/`Response`** converted from Node's `IncomingMessage`/`ServerResponse`
+- **Stream conversion** via `Readable.toWeb()`
+
+### Environment Variables
+
+```typescript
+import { env } from "@hemedani/lesan";
+
+const port = env.get("PORT");           // Get string value
+const debug = env.getBoolean("DEBUG");  // Parse as boolean
+const maxConn = env.getNumber("MAX_CONN"); // Parse as number
+```
+
+### File System Operations
+
+```typescript
+import { fs } from "@hemedani/lesan";
+
+await fs.ensureDir("./uploads");
+const content = await fs.readFile("./config.json");
+await fs.writeFile("./output.txt", "Hello");
+```
+
+---
+
+## Bun
+
+### Installation
+
+```bash
+bun add @hemedani/lesan mongodb superstruct
+```
+
+### Usage
+
+```typescript
+import { lesan, MongoClient } from "@hemedani/lesan";
+
+const coreApp = lesan();
+const client = await new MongoClient("mongodb://localhost:27017/").connect();
+coreApp.odm.setDb(client.db("myapp"));
+
+await coreApp.runServer({ port: 8000 });
+```
+
+### Bun-Specific Features
+
+The Bun adapter leverages:
+
+- **Bun's native HTTP server** (`Bun.serve()`)
+- **Bun's file system APIs** (`Bun.file()`, `Bun.write()`)
+- **Native TypeScript support** — no transpilation needed
+- **Built-in bundler** for playground assets
+
+### Performance Notes
+
+Bun generally shows the best performance for:
+
+- HTTP request throughput
+- File system operations
+- Startup time
+
+```bash
+# Run with Bun
+bun run src/main.ts
+
+# With hot reload
+bun --watch run src/main.ts
+```
+
+---
+
+## Deno
+
+### Installation
+
+Deno uses URL imports or an import map:
+
+```typescript
+// Import directly from a URL (or use import map)
+import { lesan, MongoClient } from "jsr:@hemedani/lesan";
+```
+
+Or with `deno.json`:
+
+```json
+{
+  "imports": {
+    "@hemedani/lesan": "jsr:@hemedani/lesan"
+  }
+}
+```
+
+### Usage
+
+```typescript
+import { lesan, MongoClient } from "@hemedani/lesan";
+
+const coreApp = lesan();
+const client = await new MongoClient("mongodb://localhost:27017/").connect();
+coreApp.odm.setDb(client.db("myapp"));
+
+await coreApp.runServer({ port: 8000 });
+```
+
+### Deno-Specific Features
+
+The Deno adapter uses:
+
+- **Deno's native HTTP server** (`Deno.serve()`)
+- **Deno's file system APIs** (`Deno.readFile()`, `Deno.writeFile()`)
+- **Permission-based security** — requires `--allow-net`, `--allow-read`, `--allow-write`
+- **Native TypeScript** without build step
+
+### Running with Permissions
+
+```bash
+deno run --allow-net --allow-read --allow-write --allow-env src/main.ts
+```
+
+### Bundler Adapter
+
+Deno's bundler uses `esbuild` via WASM for playground bundling:
+
+```typescript
+import { bundler } from "@hemedani/lesan";
+
+const result = await bundler.bundle({
+  entryPoints: ["./src/client.tsx"],
+  outdir: "./dist",
+});
+```
+
+---
+
+## Platform Comparison
+
+| Feature | Node.js | Bun | Deno |
+|---------|---------|-----|------|
+| **Native TypeScript** | ❌ (needs tsx/ts-node) | ✅ | ✅ |
+| **Package Manager** | npm/yarn/pnpm | bun | deno (URL imports) |
+| **HTTP Performance** | Good | Excellent | Good |
+| **MongoDB Driver** | Official | Official | Official (npm compat) |
+| **Startup Time** | ~500ms | ~50ms | ~200ms |
+| **File I/O** | Callbacks/Promises | Native fast paths | Promises |
+| **Security Model** | Application-level | Application-level | Permission flags |
+| **Built-in Bundler** | ❌ | ✅ | ✅ (via deno_emit) |
+| **Hot Reload** | nodemon/tsx | --watch | --watch |
+
+---
+
+## Writing Runtime-Agnostic Code
+
+Lesan handles most runtime differences automatically. However, if you need runtime-specific logic:
+
+### Detecting the Runtime
+
+```typescript
+import { detectRuntime, RuntimeType } from "@hemedani/lesan";
+
+const runtime = detectRuntime();
+
+switch (runtime.type) {
+  case RuntimeType.Node:
+    // Node.js specific code
+    break;
+  case RuntimeType.Bun:
+    // Bun specific code
+    break;
+  case RuntimeType.Deno:
+    // Deno specific code
+    break;
+}
+```
+
+### Using Platform Adapters Directly
+
+```typescript
+import { fs, http, env, bundler } from "@hemedani/lesan";
+
+// These work identically across all runtimes:
+await fs.writeFile("./file.txt", "content");
+await http.serve({ port: 3000 }, handler);
+const apiKey = env.get("API_KEY");
+```
+
+---
+
+## MongoDB Compatibility
+
+Lesan uses the official **MongoDB Node.js driver**, which works on all three runtimes:
+
+| Runtime | MongoDB Driver | Connection |
+|---------|---------------|------------|
+| Node.js | `mongodb` (npm) | Native |
+| Bun | `mongodb` (npm) | Native (Bun has Node compat) |
+| Deno | `mongodb` (npm via esm.sh) | Via npm compatibility layer |
+
+### Connection Examples
+
+**Node.js / Bun:**
+```typescript
+import { MongoClient } from "mongodb"; // or from "@hemedani/lesan"
+const client = await new MongoClient("mongodb://localhost:27017").connect();
+```
+
+**Deno:**
+```typescript
+import { MongoClient } from "npm:mongodb@6"; // or via esm.sh
+const client = await new MongoClient("mongodb://localhost:27017").connect();
+```
+
+---
+
+## Deployment
+
+### Node.js Deployment
+
+**Docker:**
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 8000
+CMD ["node", "dist/main.js"]
+```
+
+**PM2:**
+```bash
+pm2 start dist/main.js --name lesan-api
+```
+
+### Bun Deployment
+
+**Docker:**
+```dockerfile
+FROM oven/bun:1
+WORKDIR /app
+COPY package.json ./
+RUN bun install
+COPY . .
+EXPOSE 8000
+CMD ["bun", "run", "src/main.ts"]
+```
+
+**Direct:**
+```bash
+bun run src/main.ts
+```
+
+### Deno Deployment
+
+**Docker:**
+```dockerfile
+FROM denoland/deno:1.40
+WORKDIR /app
+COPY deno.json main.ts ./
+RUN deno cache main.ts
+EXPOSE 8000
+CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-write", "main.ts"]
+```
+
+**Deno Deploy:**
+```typescript
+// main.ts
+import { lesan } from "@hemedani/lesan";
+const coreApp = lesan();
+// ... setup ...
+await coreApp.runServer({ port: 8000 });
+```
+
+---
+
+## Platform-Specific Configuration
+
+### Environment Variables by Runtime
+
+All runtimes support the same environment variable patterns through the `env` adapter:
+
+```typescript
+// .env file (loaded automatically)
+PORT=8000
+MONGODB_URI=mongodb://localhost:27017/myapp
+DEBUG=true
+
+// Access anywhere
+import { env } from "@hemedani/lesan";
+const port = env.getNumber("PORT", 8000);
+```
+
+### HTTP Server Options
+
+All runtimes accept the same server options:
+
+```typescript
+await coreApp.runServer({
+  port: 8000,
+  playground: true,
+  typeGeneration: true,
+  staticPath: ["./public"],
+  cors: ["https://myapp.com"],
+});
+```
+
+### File System Paths
+
+Use relative paths for cross-runtime compatibility:
+
+```typescript
+// ✅ Works on all runtimes
+const filePath = "./uploads/image.jpg";
+
+// ❌ Deno-specific
+const filePath = "file:///uploads/image.jpg";
+```
+
+---
+
+## Troubleshooting
+
+### Node.js Issues
+
+**Error: `Cannot find module 'mongodb'`**
+```bash
+npm install mongodb superstruct
+```
+
+**Error: `ECONNREFUSED` to MongoDB**
+- Ensure MongoDB is running: `mongod` or Docker
+- Check connection string format
+
+### Bun Issues
+
+**Error: `mongodb` driver compatibility**
+```bash
+bun add mongodb
+# Bun has built-in Node.js compatibility for most npm packages
+```
+
+**Slow initial startup**
+- Bun caches dependencies after first run
+- Use `bun install` to warm the cache
+
+### Deno Issues
+
+**Error: `Permission denied`**
+```bash
+# Add required permissions
+deno run --allow-net --allow-read --allow-write --allow-env main.ts
+```
+
+**Error: `Cannot resolve module`**
+```json
+// Add to deno.json
+{
+  "imports": {
+    "@hemedani/lesan": "jsr:@hemedani/lesan"
+  }
+}
+```
+
+**MongoDB driver on Deno**
+```typescript
+// Use npm: specifier for MongoDB driver
+import { MongoClient } from "npm:mongodb@6";
+```
+
+---
+
+## Complete Runtime Examples
+
+### Node.js Example
+
+```typescript
+// src/main.ts
+import { lesan, MongoClient, string, number, object } from "@hemedani/lesan";
+
+const coreApp = lesan();
+const client = await new MongoClient(process.env.MONGODB_URI!).connect();
+coreApp.odm.setDb(client.db("app"));
+
+const users = coreApp.odm.newModel("user", {
+  name: string(),
+  email: string(),
+}, {});
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "getUser",
+  validator: object({ set: object({}), get: object() }),
+  fn: async (body) => users.findOne({ filters: {}, projection: body.details.get }),
+});
+
+await coreApp.runServer({ port: 8000 });
+```
+
+Run:
+```bash
+npx tsx src/main.ts
+```
+
+### Bun Example
+
+```typescript
+// src/main.ts
+import { lesan, MongoClient, string, number, object } from "@hemedani/lesan";
+
+const coreApp = lesan();
+const client = await new MongoClient(Bun.env.MONGODB_URI!).connect();
+coreApp.odm.setDb(client.db("app"));
+
+// ... same as Node.js ...
+
+await coreApp.runServer({ port: 8000 });
+```
+
+Run:
+```bash
+bun run src/main.ts
+```
+
+### Deno Example
+
+```typescript
+// main.ts
+import { lesan, MongoClient, string, number, object } from "@hemedani/lesan";
+
+const coreApp = lesan();
+const client = await new MongoClient(Deno.env.get("MONGODB_URI")!).connect();
+coreApp.odm.setDb(client.db("app"));
+
+// ... same as Node.js ...
+
+await coreApp.runServer({ port: 8000 });
+```
+
+Run:
+```bash
+deno run --allow-net --allow-read --allow-write --allow-env main.ts
+```
+
+---
+
+## API Reference Table
+
+### Runtime Detection
+
+| Function | Description |
+|----------|-------------|
+| `detectRuntime()` | Detect current runtime |
+| `isNode()` | Check if running on Node.js |
+| `isBun()` | Check if running on Bun |
+| `isDeno()` | Check if running on Deno |
+| `getRuntimeString()` | Get runtime name string |
+| `getRuntimeVersion()` | Get runtime version |
+| `meetsVersion(min)` | Check version requirement |
+
+### Environment Adapter
+
+| Method | Description |
+|--------|-------------|
+| `env.get(key)` | Get environment variable |
+| `env.getString(key, default?)` | Get as string |
+| `env.getNumber(key, default?)` | Get as number |
+| `env.getBoolean(key, default?)` | Get as boolean |
+| `env.getArray(key, default?)` | Get as array |
+| `env.set(key, value)` | Set environment variable |
+| `env.getAll()` | Get all variables |
+
+### File System Adapter
+
+| Method | Description |
+|--------|-------------|
+| `fs.readFile(path)` | Read file contents |
+| `fs.writeFile(path, data)` | Write file |
+| `fs.ensureDir(path)` | Create directory if missing |
+| `fs.exists(path)` | Check if path exists |
+| `fs.remove(path)` | Remove file or directory |
+
+### HTTP Server Adapter
+
+| Method | Description |
+|--------|-------------|
+| `http.serve(options, handler)` | Start HTTP server |
+| `http.serveFile(request, path)` | Serve static file |
+| `http.getMimeType(path)` | Get MIME type |
+| `http.shutdown(options?)` | Stop server |

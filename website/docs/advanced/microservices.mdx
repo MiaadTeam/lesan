@@ -1,0 +1,131 @@
+---
+sidebar_position: 7
+---
+
+# Microservices: Service-as-URL Forwarding
+
+Lesan lets you split a backend into multiple applications and route requests between them. A **service** in Lesan is either:
+
+- a local `Acts` object (in-process), or
+- a **URL string** pointing at another Lesan server's `POST /lesan` endpoint (remote proxy).
+
+Both are registered with `setService`, and the client never needs to know which is which — it just sends `service: "ecommerce"`.
+
+## Registering a Service
+
+```ts
+import { lesan } from "@hemedani/lesan";
+
+export const coreApp = lesan();
+
+// Remote: forward "ecommerce" requests to another server's /lesan endpoint.
+coreApp.acts.setService("ecommerce", "http://localhost:8574/lesan");
+
+// Or in-process: point at another app's local acts.
+// coreApp.acts.setService("ecommerce", ecommerceActs);
+```
+
+The signature is `setService(serviceName, service: Acts | string)`:
+
+```ts
+coreApp.acts.setService("ecommerce", "http://localhost:8574/lesan"); // URL → proxied
+coreApp.acts.setService("ecommerce", ecommerceMainActs);            // Acts → in-process
+```
+
+## How Forwarding Works
+
+When a request arrives with `service: "ecommerce"` and the service value is a string, `serveLesan`:
+
+1. Reads the service value as the remote URL.
+2. Rewrites the incoming body's `service` to `"main"` (the remote app handles it with its own `main` acts).
+3. `POST`s the whole body to `http://localhost:8574/lesan` with the original headers.
+4. Returns the remote response to the client.
+
+```ts
+// core app forwards: { service: "ecommerce", model: "state", act: "getStates", details: {...} }
+//           becomes: { service: "main",    model: "state", act: "getStates", details: {...} }
+```
+
+So the ecommerce server is a normal Lesan server running on port 8574:
+
+```ts
+// ecommerce app
+coreApp.runServer({ port: 8574, playground: false, typeGeneration: true });
+```
+
+## Registering the Local (Main) Acts
+
+If you only use remote services, `main` is still required for the core app's own acts. Register them with `setAct` as usual — `acts` defaults to `main` when the client omits `service`.
+
+```ts
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "getUser",
+  validator: getUserValidator(),
+  fn: getUser,
+});
+```
+
+## Introspecting Services
+
+```ts
+coreApp.acts.getServiceKeys();                 // ["main", "ecommerce", ...]
+coreApp.acts.getService("ecommerce");          // the Acts object or URL string
+coreApp.acts.getActsWithServices();            // all acts grouped by service
+```
+
+:::note
+`getActsKeys(serviceName)` throws if the service value is a string (a URL has no local acts to enumerate) — only inspect acts for in-process services.
+:::
+
+## Client Experience
+
+The client sends one body shape regardless of where the act lives:
+
+```json
+{
+  "service": "ecommerce",
+  "model": "state",
+  "act": "getStates",
+  "details": {
+    "set": {
+      "pagination": { "lastObjectId": "507f1f77bcf86cd799439011", "limit": 20 }
+    },
+    "get": {
+      "name": 1,
+      "country": 1,
+      "cities": 1
+    }
+  }
+}
+```
+
+The `get` projection is forwarded untouched, so the ecommerce server's `selectStruct` validator can shape the response exactly like a local call.
+
+## Validators Across Services
+
+On the ecommerce side, `selectStruct` supports deep per-relation projections — a pattern that's handy when services pass documents back and forth:
+
+```ts
+const getStateValidator = () =>
+  object({
+    set: object({ stateId: objectIdValidation }),
+    get: coreApp.schemas.selectStruct("state", {
+      country: {
+        states: { country: 1 },
+      },
+    }),
+  });
+```
+
+## Real-World Layout
+
+A typical setup (mirroring the `examples/microservice` folder):
+
+```
+core app        (:8585)   — users, auth, main domain acts
+  └─ setService("ecommerce", "http://localhost:8574/lesan")
+ecommerce app   (:8574)   — states, cities, orders (its own main acts)
+```
+
+The core server proxies any `service: "ecommerce"` request to port 8574; the ecommerce server handles it with `service: "main"` internally and replies. No HTTP client code, no manual fetch calls, no duplicated validation logic.

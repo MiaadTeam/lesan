@@ -1,0 +1,8 @@
+{
+  "label": "Approval Workflow",
+  "position": 7,
+  "link": {
+    "type": "generated-index",
+    "description": "The heart of the app — process, processStep, purchaseOrder and stepApproval: configuring a workflow, submitting, evaluating, finalizing, cancelling."
+  }
+}

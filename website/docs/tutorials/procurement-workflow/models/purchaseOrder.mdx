@@ -1,0 +1,178 @@
+---
+sidebar_position: 12
+---
+
+# PurchaseOrder
+
+`purchaseOrder` is **the core procurement document**. It's created as a `Draft`, submitted to begin the workflow (`Pending`), and flows through step approvals (`InProgress → Approved/Rejected → Completed/Cancelled`). It carries an embedded `history[]` of every performed action and, on submit, **encumbers budget** against a `budgetLine`.
+
+```ts
+// models/purchaseOrder.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  array, coerce, date, defaulted, enums, number, object, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import {
+  budgetLine_excludes, file_excludes, organization_excludes, process_excludes,
+  product_excludes, stepApproval_excludes, tender_excludes, unit_excludes, user_excludes,
+} from "./excludes.ts";
+
+export const purchaseOrder_status_array = [
+  "Draft", "Pending", "InProgress", "Approved", "Rejected", "Completed", "Cancelled",
+];
+export const purchaseOrder_status_emums = enums(purchaseOrder_status_array);
+
+export const purchaseOrder_pure = {
+  title: string(),
+  description: optional(string()),
+  estimatedAmount: defaulted(number(), 0),
+  status: defaulted(
+    coerce(purchaseOrder_status_emums, string(), (value) => value as typeof purchaseOrder_status_array[number]),
+    "Draft",
+  ),
+  currentStep: defaulted(number(), 0),
+  requestedAt: optional(coerce(date(), string(), (value) => new Date(value))),
+  completedAt: optional(coerce(date(), string(), (value) => new Date(value))),
+  history: defaulted(
+    array(
+      object({
+        action: string(),
+        performed: object({
+          by: string(),
+          name: string(),
+          at: coerce(date(), string(), (value) => new Date(value)),
+          role: object({
+            id: string(),
+            name: string(),
+            scopeType: optional(string()),
+            scopeId: optional(string()),
+          }),
+        }),
+        unit: optional(object({ _id: string(), name: string() })),
+        details: optional(object({})),
+      }),
+    ),
+    [],
+  ),
+  ...createUpdateAt,
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `title` | `string()` | also in the **text index** |
+| `description` | `optional(string())` | also in the **text index** |
+| `estimatedAmount` | `defaulted(number(), 0)` | the encumbered amount on submit |
+| `status` | `coerce(enums([...7]), "Draft")` | lifecycle state machine |
+| `currentStep` | `defaulted(number(), 0)` | which step the order is on (0 = not started) |
+| `requestedAt` | `optional(coerce(date()))` | when it entered the workflow |
+| `completedAt` | `optional(coerce(date()))` | set on finalize/cancel |
+| `history` | `defaulted(array(entry), [])` | immutable action log |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+**`history`** is the audit trail — an array of `{ action, performed: { by, name, at, role }, unit?, details? }`. Every submit, decision, finalize, or cancel *appends* (never mutates) an entry, so the full story of the order is recoverable. `getHistory` reads it.
+
+## Relations
+
+```ts
+export const purchaseOrder_relations = {
+  requester: { schemaName: "user", type: "single" as RelationDataType, optional: false, excludes: user_excludes,
+    relatedRelations: { purchaseOrders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } } } },
+  organization: { schemaName: "organization", type: "single" as RelationDataType, optional: true, excludes: organization_excludes,
+    relatedRelations: { purchaseOrders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } } } },
+  requestingUnit: { schemaName: "unit", type: "single" as RelationDataType, optional: true, excludes: unit_excludes,
+    relatedRelations: { purchaseOrders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } } } },
+  product: { schemaName: "product", type: "single" as RelationDataType, optional: false, excludes: product_excludes,
+    relatedRelations: { purchaseOrders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } } } },
+  process: { schemaName: "process", type: "single" as RelationDataType, optional: true, excludes: process_excludes,
+    relatedRelations: { purchaseOrders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } } } },
+  attachments: { schemaName: "file", type: "multiple" as RelationDataType, optional: true, excludes: file_excludes,
+    limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType }, relatedRelations: {} },
+  budgetLine: { schemaName: "budgetLine", type: "single" as RelationDataType, optional: true, excludes: budgetLine_excludes,
+    relatedRelations: { purchaseOrders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } } } },
+  tender: { schemaName: "tender", type: "single" as RelationDataType, optional: true, excludes: tender_excludes,
+    relatedRelations: { purchaseOrders: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } } } },
+};
+```
+
+| Relation | Target | Type | Notes |
+|----------|--------|------|-------|
+| `requester` | `user` | single (**required**) | who raised the order |
+| `organization` | `organization` | single (optional) | |
+| `requestingUnit` | `unit` | single (optional) | the unit that needs the goods |
+| `product` | `product` | single (**required**) | what is being bought |
+| `process` | `process` | single (optional) | resolved on submit |
+| `attachments` | `file` | multiple (optional, limit 50) | docs/quotations |
+| `budgetLine` | `budgetLine` | single (optional) | where the money comes from |
+| `tender` | `tender` | single (optional) | competitive bidding link |
+
+Every forward relation has a back-reference on its target (e.g. `user.purchaseOrders`, `budgetLine.purchaseOrders`), kept in sync automatically by the relation engine.
+
+## The status machine
+
+```
+Draft ──submit──> Pending ──create stepApprovals──> InProgress
+                                                      │  │
+                                all approved ────────┘  └─── any rejected ──> Rejected
+                                     │
+                              Approved ──finalize──> Completed
+                                                        │
+Draft / InProgress / Pending ────────cancel────────> Cancelled
+```
+
+The transitions are enforced inside the acts, not the schema — see the [workflow chapter](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Factory and text index
+
+```ts
+export const purchaseOrders = () =>
+  coreApp.odm.newModel("purchaseOrder", purchaseOrder_pure, purchaseOrder_relations, {
+    createIndex: {
+      indexSpec: { title: "text", description: "text" },
+    },
+  });
+```
+
+The text index on `title`/`description` powers the free-text search in the `gets`/`count` acts.
+
+## In the workflow
+
+- [po-add](/docs/tutorials/procurement-workflow/workflow/po-add) creates the draft
+- [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit) resolves the process, checks budget, creates `stepApproval`s, and encumbers
+- [submit-decision](/docs/tutorials/procurement-workflow/workflow/submit-decision) evaluates each step
+- [po-finalize](/docs/tutorials/procurement-workflow/workflow/po-finalize), [po-cancel](/docs/tutorials/procurement-workflow/workflow/po-cancel) close it
+- [stepApproval model](/docs/tutorials/procurement-workflow/models/stepApproval) is the per-unit task record
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "purchaseOrder",
+    "act": "gets",
+    "details": {
+      "set": { "query": { "$text": "TSH" }, "page": 1 },
+      "get": { "title": true, "status": true, "estimatedAmount": true, "product": { "name": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `purchaseOrder not found` | act given an unknown `_id` | pass a real `_id` |
+| status-guard errors (`can not ... because status is ...`) | transition attempted from an illegal state | only valid transitions exist (see each act's Errors table) |
+| `Insufficient remaining budget` | submit amount exceeds the budgetLine's `remainingBudget` | reduce amount or allocate more budget |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

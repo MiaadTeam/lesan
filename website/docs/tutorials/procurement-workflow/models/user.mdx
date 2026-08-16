@@ -1,0 +1,188 @@
+---
+sidebar_position: 1
+---
+
+# User
+
+The `user` model is the authentication entity of the whole system. Every person — the ghost superuser, managers, unit heads, store keepers, employees — is a `user`. It carries **roles** (with an org/unit scope), **features** (fine-grained permission flags), and membership in **organizations** and **units**.
+
+```ts
+// models/user.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  array, boolean, coerce, defaulted, enums, object, optional,
+  pattern, type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { file_excludes, organization_excludes, unit_excludes } from "./excludes.ts";
+import { feature_enums } from "./featureConstants.ts";
+
+export const role_array = [
+  "Manager", "Admin", "OrgHead", "UnitHead", "StoreHead", "Employee", "Ordinary",
+];
+export const role_emums = enums(role_array);
+
+export const role_scope_type_emums = enums(["organization", "unit", "store"]);
+
+export const emailPattern = pattern(string(), /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
+
+export const user_pure = {
+  first_name: string(),
+  last_name: string(),
+  email: emailPattern,
+  password: string(),
+  position: optional(string()),
+  isActive: defaulted(boolean(), true),
+  isGhost: defaulted(boolean(), false),
+  features: defaulted(array(object({ feature: feature_enums })), []),
+  roles: defaulted(
+    array(
+      object({
+        roleId: string(),
+        name: role_emums,
+        scopeType: optional(role_scope_type_emums),
+        scopeId: optional(string()),
+      }),
+    ),
+    [{ roleId: crypto.randomUUID(), name: "Ordinary" }],
+  ),
+  ...createUpdateAt,
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `first_name` | `string()` | |
+| `last_name` | `string()` | |
+| `email` | `pattern(string(), email-regex)` | validated at insert/update; indexed **unique** |
+| `password` | `string()` | **excluded** from every response by default (see below) |
+| `position` | `optional(string())` | free-text job title |
+| `isActive` | `defaulted(boolean(), true)` | soft-disable a user |
+| `isGhost` | `defaulted(boolean(), false)` | `true` only for the bootstrap superuser |
+| `features` | `defaulted(array({feature}), [])` | permission flags, see `featureConstants.ts` |
+| `roles` | `defaulted(array(role), [Ordinary])` | each role = `{ roleId, name, scopeType, scopeId }` |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+Two details worth noticing:
+
+- **`roles` has a default of one `Ordinary` role.** A new user can be inserted without specifying any role and still get a `roleId: crypto.randomUUID()` — every role object must have a unique `roleId` so the active-role machinery can point at one of them.
+- **`scopeType`/`scopeId`** give a role its *scope*: a `UnitHead` role with `scopeType: "unit"` and `scopeId: <unit _id>` only grants authority over that unit. This is what the workflow's per-unit approvals rely on.
+
+## Relations
+
+```ts
+export const user_relations = {
+  avatar: {
+    schemaName: "file",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: file_excludes,
+    relatedRelations: {},
+  },
+  organizations: {
+    schemaName: "organization",
+    type: "multiple" as RelationDataType,
+    optional: true,
+    excludes: organization_excludes,
+    limit: 50,
+    sort: { field: "_id", order: "desc" as RelationSortOrderType },
+    relatedRelations: {
+      users: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  units: {
+    schemaName: "unit",
+    type: "multiple" as RelationDataType,
+    optional: true,
+    excludes: unit_excludes,
+    limit: 50,
+    sort: { field: "_id", order: "desc" as RelationSortOrderType },
+    relatedRelations: {
+      members: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `avatar` | `file` | single (optional) | — |
+| `organizations` | `organization` | multiple (optional, limit 50) | `organization.users` |
+| `units` | `unit` | multiple (optional, limit 50) | `unit.members` |
+
+The `relatedRelations` objects are the **inverse** snapshots. When a user is added to `unit X`, Lesan also writes the user's id into `unit X`'s `members` array — you never update the back-reference by hand.
+
+## Excludes and the password
+
+```ts
+export const users = () =>
+  coreApp.odm.newModel("user", user_pure, user_relations, {
+    createIndex: {
+      indexSpec: { email: 1 },
+      options: { unique: true },
+    },
+    excludes: ["password"],
+  });
+```
+
+Two protections here:
+
+- **Model-level `excludes: ["password"]`** — `password` is stripped from every user document *before it is returned* to the client. This applies to the whole schema, not just relations. The password hash is only ever compared inside `login`.
+- **`createIndex` unique on `email`** — two users can never share an email. A duplicate insert/update rejects with MongoDB's `E11000 duplicate key error`.
+
+There is also a text index created after registration (called from `mod.ts`):
+
+```ts
+export const createUserTextIndex = async () => {
+  const collection = coreApp.odm.getCollection("user");
+  try {
+    await collection.createIndex({ first_name: "text", last_name: "text", email: "text" });
+  } catch (error) {
+    console.error("Text index already exists or creation failed:", (error as Error).message);
+  }
+};
+```
+
+This powers the `$text` search in the `getUsers` act.
+
+## In the workflow
+
+Users are the *actors*. The [Auth & Users](/docs/tutorials/procurement-workflow/auth/login) chapter covers every user act:
+
+- [login](/docs/tutorials/procurement-workflow/auth/login) verifies credentials and issues the JWT
+- [getMe](/docs/tutorials/procurement-workflow/auth/getMe), [getUser](/docs/tutorials/procurement-workflow/auth/getUser), [getUsers](/docs/tutorials/procurement-workflow/auth/getUsers), [countUsers](/docs/tutorials/procurement-workflow/auth/countUsers) read users
+- [addUser](/docs/tutorials/procurement-workflow/auth/addUser), [updateUser](/docs/tutorials/procurement-workflow/auth/updateUser), [updateUserRelations](/docs/tutorials/procurement-workflow/auth/updateUserRelations), [removeUser](/docs/tutorials/procurement-workflow/auth/removeUser) write them
+- [dashboardStatistic](/docs/tutorials/procurement-workflow/auth/dashboardStatistic) reports across roles
+
+## Run it
+
+Any act on the `user` schema — e.g. the list with a `$text` search:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "user",
+    "act": "getUsers",
+    "details": {
+      "set": { "query": { "$text": "Sara" }, "sort": { "field": "_id", "order": "desc" }, "page": 1 },
+      "get": { "first_name": true, "last_name": true, "email": true }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.users` | email (or another unique field) already exists | use a different email, or look the existing user up first |
+| `password` missing in responses | model-level `excludes: ["password"]` | expected behaviour — never expose the hash |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

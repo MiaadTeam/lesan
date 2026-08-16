@@ -1,0 +1,169 @@
+---
+sidebar_position: 9
+---
+
+# insertMany
+
+Another Lesan surprise: `insertMany` keeps **all relationships embedded correctly** while inserting many documents at once. It's fast — changes go to the database as a single aggregation pipeline.
+
+## Insert many cities
+
+```ts
+const addCitiesValidator = () => {
+  return object({
+    set: object({
+      multiCities: array(object(countryCityPure)),
+      country: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("city", 1),
+  });
+};
+
+const addCities: ActFn = async (body) => {
+  const { country, multiCities } = body.details.set;
+
+  return await cities.insertMany({
+    docs: multiCities,
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          cities: true,
+          citiesByPopulation: true,
+          capital: false,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCities",
+  validator: addCitiesValidator(),
+  fn: addCities,
+});
+```
+
+Two important points:
+
+1. **Validation happens before any database command.** `multiCities` is an array of pure city objects, and the whole payload — including each city's fields — is validated up front:
+
+   ```json
+   "multiCities": [
+     { "name": "Beirout", "abb": "BI", "population": 20000000 },
+     { "name": "Baalbak", "abb": "BA", "population": 850000 }
+   ]
+   ```
+
+   Wrong data is rejected *before* anything reaches Mongo.
+
+2. **Single relations must be `false`.** We explicitly set `capital: false` because we don't know which city will become the capital. In general, one-to-one relations in `insertMany` should always be `false` — if they were `true`, the related relation would be updated once for *every* new document, which is usually wrong.
+
+`insertMany` accepts the same shape as `insertOne`, but `docs` is an **array**:
+
+- **`docs`** — an array of pure-field objects.
+- **`relations`** — the relation input (same as `insertOne`).
+- **`projection`** — shapes the written data.
+- **`options`** *(optional)* — MongoDB `BulkWriteOptions`.
+
+The full example is [`examples/document/10-1-insertMany.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/10-1-insertMany.ts).
+
+Before running `addCities`:
+
+![Cities before insertMany in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/5daa195c-ee97-43f6-8aa5-908d78f72564)
+
+While running:
+
+![Cities while insertMany runs](https://github.com/MiaadTeam/lesan/assets/6236123/feb44828-7481-4c36-99b6-9559f7bbde07)
+
+After running — both cities are in the collection, embedded in the country's lists:
+
+![Cities after insertMany in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/752d3cba-92b7-431d-b6ef-99ea001cf033)
+
+## Insert many users — all relation types at once
+
+The next example exercises almost every relation shape in one `insertMany`:
+
+```ts
+const addUsersValidator = () => {
+  return object({
+    set: object({
+      multiUsers: array(object()),
+      country: objectIdValidation,
+      livedCities: array(objectIdValidation),
+      lovedCity: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+};
+
+const addUsers: ActFn = async (body) => {
+  const { country, multiUsers, livedCities, lovedCity } = body.details.set;
+  const obIdLivedCities = livedCities.map((lp: string) => new ObjectId(lp));
+
+  return await users.insertMany({
+    docs: multiUsers,
+    projection: body.details.get,
+    relations: {
+      country: {
+        _ids: new ObjectId(country),
+        relatedRelations: {
+          users: true,
+        },
+      },
+      livedCities: {
+        _ids: obIdLivedCities,
+        relatedRelations: {
+          users: true,
+        },
+      },
+      mostLovedCity: {
+        _ids: new ObjectId(lovedCity),
+        relatedRelations: {
+          lovedByUser: true,
+        },
+      },
+    },
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "addUsers",
+  validator: addUsersValidator(),
+  fn: addUsers,
+});
+```
+
+Here all the relation types appear together:
+
+- **one-to-many** — `country`: the users store the country's pure fields; on the country side the users are stored in the `users` list.
+- **many-to-many** — `livedCities`: an array of city ids; each user stores those cities' pure fields in `livedCities`, and each city stores the users in its `users` list.
+- **one-to-many (single)** — `mostLovedCity`: a single city id stored in each user, while the city keeps the users in `lovedByUser`.
+
+The full example is [`examples/document/10-2-insertMany.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/10-2-insertMany.ts).
+
+Before running `addUsers`:
+
+![Users before insertMany in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/f8d7275a-5bf0-4cc4-b869-5e198379d209)
+
+While running:
+
+![Users while insertMany runs](https://github.com/MiaadTeam/lesan/assets/6236123/65d126d9-576b-4489-82f9-c5225aed60dc)
+
+After running — all users inserted, with every relation embedded on both sides:
+
+![Users after insertMany in Compass](https://github.com/MiaadTeam/lesan/assets/6236123/5430fe0e-b69a-40fc-9b8b-fc0de4a9eb22)
+
+## Insert many countries
+
+Inserting countries needs no `relations` argument at all, since `country` has none — the implementation is left to you. A real-world example lives in the [benchmark](https://github.com/MiaadTeam/benchmark/blob/master/src/lesan-deno-mongo/mod.ts).
+
+The interesting takeaway: because relations are defined once and embedded automatically, the benchmark's `insertMany` implementation was trivial — and the insert time is remarkably short.
+
+## Next steps
+
+- Back to the [API Reference](/docs/api/models) for the full ODM surface
+- See the whole country/city/user example come together in [relations-in-depth](/docs/advanced/relations-in-depth)

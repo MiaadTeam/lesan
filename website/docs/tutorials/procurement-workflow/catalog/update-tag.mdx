@@ -1,0 +1,121 @@
+---
+sidebar_position: 7
+---
+
+# updateTag
+
+Edits a tag's `name` and/or `color` by `_id`. Only `Manager` and `Admin`. Fields are optional here (unlike `addTag`), so you send exactly what you want to change. The unique `name` index still applies.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { updateTagFn } from "./updateTag.fn.ts";
+import { updateTagValidator } from "./updateTag.val.ts";
+
+export const updateTagSetup = () =>
+  coreApp.acts.setAct({
+    schema: "tag",
+    actName: "updateTag",
+    validationRunType: "create",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: updateTagValidator(),
+    fn: updateTagFn,
+  });
+```
+
+## The validator (`updateTag.val.ts`)
+
+```ts
+import { object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const updateTagValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+      name: optional(string()),
+      color: optional(string()),
+    }),
+    get: selectStruct("tag", 1),
+  });
+};
+```
+
+- `_id` is required and validated as an ObjectId.
+- `name` and `color` are `optional(string())` — a partial update is fine. Sending an empty `{}` (just `_id`) is valid but a no-op.
+
+## The implementation (`updateTag.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { tag } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const updateTagFn: ActFn = async (body) => {
+  const {
+    set: { _id, ...rest },
+    get,
+  } = body.details;
+
+  const updated = await tag.findOneAndUpdate({
+    filter: { _id: new ObjectId(_id as string) },
+    update: { $set: rest },
+    projection: get,
+  });
+
+  !updated && throwError("tag not found");
+  return updated;
+};
+```
+
+1. `_id` is pulled out of `set`; everything remaining (`rest`, which includes `activeRoleId` plus any update fields) becomes the update payload.
+2. `findOneAndUpdate` runs `{ $set: rest }` — only the fields you sent are overwritten; everything else stays untouched.
+3. `!updated && throwError("tag not found")` — if no tag matches `_id`, you get an error rather than a silent no-op.
+4. The updated document is returned with the client's `get` projection.
+
+:::note
+**`activeRoleId` is included in `rest` here. It's harmless in the tag case because the schema doesn't validate/strictly reject extra `$set` keys at the DB level — but this is why the write acts in this app prefer `stripActiveRole`. Only the `name`/`color` fields the validator allowed can arrive, so the surface is safe.**
+:::
+
+## In the workflow
+
+The maintenance act for tag metadata — rename a tag or recolor it without touching products. Because tags are embedded into products as snapshots, changing a tag's `name` here does **not** retroactively rewrite the snapshots already stored inside existing products; re-attach via [updateProductRelations](/docs/tutorials/procurement-workflow/catalog/update-product-relations) if you need the new value propagated.
+
+- [tag model](/docs/tutorials/procurement-workflow/models/tag)
+- Sibling acts: [addTag](/docs/tutorials/procurement-workflow/catalog/add-tag), [getTags](/docs/tutorials/procurement-workflow/catalog/get-tags), [removeTag](/docs/tutorials/procurement-workflow/catalog/remove-tag)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "tag",
+    "act": "updateTag",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<tagId>", "color": "#4caf50" },
+      "get": { "_id": 1, "name": 1, "color": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `tag not found` | No tag has that `_id`. | Check the id — get it from `getTags`. |
+| `E11000 duplicate key error collection: advancedTutorial.tags index: name_1` | You renamed a tag to a `name` that already exists. | Choose a unique name. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin` (or ghost). | Elevate the role or use the ghost token. |
+| superstruct "expected ObjectId-like string" | `_id` isn't a valid ObjectId. | Send the 24-hex id string. |

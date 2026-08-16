@@ -1,0 +1,415 @@
+---
+sidebar_position: 4
+---
+
+# Lesan's Solution: Communicating Between Server & Client
+
+The idea of connecting client-side applications to the backend in Lesan is inspired by GraphQL — but we tried to make the connection simpler and more practical to solve the problems described on the [previous page](/docs/concepts/receiving-data).
+
+## The Three Principles
+
+We focused on three points:
+
+1. **We do not add any language** to the client or server (such as GraphQL's `GQL`).
+2. **Instead of implementing complex logic to filter user-selected fields**, we use the logic already implemented inside the database — here, MongoDB's `aggregation`. Algorithms inside the database have more scalability and efficiency because they communicate directly with the data.
+3. **We store all relationships in the data as embedded** to reduce the number of requests sent to the database.
+
+We also create descriptive information for the different types of data and how they are embedded in server-side logic, so that we can build more efficient NoSQL data models and simplify database management without changing the information.
+
+## Proposed Method
+
+In the first step, we organize the data structure. We intend to use a NoSQL database, but at the same time we need structured data like SQL — both at runtime and during development — to simplify the management of embedded data as much as possible.
+
+We divide relationships into two types:
+
+- **`mainRelation`** — a *direct* relationship, embedded completely inside the document.
+- **`relatedRelation`** — an *indirect* relationship, embedded only in the number that can be returned in the first request (the first pagination).
+
+Each direct relationship can create several indirect relationships.
+
+We then:
+
+- Exactly leave data-retrieval management to the client, as MongoDB defined it: sending an object with a key (data name) and a value (`0` or `1`).
+- Creatively produce MongoDB aggregation pipelines so that as few documents as possible are requested when receiving data.
+- Allow the client to see all the **models** and **acts** written on each model and choose them in the same object sent.
+- Allow the client to see the **output** of each act, along with the exact depth of its relationships that the server-side programmer previously determined — in a type-safe manner.
+- Create an **ODM** to simplify receiving data along with its relationships, and to manage the repetitions created from embedded relationships — so the server-side programmer writes less code.
+- Prioritize **input validation**: the server-side programmer creates a `validator` for each act, which runs before the act function. In this validator, recursive data management along with the depth of penetration into each model's relationships must be explicitly specified.
+
+## The Example: Country, Province, and City
+
+Let's clarify with an example. Consider a `country` schema with these fields:
+
+```
+id;
+name;
+abb;
+description;
+geoLocation;
+capital;
+provinces;
+cities;
+```
+
+A `province` schema:
+
+```
+id;
+name;
+abb;
+description;
+geoLocation;
+center;
+country;
+cities;
+```
+
+And a `city` schema:
+
+```
+id;
+name;
+abb;
+description;
+geoLocation;
+country;
+province;
+```
+
+The `country` and `province` fields inside the `city`, and the `country` field inside the `province`, are of type `city`/`province` — we **completely embed** them. This form of relationship is a direct relationship, and we call it a **`mainRelation`**. It is ultimately a single object of the pure city/province fields (`mainRelation` can also be multiple — an array of objects):
+
+```ts
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+  },
+  province: {
+    optional: false,
+    schemaName: "province",
+    type: "single" as RelationDataType,
+  },
+};
+const provinceRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+  },
+};
+```
+
+But the province's relationships do not end here — this schema also has a relationship with the `city`. We can complete the relationships by asking one simple question:
+
+> Do these relationships that we have defined have an effect on the other side of the relationship?
+
+Answer: **yes** — all these relationships will have effects on the other side as well. So we complete them like this:
+
+```ts
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+  province: {
+    optional: false,
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+const provinceRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      provinces: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+```
+
+If you look carefully, a **`relatedRelation`** is defined for each relationship, which stores a *limited* number of that relationship on the other side. For example, we store the last `50` cities in the `country` according to the cities' IDs, in descending order — and the same for the `province`.
+
+Now we have reached almost the same form as the schemas we defined at first. The only remaining relationship is `capital` in the `country`.
+
+### Multiple relatedRelations per mainRelation
+
+We can define as many `relatedRelations` as we want for each direct relationship (`mainRelation`) we define. So we can add a new `relatedRelation` where the city is linked to the country — a city can be the **capital** of a country:
+
+```ts
+relatedRelations: {
+  cities: {
+    type: "multiple" as RelationDataType,
+    limit: 50,
+    sort: {
+      field: "_id",
+      order: "desc" as RelationSortOrderType,
+    },
+  },
+  capital: {
+    type: "single",
+  },
+}
+```
+
+Above we've only said there is another relationship between city and country: a city can be the capital of a country. That is a **one-to-one** relationship, unlike the country↔cities relationship, which is **one-to-many**. The `center` of the province is defined exactly the same way.
+
+The complete and final form of the relations:
+
+```ts
+// ----------- Direct and Indirect relations for city
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      capital: {
+        type: "single",
+      },
+    },
+  },
+  province: {
+    optional: false,
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+      center: {
+        type: "single",
+      },
+    },
+  },
+};
+
+// ----------- Direct and Indirect relations for province
+const provinceRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    relatedRelations: {
+      provinces: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+```
+
+We also define the rest of the fields that are not related to other schemas — and are not actually database relationships — as **pure** fields:
+
+```ts
+const countryPure = {
+  name: string(),
+  abb: optional(string()),
+  // ...
+};
+```
+
+### Creating documents
+
+When creating a new document — whether a `city` or a `province` — you must give it the relationships that are not optional (i.e. the ID of the relevant `country`), and on the other hand specify what effects this new document will have on the given relationship. For example, when we create a new `city`:
+
+- Will this city be added to the list of `cities` of the respective `country`, or not?
+- Will it be selected as the `capital` of that `country`, or not?
+
+Read the [Getting Started](/docs/getting-started) section for more on this.
+
+:::note
+We have not defined any relationship for the `country`. Only the `relatedRelations` of the `city` and the `province` have defined relationships for the `country`. Don't worry — you can easily see all the relationships, both `mainRelations` and `relatedRelations`, in the [Playground](/docs/api/server).
+:::
+
+### What is stored in the database?
+
+It is worth noting that we save this form of defining schemas in an object called `schemas` in the integrated runtime (see its structure in the API docs). But **what is stored in the database** is the initial form we showed earlier — for the country:
+
+```
+id;
+name;
+abb;
+description;
+geoLocation;
+capital;
+provinces;
+cities;
+```
+
+The number of pure fields is known. And the value of the fields that are of the relation type of schemas will be in the form of **objects or arrays of objects** of the pure type of that relation. For example, for the country:
+
+```json
+{
+  "id": "234fwee656",
+  "name": "iran",
+  "abb": "ir",
+  "description": "a big country in asia",
+  "geoLocation": [[12, 4], [32, 45]],
+  "capital": {
+    "id": "234fwee656",
+    "name": "tehran",
+    "abb": "th",
+    "description": "the beautiful city in middle of iran",
+    "geoLocation": [[12, 4], [32, 45]]
+  },
+  "provinces": [
+    {
+      "id": "234fwee656",
+      "name": "tehran",
+      "abb": "th",
+      "description": "one of the irans provinces",
+      "geoLocation": [[12, 4], [32, 45]]
+    },
+    {
+      "id": "234fwee656",
+      "name": "hamedan",
+      "abb": "hm",
+      "description": "one of the irans provinces",
+      "geoLocation": [[12, 4], [32, 45]]
+    }
+  ],
+  "cities": [
+    {
+      "id": "234fwee656",
+      "name": "tehran",
+      "abb": "th",
+      "description": "the beautiful city in middle of iran",
+      "geoLocation": [[12, 4], [32, 45]]
+    }
+  ]
+}
+```
+
+## The Request
+
+Now the user can filter and receive all the fields of a schema along with the first depth of its relations by sending **only one request** to the database. This request is based on MongoDB's `projection` process, according to the values of the fields being `1` or `0` — without our framework having any involvement in the filtering, and without writing an additional layer to filter the requested fields.
+
+For example, requesting the first depth of a country's schema:
+
+```json
+{
+  "service": "main",
+  "model": "country",
+  "act": "getCountry",
+  "details": {
+    "get": {
+      "id": 1,
+      "name": 1,
+      "abb": 1,
+      "description": 1,
+      "capital": { "id": 1, "name": 1, "abb": 1 },
+      "provinces": { "id": 1, "name": 1, "description": 1 },
+      "cities": { "id": 1, "name": 1, "abb": 1 }
+    }
+  }
+}
+```
+
+All the requested information is received and returned to the user with **one request to the server and one request to the database**.
+
+### What if the user penetrates more than one level of depth?
+
+For example, they request a country's `provinces`, and inside each province its `cities`:
+
+```json
+{
+  "id": 1,
+  "name": 1,
+  "abb": 1,
+  "description": 1,
+  "capital": { "id": 1, "name": 1, "abb": 1 },
+  "provinces": {
+    "id": 1,
+    "name": 1,
+    "description": 1,
+    "cities": { "id": 1, "name": 1, "abb": 1 }
+  },
+  "cities": { "id": 1, "name": 1, "abb": 1 }
+}
+```
+
+Let's examine what happens in a SQL database before explaining the Lesan solution:
+
+1. We run a query to find the `country` — because we have the country's ID, it's an **indexed** query.
+2. We run a query to find the `capital` — because we have its ID stored in the country, it's an **indexed** query.
+3. We send a query to find the first pagination of `provinces`. If we stored all the province IDs inside the country, it's an indexed query; otherwise we must send a **non-indexed** query filtered by the country's ID.
+4. Continuing the example, if we found `30` provinces in the first pagination, we must send a non-indexed query for each one to find its first-pagination cities — `50` per province, so `50 × 30` queries.
+5. Finally, to find the first-pagination `cities` of the country, we send a non-indexed query filtered by the country's ID on the city table.
+
+Now let's see how the same process is done in Lesan:
+
+1. To get a country along with the first depth of its relationships (`capital`, `provinces`, `cities`), we send **one indexed query** to the country schema and receive all the information.
+2. Now we only need the `cities` for each `province`. While we already have the provinces' information, we send **one indexed query** to receive the `provinces` again — because we know the cities are stored within the provinces, receiving the provinces again also gives us the cities.
+
+This has two advantages:
+
+- Instead of sending a non-indexed query to `city`, we send an indexed query to `province`, because we received the province IDs in the first query.
+- Instead of receiving a huge number of `cities`, we only received a few `provinces`. In SQL the number of requested documents is `1 + 1 + (30 × 50) + 50`; with Lesan it's only `1 + 35`.
+
+Now imagine what would happen with more depth and more relationships requested — this is the **Achilles' heel** of projects written with GraphQL.
+
+## Why Duplicate Data?
+
+As you noticed in the example above, if we can store all the dependencies of a table inside it, we can significantly reduce the number of requests sent to the database — and the number is remarkably large. In one of the best cases: a table with `10` dependencies, each dependency related to `10` other tables, all relationships many-to-many. If we want to receive a list of `50` items from that table along with `2` steps of penetration into its relationships with one request:
+
+- In **SQL**: `50 × 10 × 50 × 10` = **250,000** requests sent to the database.
+- In **Lesan**: `50 × 10` = **500** requests.
+
+## The Ratio of Creation/Update to Data Retrieval
+
+Imagine a news database. We need a table for `authors` and another for the `news` they write. Usually, at the end of each news item, the name and some information of the author are also included. If we place the author's information inside the news at the time of *creation*, we don't need a separate request to the database when reading each news item.
+
+But the problem arises when the author *updates* their information — for example, changing their name from `Ali` to `Ali Akbar`. In this case we have to update all the news written by that author. If this author writes an average of `10` news items per day and has worked for more than `5` years, at least **18,250** documents must be updated.
+
+Is this cost-effective? In general, and in most cases, yes — because news can be read more than a few *thousand* times a *day*, while each author only changes their information *once a year*. Updating 18,250 documents once a year is much less expensive than reading information from two different tables millions of times a day.
+
+Moreover, we created a different solution for updating these repetitions — called **QQ (Query Queue)** — which updates them based on the amount of hardware resources used by the server side in different time periods and based on the value of the data. This process is explained fully on the [Queuing Data Changes](/docs/concepts/queuing-data-changes) page.

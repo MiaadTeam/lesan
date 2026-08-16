@@ -1,0 +1,126 @@
+---
+sidebar_position: 3
+---
+
+# transferStock
+
+`transferStock` moves a quantity of one product from one store to another. It works on the `inventory` and `stockMovement` models. You need it when goods physically move between warehouses or shelves: the act removes stock from the source store and adds it to the destination store in a single atomic-ish unit, writing two ledger entries (`transfer_out` and `transfer_in`) so the movement is fully auditable.
+
+## The validator (`transferStock.val.ts`)
+
+The `set` takes two store ids — `fromStoreId` and `toStoreId` — plus `productId` and `quantity`. That's it: no reason or reference fields, because the reasons are fixed by the implementation (`"transfer_out"` / `"transfer_in"`) and the reference is always the *other* store. `activeRoleId` comes from `@lib` for `grantAccess`; `get` is a one-level `inventory` projection.
+
+```ts
+import { number, object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const transferStockValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      fromStoreId: objectIdValidation,
+      toStoreId: objectIdValidation,
+      productId: objectIdValidation,
+      quantity: number(),
+    }),
+    get: selectStruct("inventory", 1),
+  });
+};
+```
+
+:::note
+**About the imports**
+All framework imports in this repo use the `"lesan"` alias. In your own app, import the same names from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` points at the app's `utils/` folder.
+:::
+
+## The implementation (`transferStock.fn.ts`)
+
+Another thin delegator. It destructures the four `set` fields, grabs the `user` from context, and forwards everything to the shared `transferStock` helper. Note there's no `options` object here — the helper builds its own transfer descriptions internally.
+
+```ts
+import { type ActFn } from "lesan";
+import { transferStock as transferStockUtil } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import type { MyContext } from "@lib";
+
+export const transferStockFn: ActFn = async (body) => {
+  const {
+    set: { fromStoreId, toStoreId, productId, quantity },
+  } = body.details;
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  return await transferStockUtil(
+    fromStoreId as string,
+    toStoreId as string,
+    productId as string,
+    quantity as number,
+    user._id.toString(),
+  );
+};
+```
+
+## How it's registered (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { transferStockFn } from "./transferStock.fn.ts";
+import { transferStockValidator } from "./transferStock.val.ts";
+
+export const transferStockSetup = () =>
+  coreApp.acts.setAct({
+    schema: "inventory",
+    actName: "transferStock",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "StoreHead"] }])],
+    validator: transferStockValidator(),
+    fn: transferStockFn,
+  });
+```
+
+Same `Manager` / `Admin` / `StoreHead` gate as the other mutating inventory acts.
+
+## In the workflow
+
+`transferStock` is the composition act — the [inventoryManager](/docs/tutorials/procurement-workflow/inventory/inventory-manager) helper literally calls [removeStock](/docs/tutorials/procurement-workflow/inventory/remove-stock) (as `"transfer_out"`, referencing the destination) and then [addStock](/docs/tutorials/procurement-workflow/inventory/add-stock) (as `"transfer_in"`, referencing the source). The net quantity across both stores is unchanged, so it's the inventory move that keeps the ledger balanced. Both ledger rows show up in [getStockMovements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements). See the [overview](/docs/tutorials/procurement-workflow/overview) for context.
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "service": "main",
+    "model": "inventory",
+    "act": "transferStock",
+    "details": {
+      "set": {
+        "activeRoleId": "<role-id>",
+        "fromStoreId": "<store-id>",
+        "toStoreId": "<store-id>",
+        "productId": "<product-id>",
+        "quantity": 10
+      },
+      "get": { "_id": 1, "quantity": 1 }
+    }
+  }'
+```
+
+The `body` of the response is whatever the helper returned, e.g. `{ success: true, productId, quantity, fromStoreId, toStoreId }`.
+
+## Errors & fixes
+
+| Error | What it means | How to fix |
+|---|---|---|
+| `you should send your id with token key in req header` | `setTokens` found no `token` header | Add `-H "token: <your-jwt>"` to the request |
+| `Invalid or expired token` | JWT verification failed | Log in again and use the fresh token |
+| `Invalid or missing token data` | Token payload has no `_id` | Use a token produced by the app's `login` act |
+| `user not exist` | `setUser` couldn't find the user doc | The token references a deleted user — log in again |
+| `activeRoleId is required` | `grantAccess` needs the active role | Send `activeRoleId` in `details.set` (unless the user `isGhost`) |
+| `Active role not found` | The `activeRoleId` isn't among the user's roles | Pass one of the role ids on the user document |
+| `You cant do this` | The active role is not `Manager`, `Admin`, or `StoreHead` | Switch to an allowed role or use a ghost admin |
+| `Inventory not found for this store and product` | The **source** store has no inventory record for the product | `addStock` to the source store first |
+| `Insufficient inventory quantity` | `quantity` exceeds the source store's stock | Reduce the quantity or restock the source store |
+| `Invalid ObjectId` / validator failure | Any of the three ids isn't a valid 24-char hex string | Check the ids you're sending |

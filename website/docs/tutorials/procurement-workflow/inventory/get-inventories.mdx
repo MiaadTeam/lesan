@@ -1,0 +1,120 @@
+---
+sidebar_position: 5
+---
+
+# getInventories
+
+`getInventories` lists inventory rows — optionally filtered to one store and/or one product — sorted by `quantity` descending. It works on the `inventory` model. You need it to answer "show me all stock, or everything for a store, or every store carrying this product," typically as the inventory dashboard list.
+
+## The validator (`getInventories.val.ts`)
+
+Unlike `getStockLevel`, both `storeId` and `productId` are `optional` here — omit them (or send just one) to widen the query. The `get` projection is `selectStruct("inventory", 2)`, a two-level projection so the embedded `store` and `product` relations can be expanded into their own nested fields.
+
+```ts
+import { object, objectIdValidation, optional } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getInventoriesValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      storeId: optional(objectIdValidation),
+      productId: optional(objectIdValidation),
+    }),
+    get: selectStruct("inventory", 2),
+  });
+};
+```
+
+:::note
+**About the imports**
+All framework imports in this repo use the `"lesan"` alias. In your own app, import the same names from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` points at the app's `utils/` folder.
+:::
+
+## The implementation (`getInventories.fn.ts`)
+
+This act does not delegate to `@lib` — it builds an aggregation directly against the `inventory` model. A `filters: Document` object is filled in only for the ids that were actually sent: `storeId` filters on the embedded snapshot field `"store._id"`, `productId` on `"product._id"` (both wrapped in `new ObjectId(...)`). The `$match` stage is only pushed into the pipeline when at least one filter exists. The pipeline always finishes with `$sort: { quantity: -1 }` so the biggest stockpiles come first, then `get` (the client's projection) is applied and the rows are returned as an array.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { inventory } from "../../../mod.ts";
+
+export const getInventoriesFn: ActFn = async (body) => {
+  const {
+    set: { storeId, productId },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+  storeId && (filters["store._id"] = new ObjectId(storeId as string));
+  productId && (filters["product._id"] = new ObjectId(productId as string));
+
+  return await inventory
+    .aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $sort: { quantity: -1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+The aggregation pattern — conditional `$match`, a `$sort`, and a client-supplied projection — is the same shape you'll see in [getStockMovements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements) and most other list acts in this app.
+
+## How it's registered (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getInventoriesFn } from "./getInventories.fn.ts";
+import { getInventoriesValidator } from "./getInventories.val.ts";
+
+export const getInventoriesSetup = () =>
+  coreApp.acts.setAct({
+    schema: "inventory",
+    actName: "getInventories",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "StoreHead", "UnitHead", "Employee"] }])],
+    validator: getInventoriesValidator(),
+    fn: getInventoriesFn,
+  });
+```
+
+## In the workflow
+
+`getInventories` is the list view counterpart of [getStockLevel](/docs/tutorials/procurement-workflow/inventory/get-stock-level), which is the single-row lookup. The movement history is [getStockMovements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements), and rows here are created by the mutators [addStock](/docs/tutorials/procurement-workflow/inventory/add-stock), [removeStock](/docs/tutorials/procurement-workflow/inventory/remove-stock), and [transferStock](/docs/tutorials/procurement-workflow/inventory/transfer-stock). See the [overview](/docs/tutorials/procurement-workflow/overview) for where it fits.
+
+## Run it
+
+```bash
+# Everything, sorted by quantity desc:
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "service": "main",
+    "model": "inventory",
+    "act": "getInventories",
+    "details": {
+      "set": { "activeRoleId": "<role-id>" },
+      "get": { "_id": 1, "quantity": 1, "store": { "_id": 1, "name": 1 }, "product": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+The `body` is an array of inventory documents shaped by your `get` projection.
+
+## Errors & fixes
+
+| Error | What it means | How to fix |
+|---|---|---|
+| `you should send your id with token key in req header` | `setTokens` found no `token` header | Add `-H "token: <your-jwt>"` to the request |
+| `Invalid or expired token` | JWT verification failed | Log in again and use the fresh token |
+| `Invalid or missing token data` | Token payload has no `_id` | Use a token produced by the app's `login` act |
+| `user not exist` | `setUser` couldn't find the user doc | The token references a deleted user — log in again |
+| `activeRoleId is required` | `grantAccess` needs the active role | Send `activeRoleId` in `details.set` (unless the user `isGhost`) |
+| `Active role not found` | The `activeRoleId` isn't among the user's roles | Pass one of the role ids on the user document |
+| `You cant do this` | The active role isn't in the allowed read roles | Switch to an allowed role or use a ghost admin |
+| `Invalid ObjectId` / validator failure | A provided `storeId` / `productId` isn't a valid 24-char hex string | Check the ids you're sending |

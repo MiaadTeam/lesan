@@ -1,0 +1,105 @@
+---
+sidebar_position: 18
+---
+
+# getPendingByUnit (stepApproval)
+
+`getPendingByUnit` is the **inbox** — the list of approval tasks waiting on a specific unit. It returns every `stepApproval` whose `unit._id` matches and whose `status` is still `pending`, newest first. This is what a UnitHead sees when they open "my pending approvals": each row links out to the PO, so they can review and then [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision). `Manager`/`Admin`/`UnitHead`/`Employee` roles can call it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`getPendingByUnit.val.ts`)
+
+Just `unitId` plus a depth-2 projection of the `stepApproval` schema (so the embedded `purchaseOrder` and `processStep` snapshots come along).
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getPendingByUnitValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      unitId: objectIdValidation,
+    }),
+    get: selectStruct("stepApproval", 2),
+  });
+};
+```
+
+## The implementation (`getPendingByUnit.fn.ts`)
+
+Two fixed filters: the embedded `"unit._id"` and `status: "pending"`. Sorted by `createdAt` descending so the newest requests surface first.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { stepApproval } from "../../../mod.ts";
+
+export const getPendingByUnitFn: ActFn = async (body) => {
+  const {
+    set: { unitId },
+    get,
+  } = body.details;
+
+  const filters: Document = {
+    "unit._id": new ObjectId(unitId as string),
+    status: "pending",
+  };
+
+  return await stepApproval
+    .aggregation({
+      pipeline: [
+        { $match: filters },
+        { $sort: { createdAt: -1 } },
+      ] as Document[],
+      projection: get,
+    })
+    .toArray();
+};
+```
+
+## In the workflow
+
+`getPendingByUnit` drives the approval UI. A UnitHead polls it for their `unit._id`; each result carries the embedded `purchaseOrder` (title, amount, currentStep) and `processStep` (order, name) so the review screen can render without a second round trip. Once they call [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision) the approval leaves this list (its status is no longer `pending`).
+
+```text
+getPendingByUnit(unit) ─▶ [approval A (pending), approval B (pending), ...]
+                                   │
+                              submitDecision(A)
+                                   │
+                             status: approved/rejected ─▶ leaves the inbox
+```
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [stepApproval model](/docs/tutorials/procurement-workflow/models/stepApproval), [submit-decision](/docs/tutorials/procurement-workflow/workflow/submit-decision), [get-step-approvals](/docs/tutorials/procurement-workflow/workflow/get-step-approvals), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "stepApproval",
+    "act": "getPendingByUnit",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "unitId": "<unitId>"
+      },
+      "get": {
+        "_id": 1,
+        "status": 1,
+        "purchaseOrder": { "_id": 1, "title": 1, "estimatedAmount": 1 },
+        "processStep": { "_id": 1, "name": 1, "order": 1 }
+      }
+    }
+  }'
+```
+
+## Errors & fixes
+
+The fn throws nothing of its own. An invalid `unitId` fails `objectIdValidation`; a valid id with nothing waiting returns `[]` (success). Note the fixed `status: "pending"` filter — a unit with only decided approvals gets an empty inbox by design. Shared auth errors apply; `Ordinary` users are not in the allowed roles.

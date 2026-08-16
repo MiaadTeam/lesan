@@ -1,0 +1,269 @@
+---
+sidebar_position: 7
+---
+
+# Migrating to Lesan
+
+Lesan rethinks the traditional server + ODM stack: **code-first models** instead of schema files, **acts** instead of endpoints or resolvers, and **client-driven projections** instead of rigid response shapes. This page shows you how the mental model you already have maps to Lesan — with side-by-side "before" (old framework) and "after" (Lesan) examples.
+
+## From Mongoose
+
+The biggest shift: **schemas become pure fields + relations**, and **queries become ODM methods with client-driven projections**. There is no separate schema/type system to keep in sync — the model definition *is* the validation.
+
+### Schema definition
+
+**Before (Mongoose):**
+
+```typescript
+import mongoose from "mongoose";
+
+const citySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  population: Number,
+  country: { type: mongoose.Schema.Types.ObjectId, ref: "Country" },
+});
+const City = mongoose.model("City", citySchema);
+
+const countrySchema = new mongoose.Schema({
+  name: String,
+  cities: [{ type: mongoose.Schema.Types.ObjectId, ref: "City" }],
+});
+const Country = mongoose.model("Country", countrySchema);
+```
+
+**After (Lesan):**
+
+```typescript
+import { lesan, number, string } from "@hemedani/lesan";
+
+const coreApp = lesan();
+
+const cityPure = { name: string(), population: number() };
+const cityRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single",
+    relatedRelations: {
+      cities: { type: "multiple", limit: 50, sort: { field: "_id", order: "desc" } },
+    },
+  },
+};
+const cities = coreApp.odm.newModel("city", cityPure, cityRelations);
+```
+
+Notice what *didn't* have to be written:
+
+- No `Schema.Types.ObjectId` + `ref` — the relation is declared once, on the side that needs it.
+- No manual back-reference field on `Country` — `cities` appears automatically as a `relatedRelation`.
+- No TypeScript interfaces alongside the schema — superstruct validators give you the types *and* runtime validation.
+
+### Querying
+
+**Before (Mongoose):**
+
+```typescript
+const citiesOfIran = await City.find({}).where("country").equals(iranId).populate("country");
+```
+
+**After (Lesan):**
+
+```typescript
+const citiesOfIran = await cities.find({
+  filters: { "country._id": new ObjectId(iranId) },
+  projection: { name: 1, population: 1, country: { name: 1 } },
+}).toArray();
+```
+
+Because relations are **embedded snapshots**, `"country._id"` filters work without any `populate`. And the client decides the response shape via `projection` — no over-fetching.
+
+### The mapping cheat-sheet
+
+| Mongoose | Lesan |
+|---|---|
+| `new mongoose.Schema({...})` | `newModel("name", pureFields, relations)` |
+| `Model.create()` / `new Model()` | `model.insertOne({ doc, relations })` / `insertMany` |
+| `Model.find({}).populate("x")` | `model.find({ filters, projection })` |
+| `Model.findOneAndUpdate()` | `model.findOneAndUpdate({ filter, update, projection })` |
+| `Model.findByIdAndDelete()` | `model.deleteOne({ filter, hardCascade })` |
+| `pre`/`post` hooks | `preAct` / `preValidation` arrays (see [Request Lifecycle](/docs/advanced/request-lifecycle)) |
+| Schema validators | superstruct validators on pure fields and act `set`/`get` |
+| `_id` from DB | client-side `new ObjectId()` before insert |
+
+## From GraphQL
+
+The goal of GraphQL — **the client asks for exactly what it wants** — is Lesan's core feature, but without the query language, schema SDL, resolvers, or a separate server layer. The `details.get` projection *is* your selection set, and an act *is* your resolver.
+
+### Schema + resolver
+
+**Before (GraphQL):**
+
+```graphql
+type Country {
+  id: ID!
+  name: String!
+  cities(limit: Int): [City!]!
+}
+
+type City {
+  id: ID!
+  name: String!
+  country: Country!
+}
+
+type Query {
+  country(id: ID!): Country
+}
+```
+
+```javascript
+const resolvers = {
+  Query: {
+    country: (_, { id }) => CountryModel.findById(id),
+  },
+  Country: {
+    cities: (country, { limit }) => CityModel.find({ country: country.id }).limit(limit),
+  },
+};
+```
+
+**After (Lesan):**
+
+```typescript
+const getCountryValidator = () =>
+  object({
+    set: object({ countryId: objectIdValidation }),
+    get: coreApp.schemas.selectStruct("country", { cities: 1, name: 1 }),
+  });
+
+const getCountry: ActFn = async (body) => {
+  const { set: { countryId }, get } = body.details;
+  return await countries.findOne({
+    filters: { _id: new ObjectId(countryId) },
+    projection: get,
+  });
+};
+
+coreApp.acts.setAct({ schema: "country", actName: "getCountry", validator: getCountryValidator(), fn: getCountry });
+```
+
+**Client request** — instead of a GraphQL query:
+
+```graphql
+query { country(id: "...") { name cities(limit: 50) { name population } } }
+```
+
+...the client sends a plain JSON body:
+
+```json
+{
+  "service": "main",
+  "model": "country",
+  "act": "getCountry",
+  "details": {
+    "set": { "countryId": "507f1f77bcf86cd799439011" },
+    "get": { "name": 1, "cities": { "name": 1, "population": 1 } }
+  }
+}
+```
+
+### What you no longer need
+
+| GraphQL | Lesan |
+|---|---|
+| Schema Definition Language (`.graphql` files) | Code-first models + `selectStruct` validators |
+| Resolvers | `ActFn` functions |
+| `@resolver` / parent-args plumbing | Projections resolved automatically (embedded relations, `$lookup` only when needed) |
+| GraphQL server + middleware | one `runServer({ playground: true })` |
+| N+1 problem (dataloader, batching) | relations embedded in the document — no extra queries |
+| GraphQL client / query parser | plain `POST /lesan` JSON or the generated `lesanApi` client |
+
+See [Server-Client Communication](/docs/concepts/server-client-communication) for why Lesan keeps the client-driven idea but drops the query language.
+
+## From REST + Express
+
+REST + Express gives you **endpoints**; Lesan gives you **acts** — the same operation-oriented idea, but with validation, projections, and relationships built in.
+
+### Endpoint + controller
+
+**Before (Express):**
+
+```javascript
+const express = require("express");
+const app = express();
+app.use(express.json());
+
+app.get("/users/:id", async (req, res) => {
+  const user = await User.findById(req.params.id).populate("country");
+  // The response shape is fixed by this endpoint — all clients get everything,
+  // or you hand-roll ?fields= parsing, per-client versions, etc.
+  res.json(user);
+});
+```
+
+**After (Lesan):**
+
+```typescript
+const getUserValidator = () =>
+  object({
+    set: object({ userId: objectIdValidation }),
+    get: coreApp.schemas.selectStruct("user", 1),
+  });
+
+const getUser: ActFn = async (body) => {
+  const { set: { userId }, get } = body.details;
+  return await users.findOne({
+    filters: { _id: new ObjectId(userId) },
+    projection: get,
+  });
+};
+
+coreApp.acts.setAct({ schema: "user", actName: "getUser", validator: getUserValidator(), fn: getUser });
+coreApp.runServer({ port: 1366, playground: true, typeGeneration: true });
+```
+
+The mobile app asks for `{ name: 1, avatar: 1 }`; the dashboard asks for `{ name: 1, orders: { total: 1 } }`. **One act, no versioning** — the client's `get` shapes every response.
+
+### Mapping endpoints to acts
+
+| Express | Lesan |
+|---|---|
+| `app.get("/users/:id", handler)` | `setAct({ schema: "user", actName: "getUser", ... })` |
+| `app.post("/users", handler)` | `setAct({ schema: "user", actName: "addUser", ... })` |
+| `app.put("/users/:id", handler)` | `setAct({ schema: "user", actName: "updateUser", ... })` |
+| `app.delete("/users/:id", handler)` | `setAct({ schema: "user", actName: "deleteUser", ... })` |
+| middleware (`app.use`) | `preValidation` / `preAct` hooks |
+| `express.json()` body parsing | built into the request pipeline (`POST /lesan`) |
+| `res.json(...)` manual shapes | `projection: body.details.get` |
+| hand-rolled `?fields=` | first-class client projections |
+
+### The response-shape problem
+
+With REST you usually pick one of:
+
+1. **Over-fetch** — return everything, let the client ignore it (wasteful on mobile).
+2. **Under-fetch** — return the bare resource, forcing multiple round-trips (`/users/:id` then `/users/:id/country`).
+3. **`?fields=`** — hand-parsing and documentation drift for every endpoint.
+
+Lesan collapses all three into the client's `get`:
+
+```json
+{
+  "model": "user",
+  "act": "getUser",
+  "details": { "set": { "userId": "..." }, "get": { "name": 1, "country": { "name": 1 } } }
+}
+```
+
+One request, exactly the fields you need, nested relations included. This is the difference behind the [fifteen-to-several-hundred-times-faster reads](/docs/concepts/server-client-communication).
+
+## A Shared Checklist
+
+Whichever stack you're coming from, the migration path is the same:
+
+1. **Define models** with `newModel(name, pureFields, relations)` — pure fields are your scalars; relations declare the important side and the reverse snapshots.
+2. **Define acts** with `setAct` — one act per operation, each with a `set`/`get` validator (`coreApp.schemas.selectStruct(...)` for the `get`).
+3. **Run the server** with `runServer({ port, playground: true, typeGeneration: true })` — the playground gives you a live, clickable API explorer.
+4. **Point your client** at `POST /lesan` with `{ service, model, act, details: { set, get } }`, or use the generated `lesanApi` client for type safety.
+
+For the next level — hooks, aggregation, pagination, microservices — see the [Advanced Guides](/docs/advanced/client-projections).

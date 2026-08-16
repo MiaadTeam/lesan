@@ -1,0 +1,537 @@
+---
+sidebar_position: 2
+---
+
+# Server API
+
+The Server API is responsible for handling HTTP requests, serving static files, providing the interactive playground, and routing client requests to the appropriate action handlers.
+
+## `lesan()` — Main Entry Point
+
+The `lesan()` function is the primary entry point for the framework. It initializes all core modules and returns an object containing everything you need to build your application.
+
+```typescript
+import { lesan } from "@hemedani/lesan";
+
+const coreApp = lesan();
+```
+
+### Return Value
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `schemas` | `SchemasAPI` | Schema definition and introspection functions |
+| `acts` | `ActsAPI` | Action registration and discovery functions |
+| `odm` | `ODMAPI` | Database connection and model creation |
+| `runServer` | `ServerRunner` | HTTP server initialization function |
+| `contextFns` | `ContextFns` | Request-scoped context management |
+| `generateSchemTypes` | `() => Promise<void>` | TypeScript type generation |
+
+```typescript
+const coreApp = lesan();
+
+// Access individual modules
+coreApp.schemas;     // Schema management
+coreApp.acts;        // Action registration
+coreApp.odm;         // Database operations
+coreApp.runServer;   // Server startup
+coreApp.contextFns;  // Context management
+```
+
+---
+
+## `runServer()` — Starting the Server
+
+The `runServer` function starts an HTTP server that listens for incoming requests.
+
+```typescript
+await coreApp.runServer({
+  port: 8000,
+  playground: true,
+  typeGeneration: true,
+  staticPath: ["./public"],
+  cors: "*",
+});
+```
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `port` | `number` | `8000` | Port number to listen on |
+| `playground` | `boolean` | `false` | Enable the interactive API playground |
+| `typeGeneration` | `boolean` | `false` | Auto-generate TypeScript declaration files |
+| `staticPath` | `string[]` | `[]` | Array of directories to serve static files from |
+| `cors` | `"*" \| string[]` | `undefined` | CORS configuration |
+
+### Server Output
+
+When the server starts, you'll see:
+
+```
+🚀 Lesan server is running successfully!
+📡 API Endpoint: http://localhost:8000/lesan
+🎮 Playground:   http://localhost:8000/playground
+```
+
+### CORS Configuration
+
+#### Allow all origins
+```typescript
+await coreApp.runServer({
+  port: 8000,
+  cors: "*",
+});
+```
+
+#### Allow specific origins
+```typescript
+await coreApp.runServer({
+  port: 8000,
+  cors: ["https://example.com", "https://app.example.com"],
+});
+```
+
+---
+
+## Request Handling
+
+Lesan uses a **single endpoint** pattern. All API requests are sent to `POST /lesan` with a JSON body describing the desired action.
+
+### Request Body Structure (`TLesanBody`)
+
+```typescript
+interface TLesanBody {
+  service?: string;      // Service name (default: "main")
+  model: string;         // Schema/model name
+  act: string;           // Action name
+  details: {
+    set: Record<string, any>;  // Input data
+    get: Record<string, any>;  // Projection / desired output shape
+  };
+}
+```
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:8000/lesan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service": "main",
+    "model": "country",
+    "act": "addCountry",
+    "details": {
+      "set": { "name": "Iran", "population": 85000000 },
+      "get": { "name": 1, "population": 1 }
+    }
+  }'
+```
+
+### Response Format
+
+```typescript
+{
+  "body": { /* action result */ },
+  "success": true
+}
+```
+
+On error:
+
+```typescript
+{
+  "body": {
+    "message": "Error description"
+  },
+  "success": false
+}
+```
+
+---
+
+## Context System (`contextFns`)
+
+The context system carries request-scoped values through your action functions. This is useful for authentication, request metadata, and passing data between middleware and handlers.
+
+### Context Shape (`LesanContext`)
+
+```typescript
+interface LesanContext {
+  Headers: Headers;           // Request headers
+  body: TLesanBody | null;    // Parsed request body
+  [key: string]: any;         // Any custom values you add
+}
+```
+
+### Context Functions
+
+| Function | Description |
+|----------|-------------|
+| `getContextModel()` | Get the current context object |
+| `setContext(obj)` | Replace the entire context with a new object |
+| `addContexts(con)` | Set context to a specific value |
+| `addContext(con)` | Merge values into the existing context |
+| `addReqToContext(req)` | Add the raw `Request` object to context |
+| `addHeaderToContext(headers)` | Add headers to context |
+| `addBodyToContext(body)` | Add the parsed body to context |
+
+### Using Context in Actions
+
+```typescript
+import { contextFns } from "@hemedani/lesan";
+
+const myAction = async (body) => {
+  // Access the current user from context
+  const context = contextFns.getContextModel();
+  const currentUser = context.user;
+  const headers = context.Headers;
+
+  // Your business logic here
+  return { success: true };
+};
+```
+
+### Pre-hooks and Context
+
+You can use `preAct` and `preValidation` hooks to populate the context before your action runs:
+
+```typescript
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "getProfile",
+  validator: myValidator,
+  fn: getProfileFn,
+  preValidation: [
+    async () => {
+      // Validate JWT token and add user to context
+      const token = contextFns.getContextModel().Headers.get("authorization");
+      const user = await verifyToken(token);
+      contextFns.addContext({ user });
+    }
+  ],
+});
+```
+
+:::tip
+**Go deeper**
+
+For the exact lifecycle order (`preValidation` → validation → `preAct` → `fn`), how `validationRunType` works, and writing reusable hooks, see [Request Lifecycle & Hooks](/docs/advanced/request-lifecycle).
+:::
+
+---
+
+## Acts System (`acts`)
+
+The Acts system is where you define your API endpoints. Each action maps to a specific operation on a schema.
+
+### `setAct()` — Register an Action
+
+```typescript
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "addCountry",
+  validator: addCountryValidator,
+  fn: addCountryFn,
+  preAct: [loggingHook],
+  preValidation: [authHook],
+  validationRunType: "assert",
+});
+```
+
+### Act Configuration (`ActInp`)
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `schema` | `string` | ✅ | Schema name this action belongs to |
+| `actName` | `string` | ✅ | Unique name for this action |
+| `validator` | `Struct<any>` | ✅ | Superstruct validator for input validation |
+| `fn` | `ActFn` | ✅ | The action handler function |
+| `preAct` | `Function[]` | ❌ | Hooks to run before the action function |
+| `preValidation` | `Function[]` | ❌ | Hooks to run before validation |
+| `validationRunType` | `"assert" \| "create"` | ❌ | Validation mode (default: `"assert"`) |
+
+### Action Function (`ActFn`)
+
+```typescript
+type ActFn = (body: TLesanBody) => any;
+```
+
+The action function receives the full request body and should return the response data.
+
+```typescript
+const addCountryFn = async (body) => {
+  const { name, population } = body.details.set;
+  const { get } = body.details;
+
+  return await country.insertOne({
+    doc: { name, population },
+    projection: get,
+  });
+};
+```
+
+### Act Introspection
+
+Lesan provides functions to inspect registered actions at runtime:
+
+```typescript
+// Get all service names
+coreApp.acts.getServiceKeys(); // ["main", "ecommerce", "blog"]
+
+// Get all acts for a schema
+coreApp.acts.getActs("country"); // { addCountry: Act, getCountries: Act }
+
+// Get all act names for a schema in a service
+coreApp.acts.getActsKeys("main", "country"); // ["addCountry", "getCountries"]
+
+// Get a specific act
+coreApp.acts.getAct("main", "country", "addCountry");
+
+// Get all acts across all services
+coreApp.acts.getAtcsWithServices();
+
+// Get all main acts
+coreApp.acts.getMainActs();
+```
+
+---
+
+## Services
+
+Lesan supports **microservice-style architecture** through the services system. You can register local acts or proxy requests to other services.
+
+:::tip
+**Go deeper**
+
+For the full microservices walkthrough — how URL forwarding rewrites `service: "main"`, in-process vs remote services, and a real two-app layout — see [Microservices](/docs/advanced/microservices).
+:::
+
+### Local Service (Default)
+
+All acts registered with `setAct` are part of the `main` service by default.
+
+### Proxy Service (URL-based)
+
+You can forward requests to another Lesan instance:
+
+```typescript
+// Register a remote service
+coreApp.acts.setService("ecommerce", "https://api.ecommerce.com/lesan");
+
+// Now requests with service: "ecommerce" will be forwarded
+```
+
+### Local Service with Acts
+
+```typescript
+// Register a local service with its own acts
+const ecommerceActs = {
+  product: {
+    getProduct: { validator: productValidator, fn: getProductFn },
+  },
+};
+
+coreApp.acts.setService("ecommerce", ecommerceActs);
+```
+
+### Service Introspection
+
+```typescript
+// Get a service
+coreApp.acts.getService("main");      // Returns Acts object
+coreApp.acts.getService("ecommerce"); // Returns string URL or Acts
+```
+
+---
+
+## Validation Modes
+
+Lesan supports two validation modes via Superstruct:
+
+### `assert` (Default)
+
+Throws an error if validation fails. Use this for strict input validation.
+
+```typescript
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "createUser",
+  validator: object({
+    set: object({ name: string(), email: string() }),
+    get: object(),
+  }),
+  fn: createUserFn,
+  validationRunType: "assert", // default
+});
+```
+
+### `create`
+
+Coerces and fills in default values instead of throwing. Useful for optional fields with defaults.
+
+```typescript
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "updateUser",
+  validator: object({
+    set: object({
+      name: defaulted(string(), "Anonymous"),
+      age: defaulted(number(), 0),
+    }),
+    get: object(),
+  }),
+  fn: updateUserFn,
+  validationRunType: "create",
+});
+```
+
+---
+
+## Static File Serving
+
+Lesan can serve static files alongside your API:
+
+```typescript
+await coreApp.runServer({
+  port: 8000,
+  staticPath: ["./public", "./uploads"],
+});
+```
+
+Files in these directories will be served at the root path. `GET` requests that don't match `/lesan` or `/playground` will attempt to serve static files.
+
+---
+
+## Playground
+
+When `playground: true` is enabled, Lesan serves an interactive web UI at `/playground` where you can:
+
+- Browse all schemas and their fields
+- View all registered actions
+- Execute actions with a user-friendly form
+- Inspect request/response payloads
+- Generate TypeScript types
+
+```typescript
+await coreApp.runServer({
+  port: 8000,
+  playground: true,
+});
+```
+
+---
+
+## Error Handling
+
+Lesan automatically catches errors in your action functions and returns them as JSON responses with appropriate HTTP status codes.
+
+### Custom Errors
+
+Throw an `HttpError` to control the status code:
+
+```typescript
+import { HttpError } from "@hemedani/lesan";
+
+const myAction = async (body) => {
+  if (!body.details.set.name) {
+    throw new HttpError("Name is required", 400);
+  }
+  // ...
+};
+```
+
+### Error Response
+
+```json
+{
+  "body": {
+    "message": "Name is required"
+  },
+  "success": false
+}
+```
+
+---
+
+## Complete Server Example
+
+```typescript
+import { lesan, MongoClient, string, number, object, ObjectId } from "@hemedani/lesan";
+
+const coreApp = lesan();
+
+// Connect to MongoDB
+const client = await new MongoClient("mongodb://localhost:27017/").connect();
+coreApp.odm.setDb(client.db("myapp"));
+
+// Define schema and model
+const country = coreApp.odm.newModel("country", {
+  name: string(),
+  population: number(),
+}, {});
+
+// Define action
+const addCountry: ActFn = async (body) => {
+  return await country.insertOne({
+    doc: body.details.set,
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "addCountry",
+  validator: object({
+    set: object({ name: string(), population: number() }),
+    get: object(),
+  }),
+  fn: addCountry,
+});
+
+// Start server
+await coreApp.runServer({
+  port: 8000,
+  playground: true,
+  typeGeneration: true,
+  cors: "*",
+});
+```
+
+---
+
+## API Reference Table
+
+### Server Functions
+
+| Function | Description |
+|----------|-------------|
+| `lesan()` | Initialize the Lesan framework |
+| `runServer(options)` | Start the HTTP server |
+
+### Context Functions
+
+| Function | Description |
+|----------|-------------|
+| `contextFns.getContextModel()` | Get current context |
+| `contextFns.setContext(obj)` | Replace context |
+| `contextFns.addContext(obj)` | Merge into context |
+| `contextFns.addReqToContext(req)` | Add raw request |
+| `contextFns.addHeaderToContext(headers)` | Add headers |
+| `contextFns.addBodyToContext(body)` | Add parsed body |
+
+### Acts Functions
+
+| Function | Description |
+|----------|-------------|
+| `acts.setAct(config)` | Register a new action |
+| `acts.getServiceKeys()` | Get all service names |
+| `acts.getActs(schema)` | Get all acts for a schema |
+| `acts.getActsKeys(service, schema)` | Get act names for a schema |
+| `acts.getActKeys(schema)` | Get act keys for main service |
+| `acts.getAct(service, schema, act)` | Get a specific act |
+| `acts.getAtcsWithServices()` | Get all acts across services |
+| `acts.getMainActs()` | Get all main service acts |
+| `acts.getMainAct(schema, actName)` | Get a specific main act |
+| `acts.setService(name, service)` | Register a service |
+| `acts.getService(name)` | Get a service |

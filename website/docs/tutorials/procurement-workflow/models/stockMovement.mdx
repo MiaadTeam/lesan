@@ -1,0 +1,132 @@
+---
+sidebar_position: 9
+---
+
+# StockMovement
+
+`stockMovement` is the **audit ledger** of every inventory change. It's a **read-only model in practice** — records are written by the `inventoryManager` utility whenever a store's quantity changes. Each entry captures the signed `quantity`, the `balanceBefore` / `balanceAfter`, a `reason`, and an optional reference to the triggering document (e.g. a purchase order).
+
+```ts
+// models/stockMovement.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  coerce, defaulted, enums, number, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { product_excludes, store_excludes, user_excludes } from "./excludes.ts";
+
+export const stockMovement_reason_array = [
+  "goods_receipt", "goods_issue", "transfer_in", "transfer_out", "adjustment",
+];
+export const stockMovement_reason_emums = enums(stockMovement_reason_array);
+
+export const stockMovement_pure = {
+  quantity: number(),
+  balanceBefore: number(),
+  balanceAfter: number(),
+  reason: defaulted(
+    coerce(stockMovement_reason_emums, string(), (value) => value as typeof stockMovement_reason_array[number]),
+    "adjustment",
+  ),
+  referenceType: optional(string()),
+  referenceId: optional(string()),
+  description: optional(string()),
+  ...createUpdateAt,
+};
+
+export const stockMovement_relations = {
+  store: {
+    schemaName: "store",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: store_excludes,
+    relatedRelations: {
+      stockMovements: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  product: {
+    schemaName: "product",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: product_excludes,
+    relatedRelations: {
+      stockMovements: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  createdBy: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {
+      createdStockMovements: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `quantity` | `number()` | **signed**: positive = in, negative = out |
+| `balanceBefore` | `number()` | store's quantity before the change |
+| `balanceAfter` | `number()` | store's quantity after the change |
+| `reason` | `coerce(enums([...]), "adjustment")` | one of `goods_receipt`, `goods_issue`, `transfer_in`, `transfer_out`, `adjustment` |
+| `referenceType` | `optional(string())` | e.g. `purchaseOrder` |
+| `referenceId` | `optional(string())` | the triggering document's id |
+| `description` | `optional(string())` | |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+The three-number triplet is the audit invariant: **`balanceAfter = balanceBefore + quantity`**. Any reader can replay the ledger for a store+product and verify the current stock.
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `store` | `store` | single (**required**) | `store.stockMovements` |
+| `product` | `product` | single (**required**) | `product.stockMovements` |
+| `createdBy` | `user` | single (optional) | `user.createdStockMovements` |
+
+## Factory
+
+```ts
+export const stockMovements = () =>
+  coreApp.odm.newModel("stockMovement", stockMovement_pure, stockMovement_relations);
+```
+
+No index, no model-level excludes — but every relation embeds its target with the shared excludes, and `product_excludes` drops `price`.
+
+## In the workflow
+
+- [inventory-manager](/docs/tutorials/procurement-workflow/inventory/inventory-manager) writes these records
+- [get-stock-movements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements) reads the history for a store/product
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "stockMovement",
+    "act": "getStockMovements",
+    "details": {
+      "set": { "query": { "reason": "goods_receipt" }, "page": 1 },
+      "get": { "quantity": true, "balanceBefore": true, "balanceAfter": true, "reason": true }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| — | there are no act-specific errors for this model's read path | any write comes from `inventoryManager`, see [inventory-manager](/docs/tutorials/procurement-workflow/inventory/inventory-manager) |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

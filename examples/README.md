@@ -1,10 +1,10 @@
 # Lesan Examples
 
-This directory contains simple, runnable examples demonstrating how to use the Lesan framework across different JavaScript runtimes.
+This directory contains the runnable examples that accompany the [documentation](https://miaadteam.github.io/lesan). Every folder here is referenced from a docs page — if you remove or rename one, update the docs too.
 
-## Cross-Platform Examples
+## Cross-Platform Starter Apps
 
-We have provided a basic "Hello World" style application for each supported runtime. These examples demonstrate how to initialize Lesan, connect to MongoDB, define a model, create an action (route), and start the server.
+A basic "Hello World" style application for each supported runtime. Each one initializes Lesan, connects to MongoDB, defines a model, creates an action (route), and starts the server. See the docs' [Cross-Platform Examples](/docs/guides/cross-platform-examples) page for a walkthrough.
 
 ### 1. Node.js Example (`/node-app`)
 
@@ -41,8 +41,18 @@ cd deno-app
 deno task start
 ```
 
----
+## Step-by-Step Document Example (`/document`)
 
-## Advanced Examples
+The runnable companion to the [Tutorials](/docs/tutorials/add-more-relations) section — a numbered progression (01 → 10) that builds a country/city/user example one feature at a time: the simplest server, the first function, a first relation, more relations, `addRelation`/`removeRelation`, `find`/`findOne`, aggregation, `findOneAndUpdate`, `deleteOne`, and `insertMany`. Each file is referenced from its matching tutorial page.
 
-- A very simple [microservice](https://github.com/MiaadTeam/lesan/tree/main/examples/simpleMircoservice) (Note: This example may be using an older, Deno-only version of Lesan).
+## Microservice Example (`/microservice`)
+
+A multi-app setup where a core app proxies `service: "ecommerce"` requests to a separate ecommerce server. Referenced from the [Microservices](/docs/advanced/microservices) advanced guide.
+
+## Advanced Tutorial (`/advanced-tutorial`)
+
+A complete, runnable hospital **procurement & warehouse management system**: 15 models, ~60 actions, JWT auth with role/feature access control, a configurable multi-step approval workflow, budget encumbrance, tendering, and store-to-store inventory. Includes a Deno setup (`deno task seed` / `start` / `test`), a 38-request hurl end-to-end test, and its own README + docs-site guide. The source of the [Procurement Workflow tutorial series](/docs/tutorials/procurement-workflow/00-overview).
+
+## Performance Benchmark (`/whyLesan`)
+
+A quick performance comparison demonstrating why Lesan is faster than traditional ORMs/GraphQL. (Documented separately.)

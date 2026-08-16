@@ -1,0 +1,133 @@
+---
+sidebar_position: 3
+---
+
+# Get One User
+
+`getUser` fetches a single user document by `_id`. Unlike `getMe` (which returns the caller), `getUser` can fetch **any** user the caller is allowed to see — managers use it to inspect a team member, admins use it to view a profile before editing. It belongs to the `user` model and is the first act here that runs the full preAct chain including `grantAccess`.
+
+The act lives in `src/user/getUser/`.
+
+## The validator (`getUser.val.ts`)
+
+`set` spreads `activeRoleMixin` (the `activeRoleId` string — see [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils)) and requires `_id` as an `objectIdValidation`. `get` is `selectStruct("user", 2)`, so projections may include one level of relations.
+
+```ts
+import { object, objectIdValidation, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const getUserValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("user", 2),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `@lib` / `../../../mod.ts` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+`getUser` runs the complete protection chain: `setTokens` (verify the JWT), `setUser` (load the fresh user), then `grantAccess([{ roles: [...] }])`. The role list here includes **every** non-ghost role (`Manager`, `Admin`, `OrgHead`, `UnitHead`, `Employee`, `Ordinary`), so any authenticated, role-bearing user may read any user. The ghost superuser bypasses the check entirely (`grantAccess` returns early when `user.isGhost`).
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getUserFn } from "./getUser.fn.ts";
+import { getUserValidator } from "./getUser.val.ts";
+
+export const getUserSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    actName: "getUser",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead", "UnitHead", "Employee", "Ordinary"] }])],
+    validator: getUserValidator(),
+    fn: getUserFn,
+  });
+```
+
+## The implementation (`getUser.fn.ts`)
+
+Destructure `_id` from `set` and the whole `get` projection. Wrap `_id` in `new ObjectId(...)` and call `user.findOne` with the projection. If nothing was found, throw `"user not found"`; otherwise return the document.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { user } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const getUserFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  const foundedUser = await user.findOne({
+    filters: { _id: new ObjectId(_id as string) },
+    projection: get,
+  });
+
+  !foundedUser && throwError("user not found");
+  return foundedUser;
+};
+```
+
+This is the canonical Lesan read-one shape: `findOne` with `filters` + `projection`. Because `password` is in the model's `excludes`, `selectStruct("user", 2)` won't let a client request it — the hash never leaves the database.
+
+## In the workflow
+
+`getUser` is the read-one counterpart of the admin list acts [getUsers](/docs/tutorials/procurement-workflow/auth/getUsers) and [countUsers](/docs/tutorials/procurement-workflow/auth/countUsers): list to find `_id`s, then `getUser` for the detail view.
+
+- [getUsers](/docs/tutorials/procurement-workflow/auth/getUsers) — how you find the `_id` to pass here.
+- [addUser](/docs/tutorials/procurement-workflow/auth/addUser) and [updateUser](/docs/tutorials/procurement-workflow/auth/updateUser) — the write counterparts.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `grantAccess` and how roles gate this act.
+- [User model](/docs/tutorials/procurement-workflow/models/user) — the fields you can project.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+Needs the token from [login](/docs/tutorials/procurement-workflow/auth/login) **and** an `activeRoleId` (any role from the user's `roles` array works, since `getUser` allows every role):
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "user",
+    "act": "getUser",
+    "details": {
+      "set": {
+        "activeRoleId": "<roleId>",
+        "_id": "<userId>"
+      },
+      "get": {
+        "_id": 1,
+        "first_name": 1,
+        "last_name": 1,
+        "email": 1,
+        "isActive": 1
+      }
+    }
+  }'
+```
+
+Grab `<roleId>` and `<userId>` from the `roles[0].roleId` and `user._id` in the login response.
+
+## Errors & fixes
+
+| Message | Source | What it means | How to fix |
+|---------|--------|---------------|------------|
+| `you should send your id with token key in req header` | `setTokens` | Missing `token` header. | Add `-H "token: <jwt>"`. |
+| `Invalid or expired token` | `setTokens` | JWT didn't verify. | Re-login. |
+| `Invalid or missing token data` | `setUser` | Token payload had no `_id`. | Re-login. |
+| `user not exist` | `setUser` | The token's user was deleted. | Use a different account or re-create it. |
+| `activeRoleId is required` | `grantAccess` | `set.activeRoleId` was omitted. | `getUser`'s validator requires `activeRoleId` — always send it. |
+| `Active role not found` | `grantAccess` | The `activeRoleId` doesn't match any role on the authenticated user. | Pick a `roleId` from the `roles` array in the login response. |
+| `You cant do this` | `grantAccess` | The active role isn't in the allowed list (or a scope check failed). | For `getUser` this shouldn't happen for the listed roles — it means the active role name is something unexpected. |
+| `user not found` | `getUserFn` | No user matches that `_id`. | Check the `_id` (must be a 24-char hex ObjectId string); verify the user still exists. |

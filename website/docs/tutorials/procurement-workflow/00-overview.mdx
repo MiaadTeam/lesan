@@ -1,0 +1,92 @@
+---
+sidebar_position: 1
+---
+
+# Procurement Workflow — Overview
+
+This is a complete, step-by-step tutorial for the **advanced-tutorial** app in this repository (`examples/advanced-tutorial/`): a runnable hospital **procurement & warehouse management system** built on Lesan. It is the largest in-repo Lesan application you can study — **15 models, 63 actions**, JWT authentication with role/feature-based access control, a configurable multi-step approval workflow, budget encumbrance, tendering, and store-to-store inventory tracking.
+
+This series explains **everything**: each model, each act, and each shared utility is given its own page with the real code, annotated. If you run into a problem at any step, the page for that step tells you what can go wrong and how to fix it.
+
+:::tip
+**Not a beginner tutorial**
+You should already know the basics from [Getting Started](/docs/getting-started) and the [country/city/user tutorials](/docs/tutorials/add-more-relations). This series is the *advanced* one — it assumes you know `newModel`, `setAct`, `insertOne`, `findOneAndUpdate`, and relations.
+:::
+
+## What the app does
+
+A hospital supply chain. A **unit** requests goods, the request flows through configurable **approval steps**, a **tender** is created and awarded, goods are received into **stores**, **inventory** is tracked per store, and **budget lines** are encumbered (and later spent) along the way.
+
+```text
+organization ──> unit ──> store ──> inventory / stockMovement
+        │                        (product stock per store)
+        │
+        ├──> process ──> processStep (ordered, AND/OR assignee groups)
+        │        │
+        │        v
+purchaseOrder ── submit ──> stepApproval (per unit) ── evaluate ──> approve / reject
+        │                                                         │
+        ├── budgetLine (encumber -> spent on finalize)             v
+        ├── tender ── addOffer ── award                        Approved / Rejected
+        └── history[] (every performed action)                      │
+                                                               finalize -> Completed
+                                                               cancel   -> Cancelled
+```
+
+## The 15 models
+
+| Model | Purpose | Chapter |
+|-------|---------|---------|
+| `user` | authentication, roles, features | [Auth & Users](/docs/category/auth--users) |
+| `file` | uploads (avatars, PO attachments) | [Catalog](/docs/category/catalog) |
+| `tag` | product tags | [Catalog](/docs/category/catalog) |
+| `organization` | the tenant / hospital | [Catalog](/docs/category/catalog) |
+| `unit` | department or warehouse | [Catalog](/docs/category/catalog) |
+| `product` | the item catalog | [Catalog](/docs/category/catalog) |
+| `store` | a physical storage place | [Catalog](/docs/category/catalog) |
+| `inventory` | stock level of one product in one store | [Inventory](/docs/category/inventory) |
+| `stockMovement` | the inventory ledger | [Inventory](/docs/category/inventory) |
+| `process` | approval workflow configuration | [Approval Workflow](/docs/category/approval-workflow) |
+| `processStep` | one step of a process | [Approval Workflow](/docs/category/approval-workflow) |
+| `purchaseOrder` | the core procurement document | [Approval Workflow](/docs/category/approval-workflow) |
+| `stepApproval` | a single approval task for one unit | [Approval Workflow](/docs/category/approval-workflow) |
+| `budgetLine` | budget allocation with encumbrance | [Finance](/docs/category/finance) |
+| `tender` | competitive bidding | [Finance](/docs/category/finance) |
+
+## Chapter guide
+
+1. **[Project Layout](/docs/tutorials/procurement-workflow/project-layout)** — the folder structure, import aliases, and how `mod.ts` wires everything together.
+2. **Auth & Users** — the `user` model, `login`, `getMe`, all user acts, `dashboardStatistic`, and the auth utility chain (`setTokens` → `setUser` → `grantAccess`).
+3. **Catalog** — the reference-data models (`file`, `tag`, `organization`, `unit`, `product`, `store`) and their acts.
+4. **Inventory** — `inventory` + `stockMovement` models and the `addStock` / `removeStock` / `transferStock` acts.
+5. **Approval Workflow** — `process`, `processStep`, `purchaseOrder`, `stepApproval`: configuring a process, submitting a PO, evaluating steps, finalizing and cancelling.
+6. **Finance** — `budgetLine` and `tender`: encumbrance, offers, and awarding.
+
+Every page is one small step. Start with [Project Layout](/docs/tutorials/procurement-workflow/project-layout), or jump to whichever page you're stuck on — each one explains its act end-to-end.
+
+## Run it
+
+The app is runnable and comes with a full end-to-end test. The source lives in `examples/advanced-tutorial/`:
+
+```bash
+cd examples/advanced-tutorial
+
+deno task seed   # drop + reseed the advancedTutorial DB with the ghost admin
+deno task start  # start the Lesan server on http://localhost:1380
+deno task test   # run the 38-request end-to-end suite (needs hurl + running server)
+```
+
+- Playground: `http://localhost:1380/playground`
+- Ghost admin (bootstrap superuser): `ghost@medsupply.io` / `GhostPass123!`
+- Static uploads: served under `/uploads`
+- Generated types: `declarations/selectInp.ts` is written on boot (`typeGeneration: true`)
+
+### Runtime-agnostic note
+
+This repo's app is **Deno-based** — that's how it's run with `deno task`. The tutorial code follows the same convention as the rest of this documentation: framework imports come from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). Every page notes where the runtimes differ (env access, permissions). The framework itself is cross-platform — the same code runs on Node, Bun, and Deno unchanged.
+
+## The big picture
+
+For a prose overview of how all the pieces fit together without the step-by-step detail, see the [Procurement Workflow guide](/docs/guides/procurement-workflow).
+
+Next: [Project Layout](/docs/tutorials/procurement-workflow/project-layout).

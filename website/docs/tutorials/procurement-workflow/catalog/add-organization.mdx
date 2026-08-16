@@ -1,0 +1,125 @@
+---
+sidebar_position: 9
+---
+
+# addOrganization
+
+Creates an **organization** — the top-level tenant (hospital, clinic, chain). Organizations can optionally nest under a `parent`, building a tree. Only `Manager` and `Admin` can create one. The model enforces a **unique index on `code`**.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { addOrganizationFn } from "./addOrganization.fn.ts";
+import { addOrganizationValidator } from "./addOrganization.val.ts";
+
+export const addOrganizationSetup = () =>
+  coreApp.acts.setAct({
+    schema: "organization",
+    actName: "addOrganization",
+    validationRunType: "create",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: addOrganizationValidator(),
+    fn: addOrganizationFn,
+  });
+```
+
+## The validator (`addOrganization.val.ts`)
+
+```ts
+import { object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const addOrganizationValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      name: string(),
+      code: string(),
+      description: optional(string()),
+      parent: optional(objectIdValidation),
+    }),
+    get: selectStruct("organization", 1),
+  });
+};
+```
+
+- `name` and `code` are required strings; `description` is optional.
+- `parent` is optional but, when present, must be a valid ObjectId — the `_id` of the parent organization.
+- `get` is depth 1 (pure fields). The `parent` relation snapshot is selectable via the depth-2 getters like [getOrganizations](/docs/tutorials/procurement-workflow/catalog/get-organizations).
+
+## The implementation (`addOrganization.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { organization } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+
+export const addOrganizationFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const { parent, ...rest } = stripActiveRole(set);
+
+  return await organization.insertOne({
+    doc: rest,
+    relations: {
+      ...(parent ? { parent: { _ids: [new ObjectId(parent as string)] } } : {}),
+    },
+    projection: get,
+  });
+};
+```
+
+1. `stripActiveRole(set)` drops `activeRoleId`, then `parent` is pulled out separately — it's a relation, not a pure field.
+2. `rest` (name/code/description) becomes the document.
+3. If a `parent` was sent, it becomes a `single` relation: `parent: { _ids: [new ObjectId(parent)] }`. Because the relation's `relatedRelations` declares `children`, Lesan also embeds a back-reference snapshot of the new organization into the parent's `children` array.
+4. `organization.insertOne` writes the doc and the relation, and returns the projected result.
+
+Note that `_ids` takes an **array** here even though `parent` is a single relation — that's the ODM's uniform input shape.
+
+## In the workflow
+
+`addOrganization` is the root of the whole reference-data hierarchy: units hang off an organization, products/processes/tenders/budget-lines and purchase-orders all reference it. In the e2e test it's the very first act after login.
+
+- [organization model](/docs/tutorials/procurement-workflow/models/organization)
+- Sibling acts: [getOrganizations](/docs/tutorials/procurement-workflow/catalog/get-organizations), [updateOrganizationRelations](/docs/tutorials/procurement-workflow/catalog/update-organization-relations)
+- Downstream: [addUnit](/docs/tutorials/procurement-workflow/catalog/add-unit) requires an `organization` id
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "organization",
+    "act": "addOrganization",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "name": "Central Hospital",
+        "code": "ORG-001",
+        "description": "Main hospital tenant"
+      },
+      "get": { "_id": 1, "name": 1, "code": 1 }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.organizations index: code_1` | An organization with that `code` already exists (unique index). | Pick a different `code`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin` (or ghost). | Elevate the role or use the ghost token. |
+| `can not find this relatation : parent` (or a MongoDB cast error) | The `parent` id doesn't match an existing organization. | Only pass a `parent` id you got from `getOrganizations`. |
+| superstruct "expected ObjectId-like string" | `parent` isn't a valid ObjectId. | Send the parent's 24-hex id. |
+| superstruct "expected a string but received..." | `name`/`code` missing or wrong type. | Send both as strings. |

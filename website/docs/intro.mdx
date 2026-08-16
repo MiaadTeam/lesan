@@ -1,0 +1,161 @@
+---
+sidebar_position: 1
+---
+
+# Introduction
+
+Welcome to **Lesan** — a blazing-fast, cross-platform web framework and ODM for building modern APIs with MongoDB.
+
+## What is Lesan?
+
+Lesan is a new way to build web servers and NoSQL data models. It combines the flexibility of GraphQL with the performance of direct MongoDB queries, all while maintaining complete end-to-end type safety.
+
+### Key Features
+
+- **Client-Driven Projections** — Fetch exactly the data you need, nothing more
+- **Automatic Bi-Directional Relations** — Define once, get both sides for free
+- **End-to-End TypeScript Safety** — Types generated from your actual code
+- **Cross-Platform** — Runs on Node.js, Bun, and Deno
+- **Extreme Performance** — Much faster than traditional ORMs or GraphQL
+- **MongoDB Native** — Full compatibility with MongoDB's powerful query language
+
+## Quick Start
+
+### Installation
+
+```bash
+# Node.js
+npm install @hemedani/lesan mongodb superstruct
+
+# Bun
+bun add @hemedani/lesan mongodb superstruct
+
+# Deno
+import { lesan } from "jsr:@hemedani/lesan";
+```
+
+### Create Your First API
+
+```typescript
+import { lesan, MongoClient, string, number, object, ObjectId } from "@hemedani/lesan";
+
+// 1. Initialize
+const coreApp = lesan();
+
+// 2. Connect to MongoDB
+const client = await new MongoClient("mongodb://localhost:27017/").connect();
+coreApp.odm.setDb(client.db("myapp"));
+
+// 3. Define a model
+const countries = coreApp.odm.newModel("country", {
+  name: string(),
+  population: number(),
+}, {});
+
+// 4. Define an action
+const addCountry = async (body) => {
+  return await countries.insertOne({
+    doc: body.details.set,
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "country",
+  actName: "addCountry",
+  validator: object({
+    set: object({ name: string(), population: number() }),
+    get: object(),
+  }),
+  fn: addCountry,
+});
+
+// 5. Start the server
+await coreApp.runServer({
+  port: 8000,
+  playground: true,
+  typeGeneration: true,
+});
+```
+
+### Test Your API
+
+```bash
+curl -X POST http://localhost:8000/lesan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "country",
+    "act": "addCountry",
+    "details": {
+      "set": { "name": "Iran", "population": 85000000 },
+      "get": { "name": 1, "population": 1 }
+    }
+  }'
+```
+
+Or open `http://localhost:8000/playground` to use the interactive API explorer.
+
+## Documentation Structure
+
+| Section | Description |
+|---------|-------------|
+| [API Reference](/docs/api/intro) | Complete API documentation |
+| [Server API](/docs/api/server) | Server setup, actions, context |
+| [Models & ODM](/docs/api/models) | Schemas, relations, CRUD operations |
+| [Queries & Projections](/docs/api/queries) | Client-driven projections and aggregation |
+| [Type System](/docs/api/types) | TypeScript types and generated code |
+| [Cross-Platform](/docs/api/platforms) | Node.js, Bun, and Deno support |
+
+## Why Lesan?
+
+### vs Traditional REST
+
+| Feature | REST | Lesan |
+|---------|------|-------|
+| Over-fetching | Common | Eliminated |
+| Under-fetching | Common | Eliminated |
+| Endpoint count | Many | One |
+| Type safety | Manual | Automatic |
+| Relations | Manual joins | Automatic |
+
+### vs GraphQL
+
+| Feature | GraphQL | Lesan |
+|---------|---------|-------|
+| Flexibility | High | High |
+| Performance | Resolver overhead | Direct MongoDB |
+| Complexity | High | Low |
+| Type safety | Schema-first | Code-first |
+| MongoDB | Needs wrapper | Native |
+
+### vs Traditional ORMs
+
+| Feature | ORMs | Lesan |
+|---------|------|-------|
+| Relations | Foreign keys | Embedded (denormalized) |
+| Queries | Abstracted | Native MongoDB |
+| Projections | Limited | Client-driven |
+| Performance | Good | Excellent |
+
+## Next Steps
+
+- Follow the [Getting Started tutorial](/docs/getting-started) to build your first Lesan server from scratch
+- Continue with the [Tutorials](/docs/tutorials/add-more-relations) — relations, CRUD, and aggregation on a real country/city/user example
+- Explore the [API Reference](/docs/api/intro) to learn about all available APIs
+- Check out the [Server API](/docs/api/server) for configuration options
+- Learn about [Models & Relations](/docs/api/models) for data modeling
+- Understand the philosophy behind Lesan's [relationships](/docs/concepts/what-is-the-relationship) — how they compare to SQL, NoSQL, and real life
+- See how Lesan [communicates between server and client](/docs/concepts/server-client-communication) without a query language
+- Understand [Projections](/docs/api/queries) for flexible data fetching
+- See [Cross-Platform](/docs/api/platforms) for deployment options
+- Level up with the [Advanced Guides](/docs/advanced/client-projections) — deep projections, relations in depth, request lifecycle hooks, aggregation, filtering, pagination, and microservices
+- See a [real-world Lesan application](/docs/guides/cross-platform-examples) — runnable starter apps for Node.js, Bun, and Deno
+- Study the [run-in-repo procurement workflow app](/docs/guides/procurement-workflow) — a complete 15-model hospital procurement & warehouse system with JWT auth, a configurable approval workflow, budget encumbrance, tendering, and inventory tracking
+- Follow the [step-by-step Procurement Workflow tutorials](/docs/tutorials/procurement-workflow/overview) — every model, act, and utility of that app explained one page at a time
+- Coming from Mongoose, GraphQL, or Express? See [Migrating to Lesan](/docs/migration) for side-by-side before/after examples
+
+## Community
+
+- **GitHub**: [github.com/MiaadTeam/lesan](https://github.com/MiaadTeam/lesan)
+- **Issues**: Report bugs and request features
+- **Contributions**: Pull requests are welcome!

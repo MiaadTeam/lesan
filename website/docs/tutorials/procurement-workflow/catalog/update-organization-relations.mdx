@@ -1,0 +1,130 @@
+---
+sidebar_position: 11
+---
+
+# updateOrganizationRelations
+
+Reparents an **organization** — sets (or replaces) its `parent` and keeps the parent's `children` back-reference in sync. Roles allowed: `Manager`, `Admin`, `OrgHead`. This is a pure relation act: no pure fields are touched.
+
+:::note
+**Import alias**
+The code below imports the framework as `lesan` — that's the path alias this repo's app uses (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)). In your own project, import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## Registration (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { updateOrganizationRelationsFn } from "./updateOrganizationRelations.fn.ts";
+import { updateOrganizationRelationsValidator } from "./updateOrganizationRelations.val.ts";
+
+export const updateOrganizationRelationsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "organization",
+    actName: "updateOrganizationRelations",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "OrgHead"] }])],
+    validator: updateOrganizationRelationsValidator(),
+    fn: updateOrganizationRelationsFn,
+  });
+```
+
+## The validator (`updateOrganizationRelations.val.ts`)
+
+```ts
+import { object, objectIdValidation, optional } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const updateOrganizationRelationsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+      parent: optional(objectIdValidation),
+    }),
+    get: selectStruct("organization", 2),
+  });
+};
+```
+
+- `_id` (required) is the organization being reparented.
+- `parent` (optional) is the new parent id. If omitted, nothing happens.
+- `get` is depth 2, so you can confirm the new `parent` snapshot in the response.
+
+## The implementation (`updateOrganizationRelations.fn.ts`)
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { organization } from "../../../mod.ts";
+
+export const updateOrganizationRelationsFn: ActFn = async (body) => {
+  const {
+    set: { _id, parent },
+    get,
+  } = body.details;
+
+  const modelId = new ObjectId(_id as string);
+
+  if (parent) {
+    await organization.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        parent: {
+          _ids: new ObjectId(parent as string),
+          relatedRelations: {
+            children: true,
+          },
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  return await organization.findOne({
+    filters: { _id: modelId },
+    projection: get,
+  });
+};
+```
+
+1. `modelId` is the organization being updated.
+2. If `parent` is provided, `organization.addRelation` sets the `parent` single relation. The `relatedRelations: { children: true }` tells the ODM to also update the back-reference: the new parent's `children` array gets this organization's snapshot (and the old parent's `children` loses it).
+3. `replace: true` is key — for a `single` relation it means "set, don't append". No `replace: true` would try to *add* to the relation; for a single relation you always want replace.
+4. Finally `organization.findOne` returns the fresh document so the client sees the new state.
+
+Note this act has **no `throwError`**: if `_id` doesn't exist, `addRelation` throws `can not find this document`, and if you only `get` (no parent), `findOne` returns `null` with `success: true`.
+
+## In the workflow
+
+Organizations rarely move in the tree, but when they do (mergers, reorganizations), this keeps the `children` snapshots honest. `OrgHead` is allowed here because a hospital head may restructure its own subtree.
+
+- [organization model](/docs/tutorials/procurement-workflow/models/organization)
+- Sibling acts: [addOrganization](/docs/tutorials/procurement-workflow/catalog/add-organization), [getOrganizations](/docs/tutorials/procurement-workflow/catalog/get-organizations)
+
+## Run it
+
+```bash
+curl http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "organization",
+    "act": "updateOrganizationRelations",
+    "details": {
+      "set": { "activeRoleId": "ghost-role", "_id": "<orgId>", "parent": "<parentOrgId>" },
+      "get": { "_id": 1, "name": 1, "parent": { "_id": 1, "name": 1 } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `can not find this document` | The `_id` (or the new `parent` id) doesn't match an existing organization. | Verify both ids via `getOrganizations`. |
+| `activeRoleId is required` | No `activeRoleId` in `set`. | Add it (ghost: any string, e.g. `"ghost-role"`). |
+| `Active role not found` | `activeRoleId` isn't one of the user's roles. | Pass a real `roleId`. |
+| `You cant do this` | Active role isn't `Manager`/`Admin`/`OrgHead` (or ghost). | Use an allowed role or the ghost. |
+| superstruct "expected ObjectId-like string" | `_id` or `parent` isn't a valid ObjectId. | Send 24-hex id strings. |

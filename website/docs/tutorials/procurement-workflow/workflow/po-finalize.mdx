@@ -1,0 +1,169 @@
+---
+sidebar_position: 12
+---
+
+# finalize (purchaseOrder)
+
+`finalize` closes the procurement loop: it converts an `Approved` purchase order into `Completed`, converts the budget **encumbrance into actual spend**, stamps `completedAt`, and pushes a `finalized` history entry. This is the only place where money truly leaves the budget — nothing else in the chapter touches `totalSpent`. Only `Manager`/`Admin`, or `UnitHead` with the `canConfirmGoodsReceipt` feature, can finalize.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`finalize.val.ts`)
+
+Just the PO `_id` and a depth-1 projection — the fn figures out everything else from the stored document.
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const finalizeValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+    }),
+    get: selectStruct("purchaseOrder", 1),
+  });
+};
+```
+
+## The implementation (`finalize.fn.ts`)
+
+1. Loads the PO (`_id`, `status`, `estimatedAmount`, `budgetLine._id`). Missing → `purchase order not found`.
+2. Requires `status === "Approved"` — only approved orders can be finalized, else `only approved purchase orders can be finalized`.
+3. **Converts encumbrance to spend** — if a `budgetLine` is linked, it `$inc`s `totalEncumbered: -amount` and `totalSpent: +amount`, where `amount = estimatedAmount || 0`.
+4. Pushes a `finalized` history entry for the current user.
+5. Sets `status: "Completed"` and `completedAt: new Date()` in one `findOneAndUpdate`, returning the `get` projection.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { budgetLine, coreApp, purchaseOrder } from "../../../mod.ts";
+import { throwError } from "@lib";
+import type { MyContext } from "@lib";
+
+export const finalizeFn: ActFn = async (body) => {
+  const {
+    set: { _id },
+    get,
+  } = body.details;
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  const poId = new ObjectId(_id as string);
+
+  const po = await purchaseOrder.findOne({
+    filters: { _id: poId },
+    projection: {
+      _id: 1,
+      status: 1,
+      estimatedAmount: 1,
+      "budgetLine._id": 1,
+    },
+  });
+
+  !po && throwError("purchase order not found");
+
+  if (po!.status !== "Approved") {
+    throwError("only approved purchase orders can be finalized");
+  }
+
+  if ((po as any)?.budgetLine?._id) {
+    const amount = po!.estimatedAmount || 0;
+    await budgetLine.findOneAndUpdate({
+      filter: { _id: (po as any).budgetLine._id },
+      update: {
+        $inc: {
+          totalEncumbered: -amount,
+          totalSpent: amount,
+        },
+      },
+      projection: { _id: 1 },
+    });
+  }
+
+  const performerName = `${(user as any).first_name ?? ""} ${(user as any).last_name ?? ""}`.trim();
+
+  return await purchaseOrder.findOneAndUpdate({
+    filter: { _id: poId },
+    update: {
+      $set: {
+        status: "Completed",
+        completedAt: new Date(),
+      },
+      $push: {
+        history: {
+          action: "finalized",
+          performed: {
+            by: user._id.toString(),
+            name: performerName,
+            at: new Date(),
+            role: { id: "", name: "" },
+          },
+        },
+      },
+    },
+    projection: get,
+  });
+};
+```
+
+### Why finalize moves `totalEncumbered → totalSpent`
+
+Recall the budget identity from [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit):
+
+```text
+totalAllocated = totalSpent + totalEncumbered + remainingBudget
+```
+
+Submit *reserved* the money: `totalEncumbered += amount`, `remainingBudget -= amount`. Finalize completes the transaction: the reservation is released (`totalEncumbered -= amount`) and converted into real spend (`totalSpent += amount`). `remainingBudget` is *not* touched here — the money is gone for good, it doesn't return to the pool. In the seed test, after finalizing the 25M PO you see `totalEncumbered == 0`, `totalSpent == 25000000`, `remainingBudget == 75000000`.
+
+## In the workflow
+
+`finalize` is the terminal success branch:
+
+```
+submit ─▶ InProgress ─▶ (step approvals) ─▶ Approved ──finalize──▶ Completed
+```
+
+It only accepts `Approved`, so the PO must have survived every step via [submitDecision](/docs/tutorials/procurement-workflow/workflow/submit-decision). If the order was [rejected](/docs/tutorials/procurement-workflow/workflow/submit-decision#errors--fixes) or [cancelled](/docs/tutorials/procurement-workflow/workflow/po-cancel), it's already terminal and can't be finalized.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [budgetLine model](/docs/tutorials/procurement-workflow/models/budgetLine), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit), [submit-decision](/docs/tutorials/procurement-workflow/workflow/submit-decision), [po-cancel](/docs/tutorials/procurement-workflow/workflow/po-cancel).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "finalize",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "_id": "<poId>"
+      },
+      "get": {
+        "_id": 1,
+        "title": 1,
+        "status": 1,
+        "completedAt": 1
+      }
+    }
+  }'
+```
+
+Expect `{ "body": { "status": "Completed", "completedAt": "...", ... }, "success": true }`.
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `purchase order not found` | No PO with that `_id` | Verify the id via [gets](/docs/tutorials/procurement-workflow/workflow/po-gets) |
+| `only approved purchase orders can be finalized` | PO status isn't `Approved` | Finish the approval steps first; a `Rejected`/`Cancelled`/`Draft` PO can't be finalized |
+
+Shared auth errors apply, and `Missing feature: canConfirmGoodsReceipt` appears for a `UnitHead` without the feature. A PO without a `budgetLine` is still finalized fine — the encumbrance step is simply skipped.

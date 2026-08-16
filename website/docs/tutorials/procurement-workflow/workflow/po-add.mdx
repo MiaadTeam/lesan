@@ -1,0 +1,214 @@
+---
+sidebar_position: 6
+---
+
+# add (purchaseOrder)
+
+`add` creates the core procurement document — a `purchaseOrder`. It's where you capture the request: who is asking (`requester`), what they want (`product`), which organization/unit it belongs to, an estimated cost, and an optional `budgetLine` to encumber. The PO is created as a `Draft` with an initial `history` entry of `"created"`. If you don't pass a `process` explicitly, the fn resolves one automatically via [resolveProcessForPO](/docs/tutorials/procurement-workflow/workflow/resolve-process). This is the first of many purchaseOrder acts — everything else in the chapter reads or mutates what you create here.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`add.val.ts`)
+
+Required: `title`, `requester`, `product`. Everything else optional: `description`, `estimatedAmount`, `status`, `requestedAt`, `organization`, `requestingUnit`, `process`, `attachments` (array of ObjectIds), `budgetLine`. `status` is restricted to the purchaseOrder enums (`Draft | Pending | InProgress | Approved | Rejected | Completed | Cancelled`).
+
+```ts
+import { array, defaulted, number, object, objectIdValidation, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { purchaseOrder_status_emums } from "@model";
+
+export const addValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      title: string(),
+      description: optional(string()),
+      estimatedAmount: optional(number()),
+      status: optional(purchaseOrder_status_emums),
+      requestedAt: optional(string()),
+      requester: objectIdValidation,
+      organization: optional(objectIdValidation),
+      requestingUnit: optional(objectIdValidation),
+      product: objectIdValidation,
+      process: optional(objectIdValidation),
+      attachments: optional(array(objectIdValidation)),
+      budgetLine: optional(objectIdValidation),
+    }),
+    get: selectStruct("purchaseOrder", 1),
+  });
+};
+```
+
+## The implementation (`add.fn.ts`)
+
+1. Destructures the `set` (after `stripActiveRole`), pulling out every relation field.
+2. Reads the current `user` from the context.
+3. **Resolves the process**: if `process` wasn't passed and `organization` was, it calls `resolveProcessForPO({ organizationId, requestingUnitId?, productId })` which walks the fallback chain (unit → product → organization default) described on the [resolveProcess](/docs/tutorials/procurement-workflow/workflow/resolve-process) page.
+4. Builds the `relations` map. `requester` and `product` are always linked; `organization`, `requestingUnit`, `process`, and `budgetLine` only when provided; `attachments` maps the array of ids when non-empty.
+5. Seeds the PO `history` with a `"created"` entry recording who created it and when.
+6. Inserts with `status: status ?? "Draft"`.
+
+```ts
+import { type ActFn, type TInsertRelations, ObjectId } from "lesan";
+import { coreApp, purchaseOrder } from "../../../mod.ts";
+import { stripActiveRole } from "@lib";
+import type { MyContext } from "@lib";
+import { resolveProcessForPO } from "@lib";
+import type { purchaseOrder_relations } from "@model";
+
+export const addFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+  const {
+    requester,
+    organization,
+    requestingUnit,
+    product,
+    process,
+    attachments,
+    budgetLine,
+    status,
+    ...rest
+  } = stripActiveRole(set);
+
+  const { user }: MyContext = coreApp.contextFns.getContextModel() as MyContext;
+
+  let resolvedProcess = process as string | undefined;
+  if (!resolvedProcess && organization) {
+    resolvedProcess = await resolveProcessForPO({
+      organizationId: organization as string,
+      ...(requestingUnit && { requestingUnitId: requestingUnit as string }),
+      productId: product as string,
+    });
+  }
+
+  const relations: TInsertRelations<typeof purchaseOrder_relations> = {
+    requester: {
+      _ids: new ObjectId(requester as string),
+      relatedRelations: { purchaseOrders: true },
+    },
+  };
+
+  organization &&
+    (relations.organization = {
+      _ids: new ObjectId(organization as string),
+      relatedRelations: { purchaseOrders: true },
+    });
+
+  requestingUnit &&
+    (relations.requestingUnit = {
+      _ids: new ObjectId(requestingUnit as string),
+      relatedRelations: { purchaseOrders: true },
+    });
+
+  relations.product = {
+    _ids: new ObjectId(product as string),
+    relatedRelations: { purchaseOrders: true },
+  };
+
+  resolvedProcess &&
+    (relations.process = {
+      _ids: new ObjectId(resolvedProcess as string),
+      relatedRelations: { purchaseOrders: true },
+    });
+
+  if (attachments && (attachments as string[]).length > 0) {
+    relations.attachments = {
+      _ids: (attachments as string[]).map((id: string) => new ObjectId(id)),
+      relatedRelations: {},
+    };
+  }
+
+  budgetLine &&
+    (relations.budgetLine = {
+      _ids: new ObjectId(budgetLine as string),
+      relatedRelations: { purchaseOrders: true },
+    });
+
+  const history = [
+    {
+      action: "created",
+      performed: {
+        by: user._id.toString(),
+        name: `${(user as any).first_name ?? ""} ${(user as any).last_name ?? ""}`.trim(),
+        at: new Date(),
+        role: {
+          id: "",
+          name: "",
+        },
+      },
+    },
+  ];
+
+  return await purchaseOrder.insertOne({
+    doc: { ...rest, status: status ?? "Draft", history },
+    relations,
+    projection: get,
+  });
+};
+```
+
+The registration in `mod.ts` grants access to `Manager`/`Admin`, or `UnitHead`/`Employee` carrying the `canRegisterPurchaseOrder` feature.
+
+## In the workflow
+
+The PO lifecycle starts here:
+
+```
+Draft ──submit──▶ InProgress ──steps──▶ Approved ──finalize──▶ Completed
+   │                                    │
+   └── cancel (from Draft/Pending/InProgress) ─▶ Cancelled
+   └── (rejected by a step) ─▶ Rejected
+```
+
+`add` creates the `Draft`. It optionally resolves the process already, so a `Draft` can carry a `process` link before [submit](/docs/tutorials/procurement-workflow/workflow/po-submit). The `budgetLine` is *not* touched here — encumbrance happens on submit.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [budgetLine model](/docs/tutorials/procurement-workflow/models/budgetLine), [resolveProcess](/docs/tutorials/procurement-workflow/workflow/resolve-process), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit), [po-gets](/docs/tutorials/procurement-workflow/workflow/po-gets).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "add",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "title": "Purchase 100 TSH kits",
+        "description": "Bulk order for laboratory",
+        "estimatedAmount": 25000000,
+        "status": "Draft",
+        "requester": "<userId>",
+        "organization": "<organizationId>",
+        "requestingUnit": "<unitId>",
+        "product": "<productId>",
+        "budgetLine": "<budgetLineId>"
+      },
+      "get": {
+        "_id": 1,
+        "title": 1,
+        "status": 1,
+        "currentStep": 1,
+        "history": 1
+      }
+    }
+  }'
+```
+
+Expect `{ "body": { "status": "Draft", "currentStep": 0, "history": [{ "action": "created", ... }] }, "success": true }`.
+
+## Errors & fixes
+
+| Error | Meaning | Fix |
+|-------|---------|-----|
+| `No active process found for this organization. Please create and activate a process first.` | `process` not passed and `resolveProcessForPO` found no `Active` process for the org/unit/product | Create + activate a process ([addProcess](/docs/tutorials/procurement-workflow/workflow/add-process) → [addProcessStep](/docs/tutorials/procurement-workflow/workflow/add-process-step) → [activateProcess](/docs/tutorials/procurement-workflow/workflow/activate-process)), or pass `process` explicitly |
+| `Missing feature: canRegisterPurchaseOrder` | A `UnitHead`/`Employee` without the feature tried to add | Grant the feature or use a Manager/Admin role |
+| Superstruct errors | `title`, `requester`, `product` missing or invalid | Provide all required fields; `product`/`requester` must be valid ObjectIds |
+
+The shared auth-chain errors also apply. If you omit the `process` field and the process *is* active, the fn resolves it for you — so a successful create usually means the PO is already bound to a workflow.

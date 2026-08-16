@@ -1,0 +1,120 @@
+---
+sidebar_position: 6
+---
+
+# Product
+
+`product` is an item in the procurement catalog — the thing a purchase order buys. It collapses a full category hierarchy into a single **self-referencing `parent`** relation, carries a `price`, an `active` flag, and optional `tags`.
+
+```ts
+// models/product.ts (definition, trimmed of the doc comment)
+import { coreApp } from "../mod.ts";
+import {
+  boolean, defaulted, number, optional,
+  type RelationDataType, type RelationSortOrderType, string,
+} from "lesan";
+import { createUpdateAt } from "@lib";
+import { product_excludes, tag_excludes } from "./excludes.ts";
+
+export const product_pure = {
+  name: string(),
+  code: string(),
+  price: defaulted(number(), 0),
+  unit: optional(string()),
+  active: defaulted(boolean(), true),
+  description: optional(string()),
+  ...createUpdateAt,
+};
+
+export const product_relations = {
+  parent: {
+    schemaName: "product",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: product_excludes,
+    relatedRelations: {
+      children: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+  tags: {
+    schemaName: "tag",
+    type: "multiple" as RelationDataType,
+    optional: true,
+    excludes: tag_excludes,
+    limit: 20,
+    sort: { field: "name", order: "asc" as RelationSortOrderType },
+    relatedRelations: {
+      products: { type: "multiple" as RelationDataType, limit: 50, sort: { field: "_id", order: "desc" as RelationSortOrderType } },
+    },
+  },
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | |
+| `code` | `string()` | indexed **unique** |
+| `price` | `defaulted(number(), 0)` | unit price |
+| `unit` | `optional(string())` | e.g. `pack`, `box` |
+| `active` | `defaulted(boolean(), true)` | soft-disable products |
+| `description` | `optional(string())` | |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+| Relation | Target | Type | Back-reference |
+|----------|--------|------|----------------|
+| `parent` | `product` (self) | single (optional) | `product.children` |
+| `tags` | `tag` | multiple (optional, limit 20, **sorted by name asc**) | `tag.products` |
+
+Note the `tags` sort is on `field: "name"` ascending, unlike most relations here that sort `_id` descending — tags come back alphabetized. Also note `product_excludes` includes `price`, so a product embedded inside, say, a purchase order does **not** leak its price by default.
+
+## Factory
+
+```ts
+export const products = () =>
+  coreApp.odm.newModel("product", product_pure, product_relations, {
+    createIndex: {
+      indexSpec: { code: 1 },
+      options: { unique: true },
+    },
+  });
+```
+
+## In the workflow
+
+- Catalog acts: [add-product](/docs/tutorials/procurement-workflow/catalog/add-product), [get-product](/docs/tutorials/procurement-workflow/catalog/get-product), [get-products](/docs/tutorials/procurement-workflow/catalog/get-products), [remove-product](/docs/tutorials/procurement-workflow/catalog/remove-product), [update-product-relations](/docs/tutorials/procurement-workflow/catalog/update-product-relations)
+- Inventory: each [inventory](/docs/tutorials/procurement-workflow/models/inventory) record tracks one product in one store
+- Procurement: every [purchaseOrder](/docs/tutorials/procurement-workflow/models/purchaseOrder) references a product
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "service": "main",
+    "model": "product",
+    "act": "getProducts",
+    "details": {
+      "set": { "query": { "active": true }, "page": 1 },
+      "get": { "name": true, "code": true, "price": true, "tags": { "name": true } }
+    }
+  }'
+```
+
+## Errors & fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `E11000 duplicate key error collection: advancedTutorial.products` | `code` already used | pick a different code |
+| `product not found` | `getProduct`/`removeProduct`/`updateProductRelations` given an unknown `_id` | pass a real `_id` |
+| `please clear below relations status before deletion` | `removeProduct` on a product still referenced | clear the relations first (see [remove-product](/docs/tutorials/procurement-workflow/catalog/remove-product)) |
+
+:::note
+**Runtime**
+On npm/Bun import the framework from `@hemedani/lesan`; on Deno from `jsr:@hemedani/lesan`. The repo app itself uses the `lesan` path alias.
+:::

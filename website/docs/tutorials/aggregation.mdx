@@ -1,0 +1,157 @@
+---
+sidebar_position: 6
+---
+
+# Aggregation
+
+Use `aggregation` when you need to penetrate **more than one step** in the depth of relationships — going from father to grandson, or vice versa. Don't worry: every `$lookup`, `$unwind`, and `$project` you need is generated for you. You only write the *filtering* logic.
+
+The neat trick: Lesan's aggregation is always **one step behind** the client request. Because relations are embedded, deep paths that can't be read from a snapshot get `$lookup`ed on demand. For the conceptual background, see [Why NoSQL? — Lesan pipeline example](/docs/concepts/why-nosql).
+
+## Get a list of documents with aggregation
+
+```ts
+const getCitiesAggregationValidator = () => {
+  return object({
+    set: object({
+      page: number(),
+      take: number(),
+      countryId: optional(objectIdValidation),
+    }),
+    get: coreApp.schemas.selectStruct("city", 3),
+  });
+};
+
+const getCitiesAggregation: ActFn = async (body) => {
+  const {
+    set: { page, take, countryId },
+    get,
+  } = body.details;
+  const pipeline = [];
+
+  pipeline.push({ $skip: (page - 1) * take });
+  pipeline.push({ $limit: take });
+
+  countryId &&
+    pipeline.push({ $match: { "country._id": new ObjectId(countryId) } });
+
+  return await cities
+    .aggregation({
+      pipeline,
+      projection: get,
+    })
+    .toArray();
+};
+
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "getCitiesAggregation",
+  validator: getCitiesAggregationValidator(),
+  fn: getCitiesAggregation,
+});
+```
+
+We add two stages for pagination (`$skip`, `$limit`) and one optional `$match` on the embedded `country._id`. But those aren't all that reaches the database — Lesan appends the `$lookup`, `$unwind`, and `$project` stages it needs to satisfy the `get` shape.
+
+For this request:
+
+```json
+{
+  "body": {
+    "service": "main",
+    "model": "city",
+    "act": "getCitiesAggregation",
+    "details": {
+      "get": {
+        "_id": 1,
+        "name": 1,
+        "country": { "_id": 1, "name": 1 },
+        "users": { "_id": 1, "name": 1 }
+      },
+      "set": { "page": 1, "take": 10 }
+    }
+  }
+}
+```
+
+Only a single `$project` stage is appended (both `country` and `users` are already embedded one level deep):
+
+```json
+[
+  {
+    "$project": {
+      "_id": 1,
+      "name": 1,
+      "country": { "_id": 1, "name": 1 },
+      "users": { "_id": 1, "name": 1 }
+    }
+  }
+]
+```
+
+But for a deeper request — `country.cities`, `country.citiesByPopulation`, `country.capital`, `users.livedCities`, `users.country` — Lesan appends `$lookup`/`$unwind` for each one-step relation, then a `$project`:
+
+```json
+[
+  { "$lookup": { "from": "country", "localField": "country._id", "foreignField": "_id", "as": "country" } },
+  { "$unwind": { "path": "$country", "preserveNullAndEmptyArrays": true } },
+  { "$lookup": { "from": "user", "localField": "users._id", "foreignField": "_id", "as": "users" } },
+  { "$project": { "_id": 1, "name": 1, "country": { "_id": 1, "name": 1, "cities": { "_id": 1, "name": 1 }, "citiesByPopulation": { "name": 1, "_id": 1 }, "capital": { "_id": 1, "name": 1 } }, "users": { "_id": 1, "name": 1, "livedCities": { "name": 1, "_id": 1 }, "country": { "_id": 1, "name": 1 } }, "lovedByUser": { "_id": 1, "name": 1 } } }
+]
+```
+
+Because we passed `3` to `selectStruct("city", 3)`, the pipeline allows penetrating two extra steps; try deeper `get` shapes in the playground to see the `$lookup`s grow. The full example is [`examples/document/07-1-aggregation.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/07-1-aggregation.ts).
+
+Executing `main → city → getCitiesAggregation`:
+
+![getCitiesAggregation act in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/1e6610c7-fe20-4772-84fd-d2916a082f62)
+
+## Get a single document with aggregation
+
+If the client needs a single document's relations more than one step deep, `aggregation` is required even for one document:
+
+```ts
+const getUserAggregationValidator = () => {
+  return object({
+    set: object({
+      userId: objectIdValidation,
+    }),
+    get: coreApp.schemas.selectStruct("user", 2),
+  });
+};
+
+const getUserAggregation: ActFn = async (body) => {
+  const {
+    set: { userId },
+    get,
+  } = body.details;
+  const pipeline = [];
+
+  pipeline.push({ $match: { _id: new ObjectId(userId) } });
+
+  return await users
+    .aggregation({
+      pipeline,
+      projection: get,
+    })
+    .toArray();
+};
+
+coreApp.acts.setAct({
+  schema: "user",
+  actName: "getUserAggregation",
+  validator: getUserAggregationValidator(),
+  fn: getUserAggregation,
+});
+```
+
+Note the result is still an **array** — but with a single member. The full example is [`examples/document/07-2-aggregation.ts`](https://github.com/MiaadTeam/lesan/blob/main/examples/document/07-2-aggregation.ts).
+
+Executing `main → user → getUserAggregation`:
+
+![getUserAggregation act in the playground](https://github.com/MiaadTeam/lesan/assets/6236123/54522471-cd4d-42dd-abd8-040663bcbb6c)
+
+## Next steps
+
+- [findOneAndUpdate](/docs/tutorials/find-one-and-update) — updating documents, and why that's the hardest problem in Lesan
+- [Aggregation pipelines](/docs/advanced/aggregation) — grouping, counting, and more advanced pipeline patterns

@@ -1,0 +1,591 @@
+---
+sidebar_position: 3
+---
+
+# Models & ODM
+
+The Models & ODM (Object Document Mapper) system is the heart of Lesan's data layer. It provides type-safe schema definitions, automatic bi-directional relationships, and a rich set of MongoDB operations with built-in projection support.
+
+## Schema Definition
+
+Schemas in Lesan define the structure of your data models. Each schema consists of **pure fields** (scalar values) and **relations** (links to other schemas).
+
+### Pure Fields
+
+Pure fields are the intrinsic properties of a model — values that belong directly to the document.
+
+```typescript
+import { string, number, boolean, date, optional, array } from "@hemedani/lesan";
+
+const userPure = {
+  name: string(),
+  email: string(),
+  age: number(),
+  isActive: boolean(),
+  avatar: optional(string()),
+  tags: array(string()),
+};
+```
+
+Lesan uses [Superstruct](https://docs.superstructjs.org/) for schema validation. Available types include:
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `string()` | String validation | `name: string()` |
+| `number()` | Number validation | `age: number()` |
+| `boolean()` | Boolean validation | `isActive: boolean()` |
+| `date()` | Date validation | `createdAt: date()` |
+| `optional(type)` | Optional field | `avatar: optional(string())` |
+| `array(type)` | Array of type | `tags: array(string())` |
+| `object(shape)` | Nested object | `address: object({ city: string() })` |
+| `instance(Class)` | Class instance | `_id: instance(ObjectId)` |
+
+### Creating a Model
+
+```typescript
+const users = coreApp.odm.newModel("user", userPure, {});
+```
+
+### Model Options
+
+You can pass an optional third argument to configure indexing and field exclusion:
+
+```typescript
+const users = coreApp.odm.newModel("user", userPure, {}, {
+  createIndex: {
+    indexSpec: { email: 1 },
+    options: { unique: true },
+  },
+  excludes: ["password", "secretToken"],
+});
+```
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `createIndex` | `{ indexSpec, options }` | Create a MongoDB index on model creation |
+| `excludes` | `string[]` | Fields to exclude from projections by default |
+
+---
+
+## Relations
+
+Lesan's most powerful feature is **automatic bi-directional relationships**. You define a relation on one schema, and Lesan automatically maintains the reverse relation on the other schema.
+
+### Relation Types
+
+| Type | Description | Use Case |
+|------|-------------|----------|
+| `single` | One-to-one or many-to-one | A city belongs to one province |
+| `multiple` | One-to-many or many-to-many | A province has many cities |
+
+### Defining Relations
+
+```typescript
+import { RelationDataType, RelationSortOrderType } from "@hemedani/lesan";
+
+const cityRelations = {
+  province: {
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    optional: false,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: {
+          field: "_id",
+          order: "desc" as RelationSortOrderType,
+        },
+      },
+    },
+  },
+};
+
+const cities = coreApp.odm.newModel("city", cityPure, cityRelations);
+```
+
+### Relation Configuration
+
+#### Main Relation (on the source schema)
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `schemaName` | `string` | ✅ | Target schema name |
+| `type` | `"single" \| "multiple"` | ✅ | Relation cardinality |
+| `optional` | `boolean` | ✅ | Whether the relation can be null |
+| `excludes` | `string[]` | ❌ | Fields to exclude when embedding |
+| `limit` | `number \| null` | ❌ | Max items for `multiple` relations |
+| `sort` | `{ field, order }` | ❌ | Default sort for related items |
+| `relatedRelations` | `object` | ✅ | Back-references to create on target |
+
+#### Related Relation (auto-created on target schema)
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `type` | `"single" \| "multiple"` | Back-reference cardinality |
+| `limit` | `number \| null` | Max items |
+| `sort` | `{ field, order }` | Default sort |
+| `excludes` | `string[]` | Fields to exclude |
+
+### How Relations Work
+
+When you define a relation like `city -> province`, Lesan:
+
+1. **Embeds the related document** — When you insert a city, the province's pure fields are embedded directly in the city document
+2. **Maintains back-references** — The province document gets a `cities` array containing embedded city documents
+3. **Keeps both sides in sync** — `addRelation`, `removeRelation`, and `insertOne` handle both sides automatically
+
+```
+City Document:
+{
+  _id: ObjectId("..."),
+  name: "Tehran",
+  population: 9000000,
+  province: {
+    _id: ObjectId("..."),
+    name: "Tehran Province",
+    population: 13000000
+  }
+}
+
+Province Document:
+{
+  _id: ObjectId("..."),
+  name: "Tehran Province",
+  population: 13000000,
+  cities: [
+    { _id: ObjectId("..."), name: "Tehran", population: 9000000 },
+    { _id: ObjectId("..."), name: "Karaj", population: 2000000 }
+  ]
+}
+```
+
+### Inserting with Relations
+
+:::tip
+**Go deeper**
+
+For advanced relationship patterns — multiple `relatedRelations` to one schema, `limit`/`sort`/`excludes`, `addRelation`/`removeRelation`, and `hardCascade` cascading deletes — see [Relations in Depth](/docs/advanced/relations-in-depth).
+:::
+
+```typescript
+await cities.insertOne({
+  doc: { name: "Tehran", population: 9000000 },
+  relations: {
+    province: {
+      _ids: new ObjectId(provinceId),
+      relatedRelations: {
+        cities: true,        // Add to province.cities
+        citiesByPopulation: false,  // Skip this back-reference
+      },
+    },
+  },
+});
+```
+
+---
+
+## Database Connection
+
+Before creating models, you must connect to MongoDB:
+
+```typescript
+import { MongoClient } from "@hemedani/lesan";
+
+const client = await new MongoClient("mongodb://localhost:27017/").connect();
+const db = client.db("myapp");
+
+coreApp.odm.setDb(db);
+```
+
+### `setDb()`
+
+```typescript
+coreApp.odm.setDb(db: Db): Db
+```
+
+Sets the MongoDB database instance. Must be called before any model operations.
+
+### `getCollection()`
+
+```typescript
+coreApp.odm.getCollection(collection: string): Collection<Document>
+```
+
+Get a raw MongoDB collection by name. Validates that the collection name matches a defined schema.
+
+---
+
+## CRUD Operations
+
+Each model returned by `newModel()` provides a full set of CRUD operations.
+
+### `insertOne()` — Insert a Single Document
+
+```typescript
+await cities.insertOne({
+  doc: { name: "Tehran", population: 9000000 },
+  relations: {
+    province: {
+      _ids: new ObjectId(provinceId),
+      relatedRelations: { cities: true },
+    },
+  },
+  options: { writeConcern: { w: "majority" } },
+  projection: { name: 1, population: 1 },
+});
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `doc` | `object` | ✅ | Document to insert |
+| `relations` | `TInsertRelations` | ❌ | Relations to establish |
+| `options` | `InsertOneOptions` | ❌ | MongoDB insert options |
+| `projection` | `Projection` | ❌ | Fields to return |
+
+**Returns:** `Promise<Document \| { _id: ObjectId } \| null>`
+
+### `insertMany()` — Insert Multiple Documents
+
+```typescript
+await cities.insertMany({
+  docs: [
+    { name: "Tehran", population: 9000000 },
+    { name: "Karaj", population: 2000000 },
+  ],
+  relations: { /* ... */ },
+  options: { ordered: true },
+});
+```
+
+### `find()` — Query Multiple Documents
+
+```typescript
+const cursor = await cities.find({
+  filters: { population: { $gt: 1000000 } },
+  projection: { name: 1, population: 1 },
+  options: { limit: 10, sort: { population: -1 } },
+});
+
+const results = await cursor.toArray();
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `filters` | `Filter<Document>` | ✅ | MongoDB query filter |
+| `projection` | `Projection` | ❌ | Fields to include/exclude |
+| `options` | `FindOptions` | ❌ | MongoDB find options |
+
+**Returns:** `FindCursor<Document>`
+
+### `findOne()` — Query a Single Document
+
+```typescript
+const city = await cities.findOne({
+  filters: { _id: new ObjectId(cityId) },
+  projection: { name: 1, "province.name": 1 },
+});
+```
+
+**Returns:** `Promise<Document \| null>`
+
+### `findOneAndUpdate()` — Update and Return
+
+```typescript
+const result = await cities.findOneAndUpdate({
+  filter: { _id: new ObjectId(cityId) },
+  update: { $set: { population: 9500000 } },
+  options: { includeResultMetadata: true },
+  projection: { name: 1, population: 1 },
+});
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `filter` | `Filter<Document>` | ✅ | Query filter |
+| `update` | `UpdateFilter<Document>` | ✅ | Update operations |
+| `options` | `FindOneAndUpdateOptions` | ❌ | MongoDB options |
+| `projection` | `Projection` | ❌ | Fields to return |
+
+### `deleteOne()` — Delete a Document
+
+```typescript
+await cities.deleteOne({
+  filter: { _id: new ObjectId(cityId) },
+  hardCascade: true,  // Also remove from all relation back-references
+});
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `filter` | `Filter<Document>` | ✅ | Query filter |
+| `options` | `DeleteOptions` | ❌ | MongoDB delete options |
+| `hardCascade` | `boolean` | ❌ | Remove from all back-references |
+
+### `countDocument()` — Count Documents
+
+```typescript
+const count = await cities.countDocument({
+  filter: { population: { $gt: 1000000 } },
+});
+```
+
+---
+
+## Relation Operations
+
+### `addRelation()` — Add Relations to Existing Documents
+
+Attaches one or more relations to an existing document, keeping both sides in sync.
+
+```typescript
+await cities.addRelation({
+  filters: { _id: new ObjectId(cityId) },
+  relations: {
+    province: {
+      _ids: new ObjectId(newProvinceId),
+      relatedRelations: {
+        cities: true,
+      },
+    },
+  },
+  replace: true,  // Replace existing single relation
+  projection: { name: 1, "province.name": 1 },
+});
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `filters` | `Filter<Document>` | ✅ | Target document filter |
+| `relations` | `TInsertRelations` | ✅ | Relations to add |
+| `replace` | `boolean` | ❌ | Replace existing single relation |
+| `projection` | `Projection` | ❌ | Fields to return |
+
+:::caution
+**Single Relation Replacement**
+
+For `single` type relations, if the relation already exists and `replace` is not `true`, an error is thrown.
+:::
+
+### `removeRelation()` — Remove Relations
+
+Removes relations from a document and cleans up back-references.
+
+```typescript
+await cities.removeRelation({
+  filters: { _id: new ObjectId(cityId) },
+  relations: {
+    province: {
+      _ids: new ObjectId(provinceId),
+      relatedRelations: {
+        cities: true,  // Remove from province.cities
+      },
+    },
+  },
+});
+```
+
+---
+
+## Aggregation
+
+Lesan provides aggregation with automatic projection pipeline generation.
+
+```typescript
+const results = await cities.aggregation({
+  pipeline: [
+    { $match: { population: { $gt: 1000000 } } },
+    { $group: { _id: "$province.name", total: { $sum: "$population" } } },
+  ],
+  projection: { name: 1, population: 1 },
+  options: { allowDiskUse: true },
+}).toArray();
+```
+
+When you provide a `projection`, Lesan automatically generates `$lookup`, `$unwind`, and `$project` stages based on your schema relations.
+
+---
+
+## Schema Introspection
+
+Lesan provides rich schema introspection functions:
+
+### `getSchemas()` — Get All Schemas
+
+```typescript
+const allSchemas = coreApp.schemas.getSchemas();
+// Returns: Record<string, IModel>
+```
+
+### `getSchema()` — Get a Specific Schema
+
+```typescript
+const citySchema = coreApp.schemas.getSchema("city");
+// Returns: { pure: {...}, relations: {...}, mainRelations: {...}, relatedRelations: {...} }
+```
+
+### `getSchemasKeys()` — Get All Schema Names
+
+```typescript
+const schemaNames = coreApp.schemas.getSchemasKeys();
+// Returns: ["country", "province", "city", "user"]
+```
+
+### `getPureSchema()` — Get Pure Fields Only
+
+```typescript
+const pureFields = coreApp.schemas.getPureSchema("city");
+// Returns: { name: Struct, population: Struct, ... }
+```
+
+### `createStruct()` — Create a Superstruct Validator
+
+```typescript
+const cityStruct = coreApp.schemas.createStruct("city");
+// Returns: Superstruct struct combining pure + embedded relation fields
+```
+
+### `createEmbedded()` — Create Embedded Fields
+
+```typescript
+const embedded = coreApp.schemas.createEmbedded("city");
+// Returns: Pure fields of all related schemas (for nesting in other structs)
+```
+
+### `createProjection()` — Generate MongoDB Projections
+
+```typescript
+const projection = coreApp.schemas.createProjection("city", "PureMainRelations");
+// Returns: { name: 1, population: 1, province: { name: 1, ... } }
+```
+
+Available projection types:
+
+| Type | Description |
+|------|-------------|
+| `Pure` | Only pure (scalar) fields |
+| `MainRelations` | Only main relation embedded fields |
+| `RelatedRelations` | Only related relation embedded fields |
+| `PureMainRelations` | Pure + main relations |
+| `PureRelatedRelations` | Pure + related relations |
+| `MainRelationsRelatedRelations` | All relation fields (no pure) |
+| `PureMainRelationsRelatedRelations` | Everything |
+
+---
+
+## Complete Model Example
+
+```typescript
+import {
+  lesan, MongoClient,
+  string, number, object, ObjectId,
+  RelationDataType, RelationSortOrderType,
+  ActFn,
+} from "@hemedani/lesan";
+
+const coreApp = lesan();
+const client = await new MongoClient("mongodb://localhost:27017/").connect();
+coreApp.odm.setDb(client.db("geo"));
+
+// --- Country Model ---
+const countryPure = { name: string(), population: number() };
+const countries = coreApp.odm.newModel("country", countryPure, {});
+
+// --- Province Model ---
+const provinceRelations = {
+  country: {
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    optional: false,
+    relatedRelations: {
+      provinces: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: { field: "_id", order: "desc" as RelationSortOrderType },
+      },
+    },
+  },
+};
+const provinces = coreApp.odm.newModel("province", countryPure, provinceRelations);
+
+// --- City Model ---
+const cityRelations = {
+  province: {
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    optional: false,
+    relatedRelations: {
+      cities: {
+        type: "multiple" as RelationDataType,
+        limit: 50,
+        sort: { field: "_id", order: "desc" as RelationSortOrderType },
+      },
+    },
+  },
+};
+const cities = coreApp.odm.newModel("city", countryPure, cityRelations);
+
+// --- Actions ---
+const addCity: ActFn = async (body) => {
+  const { name, population, provinceId } = body.details.set;
+  return await cities.insertOne({
+    doc: { name, population },
+    relations: {
+      province: {
+        _ids: new ObjectId(provinceId),
+        relatedRelations: { cities: true },
+      },
+    },
+    projection: body.details.get,
+  });
+};
+
+coreApp.acts.setAct({
+  schema: "city",
+  actName: "addCity",
+  validator: object({
+    set: object({ name: string(), population: number(), provinceId: objectIdValidation }),
+    get: object(),
+  }),
+  fn: addCity,
+});
+```
+
+---
+
+## API Reference Table
+
+### ODM Functions
+
+| Function | Description |
+|----------|-------------|
+| `odm.setDb(db)` | Set MongoDB database |
+| `odm.getCollection(name)` | Get raw MongoDB collection |
+| `odm.newModel(name, pure, relations, options?)` | Create a new model |
+
+### Model Methods
+
+| Method | Description |
+|--------|-------------|
+| `model.find(args)` | Query multiple documents |
+| `model.findOne(args)` | Query single document |
+| `model.insertOne(args)` | Insert single document |
+| `model.insertMany(args)` | Insert multiple documents |
+| `model.addRelation(args)` | Add relations to document |
+| `model.removeRelation(args)` | Remove relations from document |
+| `model.findOneAndUpdate(args)` | Update and return document |
+| `model.deleteOne(args)` | Delete document |
+| `model.aggregation(args)` | Run aggregation pipeline |
+| `model.countDocument(args)` | Count matching documents |
+
+### Schema Functions
+
+| Function | Description |
+|----------|-------------|
+| `schemas.getSchemas()` | Get all schemas |
+| `schemas.getSchema(name)` | Get specific schema |
+| `schemas.getSchemasKeys()` | Get all schema names |
+| `schemas.getPureSchema(name)` | Get pure fields |
+| `schemas.createStruct(name)` | Create validator struct |
+| `schemas.createEmbedded(name)` | Create embedded fields |
+| `schemas.createProjection(name, type)` | Generate projection |

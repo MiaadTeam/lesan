@@ -1,0 +1,139 @@
+---
+sidebar_position: 7
+---
+
+# gets (purchaseOrder)
+
+`gets` is the paginated, filterable list endpoint for purchase orders — the workhorse of any PO dashboard. It supports full-text `search`, filtering by `status`, `organization`, `requestingUnit`, or `requester`, and `page`/`limit`/`skip` pagination. It runs two queries in parallel (items + total count) and returns a `{ items, total, page, limit }` envelope. Every authenticated role can call it.
+
+:::note
+**Package import**
+The tutorial source imports the framework as `"lesan"` — in this repo that alias maps to the local framework source (`deno.json` → `../../src/mod.ts`). In your own app import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` and `@model` are the tutorial's aliases for `utils/` and `models/`.
+:::
+
+## The validator (`gets.val.ts`)
+
+All filters optional; `page`/`limit`/`skip` come from the shared `pagination` util (`page` defaults to 1, `limit` to 50). Note `organizationId`/`requestingUnitId`/`requesterId` are plain strings here — the fn converts them to ObjectIds.
+
+```ts
+import { object, optional, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { pagination } from "@lib";
+import { purchaseOrder_status_emums } from "@model";
+
+export const getsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      search: optional(string()),
+      status: optional(purchaseOrder_status_emums),
+      organizationId: optional(string()),
+      requestingUnitId: optional(string()),
+      requesterId: optional(string()),
+      ...pagination,
+    }),
+    get: selectStruct("purchaseOrder", 1),
+  });
+};
+```
+
+## The implementation (`gets.fn.ts`)
+
+1. Builds `filters` from whatever was provided. `search` becomes a `$text` query against the text index the purchaseOrder model creates on `title` + `description`. Relation filters use dotted paths into embedded snapshots (`"organization._id"`, `"requestingUnit._id"`, `"requester._id"`).
+2. Computes `pageNumber`/`limitNumber` (defaults 1/50) and `skipNumber` — explicit `skip` wins, otherwise `(page - 1) * limit`.
+3. Runs both queries with `Promise.all`: the items pipeline (`$match` → `$sort createdAt desc` → `$skip` → `$limit`) and the count pipeline (`$match` → `$count`).
+4. Returns `{ items, total, page, limit }`.
+
+```ts
+import { type ActFn, type Document, ObjectId } from "lesan";
+import { purchaseOrder } from "../../../mod.ts";
+
+export const getsFn: ActFn = async (body) => {
+  const {
+    set: { search, status, organizationId, requestingUnitId, requesterId, page, limit, skip },
+    get,
+  } = body.details;
+
+  const filters: Document = {};
+
+  if (search) {
+    filters.$text = { $search: search as string };
+  }
+  status && (filters.status = status as string);
+  organizationId && (filters["organization._id"] = new ObjectId(organizationId as string));
+  requestingUnitId && (filters["requestingUnit._id"] = new ObjectId(requestingUnitId as string));
+  requesterId && (filters["requester._id"] = new ObjectId(requesterId as string));
+
+  const pageNumber = page as number || 1;
+  const limitNumber = limit as number || 50;
+  const skipNumber = (skip as number) ?? (pageNumber - 1) * limitNumber;
+
+  const [items, total] = await Promise.all([
+    purchaseOrder
+      .aggregation({
+        pipeline: [
+          ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+          { $sort: { createdAt: -1 } },
+          { $skip: skipNumber },
+          { $limit: limitNumber },
+        ] as Document[],
+        projection: get,
+      })
+      .toArray(),
+    purchaseOrder.aggregation({
+      pipeline: [
+        ...(Object.keys(filters).length > 0 ? [{ $match: filters }] : []),
+        { $count: "total" },
+      ],
+    }).toArray(),
+  ]);
+
+  return {
+    items,
+    total: total[0]?.total || 0,
+    page: pageNumber,
+    limit: limitNumber,
+  };
+};
+```
+
+## In the workflow
+
+`gets` is your read-only window into the PO lifecycle — filter by `status: "Pending"` to see what's waiting, or by `requestingUnitId` for a department's dashboard. It pairs with [get](/docs/tutorials/procurement-workflow/workflow/po-get) (one PO) and [count](/docs/tutorials/procurement-workflow/workflow/po-count) (a bare count for badges). The pagination shape is shared by the other list acts in this app.
+
+Links: [overview](/docs/tutorials/procurement-workflow/overview), [purchaseOrder model](/docs/tutorials/procurement-workflow/models/purchaseOrder), [po-get](/docs/tutorials/procurement-workflow/workflow/po-get), [po-count](/docs/tutorials/procurement-workflow/workflow/po-count), [po-submit](/docs/tutorials/procurement-workflow/workflow/po-submit).
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
+  -d '{
+    "model": "purchaseOrder",
+    "act": "gets",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "status": "Draft",
+        "page": 1,
+        "limit": 10
+      },
+      "get": {
+        "_id": 1,
+        "title": 1,
+        "status": 1
+      }
+    }
+  }'
+```
+
+Expect `{ "body": { "items": [...], "total": 1, "page": 1, "limit": 10 }, "success": true }`.
+
+## Errors & fixes
+
+The fn throws nothing of its own. Notes:
+
+- **`search` with no text index**: the purchaseOrder model creates a text index on `title` + `description` (`createIndex: { indexSpec: { title: "text", description: "text" } }`), so `$text` works. If you reuse this pattern on a model without that index, MongoDB will error — add the index.
+- Shared auth errors apply (`you should send your id with token key in req header`, `Invalid or expired token`, `activeRoleId is required`, `Active role not found`). All roles are allowed, so `You cant do this` shouldn't appear.

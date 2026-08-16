@@ -1,0 +1,137 @@
+---
+sidebar_position: 1
+---
+
+# Cross-Platform Starter Apps
+
+This repository ships three tiny, runnable "Hello World" apps — one per runtime — in `examples/`. They are the smallest possible Lesan servers: initialize Lesan, connect to MongoDB, define a model, create an action, and start the server. Each is ~40 lines and shares the **exact same logic**; only the runner differs.
+
+They live in:
+
+| App | Folder | Port | How to run |
+|-----|--------|------|-----------|
+| Node.js | `examples/node-app` | 8080 | `npm install && npm start` |
+| Bun | `examples/bun-app` | 8081 | `bun install && bun start` |
+| Deno | `examples/deno-app` | 8082 | `deno task start` |
+
+:::note
+**Import from the repo, not npm**
+Because they live inside the Lesan repository, these apps import `lesan` from the repo source (`file:../..` in `package.json`, `"lesan": "../../src/mod.ts"` in `deno.json`) rather than from `@hemedani/lesan`. In your own project you would use the package: `npm install @hemedani/lesan` / `bun add @hemedani/lesan` / `jsr:@hemedani/lesan`.
+:::
+
+## The example (same on all three)
+
+```ts
+import { ActFn, lesan, number, object, string } from "lesan";
+import { MongoClient } from "mongodb";
+
+// 1. Initialize Lesan
+const app = lesan();
+
+// 2. Connect to MongoDB
+const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
+const db = client.db("lesan_example");
+app.odm.setDb(db);
+
+// 3. Define a Model
+const userPure = {
+  name: string(),
+  age: number(),
+  email: string(),
+};
+
+const users = app.odm.newModel("user", userPure, {});
+
+// 4. Define an Action (Route)
+const addUserValidator = () => {
+  return object({
+    set: object(userPure),
+    get: app.schemas.selectStruct("user", 1),
+  });
+};
+
+const addUser: ActFn = async (body) => {
+  const { name, age, email } = body.details.set;
+  return await users.insertOne({
+    doc: { name, age, email },
+    projection: body.details.get,
+  });
+};
+
+app.acts.setAct({
+  schema: "user",
+  actName: "addUser",
+  validator: addUserValidator(),
+  fn: addUser,
+});
+
+// 5. Run the Server
+app.runServer({
+  port: 8080,
+  playground: true,
+  typeGeneration: true,
+});
+```
+
+The five steps are the same five steps as the [Getting Started tutorial](/docs/getting-started): `lesan()` → `setDb` → `newModel` → `setAct` → `runServer`. The only differences between the apps are the package manager, the MongoDB database name, and the port (8080 / 8081 / 8082) so you can run all three side by side.
+
+## Node.js
+
+```bash
+cd examples/node-app
+npm install
+npm start      # tsx src/main.ts
+npm run dev    # tsx watch src/main.ts (hot reload)
+```
+
+- Runs TypeScript directly with **`tsx`** (no build step).
+- MongoDB database: `lesan_node_example`.
+- Requires Node.js 18+ and a MongoDB on `mongodb://127.0.0.1:27017/`.
+
+## Bun
+
+```bash
+cd examples/bun-app
+bun install
+bun start      # bun run src/main.ts
+bun run --watch src/main.ts   # hot reload
+```
+
+- Bun executes TypeScript natively — no transpiler.
+- MongoDB database: `lesan_bun_example`.
+
+## Deno
+
+```bash
+cd examples/deno-app
+deno task start    # deno run -A src/main.ts
+deno task dev      # deno run -A --watch src/main.ts
+```
+
+- Uses `deno.json` tasks + an import map (`"lesan": "../../src/mod.ts"`, `"mongodb": "npm:mongodb@^6.3.0"`).
+- MongoDB database: `lesan_deno_example`.
+
+## Test any of them
+
+All three expose the same `addUser` act on `POST /lesan` (playground enabled):
+
+```bash
+curl -X POST http://localhost:8080/lesan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "user",
+    "act": "addUser",
+    "details": {
+      "set": { "name": "Ali", "age": 30, "email": "ali@example.com" },
+      "get": { "name": 1, "age": 1, "email": 1 }
+    }
+  }'
+```
+
+Or open the playground at `http://localhost:8080/playground` (swap the port per runtime).
+
+## Why three apps?
+
+These apps prove that a Lesan server is **one file** regardless of runtime. They are deliberately trivial — the same architecture scales up unchanged to the 15-model [Procurement Workflow](/docs/tutorials/procurement-workflow/overview), which is Deno-based and runs the same framework code.
+
+For the underlying Platform Abstraction Layer and how each runtime's adapter works, see [Cross-Platform Support](/docs/api/platforms).

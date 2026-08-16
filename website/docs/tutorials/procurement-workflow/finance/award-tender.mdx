@@ -1,0 +1,123 @@
+---
+sidebar_position: 6
+---
+
+# Award Tender
+
+`award` closes the bidding on a **tender** by declaring one supplier the winner: it flips the tender's `status` to `Awarded`. The winning supplier must have already submitted an offer — the act validates the choice against the embedded `offers[]` before committing. Use it at the end of the tendering process, when the procurement officer has picked the best bid.
+
+:::note
+**Imports**
+Throughout this tutorial the framework imports use the `"lesan"` alias, matching the app's `deno.json`. In your own project import from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno) instead.
+:::
+
+## The validator (`award.val.ts`)
+
+Two inputs plus the `activeRoleId` mixin: `tenderId` (ObjectId) and `supplier` (the winning supplier's name, a string). Note there's no `status` field — the act decides `Awarded` itself. The `get` projection is `selectStruct("tender", 1)`.
+
+```ts
+import { object, objectIdValidation, string } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const awardValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      tenderId: objectIdValidation,
+      supplier: string(),
+    }),
+    get: selectStruct("tender", 1),
+  });
+};
+```
+
+## The implementation (`award.fn.ts`)
+
+The act reads the tender **with its offers included** — `projection: { _id: 1, status: 1, offers: 1 }` — and runs three guards before writing:
+
+1. `!foundedTender` → throw `"tender not found"`.
+2. `status !== "Open"` → throw `"tender is not open for awarding"` — you can't award a tender that's already been awarded or closed.
+3. **The winning-offer validation** (the key step): `offers` (defaulting to `[]` if absent) is scanned with `offers.find((o) => o.supplier === supplier)`. If no offer matches the chosen supplier name, `winningOffer` is `undefined` and the act throws `"the selected supplier has no offer on this tender"`. This is what ties `award` to `addOffer` — the winner has to actually be in the auction.
+
+Only after all three pass does `findOneAndUpdate` write, with a `$set` of `status: "Awarded"` — the only mutation this act makes; the offers array itself is left untouched.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { tender } from "../../../mod.ts";
+import { throwError } from "@lib";
+
+export const awardFn: ActFn = async (body) => {
+  const {
+    set: { tenderId, supplier },
+    get,
+  } = body.details;
+
+  const tenderIdObj = new ObjectId(tenderId as string);
+
+  const foundedTender = await tender.findOne({
+    filters: { _id: tenderIdObj },
+    projection: { _id: 1, status: 1, offers: 1 },
+  });
+
+  !foundedTender && throwError("tender not found");
+
+  if (foundedTender!.status !== "Open") {
+    throwError("tender is not open for awarding");
+  }
+
+  const offers = (foundedTender as any).offers || [];
+  const winningOffer = offers.find((o: { supplier: string }) => o.supplier === supplier);
+
+  !winningOffer && throwError("the selected supplier has no offer on this tender");
+
+  return await tender.findOneAndUpdate({
+    filter: { _id: tenderIdObj },
+    update: {
+      $set: {
+        status: "Awarded",
+      },
+    },
+    projection: get,
+  });
+};
+```
+
+## In the workflow
+
+`award` is the final act of the tendering arc in the [Finance chapter](/docs/tutorials/procurement-workflow/overview): [addTender](/docs/tutorials/procurement-workflow/finance/add-tender) → [addOffer](/docs/tutorials/procurement-workflow/finance/add-offer) → `award`. Its `supplier` must exactly match an offer's `supplier` field (from `offers: [{ supplier, price, score, submittedAt }]` on the [tender model](/docs/tutorials/procurement-workflow/models/tender)). After award, the tender is closed to further offers, and the winning bid's price informs the purchase order that goes through the [approval workflow](/docs/tutorials/procurement-workflow/workflow/po-submit), drawing on a [budgetLine](/docs/tutorials/procurement-workflow/models/budgetLine).
+
+## Run it
+
+With the server on `http://localhost:1380` and a valid `token`:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "model": "tender",
+    "act": "award",
+    "details": {
+      "set": {
+        "activeRoleId": "ghost-role",
+        "tenderId": "<tender-id>",
+        "supplier": "ZistShimi"
+      },
+      "get": {
+        "_id": 1,
+        "status": 1
+      }
+    }
+  }'
+```
+
+The response body should show `"status": "Awarded"`. A second call with the same `tenderId` now fails with `"tender is not open for awarding"` — the state transition is one-way.
+
+## Errors & fixes
+
+Three errors are thrown by this act, in order:
+
+- **`tender not found`** — the `tenderId` didn't match any tender. Use the `_id` returned by [addTender](/docs/tutorials/procurement-workflow/finance/add-tender).
+- **`tender is not open for awarding`** — the tender's `status` isn't `Open`. You can only award once, while the auction is live; an `Awarded` or `Closed` tender can't be re-awarded.
+- **`the selected supplier has no offer on this tender`** — `supplier` doesn't match any entry in `offers[]`. The supplier name must be **exact** (case-sensitive, same string you passed to [addOffer](/docs/tutorials/procurement-workflow/finance/add-offer)). Check the tender's offers with [getTenders](/docs/tutorials/procurement-workflow/finance/get-tenders) or re-add the offer first.

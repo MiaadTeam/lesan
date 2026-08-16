@@ -1,0 +1,8 @@
+{
+  "label": "Auth & Users",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "The user model acts (login, getMe, CRUD, dashboardStatistic) and the auth utility chain — setTokens, setUser, grantAccess, jwt, password, context."
+  }
+}

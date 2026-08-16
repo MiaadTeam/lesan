@@ -1,0 +1,194 @@
+---
+sidebar_position: 8
+---
+
+# Update User Relations
+
+`updateUserRelations` **replaces** the `avatar`, `organizations`, and `units` relations on an existing user — the relational counterpart to [updateUser](/docs/tutorials/procurement-workflow/auth/updateUser), which only edits scalar fields. It's the place to study `user.addRelation` with `replace: true`: how one act rewrites a single relation, a many-relation, or all three at once, keeping reverse snapshots in sync. It belongs to the `user` model.
+
+The act lives in `src/user/updateUserRelations/`.
+
+## The validator (`updateUserRelations.val.ts`)
+
+`set` spreads `activeRoleMixin`, requires `_id`, and — notably — makes `avatar` a **required** `objectIdValidation` while `organizations` and `units` are optional arrays. So the client can send just `avatar`, or `avatar` plus any combination of the arrays. `get` is `selectStruct("user", 2)` so the response can include the updated relations.
+
+```ts
+import { array, object, objectIdValidation, optional } from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+
+export const updateUserRelationsValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      _id: objectIdValidation,
+      avatar: objectIdValidation,
+      organizations: optional(array(objectIdValidation)),
+      units: optional(array(objectIdValidation)),
+    }),
+    get: selectStruct("user", 2),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `@lib` / `../../../mod.ts` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+Same preAct shape as `updateUser`: `setTokens` → `setUser` → `grantAccess([{ roles: ["Manager", "Admin"] }])`. Editing a user's membership and avatar is a privileged operation.
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { updateUserRelationsFn } from "./updateUserRelations.fn.ts";
+import { updateUserRelationsValidator } from "./updateUserRelations.val.ts";
+
+export const updateUserRelationsSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    actName: "updateUserRelations",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin"] }])],
+    validator: updateUserRelationsValidator(),
+    fn: updateUserRelationsFn,
+  });
+```
+
+## The implementation (`updateUserRelations.fn.ts`)
+
+The function converts `_id` to an `ObjectId`, then issues up to three `user.addRelation` calls — one per relation the client sent:
+
+- **`avatar`** — a `single` relation. `addRelation` with `relations.avatar = { _ids: [new ObjectId(avatar)], relatedRelations: {} }` and `replace: true`.
+- **`organizations`** — a `multiple` relation. Each id becomes an `ObjectId`; `relatedRelations: { users: true }` tells Lesan to refresh the organization's reverse `users` snapshot. `replace: true` means the new list **replaces** the old one rather than appending.
+- **`units`** — same shape, with `relatedRelations: { members: true }`.
+
+Every call passes the client's `get` projection (each returns the projected doc, though the intermediate results are discarded). Finally the act does a fresh `user.findOne` with the same projection and returns the document, so the response always reflects the post-update state regardless of which branches ran.
+
+```ts
+import { type ActFn, ObjectId } from "lesan";
+import { user } from "../../../mod.ts";
+
+export const updateUserRelationsFn: ActFn = async (body) => {
+  const {
+    set: { _id, avatar, organizations, units },
+    get,
+  } = body.details;
+
+  const modelId = new ObjectId(_id as string);
+
+  if (avatar) {
+    await user.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        avatar: {
+          _ids: new ObjectId(avatar as string),
+          relatedRelations: {},
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  if (organizations) {
+    await user.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        organizations: {
+          _ids: (organizations as string[]).map((id: string) => new ObjectId(id)),
+          relatedRelations: {
+            users: true,
+          },
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  if (units) {
+    await user.addRelation({
+      filters: { _id: modelId },
+      relations: {
+        units: {
+          _ids: (units as string[]).map((id: string) => new ObjectId(id)),
+          relatedRelations: {
+            members: true,
+          },
+        },
+      },
+      projection: get,
+      replace: true,
+    });
+  }
+
+  return await user.findOne({
+    filters: { _id: modelId },
+    projection: get,
+  });
+};
+```
+
+Why `replace: true`? Without it, `addRelation` **adds** to the existing relation; with it, the provided list becomes the entire relation. For membership management that's almost always what you want — the client sends the full new organization/unit list and the old ones are removed. Removing a relation also cleans up the reverse snapshot on the other side (that's what the `relatedRelations: { users: true }` / `members: true` flags drive).
+
+Because `avatar` is a `single` relation and required by the validator, at least the avatar branch always runs. Passing an empty array for `organizations` clears that membership entirely.
+
+## In the workflow
+
+`updateUserRelations` is the "change who this user is linked to" act: reassign their avatar, move them between organizations, or change their unit membership.
+
+- [updateUser](/docs/tutorials/procurement-workflow/auth/updateUser) — the scalar-field counterpart.
+- [addUser](/docs/tutorials/procurement-workflow/auth/addUser) — where the same `relations` shape is used at creation time.
+- [User model](/docs/tutorials/procurement-workflow/models/user) — the relation definitions (`organizations`, `units`, `avatar`) and their reverse snapshots.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `grantAccess`.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+Needs `token`, `activeRoleId`, and the target user's `_id`. Replacing the user's organizations and units:
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "user",
+    "act": "updateUserRelations",
+    "details": {
+      "set": {
+        "activeRoleId": "<roleId>",
+        "_id": "<userId>",
+        "avatar": "<fileId>",
+        "organizations": ["<orgId>"],
+        "units": ["<unitId1>", "<unitId2>"]
+      },
+      "get": {
+        "_id": 1,
+        "first_name": 1,
+        "avatar": { "_id": 1, "name": 1 },
+        "organizations": { "_id": 1, "name": 1 },
+        "units": { "_id": 1, "name": 1 }
+      }
+    }
+  }'
+```
+
+`avatar` is required by the validator, so always include it (it can be the same file id). To clear an organization/unit membership, pass `[]` for that array.
+
+## Errors & fixes
+
+`updateUserRelationsFn` has no `throwError` calls of its own — failures come from the preAct chain, validation, or MongoDB.
+
+| Message | Source | What it means | How to fix |
+|---------|--------|---------------|------------|
+| `you should send your id with token key in req header` | `setTokens` | Missing `token` header. | Add `-H "token: <jwt>"`. |
+| `Invalid or expired token` | `setTokens` | JWT didn't verify. | Re-login. |
+| `Invalid or missing token data` | `setUser` | Token payload had no `_id`. | Re-login. |
+| `user not exist` | `setUser` | The token's user was deleted. | Use a different account. |
+| `activeRoleId is required` | `grantAccess` | `set.activeRoleId` was omitted. | Always send `activeRoleId` in `set`. |
+| `Active role not found` | `grantAccess` | The `activeRoleId` doesn't match any role on the user. | Use a `roleId` from the login response. |
+| `You cant do this` | `grantAccess` | Active role is not `Manager` or `Admin`. | Use a manager/admin role, or the ghost superuser. |
+| Relation not found error (framework error) | ODM | A relation id in `organizations` / `units` / `avatar` points at a nonexistent document. | Verify the referenced ids exist (`file`, `organization`, `unit`). |
+| Generic validation error | superstruct | Missing `_id` or `avatar`, or an id isn't a valid ObjectId. | `avatar` is required; all ids must be 24-char hex strings. |

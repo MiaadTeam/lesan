@@ -27,3 +27,4 @@ dump.rdb
 tests/temp/
 coverage/
 developmentDocs
+ignoreAssets

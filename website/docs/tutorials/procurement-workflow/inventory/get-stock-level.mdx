@@ -1,0 +1,109 @@
+---
+sidebar_position: 4
+---
+
+# getStockLevel
+
+`getStockLevel` returns the current inventory document for one store + product combination — quantity, min/max thresholds, batch info, location, and the embedded `store` / `product` relations. It works on the `inventory` model. You need it to answer "how much of X do we have in store Y right now?" and, thanks to the `minQuantity` / `maxQuantity` fields, to drive low-stock / over-stock alerts.
+
+## The validator (`getStockLevel.val.ts`)
+
+Two required ObjectIds in `set` (`storeId`, `productId`) plus the `activeRoleMixin`. The `get` is `object({})` — an empty projection, because this act returns the full stock-level document regardless of what the client asks for. Any read role can call it: `Manager`, `Admin`, `StoreHead`, `UnitHead`, and `Employee`.
+
+```ts
+import { object, objectIdValidation } from "lesan";
+import { activeRoleMixin } from "@lib";
+
+export const getStockLevelValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      storeId: objectIdValidation,
+      productId: objectIdValidation,
+    }),
+    get: object({}),
+  });
+};
+```
+
+:::note
+**About the imports**
+All framework imports in this repo use the `"lesan"` alias. In your own app, import the same names from `@hemedani/lesan` (npm/Bun) or `jsr:@hemedani/lesan` (Deno). `@lib` points at the app's `utils/` folder.
+:::
+
+## The implementation (`getStockLevel.fn.ts`)
+
+Even thinner than the mutators: it reads the two ids from `set` and forwards them to the shared `getStockLevel` helper in `utils/inventoryManager.ts`. No context lookup — reads don't need the acting user.
+
+```ts
+import { type ActFn } from "lesan";
+import { getStockLevel as getStockLevelUtil } from "@lib";
+
+export const getStockLevelFn: ActFn = async (body) => {
+  const {
+    set: { storeId, productId },
+  } = body.details;
+
+  return await getStockLevelUtil(storeId as string, productId as string);
+};
+```
+
+The helper (see [inventoryManager](/docs/tutorials/procurement-workflow/inventory/inventory-manager)) does a `findOne` on the `inventory` collection filtering by `store._id` and `product._id`, and returns the document — or `{ quantity: 0 }` when nothing exists yet. That fallback is why this act never throws for a missing record; it simply reports zero.
+
+## How it's registered (`mod.ts`)
+
+```ts
+import { grantAccess, setTokens, setUser } from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { getStockLevelFn } from "./getStockLevel.fn.ts";
+import { getStockLevelValidator } from "./getStockLevel.val.ts";
+
+export const getStockLevelSetup = () =>
+  coreApp.acts.setAct({
+    schema: "inventory",
+    actName: "getStockLevel",
+    preAct: [setTokens, setUser, grantAccess([{ roles: ["Manager", "Admin", "StoreHead", "UnitHead", "Employee"] }])],
+    validator: getStockLevelValidator(),
+    fn: getStockLevelFn,
+  });
+```
+
+## In the workflow
+
+This is the primary point-of-sale read for inventory: one product in one store. The broader reads are [getInventories](/docs/tutorials/procurement-workflow/inventory/get-inventories) (many rows, filterable, sortable) and [getStockMovements](/docs/tutorials/procurement-workflow/inventory/get-stock-movements) (the history). Writing stock goes through [addStock](/docs/tutorials/procurement-workflow/inventory/add-stock), [removeStock](/docs/tutorials/procurement-workflow/inventory/remove-stock), and [transferStock](/docs/tutorials/procurement-workflow/inventory/transfer-stock). See the [overview](/docs/tutorials/procurement-workflow/overview) for the big picture.
+
+## Run it
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <your-token>" \
+  -d '{
+    "service": "main",
+    "model": "inventory",
+    "act": "getStockLevel",
+    "details": {
+      "set": {
+        "activeRoleId": "<role-id>",
+        "storeId": "<store-id>",
+        "productId": "<product-id>"
+      },
+      "get": {}
+    }
+  }'
+```
+
+The `body` is the inventory document (`_id`, `quantity`, `minQuantity`, `maxQuantity`, `batchNo`, `expirationDate`, `location`, `store`, `product`) or `{ quantity: 0 }`.
+
+## Errors & fixes
+
+| Error | What it means | How to fix |
+|---|---|---|
+| `you should send your id with token key in req header` | `setTokens` found no `token` header | Add `-H "token: <your-jwt>"` to the request |
+| `Invalid or expired token` | JWT verification failed | Log in again and use the fresh token |
+| `Invalid or missing token data` | Token payload has no `_id` | Use a token produced by the app's `login` act |
+| `user not exist` | `setUser` couldn't find the user doc | The token references a deleted user — log in again |
+| `activeRoleId is required` | `grantAccess` needs the active role | Send `activeRoleId` in `details.set` (unless the user `isGhost`) |
+| `Active role not found` | The `activeRoleId` isn't among the user's roles | Pass one of the role ids on the user document |
+| `You cant do this` | The active role isn't in the allowed read roles | Switch to an allowed role or use a ghost admin |
+| `Invalid ObjectId` / validator failure | `storeId` / `productId` isn't a valid 24-char hex string | Check the ids you're sending |

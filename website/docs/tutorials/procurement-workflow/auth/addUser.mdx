@@ -1,0 +1,222 @@
+---
+sidebar_position: 6
+---
+
+# Add User
+
+`addUser` creates a new user: it hashes the password, writes the pure fields, and wires up the `avatar`, `organizations`, and `units` relations in one call. It belongs to the `user` model and is the most relation-heavy write act in the auth chapter — the place to study how `insertOne` with a `relations` object works.
+
+The act lives in `src/user/addUser/`.
+
+## The validator (`addUser.val.ts`)
+
+`set` requires the four core identity fields — `first_name`, `last_name`, `email`, `password` — then accepts optional `position`, `isActive` (defaults to `true` via `defaulted`), `features` (array of `{ feature: feature_enums }`), and the three relation inputs: `avatar` (a single `objectIdValidation`), `organizations` (array of ObjectIds), `units` (array of ObjectIds). `get` is `selectStruct("user", 1)`.
+
+```ts
+import {
+  array,
+  boolean,
+  defaulted,
+  object,
+  objectIdValidation,
+  optional,
+  string,
+} from "lesan";
+import { selectStruct } from "../../../mod.ts";
+import { activeRoleMixin } from "@lib";
+import { feature_enums } from "@model";
+
+export const addUserValidator = () => {
+  return object({
+    set: object({
+      ...activeRoleMixin,
+      first_name: string(),
+      last_name: string(),
+      email: string(),
+      password: string(),
+      position: optional(string()),
+      isActive: defaulted(boolean(), true),
+      features: optional(array(object({ feature: feature_enums }))),
+      avatar: optional(objectIdValidation),
+      organizations: optional(array(objectIdValidation)),
+      units: optional(array(objectIdValidation)),
+    }),
+    get: selectStruct("user", 1),
+  });
+};
+```
+
+:::note
+**Runtime-agnostic imports**
+`"lesan"` is this repo's path alias for the framework source. On npm/Bun you'd import from `@hemedani/lesan`, and on Deno from `jsr:@hemedani/lesan`. The `@model` / `@lib` / `../../../mod.ts` aliases stay as they are in your project (see [Project Layout](/docs/tutorials/procurement-workflow/project-layout)).
+:::
+
+## The registration (`mod.ts`)
+
+Three things make this registration special:
+
+1. **`validationRunType: "create"`** — the framework uses superstruct's `create` (filling defaults like `isActive: true`) instead of `assert`.
+2. The preAct is `setTokens`, `setUser`, and then a **two-rule `grantAccess`**:
+   - `Manager` / `Admin` can add users anywhere.
+   - `OrgHead` can add users, but only **within their own organization** — `getScope` pulls the first `organizations` id out of the request body (`b?.details?.set?.organizations[0]`) and requires the OrgHead's active-role scope to match that organization exactly.
+3. The ghost superuser (`isGhost`) bypasses all of it.
+
+```ts
+import {
+  grantAccess,
+  setTokens,
+  setUser,
+} from "@lib";
+import { coreApp } from "../../../mod.ts";
+import { addUserFn } from "./addUser.fn.ts";
+import { addUserValidator } from "./addUser.val.ts";
+
+export const addUserSetup = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    actName: "addUser",
+    validationRunType: "create",
+    preAct: [
+      setTokens,
+      setUser,
+      grantAccess([
+        { roles: ["Manager", "Admin"] },
+        {
+          roles: ["OrgHead"],
+          getScope: (b) => {
+            const orgs = b?.details?.set?.organizations as string[] | undefined;
+            return orgs?.[0]
+              ? { scopeType: "organization", scopeId: orgs[0] }
+              : null;
+          },
+        },
+      ]),
+    ],
+    validator: addUserValidator(),
+    fn: addUserFn,
+  });
+```
+
+## The implementation (`addUser.fn.ts`)
+
+The function destructures the relation-shaped fields out of `set` and keeps the scalar fields in `rest`. It builds a `relations` object typed as `TInsertRelations<typeof user_relations>` (the generated shape for this model's relation definitions):
+
+- `avatar` → single relation: `{ _ids: [new ObjectId(avatar)] }`.
+- `organizations` → multiple relation mapping each id to an `ObjectId`, with `relatedRelations: { users: true }` so the organization's reverse `users` snapshot is kept in sync.
+- `units` → multiple relation with `relatedRelations: { members: true }` for the unit's reverse `members` snapshot.
+
+Then `user.insertOne` writes `{ ...rest, password: hashPassword(password) }` — the password is **hashed before storage** (SHA-256, see [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils)) — plus the `relations`, and returns the document projected by `get`.
+
+```ts
+import { type ActFn, ObjectId, type TInsertRelations } from "lesan";
+import { user } from "../../../mod.ts";
+import type { user_relations } from "@model";
+import { hashPassword } from "../../../utils/password.ts";
+
+export const addUserFn: ActFn = async (body) => {
+  const { set, get } = body.details;
+
+  const { activeRoleId, avatar, organizations, units, password, ...rest } =
+    set;
+
+  const relations: TInsertRelations<typeof user_relations> = {};
+
+  avatar &&
+    (relations.avatar = {
+      _ids: new ObjectId(avatar as string),
+    });
+
+  if (organizations && (organizations as string[]).length > 0) {
+    relations.organizations = {
+      _ids: (organizations as string[]).map((id: string) => new ObjectId(id)),
+      relatedRelations: {
+        users: true,
+      },
+    };
+  }
+
+  if (units && (units as string[]).length > 0) {
+    relations.units = {
+      _ids: (units as string[]).map((id: string) => new ObjectId(id)),
+      relatedRelations: {
+        members: true,
+      },
+    };
+  }
+
+  const addedUser = await user.insertOne({
+    doc: {
+      ...rest,
+      password: password ? await hashPassword(password as string) : undefined,
+    },
+    relations,
+    projection: get,
+  });
+
+  return addedUser;
+};
+```
+
+Why the `relatedRelations` flags? Because Lesan stores relations **bi-directionally**: the user embeds a pure snapshot of its organizations/units, and those documents embed a pure snapshot of the user in their reverse `users` / `members` arrays. Telling `insertOne` about the reverse relation keeps both sides consistent in the same write — otherwise the back-reference would be stale.
+
+Note that `activeRoleId` is destructured away and never persisted: it's a request-scoped value the preAct chain uses, not a user field.
+
+## In the workflow
+
+`addUser` is the create side of user management. The new user's `_id` (from `get`) feeds `updateUser`, `updateUserRelations`, `removeUser`, and `login`.
+
+- [login](/docs/tutorials/procurement-workflow/auth/login) — new users log in with the `email` / `password` you set here.
+- [updateUser](/docs/tutorials/procurement-workflow/auth/updateUser) — editing the scalar fields afterwards.
+- [updateUserRelations](/docs/tutorials/procurement-workflow/auth/updateUserRelations) — replacing `avatar` / `organizations` / `units` later.
+- [Auth Utilities](/docs/tutorials/procurement-workflow/auth/auth-utils) — `grantAccess` with `getScope`, and `hashPassword`.
+- [User model](/docs/tutorials/procurement-workflow/models/user) — the relation definitions and `feature_enums`.
+- [Overview](/docs/tutorials/procurement-workflow/overview) — where this series starts.
+
+## Run it
+
+Needs `token` and `activeRoleId`. Here's an admin creating a user with an organization and a unit (assuming `orgId` / `unitId` were captured from the catalog chapter's add acts):
+
+```bash
+curl -X POST http://localhost:1380/lesan \
+  -H "Content-Type: application/json" \
+  -H "token: <jwt>" \
+  -d '{
+    "model": "user",
+    "act": "addUser",
+    "details": {
+      "set": {
+        "activeRoleId": "<roleId>",
+        "first_name": "Sara",
+        "last_name": "Ahmadi",
+        "email": "sara@medsupply.io",
+        "password": "SecretPass123!",
+        "position": "Purchasing Manager",
+        "isActive": true,
+        "organizations": ["<orgId>"],
+        "units": ["<unitId>"]
+      },
+      "get": {
+        "_id": 1,
+        "first_name": 1,
+        "last_name": 1,
+        "email": 1
+      }
+    }
+  }'
+```
+
+For an `OrgHead`, the `organizations` array must contain exactly the organization they're scoped to, or `grantAccess` rejects the request.
+
+## Errors & fixes
+
+| Message | Source | What it means | How to fix |
+|---------|--------|---------------|------------|
+| `you should send your id with token key in req header` | `setTokens` | Missing `token` header. | Add `-H "token: <jwt>"`. |
+| `Invalid or expired token` | `setTokens` | JWT didn't verify. | Re-login. |
+| `Invalid or missing token data` | `setUser` | Token payload had no `_id`. | Re-login. |
+| `user not exist` | `setUser` | The token's user was deleted. | Use a different account. |
+| `activeRoleId is required` | `grantAccess` | `set.activeRoleId` was omitted. | Always send `activeRoleId` in `set`. |
+| `Active role not found` | `grantAccess` | The `activeRoleId` doesn't match any role on the user. | Use a `roleId` from the login response. |
+| `You cant do this` | `grantAccess` | Role is neither `Manager`/`Admin`, or an `OrgHead` whose `organizations[0]` doesn't match their scope. | Use a manager/admin role, or make the `organizations` array start with the OrgHead's own organization id. |
+| Duplicate key error (framework error) | MongoDB | The unique index on `email` rejected a second user with the same email. | `user` has `createIndex: { indexSpec: { email: 1 }, options: { unique: true } }` — pick a different email. |
+| Generic validation error | superstruct | Missing `first_name`/`last_name`/`email`/`password`, or invalid `features`/ObjectIds. | All four core strings are required; `features` must be `{ feature: <enum> }`; relation ids must be 24-char hex. |
