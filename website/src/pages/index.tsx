@@ -6,6 +6,7 @@ import RelationshipsSection from '@site/src/components/RelationshipsSection';
 import PerformanceSection from '@site/src/components/PerformanceSection';
 import CodeExampleSection from '@site/src/components/CodeExampleSection';
 import TrustSection from '@site/src/components/TrustSection';
+import ShowcaseSection from '@site/src/components/ShowcaseSection';
 import CTASection from '@site/src/components/CTASection';
 
 export default function Home(): JSX.Element {
@@ -20,6 +21,7 @@ export default function Home(): JSX.Element {
         <PerformanceSection />
         <CodeExampleSection />
         <TrustSection />
+        <ShowcaseSection />
         <CTASection />
       </main>
     </Layout>
