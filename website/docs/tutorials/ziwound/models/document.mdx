@@ -1,0 +1,58 @@
+---
+sidebar_position: 6
+---
+
+# The Document Model
+
+A `document` is a supporting artifact attached to a war crime report — something like a statement, an official file, or a source citation. Unlike the `file` model (which tracks the raw uploaded bytes), a `document` carries *metadata about a piece of evidence* and links to the files that back it. Source: [`back/models/document.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/document.ts).
+
+```ts
+export const document_pure = {
+  title: string(),
+  description: optional(string()),
+  document_date: optional(coerce(date(), string(), (v) => new Date(v))),
+  document_number: optional(string()),
+  ...createUpdateAt,
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `title` | `string()` | evidence title |
+| `description` | `optional(string())` | context |
+| `document_date` | `optional(date)` | when the evidence dates from |
+| `document_number` | `optional(string())` | e.g. a case reference number |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+```ts
+export const document_relations = {
+  documentFiles: {
+    schemaName: "file",
+    type: "multiple" as RelationDataType,
+    excludes: file_excludes,
+    relatedRelations: {},
+  },
+  report: {
+    schemaName: "report",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: report_excludes,
+    relatedRelations: { documents: { type: "multiple" as RelationDataType, limit: 20 } },
+  },
+};
+```
+
+Two things to note:
+
+- **`documentFiles` is one-directional** (`relatedRelations: {}`) — a file does not carry a `documents` back-list. Files are shared, flat resources; only the *owning* relation (`uploader`) keeps a back-list.
+- **`report` is a required `single` relation** with the reverse `documents` array — this is the "documents belong to a report" half of the graph shown on the [Report model](/docs/tutorials/ziwound/models/report) page.
+
+## Acts
+
+`get`, `gets`, `update`, `updateRelations`, `remove`, `add`, `count` — plus the report flow acts (`getRelated`, `getRelatedPagination`) that hydrate document lists for a report.
+
+Next: [Content Models](/docs/tutorials/ziwound/models/content).

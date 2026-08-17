@@ -1,0 +1,98 @@
+---
+sidebar_position: 6
+---
+
+# File Uploads
+
+ZiWound accepts images, videos, and documents through **multipart uploads** routed into a static directory and served back under `/uploads`. This page shows the full round trip. The framework side is covered in [Server](/docs/api/server) and [Body Parsing](/docs/advanced/request-lifecycle).
+
+## Serving uploads
+
+The server is configured with a static path in `back/mod.ts`:
+
+```ts
+coreApp.runServer({
+  port: Number(APP_PORT),
+  staticPath: ["/uploads"],   // files under back/uploads/ are served at /uploads/...
+});
+```
+
+Uploaded files land on disk under `back/uploads/{image|video|docs}/`, and become publicly reachable at `http://<host>:1406/uploads/{image}/<filename>`.
+
+## The upload act
+
+Uploading is a **multipart** request, not JSON. Lesan parses the form and places the file in `details.set.formData` (see `parsBody` in `checkWants`). The act validates type + size, routes to the right sub-directory, and stores the metadata row:
+
+```ts
+// src/file/uploadFile/uploadFile.fn.ts (simplified)
+export const uploadFileFn: ActFn = async (body) => {
+  const { set } = body.details;
+  const file = set.formData;              // the parsed multipart file
+
+  const fileType = set.type;              // "image" | "video" | "docs"
+  const maxSize = fileType === "docs" ? 50_000_000 : 15_000_000;
+  if (file.size > maxSize) throwError("file is too large");
+
+  const name = `${crypto.randomUUID()}.${extension}`;
+  await writeFile(`${UPLOAD_DIR}/${fileType}/${name}`, file.content);
+
+  return await files.insertOne({
+    doc: {
+      name, mimeType: file.mimeType, size: file.size,
+      type: fileType, alt_text: set.alt_text,
+      uploader: contextFns.getUser()._id,     // owner
+    },
+    projection: get,
+  });
+};
+```
+
+Validator:
+
+```ts
+export const uploadFileValidator = () =>
+  object({
+    set: object({ type: enums(["image", "video", "docs"]), alt_text: optional(string()) }),
+    get: coreApp.schemas.selectStruct("file", { ... }),
+  });
+```
+
+The act itself is protected by the auth chain: `preAct: [setUser, grantAccess(["Reporter", "Editor", "Manager", "Admin"])]`.
+
+## The frontend side
+
+The Next.js frontend uploads with `FormData` and stores the returned file `_id`:
+
+```ts
+// front/src/actions/upload.ts (simplified)
+const form = new FormData();
+form.append("file", blob, filename);
+form.append("type", "image");
+
+const { body } = await fetch(`${LESAN_URL}/lesan`, {
+  method: "POST",
+  headers: { Authorization: `Bearer ${token}` },
+  body: form,
+});
+const file = body.body;          // { _id, name, mimeType, size, type, ... }
+```
+
+Then the file `_id` is attached where needed — as `user.avatar`, `report.documents[].documentFiles`, or a report's cover image — via the owning model's `updateRelations` act:
+
+```ts
+await callLesan("updateUserRelations", {
+  set: { _id: userId, avatar: fileId },   // Lesan wires the reverse list too
+  get: { avatar: true },
+});
+```
+
+## Checklist for multipart in Lesan
+
+1. Set `staticPath: ["/uploads"]` in `runServer` so files are served.
+2. Accept the raw file through `details.set.formData` in the act.
+3. Validate `type` (enum) and `size` **in the act** — the JSON validator can't see the binary.
+4. Persist the file to disk with a unique name (UUID).
+5. Insert a `file` metadata row, tagged with `uploader`.
+6. Reference the file `_id` from the owning model's `updateRelations` act — Lesan keeps the reverse list in sync.
+
+Next: [Act Structure](/docs/tutorials/ziwound/patterns/act-structure).

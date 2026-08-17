@@ -1,0 +1,91 @@
+---
+sidebar_position: 1
+---
+
+# ZiWound — Overview
+
+This is a complete, step-by-step case study of **[ZiWound](https://ziwound.com/en)** — a real, production-grade **war crimes documentation platform** built entirely on Lesan. It is the largest real-world Lesan application you can study outside this repo: **13 models, 98 acts**, JWT authentication with role-based access control, GeoJSON geospatial search, full-text search, 9-language internationalization, file uploads, and a Next.js frontend.
+
+ZiWound is **open source**. The entire codebase lives at [**github.com/hemedani/ziwound**](https://github.com/hemedani/ziwound), so every page in this series links to the real source file instead of reproducing it here.
+
+:::note
+**Not a beginner tutorial**
+You should already know the basics from [Getting Started](/docs/getting-started) and the [country/city/user tutorials](/docs/tutorials/add-more-relations). This series is an *advanced* case study — it assumes you know `newModel`, `setAct`, `insertOne`, `findOneAndUpdate`, relations, and projections.
+:::
+
+## What the app does
+
+ZiWound documents war crimes. Users submit **reports** (with geolocation, file attachments, tags, categories, and references to accused **war criminals**), explore documented incidents through interactive maps, read **blog articles**, and admins manage everything from a dashboard.
+
+```text
+user ── submits ──> report ──┬── reporter (User)
+                             ├── documents (Document[] ── documentFiles)
+                             ├── tags (Tag[]) / category (Category)
+                             ├── hostileCountries / attackedCountries (Country[])
+                             ├── attackedProvinces / attackedCities (Province[]/City[])
+                             └── warCriminals (WarCriminal[])
+        │
+        ├── country ── province ── city        (geographic hierarchy)
+        ├── blogPost (author, coverImage, tags)
+        ├── heroSlide (landing page slider)
+        └── confirmation (email/account verification)
+```
+
+## The 13 models
+
+| Model | Purpose | Page |
+|-------|---------|------|
+| `user` | authentication, roles, profile | [The User Model](/docs/tutorials/ziwound/models/user) |
+| `file` | uploads (images, videos, documents) | [The File Model](/docs/tutorials/ziwound/models/file) |
+| `country` | countries with localized war history | [Location Models](/docs/tutorials/ziwound/models/location) |
+| `province` | provinces with war history | [Location Models](/docs/tutorials/ziwound/models/location) |
+| `city` | cities with war history + capital relations | [Location Models](/docs/tutorials/ziwound/models/location) |
+| `category` | categorization (shared pattern) | [Catalog Models](/docs/tutorials/ziwound/models/catalog) |
+| `tag` | metadata tagging (shared pattern) | [Catalog Models](/docs/tutorials/ziwound/models/catalog) |
+| `report` | the core war crime report | [The Report Model](/docs/tutorials/ziwound/models/report) |
+| `document` | supporting documents for reports | [The Document Model](/docs/tutorials/ziwound/models/document) |
+| `blogPost` | articles with publish workflow | [Content Models](/docs/tutorials/ziwound/models/content) |
+| `heroSlide` | landing-page slider | [Content Models](/docs/tutorials/ziwound/models/content) |
+| `warCriminal` | accused individuals/entities | [The War Criminal Model](/docs/tutorials/ziwound/models/war-criminal) |
+| `confirmation` | email/account confirmation | [The Confirmation Model](/docs/tutorials/ziwound/models/confirmation) |
+
+## What makes ZiWound a great Lesan case study
+
+- **13 real models with deep relation graphs** — reports link to reporters, documents, tags, categories, countries, provinces, cities, and war criminals, all with Lesan's automatic reverse-relation syncing.
+- **98 production acts** — the full CRUD surface plus login/register/getMe, publish/unpublish, getBySlug, getRelated, statistics, CSV/PDF export, uploads, and dashboard statistics.
+- **Auth as a `preAct` chain** — `setTokens → setUser → grantAccess(...)` on protected acts, proving how Lesan's request hooks handle real authorization.
+- **Localization done two ways** — `localizedWarInfo` (nested `{fa,en,ar,...}` objects) vs `selected_language` (per-record language filter). ZiWound shows exactly when to use each.
+- **Search & geospatial** — MongoDB text indexes and `2dsphere` GeoJSON queries power real search and map exploration.
+- **Generated types** — `typeGeneration: true` writes `declarations/selectInp.ts`, which the Next.js frontend consumes directly.
+
+## Chapter guide
+
+1. **[Project Layout](/docs/tutorials/ziwound/project-layout)** — the repo structure (`back/` Deno + Lesan, `front/` Next.js) and how `mod.ts` wires everything together.
+2. **The Models** — one page per model (or logical group): pure fields, relations, back-references, and indexes, with links to the real source.
+3. **Lesan Patterns** — the reusable lessons ZiWound teaches: the auth chain, localization, search & indexes, geospatial queries, file uploads, and act structure.
+
+Every page links to the exact file in [github.com/hemedani/ziwound](https://github.com/hemedani/ziwound) — open it side by side as you read.
+
+## Run it
+
+ZiWound is a real production app. To run it locally, clone the repo and follow its README:
+
+```bash
+git clone https://github.com/hemedani/ziwound.git
+cd ziwound
+
+# Backend (Deno + Lesan)
+cd back
+deno task bc-dev   # starts the Lesan server (MongoDB required)
+
+# Frontend (Next.js)
+cd front
+pnpm install
+pnpm dev
+```
+
+- Playground: `http://localhost:1406/playground` (development mode)
+- Static uploads: served under `/uploads`
+- Generated types: `declarations/selectInp.ts` written on boot (`typeGeneration: true`)
+
+Next: [Project Layout](/docs/tutorials/ziwound/project-layout).

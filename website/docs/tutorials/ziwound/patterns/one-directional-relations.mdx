@@ -1,0 +1,98 @@
+---
+sidebar_position: 1
+---
+
+# One-Directional Relations
+
+The single most important Lesan lesson ZiWound demonstrates — across all 13 models — is that **relations are defined one-directional and Lesan maintains the reverse side automatically**. You never store the same reference twice by hand.
+
+## The rule, in ZiWound's own terms
+
+Every relation in the codebase picks one direction:
+
+```ts
+// WHO owns the relation  →  declared on the model
+// WHO is referenced      →  gets the back-reference via relatedRelations
+```
+
+ZiWound has zero cases of two models both declaring the "same" relation to each other. Wherever it *looks* bidirectional, it's one declaration plus a generated back-reference.
+
+## Pattern 1 — the owned back-list (with limit)
+
+The workhorse pattern. One model declares the relation; the *other* model's `relatedRelations` creates the reverse array.
+
+```ts
+// report.ts — declares it
+warCriminals: {
+  schemaName: "warCriminal",
+  type: "multiple" as RelationDataType,
+  excludes: war_criminal_excludes,
+  relatedRelations: { reports: { type: "multiple" as RelationDataType, limit: 100 } },
+},
+```
+
+```ts
+// warCriminal.ts — receives it
+reports: {
+  schemaName: "report",
+  type: "multiple" as RelationDataType,
+  excludes: report_excludes,
+  relatedRelations: { warCriminals: { type: "multiple" as RelationDataType, limit: 100 } },
+},
+```
+
+Both arrays exist in the database (`report.warCriminals` and `warCriminal.reports`), but only **one** was written by hand. When a report adds/removes a war criminal, `proccessUpdateOrDeleteRelations` syncs the embedded back-reference. The `limit` keeps the reverse array bounded (newest first).
+
+## Pattern 2 — the true one-way (no reverse)
+
+Some relations genuinely don't need a reverse side. Set `relatedRelations: {}`:
+
+```ts
+avatar: {
+  schemaName: "file",
+  type: "single" as RelationDataType,
+  optional: true,
+  excludes: file_excludes,
+  relatedRelations: {},      // a file doesn't list "avatar-of users"
+},
+```
+
+Used for: `user.avatar`, `user.national_card`, `document.documentFiles`, location photos, and `confirmation` (which has no relations at all). The rule of thumb: **one-directional when the back-list would never be queried.**
+
+## Pattern 3 — same target, different role
+
+ZiWound links the same schema in multiple named relations, each generating its own distinct back-list:
+
+```ts
+// report.ts
+hostileCountries:    { schemaName: "country", ... relatedRelations: { hostileReports: {...} } },
+attackedCountries:   { schemaName: "country", ... relatedRelations: { attackedReports: {...} } },
+```
+
+```ts
+// user.ts, via report relations
+reporter:   { schemaName: "user", ... relatedRelations: { reports: {...} } },            // submitted
+registrar:  { schemaName: "user", ... relatedRelations: { registeredReports: {...} } },  // moderated
+```
+
+Two relations to the same model can even point at the **same document** — a country can be both hostile and attacked — without a collision, because each relation is a separate embedded list.
+
+## Pattern 4 — the Ladder
+
+`country → province → city` each points up one level:
+
+```ts
+// city.ts
+province: { schemaName: "province", ... relatedRelations: { cities: {...} } },
+country:  { schemaName: "country",  ... relatedRelations: { cities: {...} } },
+```
+
+The same city can appear in both its country's `cities` and its province's `cities` lists — both generated from a single declaration per level.
+
+## Why ZiWound did it this way
+
+- **No duplication to keep in sync** — Lesan's write pipeline handles both directions in one operation.
+- **Bounded payloads** — every back-list has a `limit`; deep projection stays cheap.
+- **Consistent excludes** — `user_excludes`/`location_excludes`/`report_excludes` trim the same heavy fields from every embed, so a report's `reporter` snapshot never bloats a response.
+
+Next: [The Authentication Chain](/docs/tutorials/ziwound/patterns/auth-chain).

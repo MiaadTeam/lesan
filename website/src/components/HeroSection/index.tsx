@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 import AmbientGlow from '../AmbientGlow';
@@ -6,7 +6,28 @@ import TerminalBlock from '../TerminalBlock';
 import Tag from '../Tag';
 import AnimatedSection from '../AnimatedSection';
 
+interface RuntimeOption {
+  label: string;
+  command: string;
+  title: string;
+}
+
+const RUNTIMES: RuntimeOption[] = [
+  { label: 'Node.js', command: 'npm install @hemedani/lesan mongodb', title: 'bash' },
+  { label: 'Bun', command: 'bun add @hemedani/lesan mongodb', title: 'bash' },
+  {
+    label: 'Deno',
+    command:
+      'import { lesan } from "jsr:@hemedani/lesan";\nimport { MongoClient } from "npm:mongodb";',
+    title: 'typescript',
+  },
+  { label: 'TypeScript', command: 'npx tsx main.ts', title: 'bash' },
+];
+
 export default function HeroSection(): JSX.Element {
+  const [activeRuntime, setActiveRuntime] = useState<string>('Node.js');
+  const active = RUNTIMES.find((r) => r.label === activeRuntime) ?? RUNTIMES[0];
+
   return (
     <section className={styles.hero}>
       {/* Ambient glows */}
@@ -83,18 +104,29 @@ export default function HeroSection(): JSX.Element {
         <AnimatedSection animation="fadeInUp" delay={0.4}>
           <div className={styles.terminal}>
             <TerminalBlock 
-              command="npm install @hemedani/lesan"
-              title="bash"
+              command={active.command}
+              title={active.title}
             />
           </div>
         </AnimatedSection>
         
         <AnimatedSection animation="fadeIn" delay={0.6}>
           <div className={styles.badges}>
-            <Tag label="Node.js" variant="default" />
-            <Tag label="Bun" variant="default" />
-            <Tag label="Deno" variant="default" />
-            <Tag label="TypeScript" variant="cyan" />
+            {RUNTIMES.map((r) => (
+              <button
+                key={r.label}
+                type="button"
+                className={
+                  active.label === r.label
+                    ? `${styles.runtimeBtn} ${styles.runtimeBtnActive}`
+                    : styles.runtimeBtn
+                }
+                onClick={() => setActiveRuntime(r.label)}
+                aria-pressed={active.label === r.label}
+              >
+                {r.label}
+              </button>
+            ))}
           </div>
         </AnimatedSection>
       </div>

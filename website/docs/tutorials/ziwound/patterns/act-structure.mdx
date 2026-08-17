@@ -1,0 +1,95 @@
+---
+sidebar_position: 7
+---
+
+# Act Structure
+
+ZiWound has **98 acts** across 13 domains, and they all follow the same three-file structure. This consistency is what makes 98 acts maintainable — if you've read one act folder, you can read them all. This page is the Rosetta Stone.
+
+## The three-file layout
+
+```text
+src/<domain>/<actName>/
+├── mod.ts          # registration: setAct({ schema, actName, fn, validator, preAct })
+├── <actName>.fn.ts # implementation: the ActFn
+└── <actName>.val.ts# validator: superstruct object({ set, get })
+```
+
+## 1. `mod.ts` — registration
+
+```ts
+// src/report/approve/approve.mod.ts
+import { coreApp } from "../../../mod.ts";
+import { approveFn } from "./approve.fn.ts";
+import { approveValidator, approverRoles } from "./approve.val.ts";
+import { setUser, grantAccess } from "@lib";
+
+export const approve = () =>
+  coreApp.acts.setAct({
+    schema: "report",
+    actName: "approve",
+    fn: approveFn,
+    validator: approveValidator(),
+    preAct: [setUser, grantAccess(approverRoles)],
+  });
+```
+
+The domain's setup function (`reportSetup()`) calls this `approve()` among all its other acts.
+
+## 2. `*.fn.ts` — implementation
+
+Every `ActFn` receives a `body` with `body.details.set` (validated input) and `body.details.get` (the projection), and returns the result via the model's ODM handle:
+
+```ts
+// src/report/approve/approve.fn.ts
+export const approveFn: ActFn = async (body) => {
+  const { set } = body.details;
+
+  return await reports.findOneAndUpdate({
+    filter: { _id: new ObjectId(set._id) },
+    update: { $set: { report_status: "Approved" } },
+    projection: get,
+  });
+};
+```
+
+## 3. `*.val.ts` — validation
+
+Validators are superstruct `object({ set, get })`. `get` is almost always built from `coreApp.schemas.selectStruct("schema", depth)` so the client controls the projection:
+
+```ts
+// src/report/approve/approve.val.ts
+import { object, string, enums } from "lesan";
+import { report_status_array } from "../../../models/report.ts";
+
+export const approverRoles = ["Manager", "Editor"];
+
+export const approveValidator = () =>
+  object({
+    set: object({ _id: string(), report_status: enums(report_status_array) }),
+    get: coreApp.schemas.selectStruct("report", { ... }),
+  });
+```
+
+## Common act archetypes in ZiWound
+
+| Archetype | Pattern | Example |
+|-----------|---------|---------|
+| **CRUD** | `insertOne` / `findOne` / `find` / `findOneAndUpdate` / `deleteOne` | `report.add`, `report.get`, `report.gets` |
+| **Status flip** | `findOneAndUpdate` with `$set` on an enum | `approve`, `reject`, `inReview`, `publishBlogPost` |
+| **Protected read** | `preAct: [setUser]`, read from context | `user.getMe` |
+| **Search** | `$text`/regex filter + `limit`/`skip` | `user.getUsers`, `blogPost.getBySlug` |
+| **Geo** | `$geoWithin: $centerSphere` | `report.getRelatedByGeo` |
+| **Upload** | `set.formData` + disk write + `file.insertOne` | `file.uploadFile` |
+| **Relations** | `updateRelations` moves relation ids | `report.updateRelations`, `user.updateUserRelations` |
+| **Count** | `countDocuments` | `report.count`, `user.countUsers` |
+| **Stat** | `aggregate` for dashboards | `dashboardStatistic`, `report.statistics` |
+
+## Why 98 acts stays manageable
+
+- **One act = one folder = one concern.** No god-files.
+- **Validators live beside implementations** — the contract and the code can't drift.
+- **`preAct` arrays compose** — auth is `[setUser, grantAccess(roles)]`, added as a one-liner, not sprinkled through the function body.
+- **`selectStruct` builds `get` for free** — the act author never hand-writes a projection validator.
+
+That's the complete ZiWound tour. From here, try reading a few real act folders in [the repo](https://github.com/hemedani/ziwound/tree/main/back/src) side by side with this page — the pattern will immediately feel familiar.

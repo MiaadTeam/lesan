@@ -1,0 +1,82 @@
+---
+sidebar_position: 5
+---
+
+# Geospatial Queries
+
+ZiWound's interactive map is powered by MongoDB geospatial queries over the report model's GeoJSON `point` field. This page is a focused look at the geo side — it builds directly on the [Report model](/docs/tutorials/ziwound/models/report) and the [Search & Indexes](/docs/tutorials/ziwound/patterns/search-and-indexes) pages.
+
+## The data model
+
+A report carries a GeoJSON `Point` — longitude/latitude, in that order:
+
+```ts
+// report.ts
+point: geoJSONStruct("Point"),   // { type: "Point", coordinates: [lng, lat] }
+```
+
+`geoJSONStruct` comes from the `mongodb` driver's schema types (re-exported through `npmDeps`). The index must be `2dsphere` for GeoJSON queries:
+
+```ts
+await db.collection("report").createIndex({ point: "2dsphere" });
+```
+
+## The act — `getRelatedByGeo`
+
+Source: [`back/src/report/getRelatedByGeo/`](https://github.com/hemedani/ziwound/tree/main/back/src/report/getRelatedByGeo).
+
+```ts
+export const getRelatedByGeoFn: ActFn = async (body) => {
+  const { set } = body.details;
+  const { center, radiusKm } = set;
+
+  // $centerSphere takes radius in RADIANS: kilometers / earth's radius
+  const filter = {
+    point: {
+      $geoWithin: { $centerSphere: [center, radiusKm / 6371] },
+    },
+  };
+  if (set.status) filter.report_status = set.status;
+  if (set.searchTerm) filter.$text = { $search: set.searchTerm };
+
+  return await reports.find({ filter, projection: get, limit, skip });
+};
+```
+
+Validator shape:
+
+```ts
+export const getRelatedByGeoValidator = () =>
+  object({
+    set: object({
+      center: array(number()),        // [lng, lat]
+      radiusKm: number(),
+      status: optional(enums(report_status_array)),
+      searchTerm: optional(string()),
+      limit: optional(number()),
+      skip: optional(number()),
+    }),
+    get: coreApp.schemas.selectStruct("report", { ... }),
+  });
+```
+
+## How the frontend drives it
+
+The map (MapLibre GL + Leaflet) listens for a viewport change, computes the visible center + radius, and calls `getRelatedByGeo`. Because the act returns **approved** reports by default, the frontend passes `status: "Approved"` to keep pending reports off the public map.
+
+```ts
+// front/src/app/[locale]/map/... (simplified)
+const { docs } = await callLesan("getRelatedByGeo", {
+  set: { center: mapCenter, radiusKm: visibleRadius, status: "Approved" },
+  get: { title: true, point: true, report_status: true },
+});
+```
+
+## Key takeaways
+
+- **`geoJSONStruct("Point")` + `2dsphere` index** is all Lesan needs for geospatial — there's no Lesan-specific geo API, just the MongoDB field type and index.
+- **Radians math**: `$centerSphere` radius is in radians; the act converts km (`km / 6371`).
+- **Composable filters** — geospatial, text, and status filters combine in one `filter` object, so map search and text search work together.
+- **Reuse the same projection** — the act's `get` validator reuses `selectStruct("report", ...)`, so the client controls exactly what each map marker carries.
+
+Next: [File Uploads](/docs/tutorials/ziwound/patterns/file-uploads).

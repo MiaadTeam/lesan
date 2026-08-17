@@ -1,0 +1,61 @@
+---
+sidebar_position: 8
+---
+
+# The War Criminal Model
+
+`warCriminal` models accused individuals or entities. Reports link to them via the `warCriminals` relation, and each war criminal accumulates a bounded, sorted list of the reports that name them. Source: [`back/models/warCriminal.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/warCriminal.ts).
+
+```ts
+export const warCriminal_pure = {
+  name: string(),
+  role: optional(string()),
+  nationality: optional(string()),
+  description: optional(localizedWarInfo),
+  birth_date: optional(coerce(date(), string(), (v) => new Date(v))),
+  death_date: optional(coerce(date(), string(), (v) => new Date(v))),
+  status: optional(enums(["Wanted", "Captured", "Deceased", "InTrial", "Released", "Unknown"])),
+  ...createUpdateAt,
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | text-indexed |
+| `role` | `optional(string())` | e.g. commander, militia leader |
+| `nationality` | `optional(string())` | |
+| `description` | `optional(localizedWarInfo)` | 9-language bio |
+| `birth_date` / `death_date` | `optional(date)` | |
+| `status` | `optional(enums([...]))` | Wanted / Captured / Deceased / InTrial / Released / Unknown |
+
+## Relations
+
+```ts
+export const warCriminal_relations = {
+  // one-directional refs:
+  country: { schemaName: "country", type: "single", optional: true, ... },
+  province: { schemaName: "province", type: "single", optional: true, ... },
+  city: { schemaName: "city", type: "single", optional: true, ... },
+
+  // the back-reference is built on the report side:
+  reports: {
+    schemaName: "report",
+    type: "multiple" as RelationDataType,
+    excludes: report_excludes,
+    relatedRelations: {
+      warCriminals: { type: "multiple" as RelationDataType, limit: 100 },
+    },
+  },
+  registrar: { schemaName: "user", type: "single", optional: true, ... },
+};
+```
+
+Note the direction: the *reverse* list is the real data — a war criminal's `reports` array is maintained by Lesan whenever a report is added/updated/removed, capped at the 100 newest.
+
+## Acts
+
+`add`, `get`, `gets`, `update`, `updateRelations`, `remove`, `count` — plus `getRelated` / `getRelatedPagination` for browsing reports by war criminal.
+
+Next: [The Confirmation Model](/docs/tutorials/ziwound/models/confirmation).

@@ -137,6 +137,30 @@ Or open `http://localhost:8000/playground` to use the interactive API explorer.
 | Projections | Limited | Client-driven |
 | Performance | Good | Excellent |
 
+## Built with Lesan
+
+Lesan is already powering real production applications. Here's a showcase of what can be built with it.
+
+### ZiWound — War Crimes Documentation Platform
+
+[**ziwound.com**](https://ziwound.com/en) is a full-stack war crimes documentation system built entirely with Lesan. It's a serious, production-grade application that demonstrates Lesan's capabilities at scale. **ZiWound is open source** — you can read the entire codebase on [**github.com/hemedani/ziwound**](https://github.com/hemedani/ziwound) and study the real models, acts, and utilities end-to-end.
+
+**Backend (Deno + Lesan + MongoDB):**
+- **15 data models** — `user`, `report`, `document`, `file`, `country`, `province`, `city`, `category`, `tag`, `blogPost`, `warCriminal`, `confirmation`, and more
+- **98 actions (acts)** — the entire API is expressed as acts, with per-act validators handling input (`set`) and client-driven projections (`get`)
+- **Rich relation graph** — reports link to reporters, documents, tags, categories, hostile countries, and locations, with Lesan automatically embedding and syncing the reverse relations (e.g. each user keeps a sorted, limited list of their reports)
+- **GeoJSON support** — native MongoDB geospatial queries for interactive map-based exploration (MapLibre GL + Leaflet)
+- **JWT auth & RBAC** — role-based access control (Ghost, Manager, Editor, Ordinary) built on the request context + `preValidation`/`preAct` hooks
+- **Production deployment** — Dockerized, with CORS config, static file serving, rate limiting, and generated TypeScript declarations (`typeGeneration: true`)
+
+**Frontend (Next.js):**
+- Nine languages with full RTL/LTR layout flipping (Persian, English, Arabic, Chinese, Portuguese, Spanish, Dutch, Turkish, Russian)
+- Secure multi-language report submission with file attachments, location, and metadata
+- Advanced search and filtering of documented incidents, a blog section, and a comprehensive admin panel
+- PWA support and server actions for type-safe backend communication
+
+The whole stack — data modeling, relations, validation, and the client-server contract — is driven by Lesan's generated types, proving that Lesan scales from a quick prototype to a multi-language production platform.
+
 ## Next Steps
 
 - Follow the [Getting Started tutorial](/docs/getting-started) to build your first Lesan server from scratch
@@ -153,6 +177,7 @@ Or open `http://localhost:8000/playground` to use the interactive API explorer.
 - See a [real-world Lesan application](/docs/guides/cross-platform-examples) — runnable starter apps for Node.js, Bun, and Deno
 - Study the [run-in-repo procurement workflow app](/docs/guides/procurement-workflow) — a complete 15-model hospital procurement & warehouse system with JWT auth, a configurable approval workflow, budget encumbrance, tendering, and inventory tracking
 - Follow the [step-by-step Procurement Workflow tutorials](/docs/tutorials/procurement-workflow/overview) — every model, act, and utility of that app explained one page at a time
+- Study the [ZiWound case study](/docs/tutorials/ziwound/overview) — a real production platform (war crimes documentation, 15 models, 98 acts, 9 languages) built on Lesan with Deno and MongoDB
 - Coming from Mongoose, GraphQL, or Express? See [Migrating to Lesan](/docs/migration) for side-by-side before/after examples
 - See how fast Lesan is — [Cross-Platform Benchmarks](/docs/benchmarks) across Node.js, Bun, and Deno
 

@@ -1,0 +1,118 @@
+---
+sidebar_position: 1
+---
+
+# The User Model
+
+The `user` model is the authentication and profile entity of the whole system. Every person — admins, reporters, editors, managers — is a `user`, with a `level` for role-based access control. Source: [`back/models/user.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/user.ts).
+
+```ts
+export const user_level_emums = enums([
+  "Ghost", "Manager", "Editor", "Reporter", "Artist", "Diplomat", "Researcher", "Ordinary",
+]);
+
+export const user_pure = {
+  first_name: string(),
+  last_name: string(),
+  email: emailPattern,
+  password: string(),
+  gender: optional(enums(["Male", "Female"])),
+  birth_date: optional(coerce(date(), string(), (v) => new Date(v))),
+  summary: optional(string()),
+  address: optional(string()),
+  level: defaulted(coerce(user_level_emums, string(), (v) => v), "Ordinary"),
+  is_verified: defaulted(boolean(), false),
+  bio: optional(localizedWarInfo),       // { fa, en, ar, zh, pt, es, nl, tr, ru }
+  expertise: optional(array(string())),  // string[]
+  verified: defaulted(boolean(), false),
+  verificationBadge: optional(string()),
+  isPublic: defaulted(boolean(), true),
+  ...createUpdateAt,
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `first_name` / `last_name` | `string()` | text-indexed for search |
+| `email` | `pattern(string(), regex)` | **unique** index |
+| `password` | `string()` | **excluded** from every response |
+| `level` | `enums(...)` | the role used by `grantAccess` |
+| `is_verified` / `verified` | `boolean()` | account + profile verification |
+| `bio` | `optional(localizedWarInfo)` | 9-language object (no `selected_language`) |
+| `expertise` | `optional(array(string()))` | skill tags |
+| `isPublic` | `defaulted(boolean(), true)` | profile visibility |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations
+
+```ts
+export const user_relations = {
+  avatar: {
+    schemaName: "file",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: file_excludes,
+    relatedRelations: {},
+  },
+  national_card: {
+    schemaName: "file",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: file_excludes,
+    relatedRelations: {},
+  },
+  province: {
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: location_excludes,
+    relatedRelations: {
+      users: { type: "multiple" as RelationDataType, limit: 50, excludes: user_excludes },
+    },
+  },
+  city: {
+    schemaName: "city",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: location_excludes,
+    relatedRelations: {
+      users: { type: "multiple" as RelationDataType, limit: 50, excludes: user_excludes },
+    },
+  },
+};
+```
+
+Three relation patterns worth noticing:
+
+- **`avatar` / `national_card`** — one-directional `single` relations to `file` with **no reverse side** (`relatedRelations: {}`). A file belongs to exactly one thing; it doesn't need a back-list.
+- **`province` / `city`** — one-directional `single` relations whose `relatedRelations` creates a **sorted, limited** `users` array on the Province/City model (newest 50).
+- **`excludes` everywhere** — heavy fields (or the whole `password`) are trimmed from the embedded back-references so payloads stay small.
+
+## Registration & indexes
+
+```ts
+export const users = () =>
+  coreApp.odm.newModel("user", user_pure, user_relations, {
+    createIndex: {
+      indexSpec: { first_name: "text", last_name: "text", email: "text" },
+    },
+    excludes: ["password"],
+  });
+```
+
+Two details worth noting:
+
+- **`createIndex`** with a text index enables full-text search on `user.getUsers` (see the [Search & Indexes](/docs/tutorials/ziwound/patterns/search-and-indexes) pattern page).
+- **`excludes: ["password"]`** at the model level means the password is stripped from every response — you never have to remember to exclude it per-act.
+
+## Acts
+
+The user domain has 13 acts, covering auth and profile management:
+
+`login`, `register`, `tempUser`, `getMe`, `getUser`, `getUsers`, `addUser`, `updateUser`, `updateUserRelations`, `removeUser`, `countUsers`, `dashboardStatistic`.
+
+The auth acts (`login`, `register`, `getMe`) are explored in detail on the [Authentication Chain](/docs/tutorials/ziwound/patterns/auth-chain) pattern page.
+
+Next: [The File Model](/docs/tutorials/ziwound/models/file).

@@ -1,0 +1,8 @@
+{
+  "label": "The Models",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "One page per ZiWound model (or logical group) — pure fields, relations, back-references, indexes, and the factory that registers it, with links to the real source on GitHub."
+  }
+}
