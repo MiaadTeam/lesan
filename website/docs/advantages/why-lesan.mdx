@@ -1,0 +1,143 @@
+---
+sidebar_position: 1
+---
+
+# Why Lesan
+
+> **TL;DR** — Lesan treats relationships as **self-maintaining data**: they're defined one-directional but embedded bi-directionally in storage, and Lesan keeps every embedded copy in sync automatically. Reads that cost other stacks ~2.5 million documents cost Lesan ~25 thousand. This page is the full argument, extracted from the companion article at [`examples/whyLesan/article.md`](https://github.com/MiaadTeam/lesan/tree/main/examples/whyLesan).
+
+## The problem: a "simple" request that kills your API
+
+Imagine a screen that asks for: all 250 countries, and for each one — the 50 most recent users, the 50 oldest users, the 50 most populous provinces (plus their 50 recent and 50 oldest users), and the 50 most populous cities (plus theirs).
+
+| Level | What you fetch | Documents |
+|---|---|---|
+| 1 | 250 countries, by population | 250 |
+| 2 | 50 recent + 50 oldest users per country | 250 × 2 × 50 |
+| 3 | 50 populous provinces per country | 250 × 50 |
+| 4 | 50 recent + 50 oldest users per province | 250 × 50 × 2 × 50 |
+| 5 | 50 populous cities per country | 250 × 50 |
+| 6 | 50 recent + 50 oldest users per city | 250 × 50 × 2 × 50 |
+| | **Total** | **≈ 2,550,250** |
+
+In a classic ORM (Prisma, Mongoose) that's 2.5 million **round-trips** between your server and your database — and that's where your latency actually lives. See the [head-to-head benchmark](https://github.com/MiaadTeam/benchmark) for the measured difference.
+
+## The core idea: relationships as self-maintaining data
+
+Most frameworks **compute** relationships at read time (SQL `JOIN`s, MongoDB `$lookup` or nested `find` loops). Lesan **stores** them instead.
+
+Relationships are **one-directional in definition, embedded bi-directionally in storage**, and **kept in sync by Lesan**. This is the entire model definition from the [companion example](https://github.com/MiaadTeam/lesan/tree/main/examples/whyLesan):
+
+```typescript
+const pure = {
+  name: string(),
+  population: number(),
+  abb: string(),
+};
+
+const provinceRelations = {
+  country: {
+    optional: false,
+    schemaName: "country",
+    type: "single",
+    relatedRelations: {
+      provinces: {
+        type: "multiple",
+        limit: 50,
+        sort: { field: "_id", order: "desc" },
+      },
+      provincesByPopulation: {
+        type: "multiple",
+        limit: 50,
+        sort: { field: "population", order: "desc" },
+      },
+    },
+  },
+};
+
+const provinces = coreApp.odm.newModel("province", pure, provinceRelations);
+```
+
+Read `relatedRelations` as a contract: *"when a province points at a country, that country gains `provinces` (50 newest) and `provincesByPopulation` (50 most populous)."* Two pre-sorted, limited, embedded arrays — maintained automatically.
+
+## Writes: insert a province, everything updates
+
+Adding a country needs no relation code. Adding a province declares the target and which `relatedRelations` to refresh — and Lesan does the rest (insert, embed into both sorted arrays, embed the forward snapshot, evict past `limit`):
+
+```typescript
+const addProvince: ActFn = async (body) => {
+  const { name, population, abb, countryId } = body.details.set;
+  return await provinces.insertOne({
+    doc: { name, population, abb },
+    relations: {
+      country: {
+        _ids: new ObjectId(countryId),
+        relatedRelations: { provinces: true, provincesByPopulation: true },
+      },
+    },
+    projection: body.details.get,
+  });
+};
+```
+
+**Update and delete sync automatically too** — re-sorting `provincesByPopulation` when population changes, repairing both arrays on delete. No `updateMany` + `arrayFilters`, no sync jobs, no stale-data bugs.
+
+## Reads: one request, whole tree
+
+The client drives the projection (GraphQL-style, no query language):
+
+```typescript
+const getCountries: ActFn = async (body) => {
+  const { set, get } = body.details;
+  return await countries
+    .aggregation({ pipeline: [], projection: get })
+    .toArray();
+};
+```
+
+```json
+{
+  "service": "main",
+  "model": "country",
+  "act": "getCountries",
+  "details": {
+    "set": { "page": 1, "limit": 250 },
+    "get": {
+      "name": 1,
+      "provincesByPopulation": {
+        "name": 1,
+        "users": { "name": 1, "age": 1 },
+        "usersByAge": { "name": 1, "age": 1 }
+      }
+    }
+  }
+}
+```
+
+The same request that cost ~2,550,250 documents elsewhere costs **~25,250** with Lesan — a ~100× reduction in work, and a small number of round-trips instead of thousands.
+
+## The honest tradeoffs
+
+- **Writes cost more** — relation touches update embedded copies too. Mitigated by `limit`, `excludes`, and pure projections; write-heavy/shallow-read apps see less benefit.
+- **Duplication is real** — embedded copies are trimmed pure projections, not full documents.
+- **16 MB doc ceiling** — bounded by `limit` on every back-reference.
+- **High-cardinality reverse lists** — keep the back-reference limited and query the child collection with an index.
+
+## Try it yourself
+
+```bash
+deno run -A examples/whyLesan/performance.ts   # requires local MongoDB
+```
+
+Open the **Playground**, add a country, add a province with a `countryId`, then inspect the country in Mongo Compass — `provinces` and `provincesByPopulation` are already sorted and limited. Then call `getCountries` and watch the whole tree come back in one shot.
+
+## Resources
+
+- Full article (Medium-ready): [`examples/whyLesan/article.md`](https://github.com/MiaadTeam/lesan/tree/main/examples/whyLesan)
+- [What Is the Relationship Really?](/docs/concepts/what-is-the-relationship)
+- [Benchmarks](/docs/benchmarks) · [Benchmark repo](https://github.com/MiaadTeam/benchmark)
+- [Getting Started](/docs/getting-started)
+
+:::note
+**Read the sequel — [The Nature of Data](/docs/advantages/relationship-economics).** The obvious objection to embedding is *"but what about the writes?"* That article answers it with real-world cases: expensive writes are rare, and Lesan actually *guides* you to better models when a field changes too often.
+:::
