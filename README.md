@@ -82,56 +82,90 @@ import { MongoClient } from "npm:mongodb";
 
 ### Look at the code below:
 
-Create a file called `main.ts` (or `main.js`) and paste the code below into it:
+Create a file called `main.ts` (or `main.js`) and paste the code below into it.
+
+This single file is a complete, runnable Lesan server. It is built from three parts that mirror the mental model of the whole framework:
+
+1. **Model Section** — we describe our data shapes (`country` and `user`) as MongoDB collections using superstruct validators. Each model may also declare **relations** — here, every `user` belongs to one `country`, and each `country` automatically keeps a sorted, limited list of its `users`.
+2. **Functions Section** — we define **acts** (routes). Each act has a *validator* (what input the client must send, and which fields the client may ask to receive back) and an *fn* (the actual database work). Acts are registered with `coreApp.acts.setAct` and are called by name from the client.
+3. **Run Section** — we start the HTTP server. The client never builds URLs by hand; it just sends `{ service, model, act, details }` to `/lesan`.
+
+> A Lesan request is nothing but a JSON object like this:
+> `{ "service": "main", "model": "country", "act": "addCountry", "details": { "set": {...}, "get": {...} } }`
+> The `set` is the input data, and the `get` is the projection — exactly which fields (and how deeply) you want back.
+
+<details>
+<summary>📦 Click to expand the full commented example</summary>
 
 ```typescript
+// ============================================================
+// 1. IMPORTS — everything you need comes from a single package
+// ============================================================
 import {
-  ActFn,
-  Document,
-  Filter,
-  lesan,
-  number,
-  object,
-  ObjectId,
-  optional,
-  size,
-  string,
+  ActFn,     // Type helper for an act handler: (body) => Promise<any>
+  Document,  // MongoDB document type, used for building filters
+  Filter,    // MongoDB filter type (the `where` clause of the query)
+  lesan,     // The framework factory — creates your whole app
+  number,    // superstruct validator: a number field
+  object,    // superstruct validator: an object of fields
+  ObjectId,  // MongoDB ObjectId, used to link documents together
+  optional,  // superstruct wrapper: the field may be missing
+  size,      // superstruct validator: enforces a string length (e.g. 24)
+  string,    // superstruct validator: a string field
 } from "@hemedani/lesan"; // Use "jsr:@hemedani/lesan" for Deno
 import { MongoClient } from "mongodb"; // Use "npm:mongodb" for Deno
 
+// ============================================================
+// 2. APP + DATABASE — one app object, one MongoDB database
+// ============================================================
+
+// lesan() returns an object holding schemas, acts, odm and runServer.
+// Everything is wired together through closures — no global state.
 const coreApp = lesan();
 
+// Connect to MongoDB (make sure a local mongod is running on 27017).
 const client = await new MongoClient("mongodb://127.0.0.1:27017/").connect();
-const db = client.db("civil");
+const db = client.db("civil"); // we'll use the "civil" database
 
+// Hand the database to the ODM — all models will use it from now on.
 coreApp.odm.setDb(db);
 
-// ================== MODEL SECTION ==================
-// ------------------ Country Model ------------------
+// ============================================================
+// 3. MODEL SECTION — describe your data shapes + relations
+// ============================================================
+
+// -------- Country model --------
+// Each model has a "pure" set of fields, described with superstruct.
 const countryPure = {
   name: string(),
   population: number(),
   abb: string(),
 };
+// Country has no relations of its own (for now).
 const countryRelations = {};
+// Register the model. `newModel` computes relations and returns an
+// ODM object with methods: insertOne, find, updateOne, deleteOne, ...
 const countries = coreApp.odm.newModel("country", countryPure, countryRelations);
 
-// ------------------ User Model ------------------
+// -------- User model --------
 const userPure = {
   name: string(),
   age: number(),
 };
+
+// The user model declares ONE relation: `country` (single — one country).
 const users = coreApp.odm.newModel("user", userPure, {
   country: {
-    optional: false,
-    schemaName: "country",
-    type: "single",
+    optional: false,            // every user MUST have a country
+    schemaName: "country",      // the related model's name
+    type: "single",             // single = one-to-one/one-to-many; "multiple" = many-to-many
     relatedRelations: {
+      // The reverse side, defined automatically on the Country model:
       users: {
-        type: "multiple",
-        limit: 50,
+        type: "multiple",       // a country can have many users
+        limit: 50,              // keep at most 50 back-references embedded
         sort: {
-          field: "_id",
+          field: "_id",         // newest first
           order: "desc",
         },
       },
@@ -139,27 +173,33 @@ const users = coreApp.odm.newModel("user", userPure, {
   },
 });
 
-// ================== FUNCTIONS SECTION ==================
-// ------------------ Add Country ------------------
+// ============================================================
+// 4. FUNCTIONS SECTION — acts = routes = API endpoints
+// ============================================================
+
+// Each act needs a validator: what the client may send (`set`) and
+// what it may ask to receive (`get`). Superstruct validates at runtime,
+// so bad requests never reach your handler.
+
+// ---------- Add Country ----------
 const addCountryValidator = () => {
   return object({
-    set: object(countryPure),
-    get: coreApp.schemas.selectStruct("country", { users: 1 }),
+    set: object(countryPure),                             // input: name/population/abb
+    get: coreApp.schemas.selectStruct("country", { users: 1 }), // output: country fields + 1 level of users
   });
 };
 
 const addCountry: ActFn = async (body) => {
+  // `body.details.set` is the validated input the client sent.
   const { name, population, abb } = body.details.set;
+  // Insert one document; `projection` controls which fields are returned.
   return await countries.insertOne({
-    doc: {
-      name,
-      population,
-      abb,
-    },
+    doc: { name, population, abb },
     projection: body.details.get,
   });
 };
 
+// Register the act under the "country" model with the name "addCountry".
 coreApp.acts.setAct({
   schema: "country",
   actName: "addCountry",
@@ -167,14 +207,14 @@ coreApp.acts.setAct({
   fn: addCountry,
 });
 
-// ------------------ Get Countries  ------------------
+// ---------- Get Countries (paged) ----------
 const getCountriesValidator = () => {
   return object({
     set: object({
       page: number(),
       limit: number(),
     }),
-    get: coreApp.schemas.selectStruct("country", 1),
+    get: coreApp.schemas.selectStruct("country", 1), // only country's own fields
   });
 };
 
@@ -184,10 +224,12 @@ const getCountries: ActFn = async (body) => {
     get,
   } = body.details;
 
+  // Sensible defaults for pagination.
   page = page || 1;
   limit = limit || 50;
   const skip = limit * (page - 1);
 
+  // A plain MongoDB query — no query language, just chained driver calls.
   return await countries.find({ projection: get, filters: {} }).skip(skip).limit(limit).toArray();
 };
 
@@ -198,12 +240,12 @@ coreApp.acts.setAct({
   fn: getCountries,
 });
 
-// --------------------- Add User ----------------------
+// ---------- Add User (with its Country relation) ----------
 const addUserValidator = () => {
   return object({
     set: object({
       ...userPure,
-      country: string(),
+      country: string(), // client sends the country `_id` as a 24-char string
     }),
     get: coreApp.schemas.selectStruct("user", 1),
   });
@@ -211,14 +253,15 @@ const addUserValidator = () => {
 const addUser: ActFn = async (body) => {
   const { country, name, age } = body.details.set;
 
+  // Insert the user AND wire up the relation in one step.
   return await users.insertOne({
     doc: { name, age },
     projection: body.details.get,
     relations: {
       country: {
-        _ids: new ObjectId(country),
+        _ids: new ObjectId(country), // link to the chosen country
         relatedRelations: {
-          users: true,
+          users: true, // also embed this user back into the country's `users`
         },
       },
     },
@@ -232,15 +275,15 @@ coreApp.acts.setAct({
   fn: addUser,
 });
 
-// --------------------- Get Users ----------------------
+// ---------- Get Users (optionally filtered by country) ----------
 const getUsersValidator = () => {
   return object({
     set: object({
       page: number(),
       limit: number(),
-      countryId: optional(size(string(), 24)),
+      countryId: optional(size(string(), 24)), // optional 24-char ObjectId string
     }),
-    get: coreApp.schemas.selectStruct("user", { country: 1 }),
+    get: coreApp.schemas.selectStruct("user", { country: 1 }), // include embedded country
   });
 };
 const getUsers: ActFn = async (body) => {
@@ -252,6 +295,9 @@ const getUsers: ActFn = async (body) => {
   page = page || 1;
   limit = limit || 50;
   const skip = limit * (page - 1);
+
+  // Build the MongoDB filter. Because relations are embedded, we can
+  // filter on `country._id` directly — no JOIN required.
   const filters: Filter<Document> = {};
   countryId && (filters["country._id"] = new ObjectId(countryId));
 
@@ -265,9 +311,19 @@ coreApp.acts.setAct({
   fn: getUsers,
 });
 
-// ================== RUN SECTION ==================
+// ============================================================
+// 5. RUN SECTION — start the server
+// ============================================================
+
+// Start listening on port 1366.
+//  - playground: true  → serve the interactive explorer at /playground
+//  - typeGeneration: true → auto-generate client-side TypeScript types
 coreApp.runServer({ port: 1366, typeGeneration: false, playground: true });
 ```
+
+</details>
+
+> ⚡ **Tip:** The code above is only ~150 lines, yet it gives you four full API endpoints (`addCountry`, `getCountries`, `addUser`, `getUsers`) with pagination, filtering, and automatic bi-directional relation syncing. Try changing the `get` projection in a request to see how the returned shape changes — with zero backend changes.
 
 ### Run the server
 
