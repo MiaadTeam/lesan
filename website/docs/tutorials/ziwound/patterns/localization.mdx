@@ -1,0 +1,64 @@
+---
+sidebar_position: 3
+---
+
+# Localization
+
+ZiWound supports **9 languages** (Persian, English, Arabic, Chinese, Portuguese, Spanish, Dutch, Turkish, Russian) and implements localization two different ways. Which one you choose depends on whether a document is *inherently multi-language* or *submitted in one language*.
+
+## Pattern A — `localizedWarInfo`: content in every language, stored together
+
+Used by the location models (`country`/`province`/`city`), `user.bio`, and `blogPost.body`. The field is a nested object with one key per language — defined once in [`models/utils/localizedFields.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/utils/localizedFields.ts):
+
+```ts
+export const localizedWarInfo = object({
+  fa: optional(string()), en: optional(string()), ar: optional(string()),
+  zh: optional(string()), pt: optional(string()), es: optional(string()),
+  nl: optional(string()), tr: optional(string()), ru: optional(string()),
+});
+```
+
+```ts
+// country.ts — the wars_history field
+wars_history: localizedWarInfo,
+
+// blogPost.ts — article body in all 9 languages
+body: optional(localizedWarInfo),
+```
+
+**When to use it:** content that is *the same document* regardless of language — a country's war history, an article, a bio. It's stored once, edited in place, and the client projects only the language it needs:
+
+```ts
+get: { name: true, wars_history: { en: true } }   // client asks for English only
+```
+
+Since there's a single row, there's no `selected_language` — every language is always present (or `undefined` until filled in).
+
+## Pattern B — `selected_language`: one record per language
+
+Where ZiWound needs per-language content to *diverge* (different records, different moderation), it instead stores the content in a shared field and pins a language on the row. See the model source and search acts in [`back/models/report.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/report.ts) and [`back/src/report/`](https://github.com/hemedani/ziwound/tree/main/back/src/report).
+
+**When to use it:** user-submitted content where one record is in one language (e.g. a report written in Persian). Query filters on the `selected_language` field:
+
+```ts
+// getRelated — reports filtered by language
+const language = set.selected_language || "fa";
+filter.selected_language = language;
+```
+
+## Choosing between A and B
+
+| | Pattern A (`localizedWarInfo`) | Pattern B (`selected_language`) |
+|---|---|---|
+| Data model | one row, object of strings | one row per language |
+| Used for | admin-curated, same-content (countries, articles) | user-submitted, single-language (reports) |
+| Editing | edit all languages in place | add rows per language |
+| Query | project the language you need | filter by `selected_language` |
+
+ZiWound's rule: **curated content = Pattern A; user-submitted content = Pattern B.** Both use the same 9-language key set, so the frontend's `next-intl` can render either transparently.
+
+## Frontend consumption
+
+The Next.js frontend (`front/src/app/[locale]/`) uses `next-intl` and routes each locale through the `[locale]` segment. Requests carry the active language, and acts that need it (report submission, search) include `selected_language` in their `set` validator.
+
+Next: [Search & Indexes](/docs/tutorials/ziwound/patterns/search-and-indexes).

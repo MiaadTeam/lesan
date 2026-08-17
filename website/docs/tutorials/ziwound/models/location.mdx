@@ -1,0 +1,87 @@
+---
+sidebar_position: 3
+---
+
+# Location Models (Country · Province · City)
+
+ZiWound's geographic hierarchy is `country → province → city`, and each level carries extensive, **localized** war-history content. These three models share one important design decision: their rich text lives in nested `localizedWarInfo` objects (`{ fa, en, ar, zh, pt, es, nl, tr, ru }`), so they have **no** `selected_language` field. See the [Localization pattern](/docs/tutorials/ziwound/patterns/localization) for the full reasoning.
+
+- [`back/models/country.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/country.ts)
+- [`back/models/province.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/province.ts)
+- [`back/models/city.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/city.ts)
+
+## The shared shape
+
+All three models carry the same localized war-history payload, defined once in [`models/utils/localizedFields.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/utils/localizedFields.ts):
+
+```ts
+export const localizedWarInfo = object({
+  fa: optional(string()),
+  en: optional(string()),
+  ar: optional(string()),
+  zh: optional(string()),
+  pt: optional(string()),
+  es: optional(string()),
+  nl: optional(string()),
+  tr: optional(string()),
+  ru: optional(string()),
+});
+```
+
+| Field group | Example fields |
+|-------------|----------------|
+| Basics | `name`, `english_name`, `registrar` (User) |
+| War history | `wars_history`, `conflict_timeline`, `casualties_info` |
+| Documentation | `war_crimes_documentation`, `human_rights_violations`, `genocide_info` |
+| Impact | `displacement_info`, `reconstruction_status`, `international_sanctions` |
+| Events | `notable_war_events`, `notable_battles`, `mass_graves_info`, `war_crimes_events` |
+| Photo | a `single` `file` relation (one-directional, optional) |
+
+## The relations ladder
+
+Each level points to its parent, and `relatedRelations` builds the reverse list automatically — Lesan's classic one-directional pattern:
+
+```ts
+// city.ts — the deepest level
+export const city_relations = {
+  province: {
+    schemaName: "province",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: location_excludes,
+    relatedRelations: { cities: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  country: {
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: location_excludes,
+    relatedRelations: { cities: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  registrar: { schemaName: "user", type: "single" as RelationDataType, optional: true, ... },
+  photo: { schemaName: "file", type: "single" as RelationDataType, optional: true, ... },
+};
+
+// province.ts
+export const province_relations = {
+  country: {
+    schemaName: "country",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: location_excludes,
+    relatedRelations: { provinces: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  // registrar, photo ...
+};
+```
+
+## Indexes
+
+- **Text index** on `name`, `english_name`, and the localized war-history fields (`en`/`fa`/`ar` sub-fields) for search.
+- **`update` vs `updateRelations` split** — pure fields update via `update`; `countryId`/`photo` move through `updateRelations`. This is Lesan's recommended separation (see the [Relationship Management](/docs/api/models) docs).
+
+## Acts
+
+Each of the three models exposes the standard CRUD set: `add`, `get`, `gets`, `update`, `updateRelations`, `remove`, `count`.
+
+Next: [Catalog Models](/docs/tutorials/ziwound/models/catalog).

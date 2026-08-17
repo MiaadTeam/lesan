@@ -1,0 +1,8 @@
+{
+  "label": "Lesan Patterns",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "The reusable lessons ZiWound teaches: one-directional relations, the auth chain, localization, full-text search & geospatial queries, file uploads, and act structure."
+  }
+}

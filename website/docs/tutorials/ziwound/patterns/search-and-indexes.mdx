@@ -1,0 +1,98 @@
+---
+sidebar_position: 4
+---
+
+# Search & Indexes
+
+ZiWound needs real search — full-text over users/blog posts and geospatial over reports. It gets both directly from MongoDB through the `createIndex` option on `newModel` and hand-created indexes. This page shows how, with the framework mechanics in the [Aggregation & Filtering](/docs/advanced/aggregation) docs.
+
+## Model-level text indexes
+
+Both `user` and `blogPost` register a text index at model creation:
+
+```ts
+// user.ts
+export const users = () =>
+  coreApp.odm.newModel("user", user_pure, user_relations, {
+    createIndex: { indexSpec: { first_name: "text", last_name: "text", email: "text" } },
+  });
+```
+
+```ts
+// blogPost.ts
+createIndex: { indexSpec: { title: "text", slug: "text", excerpt: "text" } },
+```
+
+MongoDB then supports a `$text` query. ZiWound exposes it through acts with a `searchTerm` in their validator — e.g. `getUsers`:
+
+```ts
+// src/user/getUsers/getUsers.val.ts (simplified)
+export const getUsersValidator = () =>
+  object({
+    set: object({
+      searchTerm: optional(string()),
+      limit: optional(number()),
+      skip: optional(number()),
+      sort: optional(string()),
+    }),
+    get: coreApp.schemas.selectStruct("user", { ... }),
+  });
+```
+
+```ts
+// getUsers.fn.ts — where the $text filter is built
+export const getUsersFn: ActFn = async (body) => {
+  const { set } = body.details;
+  const filter = {};
+  if (set.searchTerm) {
+    filter.$text = { $search: set.searchTerm };   // MongoDB text search
+  }
+  // + optional sort / pagination
+  return await users.find({ filter, projection: get, limit, skip, sort });
+};
+```
+
+The same pattern powers `getRelated` / `getRelatedPagination` on reports and blog posts — the caller passes `searchTerm` plus pagination and the act builds a `$text` (or `{ $regex }`) filter.
+
+## The report 2dsphere index
+
+Geospatial search needs a `2dsphere` index. `newModel`'s `createIndex` covers text indexes; the report's geo index is created explicitly at boot because it indexes a GeoJSON field:
+
+```ts
+// mod.ts (after model registration)
+await db.collection("report").createIndex({ point: "2dsphere" });
+```
+
+The report's `point` field is declared as GeoJSON in the pure struct:
+
+```ts
+point: geoJSONStruct("Point"),   // { type: "Point", coordinates: [lng, lat] }
+```
+
+## The geospatial act — `getRelatedByGeo`
+
+```ts
+// src/report/getRelatedByGeo/getRelatedByGeo.fn.ts (simplified)
+export const getRelatedByGeoFn: ActFn = async (body) => {
+  const { set } = body.details;
+  const { center, radiusKm, status, searchTerm } = set;
+
+  const filter = {
+    point: {
+      $geoWithin: { $centerSphere: [center, radiusKm / 6371] },  // radians
+    },
+  };
+  if (status) filter.report_status = status;
+  if (searchTerm) filter.$text = { $search: searchTerm };
+
+  return await reports.find({ filter, projection: get, limit, skip });
+};
+```
+
+The frontend map (MapLibre GL + Leaflet) sends the map center + radius; the act returns every approved report inside the circle. Because the index is on `point`, this is a fast geospatial lookup, not a scan.
+
+## Pagination & sorting
+
+ZiWound's list acts consistently accept `limit`/`skip` and a `sort` string, and return `{ totalCount, docs }` style shapes. The validators use Lesan's `optional(number())` + `defaulted` so the frontend can pass `limit: 20, skip: 0` on every request.
+
+Next: [Geospatial Queries](/docs/tutorials/ziwound/patterns/geospatial).

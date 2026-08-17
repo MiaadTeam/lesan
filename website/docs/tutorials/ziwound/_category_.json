@@ -1,0 +1,8 @@
+{
+  "label": "ZiWound Case Study",
+  "position": 11,
+  "link": {
+    "type": "generated-index",
+    "description": "A complete tour of ZiWound — a real, production-grade war crimes documentation platform built on Lesan with Deno and MongoDB. Every model, Lesan pattern, and architecture decision is explained, with links to the open-source GitHub repo."
+  }
+}

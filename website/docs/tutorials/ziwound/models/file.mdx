@@ -1,0 +1,68 @@
+---
+sidebar_position: 2
+---
+
+# The File Model
+
+The `file` model manages uploads — images, videos, and documents — with type-based directory routing, size limits, and mime validation. Source: [`back/models/file.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/file.ts).
+
+```ts
+export const file_type_enums = enums(["image", "video", "docs"]);
+
+export const file_pure = {
+  name: string(),
+  mimeType: string(),
+  size: number(),
+  type: file_type_enums,           // image | video | docs
+  alt_text: optional(string()),
+  ...createUpdateAt,
+};
+```
+
+## Pure fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `string()` | original filename; text-indexed |
+| `mimeType` | `string()` | e.g. `image/png` |
+| `size` | `number()` | bytes; validated at upload |
+| `type` | `enums(["image","video","docs"])` | routes the file to `/uploads/{type}/` |
+| `alt_text` | `optional(string())` | accessibility text; text-indexed |
+
+## Relations
+
+```ts
+export const file_relations = {
+  uploader: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: false,
+    excludes: user_excludes,
+    relatedRelations: {
+      files: { type: "multiple" as RelationDataType, limit: 50, excludes: file_excludes },
+    },
+  },
+};
+```
+
+Files are owned by the user who uploaded them (`uploader` → reverse `files` list). Everywhere else a file appears (user `avatar`, report `documentFiles`, blog `coverImage`, hero slide `image`), the relation is **one-directional** — defined on the *other* model with `relatedRelations: {}`, so files never accumulate duplicate back-lists.
+
+## The upload act
+
+Uploading is multipart, not JSON. Lesan parses the form and the file lands in `details.set.formData`:
+
+```ts
+// src/file/uploadFile/uploadFile.fn.ts
+export const uploadFileFn: ActFn = async (body) => {
+  const { set } = body.details;
+  const file = set.formData;          // the parsed upload
+  // validate type + size, route to /uploads/{type}/, insert metadata
+  return await file.insertOne({ doc: { name, mimeType, size, type, ... }, projection: get });
+};
+```
+
+## Acts
+
+`get`, `gets`, `update`, `uploadFile`, `getFiles` (by array of IDs — used to hydrate report document lists).
+
+Next: [Location Models](/docs/tutorials/ziwound/models/location).

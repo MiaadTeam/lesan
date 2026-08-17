@@ -1,0 +1,49 @@
+---
+sidebar_position: 9
+---
+
+# The Confirmation Model
+
+`confirmation` is a small helper model that tracks verification tokens — used for email confirmation and account/email verification flows. Source: [`back/models/confirmation.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/confirmation.ts).
+
+```ts
+export const confirmation_pure = {
+  user: string(),        // the user ID being confirmed
+  token: string(),       // the verification token
+  expiresAt: coerce(date(), string(), (v) => new Date(v)),
+  ...createUpdateAt,
+};
+```
+
+## How it works
+
+When a user registers, ZiWound creates a `confirmation` document holding the user's ID and a short-lived token. The confirmation act checks the token against `expiresAt`:
+
+```ts
+// src/confirmation/confirm/confirm.fn.ts (simplified)
+const { set } = body.details;
+const { token } = set;
+
+const confirmation = await confirmations.findOne({ token });
+if (!confirmation || new Date(confirmation.expiresAt) < new Date()) {
+  throw new Error("confirmation token is invalid or expired");
+}
+// mark the user verified, delete the confirmation row
+await users.findOneAndUpdate({
+  filter: { _id: confirmation.user },
+  update: { $set: { is_verified: true } },
+});
+await confirmations.deleteOne({ filter: { _id: confirmation._id } });
+```
+
+## Why a separate model instead of a field?
+
+- Tokens are **short-lived and sensitive** — keeping them in their own collection makes expiry cleanup trivial and keeps them out of `user` projections entirely.
+- One user can have **multiple outstanding confirmations** (re-sent emails) without storing an array on the user.
+- It demonstrates a model with **no relations at all** — a valid, sometimes ideal design when the "relation" is just a bare `_id` reference handled in the act.
+
+## Acts
+
+`confirm` (verify a token), plus `add`/`get`/`remove` used by the verification tooling.
+
+Next: [Lesan Patterns](/docs/tutorials/ziwound/patterns/one-directional-relations).

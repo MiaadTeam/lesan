@@ -1,0 +1,152 @@
+---
+sidebar_position: 2
+---
+
+# Project Layout
+
+ZiWound is a monorepo with two apps: a **Deno + Lesan backend** (`back/`) and a **Next.js frontend** (`front/`). This page walks the layout of the backend — the part written with Lesan — and shows how `mod.ts` wires everything together. Source: [`back/`](https://github.com/hemedani/ziwound/tree/main/back) on GitHub.
+
+```text
+ziwound/
+├── back/                    # Deno + Lesan backend
+│   ├── mod.ts               # entry: lesan(), setDb, register models, runServer
+│   ├── deno.json            # tasks + import aliases (@model, @lib, lesan)
+│   ├── deps.ts              # centralized dependency re-exports
+│   ├── models/              # one file per model: pure + relations + factory
+│   ├── src/                 # one folder per model domain, one folder per act
+│   ├── utils/               # shared helpers, aliased as @lib
+│   ├── declarations/        # generated selectInp.ts (do not hand-edit)
+│   └── uploads/             # static file uploads
+└── front/                   # Next.js 16 frontend (App Router)
+    ├── src/app/             # [locale]/ routes for 9 languages
+    ├── src/actions/         # Next.js Server Actions → Lesan acts
+    └── messages/            # next-intl translation files
+```
+
+## The entry point (`back/mod.ts`)
+
+Everything starts here. `lesan()` creates the app, `setDb` attaches MongoDB, each model factory registers a model, `functionsSetup()` registers every act, and `runServer` boots the HTTP server. Source: [`back/mod.ts`](https://github.com/hemedani/ziwound/blob/main/back/mod.ts).
+
+```ts
+import { lesan, MongoClient } from "lesan";
+import {
+  blogPostModel, categories, cities, confirmations, countries,
+  createBlogPostTextIndex, createUserTextIndex, documents, files,
+  heroSlides, provinces, reports, tags, users, warCriminals,
+} from "@model";
+import { functionsSetup } from "./src/mod.ts";
+import { RateLimiter } from "./utils/rateLimiter.ts";
+
+const MONGO_URI = Deno.env.get("MONGO_URI") || "mongodb://127.0.0.1:27017/";
+const APP_PORT = Deno.env.get("APP_PORT") || 1406;
+const ENV = Deno.env.get("ENV") || "development";
+
+export const coreApp = lesan();
+const client = await new MongoClient(MONGO_URI).connect();
+const db = client.db("gozaresh");
+coreApp.odm.setDb(db);
+
+// One exported ODM handle per model:
+export const user = users();
+export const country = countries();
+export const province = provinces();
+export const city = cities();
+export const tag = tags();
+export const category = categories();
+export const report = reports();
+export const document = documents();
+export const blogPost = blogPostModel();
+export const heroSlide = heroSlides();
+export const file = files();
+export const warCriminal = warCriminals();
+export const confirmation = confirmations();
+
+export const rateLimiter = new RateLimiter(100, 60 * 1000); // 100 req/min
+
+export const { setAct, setService, getAtcsWithServices } = coreApp.acts;
+export const { selectStruct, getSchemas } = coreApp.schemas;
+
+functionsSetup();
+
+createUserTextIndex();      // full-text index for user search
+createBlogPostTextIndex();  // full-text index for blog post search
+
+coreApp.runServer({
+  port: Number(APP_PORT),
+  typeGeneration: true,
+  playground: ENV === "development" ? true : false,
+  staticPath: ["/uploads"],
+  cors: [
+    "http://localhost:3000",
+    "http://localhost:3005",
+    "http://194.5.192.166:3005",
+    "http://localhost:4000",
+    "http://185.204.170.27:4000",
+    "http://185.204.170.27:3005",
+  ],
+});
+```
+
+:::danger
+**Model registration order matters**
+Each `newModel` call registers one schema and then rebuilds the inverse (`relatedRelations`) map for every schema. ZiWound keeps all registrations together in `mod.ts`, in dependency order — the same convention as the [Procurement Workflow](/docs/tutorials/procurement-workflow/project-layout) app.
+:::
+
+## Import aliases (`back/deno.json`)
+
+ZiWound uses Deno import aliases so imports stay clean:
+
+```json
+{
+  "imports": {
+    "lesan": "jsr:@hemedani/lesan",
+    "mongodb": "npm:mongodb",
+    "@model": "./models/mod.ts",
+    "@lib": "./utils/mod.ts"
+  }
+}
+```
+
+- `lesan` → the framework (via `jsr:` on Deno; npm/Bun would use `@hemedani/lesan`)
+- `@model` → the model barrel (pure fields, relations, factories, `excludes`)
+- `@lib` → the shared utils barrel
+
+## One file per model
+
+A model file declares its **pure fields**, its **relations**, and a **factory** that registers it. Here's a simplified look at the pattern — full source in [`back/models/`](https://github.com/hemedani/ziwound/tree/main/back/models):
+
+```ts
+// back/models/tag.ts
+export const tag_pure = { name: string(), description: optional(string()) };
+export const tag_relations = { registrar: { schemaName: "user", type: "single", optional: true } };
+export const tags = () => coreApp.odm.newModel("tag", tag_pure, tag_relations);
+```
+
+Relations reference other models by `schemaName`, and `relatedRelations` automatically creates the reverse side. The [Report model](/docs/tutorials/ziwound/models/report) is the deepest example.
+
+## One folder per act
+
+Every act is a folder with three files — the registration (`mod.ts`), the implementation (`<act>.fn.ts`), and the validator (`<act>.val.ts`):
+
+```text
+src/report/add/
+├── mod.ts        # coreApp.acts.setAct({ schema, actName, fn, validator, preAct })
+├── add.fn.ts     # the ActFn implementation
+└── add.val.ts    # the superstruct validator (set / get)
+```
+
+Each domain exports a `*Setup()`; `functionsSetup()` in [`src/mod.ts`](https://github.com/hemedani/ziwound/blob/main/back/src/mod.ts) calls them all:
+
+```ts
+export const functionsSetup = () => {
+  countrySetup(); citySetup(); fileSetup(); provinceSetup(); userSetup();
+  tagSetup(); categorySetup(); reportSetup(); documentSetup();
+  blogPostSetup(); heroSlideSetup(); warCriminalSetup(); confirmationSetup();
+};
+```
+
+## Frontend bridge
+
+The frontend never writes raw fetch calls. It uses **Next.js Server Actions** that call the Lesan acts — see [`front/src/actions/`](https://github.com/hemedani/ziwound/tree/main/front/src/actions) — and reads the generated types from the backend's `declarations/`. `LESAN_URL` / `NEXT_PUBLIC_LESAN_URL` env vars point the frontend at the backend.
+
+Next: [The Models](/docs/tutorials/ziwound/models/user).

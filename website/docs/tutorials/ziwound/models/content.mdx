@@ -1,0 +1,72 @@
+---
+sidebar_position: 7
+---
+
+# Content Models (BlogPost · HeroSlide)
+
+Two small content models power the marketing/editorial surface of ZiWound: `blogPost` (articles) and `heroSlide` (landing-page slider). Both share the same catalog relations seen in the [Catalog Models](/docs/tutorials/ziwound/models/catalog) page.
+
+- [`back/models/blogPost.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/blogPost.ts)
+- [`back/models/heroSlide.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/heroSlide.ts)
+
+## BlogPost
+
+```ts
+export const blog_post_status_array = ["Draft", "Publish", "Archive"] as const;
+export const blog_post_status_enum = enums(blog_post_status_array);
+
+export const blogPost_pure = {
+  title: string(),
+  slug: string(),
+  body: optional(localizedWarInfo),   // 9-language content
+  excerpt: optional(string()),
+  image: optional(string()),          // image URL or file reference
+  author: optional(string()),         // display author name
+  publish_date: optional(coerce(date(), string(), (v) => new Date(v))),
+  views: defaulted(number(), 0),
+  is_featured: defaulted(boolean(), false),
+  status: defaulted(coerce(blog_post_status_enum, string(), (v) => v), "Draft"),
+  ...createUpdateAt,
+};
+
+export const blogPost_relations = {
+  tags: { ... same shape as report tags ... },
+  category: { ... same shape as report category ... },
+  registrar: { schemaName: "user", type: "single", optional: true, ... },
+};
+
+export const blogPostModel = () =>
+  coreApp.odm.newModel("blogPost", blogPost_pure, blogPost_relations, {
+    createIndex: { indexSpec: { title: "text", slug: "text", excerpt: "text" } },
+  });
+```
+
+Notable points:
+
+- **`status` enum (Draft / Publish / Archive)** — a mini content-workflow. Defaulting to `Draft` means nothing goes live accidentally.
+- **`slug`** — a stable URL key. There's a dedicated `getBySlug` act that queries by it (see [Act structure](/docs/tutorials/ziwound/patterns/act-structure)).
+- **`views` counter** — an incrementable pure field, bumped by `updateBlogPostViews` on read.
+- **Text index** on `title`/`slug`/`excerpt` for the blog search.
+
+## HeroSlide
+
+```ts
+export const heroSlide_pure = {
+  title: string(),
+  subtitle: optional(string()),
+  image: optional(string()),
+  link: optional(string()),
+  order: defaulted(number(), 0),
+  isActive: defaulted(boolean(), true),
+  ...createUpdateAt,
+};
+```
+
+A deliberately tiny model — just enough to drive the landing slider. Acts: `getActiveSlides` (fetches only `isActive: true`, sorted by `order`) plus the standard CRUD set.
+
+## Acts
+
+- **BlogPost** — `add`, `get`, `getBySlug`, `gets`, `update`, `updateRelations`, `remove`, `count`, `getRelated`, `getRelatedPagination`, `updateBlogPostViews`, `dashboardStatistic`.
+- **HeroSlide** — `add`, `get`, `getActiveSlides`, `gets`, `update`, `remove`, `count`.
+
+Next: [The War Criminal Model](/docs/tutorials/ziwound/models/war-criminal).

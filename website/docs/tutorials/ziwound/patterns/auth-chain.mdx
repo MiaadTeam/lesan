@@ -1,0 +1,146 @@
+---
+sidebar_position: 2
+---
+
+# The Authentication Chain
+
+ZiWound's auth is a textbook example of Lesan's request lifecycle: **`setTokens → setUser → grantAccess`**. Every protected act runs a `preAct` chain that restores the caller's identity into the request context and checks their role. This page dissects the chain. See the [Request Lifecycle](/docs/advanced/request-lifecycle) docs for the framework-level mechanics.
+
+## The context utilities
+
+ZiWound stores the authenticated user in the request context and exposes two guards in [`back/utils/`](https://github.com/hemedani/ziwound/tree/main/back/utils):
+
+```ts
+// setUser — restores the user from the Bearer token
+export const setUser = async () => {
+  const token = contextFns.getToken();
+  if (!token) throwError("no token provided");
+  try {
+    const payload = await jwtVerify(token, jwtSecret);
+    const user = await users.findOne({ _id: payload.userId });
+    contextFns.setUser(user);   // available to every subsequent act
+  } catch {
+    throwError("invalid or expired token");
+  }
+};
+
+// grantAccess — role gate
+export const grantAccess = (allowedRoles: string[]) => {
+  const user = contextFns.getUser();
+  if (!user) throwError("unauthorized");
+  if (!allowedRoles.includes(user.level)) throwError("permission denied");
+};
+```
+
+## The login act
+
+`login` verifies credentials and returns a **signed JWT**, which the frontend stores and sends as `Authorization: Bearer <token>`:
+
+```ts
+// src/user/login/login.fn.ts
+export const loginFn: ActFn = async (body) => {
+  const { set } = body.details;
+  const { email, password } = set;
+
+  const user = await users.findOne({ filter: { email } });
+  if (!user) throwError("user not found");
+
+  const valid = await verifyPassword(password, user.password);
+  if (!valid) throwError("wrong password");
+
+  const token = await jwtSign(
+    { userId: user._id },
+    jwtSecret,
+    { expiresIn: "7d" },
+  );
+
+  return { token, user };
+};
+```
+
+```ts
+// src/user/login/login.val.ts — the validator
+export const loginValidator = () =>
+  object({
+    set: object({ email: emailPattern, password: string() }),
+    get: coreApp.schemas.selectStruct("user", { ...deep }),
+  });
+```
+
+Note the act *itself* does auth by looking up the user and signing the JWT — no `preAct` needed here. The chain kicks in on the acts that must be **called while authenticated**.
+
+## The register act
+
+`register` creates the user, then creates a `confirmation` row for email verification. Both writes run through their model factories — and note that the *register* act is public (no `setUser`):
+
+```ts
+export const registerFn: ActFn = async (body) => {
+  const { set } = body.details;
+  const hashed = await hashPassword(set.password);
+
+  const newUser = await users.insertOne({
+    doc: { ...set, password: hashed, level: "Ordinary" },
+  });
+
+  await confirmations.insertOne({
+    doc: { user: newUser._id, token: crypto.randomUUID(), expiresAt: ... },
+  });
+
+  return await users.findOne({ filter: { _id: newUser._id }, projection: get });
+};
+```
+
+## The getMe act — protected by the chain
+
+`getMe` shows the full pattern: `preValidation` (optional) then `preAct: [setUser]` restores identity, and the act reads it back from context:
+
+```ts
+export const getMe = () =>
+  coreApp.acts.setAct({
+    schema: "user",
+    fn: getMeFn,
+    actName: "getMe",
+    validator: getMeValidator(),
+    preAct: [setUser],
+  });
+
+export const getMeFn: ActFn = async (body) => {
+  const user = contextFns.getUser();   // set by setUser
+  return await users.findOne({ filter: { _id: user._id }, projection: get });
+};
+```
+
+## Protecting admin acts with grantAccess
+
+The chain composes: `preAct: [setUser, grantAccess(["Manager", "Editor", "Admin"])]`. The roles array can live in the act folder:
+
+```ts
+// src/report/approve/approve.mod.ts
+import { setUser, grantAccess } from "@lib";
+import { approverRoles } from "./approve.val.ts";
+
+coreApp.acts.setAct({
+  schema: "report",
+  actName: "approve",
+  fn: approveFn,
+  validator: approveValidator(),
+  preAct: [setUser, grantAccess(approverRoles)],   // Manager / Editor only
+});
+```
+
+## The role model
+
+Roles are a plain enum on the user (`level`):
+
+| Role | Typical access |
+|------|----------------|
+| `Ghost` | read-only visitor |
+| `Ordinary` | can submit reports |
+| `Reporter` | trusted submitter |
+| `Editor` | approve/reject reports, manage content |
+| `Manager` | everything above + user management |
+| `Admin` | full access |
+
+`grantAccess` is role-whitelisting only — ZiWound keeps it simple and doesn't build per-resource ACLs. Combined with `setUser`, the two utils cover the entire auth surface across all 98 acts.
+
+Next: [Localization](/docs/tutorials/ziwound/patterns/localization).

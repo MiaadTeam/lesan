@@ -1,0 +1,83 @@
+---
+sidebar_position: 4
+---
+
+# Catalog Models (Category · Tag)
+
+`category` and `tag` are the two small "catalog" models ZiWound uses for organizing reports and blog posts. They're near-identical, and both demonstrate Lesan's **shared-relation pattern**: they're referenced by *many* models, but each defines its own `relatedRelations` on those models rather than the catalog models carrying giant back-lists.
+
+- [`back/models/category.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/category.ts)
+- [`back/models/tag.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/tag.ts)
+
+## Category
+
+```ts
+export const category_pure = {
+  name: string(),
+  description: optional(string()),
+  ...createUpdateAt,
+};
+
+export const category_relations = {
+  registrar: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {},
+  },
+};
+
+export const categories = () =>
+  coreApp.odm.newModel("category", category_pure, category_relations);
+```
+
+## Tag
+
+```ts
+export const tag_pure = {
+  name: string(),
+  description: optional(string()),
+  ...createUpdateAt,
+};
+
+export const tag_relations = {
+  registrar: {
+    schemaName: "user",
+    type: "single" as RelationDataType,
+    optional: true,
+    excludes: user_excludes,
+    relatedRelations: {},
+  },
+};
+
+export const tags = () => coreApp.odm.newModel("tag", tag_pure, tag_relations);
+```
+
+## Why the reverse lists live on the other models
+
+Categories and tags are referenced by **reports** and **blog posts**. Lesan builds back-references automatically, so the embed back on the *referencing* side, not the catalog side:
+
+```ts
+// report_relations
+tags: {
+  schemaName: "tag",
+  type: "multiple" as RelationDataType,
+  excludes: tag_excludes,
+  relatedRelations: { reports: { type: "multiple" as RelationDataType, limit: 20 } },
+},
+category: {
+  schemaName: "category",
+  type: "single" as RelationDataType,
+  excludes: category_excludes,
+  relatedRelations: { reports: { type: "multiple" as RelationDataType, limit: 50 } },
+},
+```
+
+The `limit` on the back-reference means a tag/category embeds only the **20/50 newest** reports, keeping payloads bounded even for popular tags. If you need the full list, query the `report` collection filtered by `tagId`/`categoryId`.
+
+## Acts
+
+Both models expose the standard CRUD set: `add`, `get`, `gets`, `update`, `remove`, `count`. These act as the source list for the report-submission form's dropdowns.
+
+Next: [The Report Model](/docs/tutorials/ziwound/models/report).

@@ -1,0 +1,119 @@
+---
+sidebar_position: 5
+---
+
+# The Report Model
+
+The `report` model is the heart of ZiWound — the war crimes documentation entity. It's the deepest relation graph in the app (11 relations) and the model with the most acts. Source: [`back/models/report.ts`](https://github.com/hemedani/ziwound/blob/main/back/models/report.ts).
+
+## Pure fields
+
+```ts
+export const report_status_array = ["Pending", "Approved", "Rejected", "InReview"] as const;
+export const report_status_enum = enums(report_status_array);
+
+export const report_pure = {
+  title: string(),
+  description: string(),
+  conflict_date: optional(coerce(date(), string(), (v) => new Date(v))),
+  report_status: defaulted(coerce(report_status_enum, string(), (v) => v), "Pending"),
+  point: geoJSONStruct("Point"),        // { type: "Point", coordinates: [lng, lat] }
+  ...createUpdateAt,
+};
+```
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `title` | `string()` | text-indexed |
+| `description` | `string()` | the incident narrative |
+| `conflict_date` | `date` | coerced from ISO string |
+| `report_status` | `enums(["Pending","Approved","Rejected","InReview"])` | **defaulted** to `Pending` — new submissions start unapproved |
+| `point` | `geoJSONStruct("Point")` | GeoJSON point for map display |
+| `createdAt` / `updatedAt` | spread from `createUpdateAt` | |
+
+## Relations (the full graph)
+
+```ts
+export const report_relations = {
+  reporter: {
+    schemaName: "user", type: "single" as RelationDataType,
+    optional: false, excludes: user_excludes,
+    relatedRelations: { reports: { type: "multiple" as RelationDataType, limit: 100 } },
+  },
+  documents: {
+    schemaName: "document", type: "multiple" as RelationDataType,
+    excludes: document_excludes,
+    relatedRelations: { reports: { type: "multiple" as RelationDataType, limit: 20 } },
+  },
+  hostileCountries: {
+    schemaName: "country", type: "multiple" as RelationDataType,
+    excludes: location_excludes,
+    relatedRelations: { hostileReports: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  attackedCountries: {
+    schemaName: "country", type: "multiple" as RelationDataType,
+    excludes: location_excludes,
+    relatedRelations: { attackedReports: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  attackedProvinces: {
+    schemaName: "province", type: "multiple" as RelationDataType,
+    excludes: location_excludes,
+    relatedRelations: { attackedReports: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  attackedCities: {
+    schemaName: "city", type: "multiple" as RelationDataType,
+    excludes: location_excludes,
+    relatedRelations: { attackedReports: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  tags: {
+    schemaName: "tag", type: "multiple" as RelationDataType,
+    excludes: tag_excludes,
+    relatedRelations: { reports: { type: "multiple" as RelationDataType, limit: 20 } },
+  },
+  category: {
+    schemaName: "category", type: "single" as RelationDataType,
+    excludes: category_excludes,
+    relatedRelations: { reports: { type: "multiple" as RelationDataType, limit: 50 } },
+  },
+  warCriminals: {
+    schemaName: "warCriminal", type: "multiple" as RelationDataType,
+    excludes: war_criminal_excludes,
+    relatedRelations: { reports: { type: "multiple" as RelationDataType, limit: 100 } },
+  },
+  registrar: {
+    schemaName: "user", type: "single" as RelationDataType,
+    optional: true, excludes: user_excludes,
+    relatedRelations: { registeredReports: { type: "multiple" as RelationDataType, limit: 100 } },
+  },
+};
+```
+
+Key lessons:
+
+- **Different relation kinds to the same schema** — `reporter` (the submitter) and `registrar` (an admin/editor) are both `single → user`, but they're *separate* relations, so a user gets two distinct reverse lists: `reports` (submitted) and `registeredReports` (moderated).
+- **Two `country` relations** — `hostileCountries` (who attacked) vs `attackedCountries` (who was attacked). Because relations are named, one report can link the same country in both roles without conflict.
+- **Per-relation back-references** — every `multiple` relation declares its own `limit`, so reverse arrays stay bounded: a user's `reports` caps at 100, a tag's at 20, a category's at 50.
+
+## Registration & indexes
+
+```ts
+export const reports = () =>
+  coreApp.odm.newModel("report", report_pure, report_relations, {
+    createIndex: { indexSpec: { title: "text", description: "text" }, unique: false },
+    excludes: ["password"],
+  });
+```
+
+A **2dsphere index** on `point` is created separately so map queries stay fast:
+
+```ts
+await db.collection("report").createIndex({ point: "2dsphere" });
+```
+
+## Acts
+
+The report domain has the largest act set — **17 acts**: `add`, `get`, `gets`, `update`, `updateRelations`, `remove`, `count`, `approve`, `reject`, `inReview`, `statistics`, `getRelated` (reports by status/location filters), `getRelatedPagination`, `getRelatedByGeo` (geospatial search), `getDraft`, `getDraftCount`, `getRelatedSitemap`.
+
+The status-flow acts (`approve`/`reject`/`inReview`) are a clean example of an act that only flips an enum — see the [Authentication & Authorization](/docs/tutorials/ziwound/patterns/auth-chain) page for how `grantAccess` protects them, and [Search & Indexes](/docs/tutorials/ziwound/patterns/search-and-indexes) for `getRelatedByGeo`.
+
+Next: [The Document Model](/docs/tutorials/ziwound/models/document).
