@@ -1,0 +1,8 @@
+{
+  "label": "Advantages of Lesan",
+  "position": 10,
+  "link": {
+    "type": "generated-index",
+    "description": "Why we built Lesan and the design decisions that make it fast and elegant — the mechanics of embedded relationships, and the nature of real-world data that makes them the right choice."
+  }
+}
