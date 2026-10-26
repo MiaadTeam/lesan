@@ -5,10 +5,17 @@ on:
     tags:
       - 'v*.*.*'
   workflow_dispatch:
+    inputs:
+      skip_npm:
+        description: 'Skip npm publish (use when npm credentials are unavailable)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   publish-npm:
     name: Publish to npm
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_npm != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
