@@ -4,73 +4,287 @@ sidebar_position: 3
 
 # The Playground
 
-When you enable `playground: true` in `runServer`, Lesan serves an interactive explorer at `/playground` — a visual client that introspects your schemas and acts and lets you send real requests against your running server without writing any code.
+When you enable `playground: true` in `runServer`, Lesan serves an interactive explorer at `/playground`. It introspects your schemas and acts, lets you build and send real requests without writing any code, keeps a history of what you sent, and includes a full end-to-end testing tool.
 
 ```ts
 coreApp.runServer({ port: 1366, playground: true });
 ```
 
-Then open `http://localhost:1366/playground` in your browser.
+Then open [http://localhost:1366/playground](http://localhost:1366/playground).
 
-## The Layout
+The playground talks to the same `/lesan` endpoint a real client uses, so anything you can do here goes through the normal validation, relation engine, and act pipeline. It is not a mock.
 
-The playground is split into three parts.
+## Quick start
 
-### 1. Tabs
+1. Pick a **service**, then a **schema**, then an **act** in the left sidebar.
+2. Fill in the **set** fields — the values the act requires.
+3. Toggle the **get** fields you want back — the response projection.
+4. Press **Send** and inspect the response.
+5. Use the copy buttons to turn the request into code, or **Run E2E Test** to turn it into a repeatable test.
 
-At the top of the page are tabs that allow you to work on different things at the same time without losing information. You can create as many tabs as you need with the add button, and close them at any time. Refreshing the page does not lose your tabs — they are fully restored.
+## Interface at a glance
 
-### 2. The Sidebar
+The playground has four areas:
 
-On the left side is the sidebar with three select boxes used to select the **service**, **schema**, and **act**, in that order. Schema and act selection stays inactive until a service is selected.
+- **Tabs** along the top, so you can keep several requests open at once.
+- **Request builder** on the left: service/schema/act selection plus `set` and `get` fields.
+- **Response panel** at the bottom, showing the last response for the active tab.
+- **Action bar** with Refetch, Setting, History, E2E Test, Schema, and Act.
 
-After you pick a service, schema, and act, a second column appears with two sections:
+### Tabs
 
-- **Set fields** — the values the act needs from you (the `set` object).
-- **Get fields** — the fields you want back in the response (the `get` projection). Each field is a toggle: `1` to include it, `0` to exclude it.
+Each tab is an independent request builder. Create one with **+**, close it with **x**, and switch by clicking its name. Tabs are saved in `localStorage`, so a refresh restores them — including the selected service, schema, act, field values, and last response.
 
-When both are filled in, press the **Send** button and the response appears in the response section at the bottom.
+### Request builder
 
-At the top of the response section you have three buttons: **copy request**, **copy response**, and **run E2E test** (which sends the current request into the E2E modal described below). The request status shows as true with a green light or false with a red light, and the top-right of the body shows how long the request took.
+The selectors are ordered: a schema cannot be chosen until a service is chosen, and an act cannot be chosen until a schema is chosen. Switching a parent selection clears its children.
 
-### 3. The Buttons
+Once an act is selected, a second sidebar appears:
 
-Below the main view are six buttons.
+- **Set fields** — the act's `set` object. Text fields render as inputs, numbers as number inputs, enums as a select, arrays of enums as a multi-select, and array/boolean fields accept JSON.
+- **Get fields** — the act's `get` projection. Every leaf is a toggle: **1** includes it, **0** excludes it. **All Items** applies `1` or `0` to the whole tree at once. Nested relations expand into their own toggles.
 
-#### Refetch
+A request is only sent with the fields you touched. An unset field is omitted from the request entirely, while `0` is sent explicitly to exclude it.
 
-Press it to renew all data once — useful after a schema or act has changed on the server.
+### Response panel
 
-#### Settings
+After **Send**, the response panel shows the JSON body, a green or red status light for `success`, and the request duration. The header contains three actions:
 
-Opens a settings modal with two parts:
+- **Copy Request** — copies the exact `{ method, headers, body }` request, with the body parsed.
+- **Copy Response** — copies the full response including `success` and `tookTime`.
+- **Run E2E Test** — opens the E2E modal with a new sequence prepopulated from the current request, including the headers configured in **Setting**.
 
-- **Fetch Config** — set a URL and press **Apply** to point the playground at a different Lesan server (handy for microservices).
-- **Set Headers** — add any number of key/value headers, then press **Apply** (useful for authorization tokens).
+## Action bar
 
-#### History
+### Refetch
 
-Opens a history modal listing all past requests and responses. Each entry shows the model and act, the date of the request, and the response time; use the **Show** button to expand the full request/response detail, **Use** to replay a request, or the delete/dustbin buttons to clear individual entries or everything.
+Re-downloads the schema and act metadata from the server and resets the current tab's selections. Use it after deploying a new act or changing a model. The rest of the page (history, other tabs) is kept.
 
-#### E2E Test
+### Setting
 
-The playground includes a built-in **end-to-end testing tool** that sequences multiple requests and runs them in order, with faker support for dynamic values.
+Opens the settings modal, which has two independent sections.
 
-- With the **Add** button you create a new test sequence. Each sequence lets you write the request **body and headers**, set a **repeat count**, and add **captured variables** (a name plus a value — for example, capturing an `_id` returned by one request to reuse in the next).
-- Above each sequence are buttons to **duplicate** it, **move** it up or down, and **delete** it.
-- With **Import** you can reuse previously exported tests, and **Export** saves the current tests as a file.
-- Press **Run E2E Test** to execute all sequences. The results view shows a summary (total requests, times, success/fail counts, best/worst sequences), the captured-variable values, and per-sequence descriptions with full request/response detail and pagination.
-- You can inspect any request by clicking its sequence number — including the raw request body and the response body with its success status and duration.
+**Fetch Config** points the playground at a different Lesan server. Enter a base URL such as `http://localhost:4000/` and press **Apply**. The playground fetches that server's schemas and acts and clears the current selections. This is how you exercise a microservice through its own playground.
 
-#### Schema
+**Set Headers** adds key/value headers to every request sent from the request builder — for example `Authorization: Bearer <token>`. Press **Apply** to store them for the current session. Rows with an empty key are stored too, so remove unused rows. Headers are not automatically attached to existing E2E sequences; a sequence carries the headers it was created with (or that you type into its body/header editor).
 
-Opens a modal listing every schema in the project. Each schema shows its **pure** fields, its **main relations** (with embedded field lists), and its **related relations** (with their sort/limit configuration). Hovering the question icon next to a relation explains it.
+### History
 
-#### Act
+The history modal lists every request sent from the request builder, newest first. Each entry shows the model and act, the request date, and the response time. You can:
 
-Like the Schema modal, but for **acts**: acts are grouped by service and then by schema. Opening an act shows its `set` fields and its `get` fields, so you can see exactly what a request needs and what it can return before sending it.
+- **Show / Hide** the full request and response.
+- **Use** to load that request's service, model, act, and `set`/`get` details back into the active tab.
+- Delete a single entry, or clear all history with the dustbin button.
+
+History is stored in `localStorage` and loaded lazily in pages of ten as you scroll.
+
+### Schema
+
+Lists every schema with three sections:
+
+- **pure** — the stored fields.
+- **mainRelations** — the relations declared on this schema, with their target schema's pure fields.
+- **relatedRelations** — the inverse relations maintained by Lesan, with sort/limit configuration.
+
+Hover the question icon next to a relation to see its `extraDetails` (sort field, limit, embedded/unembedded configuration, and so on). **Export** downloads the full schema registry as `schemas.json`.
+
+### Act
+
+Groups acts by service and then by model. Expand an act to see its validator structure, notably the `set` fields (input) and `get` fields (projection). **Export** downloads the act registry as `acts.json`.
+
+## End-to-end testing
+
+The E2E modal runs an ordered list of HTTP requests against the server, repeats individual sequences, captures values from responses, and injects dynamic values with [faker](https://fakerjs.dev/). It is the same tool used to test Lesan's own relation engine.
+
+There are two ways to open it:
+
+- **E2E Test** in the action bar opens your current sequence list.
+- **Run E2E Test** in the response panel adds the current request as a new sequence and opens the modal.
+
+### A sequence
+
+Every sequence is one request template plus its settings:
+
+| Setting | Meaning |
+| --- | --- |
+| **Body and headers** | A JSON object with `headers` and `body`, exactly as sent to `/lesan`. |
+| **Repeat** | How many times to send this request before moving on. Defaults to 1. |
+| **Expected failure** | Marks the request as intentionally failing, optionally with an expected message. |
+| **Capture variables** | A list of `key` / path pairs that read values out of the response for later sequences. |
+
+The body/header editor contains the full request envelope:
+
+```json
+{
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer <token>"
+  },
+  "body": {
+    "service": "main",
+    "model": "country",
+    "act": "addCountry",
+    "details": {
+      "set": {
+        "name": "Iran",
+        "population": 85000000,
+        "abb": "IRN"
+      },
+      "get": {
+        "_id": 1,
+        "name": 1
+      }
+    }
+  }
+}
+```
+
+The request envelope is identical to what a client posts to `/lesan`. The `headers` object is merged with `Content-Type: application/json`.
+
+Above each sequence are controls to duplicate it, move it up or down, or delete it. Sequences run from top to bottom, strictly one after another. Changes to the sequence list are not persisted across a page refresh — use **Export** to keep them.
+
+### Captures
+
+Captures let one sequence feed the next. Define a capture with:
+
+- **key** — the variable name you will reference later, for example `countryId`.
+- **value** — a bracket path into the response, for example `[body][_id]` or `[body][0][_id]`.
+
+Paths are applied to the raw response object, so `[body][0][_id]` reads the `_id` of the first element of an array response. Nested paths such as `[body][0][country][_id]` work the same way.
+
+Captures are evaluated **after all repeats of a sequence finish**, using the last response of that sequence. They then become available to every later sequence. A capture is injected into any string by wrapping its key in braces:
+
+```json
+{
+  "details": {
+    "set": {
+      "country": "{countryId}"
+    }
+  }
+}
+```
+
+The literal `"{countryId}"` is replaced with the captured value. If the entire resulting string is an integer, it is converted to a number; otherwise it stays a string. Captures from later sequences are not available to earlier ones, so order matters.
+
+To see what was captured, open a sequence in the results view and read **Capture Items**; **Using Capture Items** lists where each value was injected.
+
+### Dynamic values with faker
+
+Any string that starts with `{faker` is evaluated per request, so repeated sequences can generate fresh values each time:
+
+```json
+{
+  "name": "{faker.person.firstName}",
+  "country": "{faker.location.country}",
+  "population": "{faker.number.int({ 'min': 1000000, 'max': 100000000 })}",
+  "abb": "{faker.location.countryCode('alpha-3')}"
+}
+```
+
+Faker functions are addressed as `faker.<module>.<function>`. Arguments are optional and are parsed as JSON after single quotes are converted to double quotes, which is why both `'alpha-3'` and `{'min': 1, 'max': 10}` work. Faker values are generated independently for every repeat.
+
+### Expected failures
+
+Some tests are supposed to fail — permission checks, closed accounting periods, validation errors. Tick **expected failure** on a sequence and optionally enter the expected message.
+
+The rules are:
+
+- The request must return `success: false`.
+- If a message is provided, the actual `body.message` must **contain** it (case-sensitive substring match).
+- An empty message accepts any failure.
+- A matching failure counts as a **pass**. It appears in the **Expected Failures** panel, is marked with a `expected failure` badge, and is excluded from **Fails Request** and **Copy Errors**.
+- If the request unexpectedly succeeds, or fails with a different message, it is a real failure and appears in **Fails Request** with both the expected and actual message.
+
+For example, to assert that a request is rejected by a closed accounting period:
+
+```json
+{
+  "expectedFailure": {
+    "message": "Accounting period 1405-04 is closed"
+  }
+}
+```
+
+Existing configs that do not contain `expectedFailure` import and run unchanged.
+
+### Running tests
+
+Press **Run E2E Test** in the modal footer. The playground switches to the results view and executes each sequence in order, updating the summary as responses arrive. Requests go to the current base URL — the origin you opened the playground from, or the URL configured in **Setting**.
+
+The rest of the footer has **Add** to append a blank sequence, **Import** and **Export**, and **Help**, which opens this page.
+
+While a run is in progress, do not edit the sequence list. After a run, press **Back** to clear the collected results and return to the editor.
+
+### Reading the results
+
+The results view starts with a summary:
+
+- **Information** — total requests, total time, successful requests, and failed requests.
+- **Times** — the fastest and slowest request, with their sequence number, request number, model, and act. Click a sequence number to jump to it.
+- **Expected Failures** — every expected failure that matched, with expected and actual messages.
+- **Fails Request** — every unexpected failure, with the failure message. If there are none, it says so.
+- **Captures Information** — every captured key and value. It is collapsible, each capture can be collapsed individually, and each value has a copy button.
+
+Each failure row shows its sequence/request index, model, act, and message. Click the index to jump to that sequence. Each row has a copy button for the message and another for the full request/response pair. **Copy Errors** at the top copies all unexpected failures at once, and **Export** downloads the entire result object as `data.json`.
+
+Below the summary, one card per sequence shows:
+
+- **Body Header** — the request envelope, collapsible.
+- **Description** — request count, success/fail/expected-fail counts, total and average time, best and worst request, capture items, and used captures. Collapsible.
+- The **info icon** toggles between the description and the raw **REQUEST / RESPONSE** view. In that view, each repeat has its own page of pagination, both sides can be copied, the response time is shown, and matching expected failures carry a badge.
+
+### Importing and exporting
+
+**Export** downloads the sequence list as `Configdata.json`. **Import** reads a file and replaces the current sequence list. The file is a JSON array of sequence objects:
+
+```json
+[
+  {
+    "id": "lnado0z3xqidkxzr3c",
+    "bodyHeaders": "{\n  \"headers\": { \"Content-Type\": \"application/json\" },\n  \"body\": { \"service\": \"main\", \"model\": \"country\", \"act\": \"addCountry\", \"details\": { \"set\": { \"name\": \"Iran\" }, \"get\": { \"_id\": 1 } } }\n}",
+    "repeat": 1,
+    "captures": [
+      { "key": "countryId", "value": "[body][_id]" }
+    ]
+  },
+  {
+    "id": "lp48f7vwgyz3sw2nxv5",
+    "bodyHeaders": "{\n  \"headers\": { \"Content-Type\": \"application/json\" },\n  \"body\": { \"service\": \"main\", \"model\": \"city\", \"act\": \"addCity\", \"details\": { \"set\": { \"name\": \"Tehran\", \"country\": \"{countryId}\" }, \"get\": { \"_id\": 1 } } }\n}",
+    "repeat": 1,
+    "captures": []
+  }
+]
+```
+
+`bodyHeaders` is a **string** containing JSON, not a nested object. The editor presents its parsed content for convenience, but imports and exports preserve the string form. Keep the `id` values unique when editing by hand; they are used as keys while editing and duplicating sequences.
+
+The repository ships three ready-to-run configurations and the server they run against:
+
+- [`Configdata.json`](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/Configdata.json) — exercises the full ODM and relation surface.
+- [`fakerTest.json`](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/fakerTest.json) — demonstrates faker-driven values and captures.
+- [`stress.json`](https://raw.githubusercontent.com/MiaadTeam/lesan/main/tests/playground/stress.json) — inserts a country with 50,000 cities and 50,000 users to stress `insertMany` and relation embedding.
+
+Start the sample server from `tests/playground`:
+
+```shell
+deno run -A e2e.ts
+```
+
+Then open `http://localhost:1366/playground`, click **E2E Test**, and import one of the files. The [Testing Relations](/docs/concepts/testing-relations) walkthrough explains each sequence in `Configdata.json` and what to verify in MongoDB after a run.
+
+## Tips and troubleshooting
+
+- **The playground does not update after a deploy.** Press **Refetch**. Schemas and acts are fetched once when the page loads.
+- **Errors look generic.** Lesan returns `{ success: false, body: { message } }`; open the response panel to read the message. Acts that throw `HttpError` also set an HTTP status.
+- **Authentication fails.** Add the token under **Setting → Set Headers**, then resend. E2E sequences created before that change keep their old headers.
+- **A test passes only on the first run.** E2E is not transactional and does not clean the database. Tests that create unique records should use faker, or be written to tolerate existing data. Intentional conflicts should be marked as expected failures.
+- **A sequence cannot see a capture.** Captures are read from the final response after all repeats and are only available to later sequences. Check the key spelling and that the path matches the response shape.
+- **A request fails with a validation message.** Compare the `set` shape in the editor with the Act modal. Enum values, nested relation objects, and arrays must match exactly.
+- **The stress config is slow.** It sends thousands of requests by design. Run it against a disposable database.
 
 ## Related
 
-- The [Procurement Workflow tutorial](/docs/tutorials/procurement-workflow/overview) uses the playground for every act — each page includes a ready-to-send request body.
-- [Testing Relations](/docs/concepts/testing-relations) walks through the playground's E2E modal with the repository's own test files.
+- [Testing Relations](/docs/concepts/testing-relations) — a guided E2E run through the repository's own test files, including what each sequence does and how the relation snapshots end up in MongoDB.
+- [What Is the Relationship Really?](/docs/concepts/what-is-the-relationship) — the mental model behind `mainRelations` and `relatedRelations` that the Schema modal displays.
+- [Queuing Data Changes](/docs/concepts/queuing-data-changes) — why a single `updateCountry` can touch 100,000 embedded documents in the stress test.
+- [Procurement Workflow](/docs/tutorials/procurement-workflow/overview) — a full tutorial where every act page includes a playground-ready request.
