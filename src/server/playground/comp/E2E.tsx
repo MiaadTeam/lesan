@@ -6,6 +6,8 @@ import { E2eForm, TRequest } from "./context/actionType.ts";
 import { e2eFirstInp } from "./context/initials.ts";
 import AddIcon from "./icon/AddIcon.tsx";
 import BackIcon from "./icon/BackIcon.tsx";
+import ChevronDownIcon from "./icon/ChevronDownIcon.tsx";
+import CopyIcon from "./icon/CopyIcon.tsx";
 import DeleteIcon from "./icon/DeleteIcon.tsx";
 import DownIcon from "./icon/DownIcon.tsx";
 import ExportIcon from "./icon/ExportIcon.tsx";
@@ -13,6 +15,7 @@ import HelpIcon from "./icon/HelpIcon.tsx";
 import ImportIcon from "./icon/ImportIcon.tsx";
 import RunIcon from "./icon/RunIcon.tsx";
 import UpIcon from "./icon/UpIcon.tsx";
+import { CopyButton, copyToClipboard } from "./CopyButton.tsx";
 import { useLesan } from "./ManagedLesanContext.tsx";
 import { SequenceSlider } from "./SequenceSlider.tsx";
 
@@ -21,6 +24,8 @@ export type TResults = {
   request: Record<string, any>;
   response: Record<string, any>;
   responseTime: number;
+  passed?: boolean;
+  expectedFailure?: boolean;
 };
 
 export type captureType = {
@@ -44,6 +49,7 @@ export type TSequenceDetail = {
   captures: captureType[];
   usedCaptures: captureType[];
   results: TResults[];
+  expectedFailure?: { message: string };
 };
 
 export type TReqDetails = {
@@ -69,6 +75,44 @@ export type TReqDetails = {
   allCaptureItems: captureType[];
 };
 
+export type TFailure = {
+  sequenceIdx: number;
+  resultIdx: number;
+  model?: string;
+  act?: string;
+  message: string;
+  request: Record<string, any>;
+  response: Record<string, any>;
+};
+
+export type TExpectedFailure = {
+  sequenceIdx: number;
+  resultIdx: number;
+  model?: string;
+  act?: string;
+  expectedMessage?: string;
+  actualMessage?: string;
+  request: Record<string, any>;
+  response: Record<string, any>;
+};
+
+const getResponseMessage = (response: Record<string, any>) => {
+  const message = response?.body?.message;
+  return typeof message === "string" ? message : undefined;
+};
+
+export const isExpectedFailureMet = (
+  expectedFailure: E2eForm["expectedFailure"],
+  response: Record<string, any>,
+): boolean => {
+  if (!expectedFailure) return false;
+  if (response?.success !== false) return false;
+  const expectedMessage = expectedFailure.message?.trim();
+  if (!expectedMessage) return true;
+  const actualMessage = getResponseMessage(response);
+  return !!actualMessage && actualMessage.includes(expectedMessage);
+};
+
 export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
   const { e2eForms, setE2eForms } = useLesan();
 
@@ -92,6 +136,83 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
   const [isShowE2eButton, setIsShowE2eButton] = useState<boolean>(false);
   const [requestDetail, setRequestDetail] =
     useState<TReqDetails>(initialRequestDetail);
+  const [isCapturesOpen, setIsCapturesOpen] = useState<boolean>(true);
+  const [openCaptureItems, setOpenCaptureItems] = useState<
+    Record<number, boolean>
+  >({});
+
+  const getFailures = (): TFailure[] => {
+    const failures: TFailure[] = [];
+    requestDetail.sequenceDetail.forEach((sequence, sequenceIdx) => {
+      sequence.results.forEach((result, resultIdx) => {
+        const isPass = result.passed !== undefined
+          ? result.passed
+          : result.response?.success === true;
+        if (isPass) return;
+
+        const actualMessage = getResponseMessage(result.response);
+        let message = actualMessage ??
+          (JSON.stringify(result.response?.body) ?? "");
+
+        if (sequence.expectedFailure) {
+          message = result.response?.success === true
+            ? "Expected failure but request succeeded."
+            : `Expected message "${sequence.expectedFailure.message}" but got "${
+              actualMessage ?? ""
+            }".`;
+        }
+
+        failures.push({
+          sequenceIdx: sequenceIdx + 1,
+          resultIdx: resultIdx + 1,
+          model: result.request?.body?.model,
+          act: result.request?.body?.act,
+          message,
+          request: result.request,
+          response: result.response,
+        });
+      });
+    });
+    return failures;
+  };
+
+  const failures = getFailures();
+
+  const getExpectedFailures = (): TExpectedFailure[] => {
+    const expected: TExpectedFailure[] = [];
+    requestDetail.sequenceDetail.forEach((sequence, sequenceIdx) => {
+      sequence.results.forEach((result, resultIdx) => {
+        if (!result.expectedFailure) return;
+        expected.push({
+          sequenceIdx: sequenceIdx + 1,
+          resultIdx: resultIdx + 1,
+          model: result.request?.body?.model,
+          act: result.request?.body?.act,
+          expectedMessage: sequence.expectedFailure?.message,
+          actualMessage: getResponseMessage(result.response),
+          request: result.request,
+          response: result.response,
+        });
+      });
+    });
+    return expected;
+  };
+
+  const expectedFailures = getExpectedFailures();
+
+  const formatFailures = (fails: TFailure[]) =>
+    fails.length === 0
+      ? "No failed requests."
+      : fails
+        .map((failure) => {
+          const actModel = [failure.model, failure.act]
+            .filter(Boolean)
+            .join(".");
+          return `Sequence ${failure.sequenceIdx} / Request ${failure.resultIdx}${
+            actModel ? ` (${actModel})` : ""
+          }: ${failure.message}`;
+        })
+        .join("\n");
 
   const handleMove = (fromIndex: any, toIndex: any) => {
     if (fromIndex === 0 && toIndex <= 0) {
@@ -284,12 +405,22 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
         });
         const tResPerformance = performance.now() - tResTime0;
 
+        const expectedFailureMet = isExpectedFailureMet(
+          e2eForm.expectedFailure,
+          jsonSendedRequest
+        );
+        const passed = e2eForm.expectedFailure
+          ? expectedFailureMet
+          : jsonSendedRequest.success === true;
+
         const resultId = uid();
         const newResult = {
           id: resultId,
           request: { ...body, body: parsedHeaderBody.body },
           response: jsonSendedRequest,
           responseTime: tResPerformance,
+          passed,
+          expectedFailure: expectedFailureMet,
         };
 
         setRequestDetail((preReqDetails) => {
@@ -309,7 +440,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               sequnces[findedSequnceIdx].worstTime.time > tResPerformance
                 ? sequnces[findedSequnceIdx].worstTime
                 : { resultIdx, time: tResPerformance };
-            if (jsonSendedRequest.success) {
+            if (passed) {
               sequnces[findedSequnceIdx].success =
                 sequnces[findedSequnceIdx].success + 1;
             } else {
@@ -324,10 +455,11 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             sequnces.push({
               id: sequnceId,
               bodyHeader: e2eForm.bodyHeaders,
+              expectedFailure: e2eForm.expectedFailure,
               time: tResPerformance,
               repeat: 1,
-              success: jsonSendedRequest.success ? 1 : 0,
-              fails: jsonSendedRequest.success ? 0 : 1,
+              success: passed ? 1 : 0,
+              fails: passed ? 0 : 1,
               bestTime: { resultIdx, time: tResPerformance },
               worstTime: { resultIdx, time: tResPerformance },
               captures: e2eForm.captures.map(({ key, value }) => ({
@@ -363,10 +495,10 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             allReqPerformance:
               preReqDetails.allReqPerformance + tResPerformance,
             numberRequest: preReqDetails.numberRequest + 1,
-            success: jsonSendedRequest.success
+            success: passed
               ? preReqDetails.success + 1
               : preReqDetails.success,
-            fails: jsonSendedRequest.success
+            fails: passed
               ? preReqDetails.fails
               : preReqDetails.fails + 1,
             bestTime:
@@ -476,6 +608,15 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
             >
               <ExportIcon />
               <span>Export</span>
+            </button>
+            <button
+              className="btn e2e-back-button e2e-export_results-button e2e-copy-errors-button"
+              disabled={failures.length === 0}
+              title="Copy all error messages"
+              onClick={() => copyToClipboard(formatFailures(failures))}
+            >
+              <CopyIcon />
+              <span>Copy Errors</span>
             </button>
           </div>
           <div className="e2e-container--sequence-container--information-container">
@@ -600,51 +741,206 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                 </li>
               </ul>
             </div>
+            {expectedFailures.length > 0 && (
+              <div className="information-container--expected-fails">
+                <span className="information-container-label">
+                  Expected Failures
+                </span>{" "}
+                <ul className="information-container--fails--list">
+                  {expectedFailures.map((expected, idx) => (
+                    <li
+                      className="information-container--expected-fails--item"
+                      key={`${expected.sequenceIdx}-${expected.resultIdx}-${idx}`}
+                    >
+                      <div className="information-container--fails--item--header">
+                        <span
+                          className="information-container--request--sections--item--content e2e-sequensce-number"
+                          title="Go to sequence"
+                          onClick={() => handleClick(expected.sequenceIdx)}
+                        >
+                          Sequence {expected.sequenceIdx} / Request{" "}
+                          {expected.resultIdx}
+                        </span>
+                        {(expected.model || expected.act) && (
+                          <span className="information-container--fails--item--meta">
+                            {[expected.model, expected.act]
+                              .filter(Boolean)
+                              .join(" / ")}
+                          </span>
+                        )}
+                        <CopyButton
+                          text={expected.actualMessage ?? ""}
+                          title="Copy actual message"
+                        />
+                        <CopyButton
+                          text={JSON.stringify(
+                            {
+                              request: expected.request,
+                              response: expected.response,
+                            },
+                            null,
+                            2,
+                          )}
+                          title="Copy request and response"
+                        />
+                      </div>
+                      <p className="information-container--expected-fails--item--expected">
+                        Expected:{" "}
+                        {expected.expectedMessage || "any failure message"}
+                      </p>
+                      <p className="information-container--expected-fails--item--actual">
+                        Actual: {expected.actualMessage}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="information-container--fails">
+              <span className="information-container-label">Fails Request</span>{" "}
+              {failures.length === 0 ? (
+                <p className="information-container--fails--empty">
+                  No failed requests.
+                </p>
+              ) : (
+                <ul className="information-container--fails--list">
+                  {failures.map((failure, idx) => (
+                    <li
+                      className="information-container--fails--item"
+                      key={`${failure.sequenceIdx}-${failure.resultIdx}-${idx}`}
+                    >
+                      <div className="information-container--fails--item--header">
+                        <span
+                          className="information-container--request--sections--item--content e2e-sequensce-number"
+                          title="Go to sequence"
+                          onClick={() => handleClick(failure.sequenceIdx)}
+                        >
+                          Sequence {failure.sequenceIdx} / Request{" "}
+                          {failure.resultIdx}
+                        </span>
+                        {(failure.model || failure.act) && (
+                          <span className="information-container--fails--item--meta">
+                            {[failure.model, failure.act]
+                              .filter(Boolean)
+                              .join(" / ")}
+                          </span>
+                        )}
+                        <CopyButton
+                          text={failure.message}
+                          title="Copy error message"
+                        />
+                        <CopyButton
+                          text={JSON.stringify(
+                            {
+                              request: failure.request,
+                              response: failure.response,
+                            },
+                            null,
+                            2,
+                          )}
+                          title="Copy request and response"
+                        />
+                      </div>
+                      <p className="information-container--fails--item--message">
+                        {failure.message}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             {requestDetail.allCaptureItems.length > 0 && (
               <div className="information-container--captures">
-                <span className="information-container-label">
+                <span
+                  className="information-container-label e2e-foldable-label"
+                  onClick={() => setIsCapturesOpen(!isCapturesOpen)}
+                >
+                  <ChevronDownIcon
+                    className={`e2e-chevron ${
+                      isCapturesOpen ? "e2e-chevron--open" : ""
+                    }`}
+                  />
                   Captures Information
                 </span>{" "}
-                {requestDetail.allCaptureItems.map((ci) => (
-                  <ul
-                    className="information-container--captures--sections"
-                    key={uid()}
-                  >
-                    <span className="information-container-label">
-                      {ci.key}
-                    </span>
-                    <li>
-                      Captured From:{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {ci.captured}
-                      </span>
-                    </li>
-                    <li>
-                      Value Of{" "}
-                      <span className="information-container--request--sections--item--content">
-                        : {ci.value}
-                      </span>
-                    </li>
-                    <li>
-                      Model :{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {ci.model}
-                      </span>
-                    </li>
-                    <li>
-                      Act :{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {ci.act}
-                      </span>
-                    </li>
-                    <li>
-                      Captured Inside Sequnce Number:{" "}
-                      <span className="information-container--request--sections--item--content">
-                        {ci.sequenceIdx}
-                      </span>
-                    </li>
-                  </ul>
-                ))}
+                {isCapturesOpen &&
+                  requestDetail.allCaptureItems.map((ci, capIdx) => {
+                    const isItemOpen = openCaptureItems[capIdx] !== false;
+                    return (
+                      <ul
+                        className={`information-container--captures--sections ${
+                          isItemOpen
+                            ? ""
+                            : "information-container--captures--sections--closed"
+                        }`}
+                        key={`${ci.key}-${capIdx}`}
+                      >
+                        <span
+                          className="information-container-label e2e-foldable-label"
+                          onClick={() =>
+                            setOpenCaptureItems({
+                              ...openCaptureItems,
+                              [capIdx]: !isItemOpen,
+                            })
+                          }
+                        >
+                          <ChevronDownIcon
+                            className={`e2e-chevron ${
+                              isItemOpen ? "e2e-chevron--open" : ""
+                            }`}
+                          />
+                          {ci.key}
+                        </span>
+                        <div className="information-container--captures--sections--actions">
+                          <CopyButton
+                            text={JSON.stringify(ci, null, 2)}
+                            title="Copy capture item"
+                          />
+                        </div>
+                        {isItemOpen && (
+                          <Fragment>
+                            <li>
+                              Captured From:{" "}
+                              <span className="information-container--request--sections--item--content">
+                                {ci.captured}
+                              </span>
+                              <CopyButton
+                                text={String(ci.captured ?? "")}
+                                title="Copy captured from"
+                              />
+                            </li>
+                            <li>
+                              Value Of{" "}
+                              <span className="information-container--request--sections--item--content">
+                                : {ci.value}
+                              </span>
+                              <CopyButton
+                                text={String(ci.value ?? "")}
+                                title="Copy captured value"
+                              />
+                            </li>
+                            <li>
+                              Model :{" "}
+                              <span className="information-container--request--sections--item--content">
+                                {ci.model}
+                              </span>
+                            </li>
+                            <li>
+                              Act :{" "}
+                              <span className="information-container--request--sections--item--content">
+                                {ci.act}
+                              </span>
+                            </li>
+                            <li>
+                              Captured Inside Sequnce Number:{" "}
+                              <span className="information-container--request--sections--item--content">
+                                {ci.sequenceIdx}
+                              </span>
+                            </li>
+                          </Fragment>
+                        )}
+                      </ul>
+                    );
+                  })}
               </div>
             )}
           </div>
@@ -752,6 +1048,40 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
                         -
                       </button>
                     </div>
+                    <div className="e2e_sidebar__section-heading">
+                      expected failure
+                    </div>
+                    <label className="e2e-expected-failure--toggle">
+                      <input
+                        type="checkbox"
+                        checked={!!e2eForm.expectedFailure}
+                        onChange={(e: any) =>
+                          handeE2eFormDetails(
+                            idx,
+                            "expectedFailure",
+                            e.target.checked ? { message: "" } : undefined
+                          )
+                        }
+                      />
+                      <span>expect this request to fail</span>
+                    </label>
+                    {e2eForm.expectedFailure && (
+                      <Fragment>
+                        <input
+                          className="input"
+                          placeholder="expected error message (optional)"
+                          value={e2eForm.expectedFailure.message}
+                          onChange={(e: any) =>
+                            handeE2eFormDetails(idx, "expectedFailure", {
+                              message: e.target.value,
+                            })
+                          }
+                        />
+                        <div className="e2e-expected-failure--hint">
+                          Leave empty to accept any failure message.
+                        </div>
+                      </Fragment>
+                    )}
                     <div className="e2e_sidebar__section-heading">
                       capture variables
                     </div>
@@ -892,7 +1222,7 @@ export function E2E({ baseUrl }: { baseUrl: string; bodyHeaders?: string }) {
               <span>Export</span>
             </button>
             <a
-              href="https://miaadteam.github.io/lesan/playground.html"
+              href="https://miaadteam.github.io/lesan/docs/playground"
               target="_blank"
               className="btn btn-e2e-action e2e-back-button e2e-export_results-button"
             >

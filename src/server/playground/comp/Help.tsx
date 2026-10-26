@@ -60,7 +60,8 @@ export const Help = ({setView}: IHelpProps) => {
                   config in JSON format.
                 </li>
                 <li>
-                  Help: This button switches to the help of the E2E modal page.
+                  Help: This button opens the playground documentation in a new
+                  tab.
                 </li>
               </ul>
             </p>
@@ -128,6 +129,20 @@ export const Help = ({setView}: IHelpProps) => {
 
               <hr />
 
+              <section className="e2e_help--section---right-side">
+                <p>
+                  If a request is supposed to fail, tick{" "}
+                  <strong>expected failure</strong>{" "}
+                  in the sequence settings and optionally enter the message you
+                  expect. The message check is a substring match; leave it empty
+                  to accept any failure message. A matching failure counts as a
+                  pass, while an unexpected success or a different message counts
+                  as a failure.
+                </p>
+              </section>
+
+              <hr />
+
               <p>
                 Also, we have some buttons on the top right side of each request
                 section. With these buttons, you can move up and down and delete
@@ -147,6 +162,25 @@ export const Help = ({setView}: IHelpProps) => {
                 After clicking on the Run E2E Test button, you can see the
                 result of each test. Also, in the result view, you can export
                 the results in JSON format.
+              </p>
+              <p>
+                The result view includes an <strong>Expected Failures</strong>{" "}
+                panel (only when there are any) and a{" "}
+                <strong>Fails Request</strong>{" "}
+                panel. Each row shows the sequence and request index, model, act,
+                and messages. Click an index to jump to that sequence, or use the
+                copy buttons on each row to copy the message or the full
+                request/response. The <strong>Copy Errors</strong>{" "}
+                button at the top copies all unexpected failure messages at once.
+              </p>
+              <p>
+                The <strong>Captures Information</strong>{" "}
+                section and each captured item can be collapsed, captured values
+                have copy buttons, and the <strong>Body Header</strong>{" "}
+                and <strong>Description</strong>{" "}
+                panels of every sequence are collapsible. The request and
+                response panels also have copy buttons for the exact request and
+                response.
               </p>
               <img
                 src="https://github.com/MiaadTeam/lesan/assets/6236123/8c367965-a1b7-40b8-8638-60d2d0ea2609"

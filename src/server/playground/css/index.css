@@ -1905,6 +1905,215 @@ textarea {
   position: relative;
 }
 
+.information-container--captures--sections--closed {
+  padding-bottom: 5px;
+}
+
+.information-container--captures--sections--actions {
+  position: absolute;
+  top: -15px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #002929;
+  border: 1px solid gainsboro;
+  border-radius: 10px;
+  padding: 0 4px;
+}
+
+.e2e-copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  padding: 0 4px;
+  cursor: pointer;
+  vertical-align: middle;
+  color: bisque;
+}
+
+.e2e-copy-button:hover {
+  opacity: 0.7;
+}
+
+.e2e-copy-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.e2e-copy-button--copied {
+  font-size: 10px;
+  color: #00b800;
+}
+
+.e2e-foldable-label,
+.e2e-foldable-title {
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.e2e-foldable-title,
+.container-re-title.e2e-foldable-title {
+  justify-content: center;
+}
+
+.container-re-title.e2e-foldable-title {
+  display: inline-flex;
+}
+
+.e2e-chevron {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  transition: transform 0.2s ease;
+  transform: rotate(-90deg);
+}
+
+.e2e-chevron--open {
+  transform: rotate(0deg);
+}
+
+.information-container--fails {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid gainsboro;
+  border-radius: 7px;
+  padding: 30px 15px 10px 15px;
+  width: 100%;
+}
+
+.information-container--fails--empty {
+  margin: 0;
+  color: #9fb3b3;
+}
+
+.information-container--fails--list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.information-container--fails--item {
+  border: 1px solid rgba(204, 0, 0, 0.5);
+  border-radius: 7px;
+  padding: 8px 10px;
+  background-color: rgba(204, 0, 0, 0.08);
+}
+
+.information-container--fails--item--header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.information-container--fails--item--meta {
+  color: burlywood;
+  font-size: 12px;
+}
+
+.information-container--fails--item--message {
+  margin: 6px 0 0 0;
+  color: #ff9c9c;
+  overflow-wrap: anywhere;
+}
+
+.information-container--expected-fails {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(0, 184, 0, 0.5);
+  border-radius: 7px;
+  padding: 30px 15px 10px 15px;
+  width: 100%;
+}
+
+.information-container--expected-fails--item {
+  border: 1px solid rgba(0, 184, 0, 0.5);
+  border-radius: 7px;
+  padding: 8px 10px;
+  background-color: rgba(0, 184, 0, 0.08);
+}
+
+.information-container--expected-fails--item--expected {
+  margin: 6px 0 0 0;
+  color: #7ee787;
+  overflow-wrap: anywhere;
+}
+
+.information-container--expected-fails--item--actual {
+  margin: 4px 0 0 0;
+  color: #b6f0b6;
+  overflow-wrap: anywhere;
+}
+
+.e2e-expected {
+  color: gold;
+}
+
+.e2e-expected-badge {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7ee787;
+  border: 1px solid rgba(0, 184, 0, 0.5);
+  border-radius: 7px;
+  padding: 1px 6px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.e2e-expected-failure--toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: bisque;
+  margin: 4px 0 8px 0;
+}
+
+.e2e-expected-failure--toggle input {
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #00b800;
+}
+
+.e2e-expected-failure--hint {
+  color: #9fb3b3;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.e2e-copy-errors-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.e2e-result-copy {
+  position: absolute;
+  top: 50%;
+  right: 4.5rem;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
 .result-slider-container {
   display: flex;
   width: 100%;
@@ -1952,6 +2161,7 @@ textarea {
   border-bottom: 1px solid gainsboro;
   padding: 5px;
   background-color: rgba(20, 20, 20, 0.1);
+  position: relative;
 }
 
 .container-re--header--icon {

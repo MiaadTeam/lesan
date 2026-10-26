@@ -4,6 +4,7 @@ import { Fragment, h, useState } from "../reactDeps.ts";
 import { TSequenceDetail } from "./E2E.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { ResultSlider } from "./ResultSlider.tsx";
+import ChevronDownIcon from "./icon/ChevronDownIcon.tsx";
 import InfoIcon from "./icon/InfoIcon.tsx";
 import SortFromTopToBottomIcon from "./icon/SortFromTopToBottomIcon.tsx";
 
@@ -15,6 +16,12 @@ export function SequenceSlider({
   index: number;
 }) {
   const [isShowE2eResponse, setIsShowE2eResponse] = useState<boolean>(true);
+  const [isBodyHeaderOpen, setIsBodyHeaderOpen] = useState<boolean>(true);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState<boolean>(true);
+
+  const expectedFailuresCount = sequence.results.filter(
+    (result) => result.expectedFailure,
+  ).length;
 
   return (
     <div id={index.toString()} key={sequence.id} className="container-detail">
@@ -35,20 +42,43 @@ export function SequenceSlider({
                   <span>{index + 1}</span>
                 </div>
 
-                <span className="container-re-title">Body Header</span>
+                <span
+                  className="container-re-title e2e-foldable-title"
+                  onClick={() => setIsBodyHeaderOpen(!isBodyHeaderOpen)}
+                >
+                  <ChevronDownIcon
+                    className={`e2e-chevron ${
+                      isBodyHeaderOpen ? "e2e-chevron--open" : ""
+                    }`}
+                  />
+                  Body Header
+                </span>
               </div>
-              <div style={{ maxHeight: "27rem", overflowY: "scroll" }}>
-                <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
-              </div>
+              {isBodyHeaderOpen && (
+                <div style={{ maxHeight: "27rem", overflowY: "scroll" }}>
+                  <JSONViewer jsonData={JSON.parse(sequence.bodyHeader)} />
+                </div>
+              )}
             </section>
             <section className="sequence-re sequence-response ">
               <div className="container-re--header">
-                <span className="container-re-title">Description</span>
+                <span
+                  className="container-re-title e2e-foldable-title"
+                  onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+                >
+                  <ChevronDownIcon
+                    className={`e2e-chevron ${
+                      isDescriptionOpen ? "e2e-chevron--open" : ""
+                    }`}
+                  />
+                  Description
+                </span>
               </div>
-              <div
-                className="detail-sequence"
-                style={{ maxHeight: "27rem", overflowY: "scroll" }}
-              >
+              {isDescriptionOpen && (
+                <div
+                  className="detail-sequence"
+                  style={{ maxHeight: "27rem", overflowY: "scroll" }}
+                >
                 <div className="detail-sequence--sections">
                   <span className="sequnce-description-label">Requests</span>
                   {" "}
@@ -62,6 +92,11 @@ export function SequenceSlider({
                   <span className="e2e-fail">
                     Fails: <span>{sequence.fails}</span>
                   </span>
+                  {expectedFailuresCount > 0 && (
+                    <span className="e2e-expected">
+                      Expected Fails:<span>{expectedFailuresCount}</span>
+                    </span>
+                  )}
                   <span>
                     All Request Time: <span>{sequence.time.toFixed(2)} ms</span>
                   </span>
@@ -190,7 +225,8 @@ export function SequenceSlider({
                     ))}
                   </div>
                 )}
-              </div>
+                </div>
+              )}
             </section>
           </Fragment>
         )

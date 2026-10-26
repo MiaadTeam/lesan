@@ -72,6 +72,9 @@ export interface E2eForm {
   bodyHeaders: string;
   repeat: number;
   captures: { key: string; value: string }[];
+  expectedFailure?: {
+    message: string;
+  };
 }
 
 export enum MODAL_TYPES {

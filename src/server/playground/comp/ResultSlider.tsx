@@ -3,6 +3,7 @@ import { StateUpdater, h, useState } from "../reactDeps.ts";
 import { TResults } from "./E2E.tsx";
 import { JSONViewer } from "./JSONVeiwer.tsx";
 import { Pagination } from "./Pagination.tsx";
+import { CopyButton } from "./CopyButton.tsx";
 import InfoIcon2 from "./icon/InfoIcon2.tsx";
 import SortFromTopToBottomIcon from "./icon/SortFromTopToBottomIcon.tsx";
 
@@ -99,6 +100,11 @@ export const ResultSlider = ({
               <span>{index + 1}</span>
             </div>
             <span className="container-re-title">REQUEST</span>
+            <CopyButton
+              text={JSON.stringify(results[activePage].request, null, 2)}
+              title="Copy request"
+              className="e2e-result-copy e2e-result-copy--request"
+            />
           </div>
           <div style={{ maxHeight: "27rem", overflowY: "scroll" }}>
             <JSONViewer jsonData={results[activePage].request} />
@@ -106,7 +112,15 @@ export const ResultSlider = ({
         </section>
         <section className="container-re container-response">
           <div className="container-re--header">
+            {results[activePage].expectedFailure && (
+              <span className="e2e-expected-badge">expected failure</span>
+            )}
             <span className="container-re-title">RESPONSE</span>
+            <CopyButton
+              text={JSON.stringify(results[activePage].response, null, 2)}
+              title="Copy response"
+              className="e2e-result-copy e2e-result-copy--response"
+            />
             <span className="e2e-re-timeNumber-request">
               {results[activePage].responseTime}ms
             </span>
