@@ -1,6 +1,6 @@
 {
   "name": "@hemedani/lesan",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A blazing-fast, cross-platform (Node.js, Bun, Deno) web framework and ODM for MongoDB with GraphQL-like client-driven data retrieval.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
